@@ -31,8 +31,10 @@ const EmployerHeader = () => {
     }, []);
 
     const candidatesOptions = [
-        { name: 'Add New Candidates', path: '/employer/new-candidate' },
-        { name: 'Search Candidates', path: '/employer/search' },
+        { name: 'List Candidates', path: '/employer/new-candidate' },
+        { name: 'Shortlisted Candidates', path: '/employer/shortlisted-candidates' },
+            { name: 'Saved Candidates', path: '/employer/saved-candidates' },
+                { name: 'Search Candidates', path: '/employer/search' },
     ];
 
     const jobsOptions = [

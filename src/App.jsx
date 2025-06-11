@@ -43,6 +43,8 @@ import ApplyJob from './pages/public/Jobs/ApplyJob';
 import EmployeProfile from './pages/public/EmployerProfile';
 import SavedJobs from './pages/public/Jobs/SavedJobs';
 import EmployeerJobDetails from './pages/employer/EmployeerJobDetails';
+import EmployeerShortlisedCandidates from './pages/employer/EmployeerShortlisedCandidates';
+import EmployeerSavedCandidates from './pages/employer/EmployeerSavedCandidates';
 
 function App() {
   return (
@@ -57,6 +59,8 @@ function App() {
 
         <Route element={<EmployerLayout />}>
           <Route path='/employer/new-candidate' element={<EmployerCandidates />} />
+            <Route path='/employer/shortlisted-candidates' element={<EmployeerShortlisedCandidates />} />
+             <Route path='/employer/saved-candidates' element={<EmployeerSavedCandidates />} />
           <Route path='/employer/login' element={<EmployerLoginPage />} />
           <Route path='/employer/register' element={<EmployeerRegister />} />
           <Route path='/employer/search' element={<EmployeerCandidatesSearch />} />
