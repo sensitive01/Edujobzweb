@@ -169,7 +169,7 @@
 // export default LoginPage;
 
 
-// only candidates login
+// only Employee login
 
 
 import React from 'react';
@@ -210,7 +210,7 @@ const LoginPage = () => {
               <span className="jobplugin__userbox-bar jobplugin__bg-primary"></span>
               <span className="jobplugin__userbox-bar"></span>
               
-              <h1 className="text-secondary h3 mb-0">Candidate Login</h1>
+              <h1 className="text-secondary h3 mb-0">Login To Continue</h1>
               <br />
 
               {error && (
@@ -222,7 +222,7 @@ const LoginPage = () => {
               <form onSubmit={handleSubmit}>
                 <div className="jobplugin__form">
                   <div className="jobplugin__form-row">
-                    <div className="jobplugin__form-field">
+                    <div className="jobplugin__form-field col-md-6">
                       <input 
                         type="email" 
                         name="email"
@@ -233,11 +233,8 @@ const LoginPage = () => {
                         placeholder="Email Address" 
                       />
                       {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-                    </div>
-                  </div>
-                  
-                  <div className="jobplugin__form-row">
-                    <div className="jobplugin__form-field" style={{ position: 'relative' }}>
+                    </div>                  
+                    <div className="jobplugin__form-field col-md-6" style={{ position: 'relative' }}>
                       <input 
                         type={passwordInputType}
                         name="password"

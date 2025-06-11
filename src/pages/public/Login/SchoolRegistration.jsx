@@ -1,327 +1,37 @@
-// import React from 'react';
-// import { FaUserCircle } from 'react-icons/fa';
-
-// const SchoolRegistration = () => {
-//   return (
-//     <>
-//       {/* Sub Visual of the page */}
-//       <div className="subvisual-block subvisual-theme-1 bg-secondary d-flex pt-60 pt-md-90 pt-lg-150 pb-30 text-white">
-//         <div className="container position-relative text-center">
-//           <div className="row">
-//             <div className="col-12">
-//               <div className="subvisual-textbox">
-//                 <h1 className="text-primary mb-0">School Registration</h1>
-//                 <p>Feel free to get in touch with us. Need Help?</p>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* Main content */}
-//       <main className="jobplugin__main">
-//         <div className="jobplugin__main-holder">
-//           <span className="jobplugin__pattern default-right"></span>
-//           <span className="jobplugin__pattern default-left"></span>
-          
-//           <div className="jobplugin__visual-pattern">
-//             <img src="images/visual-pattern.png" alt="Decorative pattern" />
-//           </div>
-//           <br />
-          
-//           <div className="jobplugin__container">
-//             {/* User Box */}
-//             <div className="jobplugin__userbox bg-light shadow">
-//               <span className="jobplugin__userbox-bar jobplugin__bg-primary"></span>
-              
-//               {/* Social Login Options */}
-//               <div style={{ textAlign: 'center' }}>
-//                 <p className="mb-0"><b>Continue With</b></p>
-//                 <a href="#" className="button-continue bg-white text-secondary btn-app border border-secondary btn-play-store">
-//                   <span className="rj-icon rj-google"></span>
-//                 </a>
-//                 <a href="#" className="button-continue btn-app btn-app-store bg-secondary">
-//                   <span className="btn-text">In</span>
-//                 </a>
-//                 <a href="#" className="button-continue btn-app btn-app-store">
-//                   <span className="rj-icon rj-apple"></span>
-//                 </a>
-//               </div>
-//               <br />
-              
-//               <div className="jobplugin__userbox-seperator">
-//                 <span className="bg-light">or</span>
-//               </div>
-              
-//               {/* Registration Form */}
-//               <h1 className="text-secondary h3">Sign Up as School</h1>
-//               <form action="#">
-//                 <div className="jobplugin__form">
-//                   {/* School Name */}
-//                   <label htmlFor="schoolname">School / company Full Name</label>
-//                   <div className="jobplugin__form-row">
-//                     <div className="jobplugin__form-field">
-//                       <input 
-//                         type="text" 
-//                         id="schoolname" 
-//                         style={{ padding: '5px 30px' }} 
-//                         className="form-control" 
-//                         placeholder="School Full Name" 
-//                       />
-//                     </div>
-//                   </div>
-                  
-//                   {/* Name Fields */}
-//                   <div className="jobplugin__form-row">
-//                     <div className="jobplugin__form-field">
-//                       <input 
-//                         type="text" 
-//                         placeholder="First Name" 
-//                         style={{ padding: '5px 30px' }} 
-//                         className="form-control" 
-//                       />
-//                     </div>
-//                     <div className="jobplugin__form-field">
-//                       <input 
-//                         type="text" 
-//                         placeholder="Last Name" 
-//                         style={{ padding: '5px 30px' }} 
-//                         className="form-control" 
-//                       />
-//                     </div>
-//                   </div>
-                  
-//                   {/* Contact Info */}
-//                   <div className="jobplugin__form-row">
-//                     <div className="jobplugin__form-field">
-//                       <input 
-//                         type="text" 
-//                         placeholder="Preferable contact Number" 
-//                         style={{ padding: '5px 30px' }} 
-//                         className="form-control" 
-//                       />
-//                     </div>
-//                     <div className="jobplugin__form-field">
-//                       <input 
-//                         type="url" 
-//                         placeholder="Website" 
-//                         style={{ padding: '5px 30px' }} 
-//                         className="form-control" 
-//                       />
-//                     </div>
-//                   </div>
-                  
-//                   {/* Address Section */}
-//                   <label htmlFor="address">Address</label>
-//                   <div className="jobplugin__form-row">
-//                     <div className="jobplugin__form-field">
-//                       <input 
-//                         type="text" 
-//                         className="form-control" 
-//                         style={{ padding: '5px 30px' }} 
-//                         placeholder="Door No / Building / Street Name, etc" 
-//                       />
-//                     </div>
-//                     <div className="jobplugin__form-field">
-//                       <input 
-//                         type="text" 
-//                         className="form-control" 
-//                         style={{ padding: '5px 30px' }} 
-//                         placeholder="Area" 
-//                       />
-//                     </div>
-//                   </div>
-                  
-//                   {/* Location Dropdowns */}
-//                   <div className="jobplugin__form-row">
-//                     <div className="jobplugin__form-field">
-//                       <select className="select2" name="state" data-placeholder="Select State">
-//                         <option label="Placeholder"></option>
-//                         <option value="karnataka">Karnataka</option>
-//                       </select>
-//                     </div>
-//                     <div className="jobplugin__form-field">
-//                       <select className="select2" name="state" data-placeholder="Select City">
-//                         <option label="Placeholder"></option>
-//                         <option value="bengaluru">Bengaluru</option>
-//                         <option value="mysuru">Mysuru</option>
-//                       </select>
-//                     </div>
-//                   </div>
-                  
-//                   {/* Additional Address Info */}
-//                   <div className="jobplugin__form-row">
-//                     <div className="jobplugin__form-field">
-//                       <input 
-//                         type="text" 
-//                         className="form-control" 
-//                         style={{ padding: '5px 30px' }} 
-//                         placeholder="Pincode" 
-//                       />
-//                     </div>
-//                     <div className="jobplugin__form-field">
-//                       <input 
-//                         type="text" 
-//                         className="form-control" 
-//                         style={{ padding: '5px 30px' }} 
-//                         placeholder="Landmark" 
-//                       />
-//                     </div>
-//                   </div>
-                  
-//                   {/* School Info */}
-//                   <div className="jobplugin__form-row">
-//                     <div className="jobplugin__form-field">
-//                       <select className="select2" name="state" data-placeholder="Select Board">
-//                         <option label="Placeholder"></option>
-//                         <option value="cbsc">CBSC</option>
-//                       </select>
-//                     </div>
-//                     <div className="jobplugin__form-field">
-//                       <select className="select2" name="state" data-placeholder="Type of Institution">
-//                         <option label="Placeholder"></option>
-//                       </select>
-//                     </div>
-//                   </div>
-                  
-//                   {/* Login Information */}
-//                   <label htmlFor="login">Login Information</label>
-//                   <div className="jobplugin__form-row">
-//                     <div className="jobplugin__form-field">
-//                       <input 
-//                         type="email" 
-//                         className="form-control" 
-//                         style={{ padding: '5px 30px' }} 
-//                         placeholder="Email Address" 
-//                       />
-//                     </div>
-//                   </div>
-                  
-//                   {/* Password Fields */}
-//                   <div className="jobplugin__form-row">
-//                     <div className="jobplugin__form-field">
-//                       <input 
-//                         type="password" 
-//                         className="form-control" 
-//                         style={{ padding: '5px 30px' }} 
-//                         placeholder="Password (8 or more characters)" 
-//                       />
-//                     </div>
-//                     <div className="jobplugin__form-field">
-//                       <input 
-//                         type="password" 
-//                         className="form-control" 
-//                         style={{ padding: '5px 30px' }} 
-//                         placeholder="Confirm Password" 
-//                       />
-//                     </div>
-//                   </div>
-                  
-//                   <hr />
-                  
-//                   {/* Checkbox Options */}
-//                   <div className="jobplugin__form-row">
-//                     <div className="jobplugin__form-field mb-0">
-//                       <label className="jobplugin__form-checkbox">
-//                         <input type="checkbox" />
-//                         <span className="jobplugin__form-checkbox__btn"></span>
-//                       </label>
-//                       <span className="label-text">
-//                         Send me helpful emails to find resources and job leads.
-//                       </span>
-//                     </div>
-//                   </div>
-                  
-//                   <div className="jobplugin__form-row">
-//                     <div className="jobplugin__form-field">
-//                       <label className="jobplugin__form-checkbox">
-//                         <input type="checkbox" />
-//                         <span className="jobplugin__form-checkbox__btn"></span>
-//                       </label>
-//                       <span className="label-text">
-//                         Yes, I understand and agree to the{' '}
-//                         <a className="hover:jobplugin__text-primary" href="#">
-//                           Terms of Service
-//                         </a>, including the{' '}
-//                         <a className="hover:jobplugin__text-primary" href="#">
-//                           User Agreement
-//                         </a> and{' '}
-//                         <a className="hover:jobplugin__text-primary" href="#">
-//                           Privacy Policy
-//                         </a>.
-//                       </span>
-//                     </div>
-//                   </div>
-//                 </div>
-                
-//                 {/* Submit Button */}
-//                 <div className="jobplugin__userbox-button">
-//                   <button 
-//                     type="button" 
-//                     className="jobplugin__button large jobplugin__bg-primary hover:jobplugin__bg-secondary"
-//                   >
-//                     <i className="icon icon-briefcase3 text-primary" style={{ fontSize: '14px' }}></i>
-//                     &nbsp; Signup
-//                   </button>
-//                 </div>
-//               </form>
-              
-//               <br />
-              
-//               {/* Login Link */}
-//               <div className="jobplugin__userbox-seperator mb-0">
-//                 <span className="bg-light">or</span>
-//               </div>
-//               <p className="jobplugin__userbox-textinfo mt-0">
-//                 Already have an account? &nbsp;{' '}
-//                 <a 
-//                   className="hover:jobplugin__text-primary" 
-//                   href="login" 
-//                   style={{ textDecoration: 'none' }}
-//                 >
-//                   <FaUserCircle /> Log In
-//                 </a>
-//               </p>
-//             </div>
-//           </div>
-//           <br />
-//         </div>
-//       </main>
-//     </>
-//   );
-// };
-
-// export default SchoolRegistration;
-
-
-
-import React  from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { validationsEmployeer } from '../../../utils/validationsEmployeer';
-import { useRegistrationForm } from '../../../hooks/useRegistrationForm';
+import { useEmployerRegstForm } from '../../../hooks/useEmployerRegstForm';
 import { useEmployeeRegistration } from '../../../hooks/useEmployeeRegistration';
 import { usePasswordToggle } from '../../../hooks/usePasswordToggle';
 import { useAutoClearMessages } from '../../../hooks/useAutoClearMessages';
 
 const SchoolRegistration = () => {
-  const navigate =  useNavigate();
+  const navigate = useNavigate();
   const { schoolregister, isLoading, error, success, clearMessages } = useEmployeeRegistration();
   const [passwordInputType, passwordIcon, togglePassword] = usePasswordToggle();
   const [confirmPasswordInputType, confirmPasswordIcon, toggleConfirmPassword] = usePasswordToggle();
+  const [institutionType, setInstitutionType] = React.useState('school');
   
   useAutoClearMessages();
 
-  const { values, errors, handleChange, handleSubmit } = useRegistrationForm(
+  const { values, errors, handleChange, handleSubmit } = useEmployerRegstForm(
     async (formValues) => {
       const { confirmPassword, ...schoolData } = formValues;
       const response = await schoolregister(schoolData);
       if (response) {
-        setTimeout(() => navigate('/login'),2000);
+        setTimeout(() => navigate('/login'), 2000);
       }
     },
     validationsEmployeer
   );
+
+  const handleInstitutionTypeChange = (e) => {
+    setInstitutionType(e.target.value);
+    // Clear the school/company name when changing type
+    handleChange({ target: { name: 'schoolName', value: '' } });
+  };
 
   return (
     <>
@@ -330,7 +40,7 @@ const SchoolRegistration = () => {
           <div className="row">
             <div className="col-12">
               <div className="subvisual-textbox">
-                <h1 className="text-primary mb-0">Candidates  Registration</h1>
+                <h1 className="text-primary mb-0">Employer Registration</h1>
                 <p>Feel free to get in touch with us. Need Help?</p>
               </div>
             </div>
@@ -351,7 +61,7 @@ const SchoolRegistration = () => {
             <div className="jobplugin__userbox bg-light shadow">
               <span className="jobplugin__userbox-bar jobplugin__bg-primary"></span>
               
-              <div style={{ textAlign: 'center' }}>
+              {/* <div style={{ textAlign: 'center' }}>
                 <p className="mb-0"><b>Continue With</b></p>
                 <a href="#" className="button-continue bg-white text-secondary btn-app border border-secondary btn-play-store">
                   <span className="rj-icon rj-google"></span>
@@ -367,9 +77,9 @@ const SchoolRegistration = () => {
               
               <div className="jobplugin__userbox-seperator">
                 <span className="bg-light">or</span>
-              </div>
+              </div> */}
               
-              <h1 className="text-secondary h3">Sign Up as School</h1>
+              <h1 className="text-secondary h3">Sign Up as an Employer</h1>
               
               <form onSubmit={handleSubmit}>
                 <div className="jobplugin__form">
@@ -389,19 +99,68 @@ const SchoolRegistration = () => {
                     </div>
                   )}
                   
+                  {/* Institution Type Dropdown - Full Width */}
+                  <div className="jobplugin__form-row">
+                    <div className="jobplugin__form-field" style={{ width: '100%' }}>
+                      <select
+                        name="employerType"
+                        value={institutionType}
+                        onChange={handleInstitutionTypeChange}
+                        className="form-control"
+                        style={{ padding: '5px 30px', width: '100%' }}
+                      >
+                        <option value="school">School</option>
+                        <option value="company">Company</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  {/* Institution Name Field - Full Width */}
+                  <div className="jobplugin__form-row">
+                    <div className="jobplugin__form-field" style={{ width: '100%' }}>
+                      <input 
+                        type="text" 
+                        name="schoolName"
+                        placeholder={institutionType === 'school' ? 'School Name' : 'Company Name'} 
+                        value={values.schoolName || ''}
+                        onChange={handleChange}
+                        className={`form-control ${errors.schoolName ? 'is-invalid' : ''}`}
+                        style={{ padding: '5px 30px', width: '100%' }}
+                      />
+                      {errors.schoolName && <div className="invalid-feedback">{errors.schoolName}</div>}
+                    </div>
+                  </div>
+                  
+                  {/* First Name and Last Name */}
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <input 
                         type="text" 
-                        name="schoolName"
-                        placeholder="School Name" 
-                        value={values.schoolName || ''}
+                        name="firstName"
+                        placeholder="First Name" 
+                        value={values.firstName || ''}
                         onChange={handleChange}
-                        className={`form-control ${errors.schoolName ? 'is-invalid' : ''}`}
+                        className={`form-control ${errors.firstName ? 'is-invalid' : ''}`}
                         style={{ padding: '5px 30px' }}
                       />
-                      {errors.schoolName && <div className="invalid-feedback">{errors.schoolName}</div>}
+                      {errors.firstName && <div className="invalid-feedback">{errors.firstName}</div>}
                     </div>
+                    <div className="jobplugin__form-field">
+                      <input 
+                        type="text" 
+                        name="lastName"
+                        placeholder="Last Name" 
+                        value={values.lastName || ''}
+                        onChange={handleChange}
+                        className={`form-control ${errors.lastName ? 'is-invalid' : ''}`}
+                        style={{ padding: '5px 30px' }}
+                      />
+                      {errors.lastName && <div className="invalid-feedback">{errors.lastName}</div>}
+                    </div>
+                  </div>
+                  
+                  {/* Email and Phone */}
+                  <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <input 
                         type="email" 
@@ -414,9 +173,6 @@ const SchoolRegistration = () => {
                       />
                       {errors.userEmail && <div className="invalid-feedback">{errors.userEmail}</div>}
                     </div>
-                  </div>
-                  
-                  <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <input 
                         type="text" 
@@ -429,6 +185,10 @@ const SchoolRegistration = () => {
                       />
                       {errors.userMobile && <div className="invalid-feedback">{errors.userMobile}</div>}
                     </div>
+                  </div>
+                  
+                  {/* Passwords */}
+                  <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field" style={{ position: 'relative' }}>
                       <input 
                         type={passwordInputType}
@@ -458,9 +218,6 @@ const SchoolRegistration = () => {
                       </button>
                       {errors.userPassword && <div className="invalid-feedback">{errors.userPassword}</div>}
                     </div>
-                  </div>
-                  
-                  <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field" style={{ position: 'relative' }}>
                       <input 
                         type={confirmPasswordInputType}
@@ -490,13 +247,11 @@ const SchoolRegistration = () => {
                       </button>
                       {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
                     </div>
-                    <div className="jobplugin__form-field">
-                      {/* Empty field to maintain layout */}
-                    </div>
                   </div>
                   
                   <hr />
                   
+                  {/* Checkboxes */}
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field mb-0">
                       <label className="jobplugin__form-checkbox">

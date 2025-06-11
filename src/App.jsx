@@ -52,15 +52,15 @@ function App() {
       <Routes>
         {/* Auth routes without Layout */}
         {/* <Route path='/' element={<HomePage />} /> */}
-        <Route path='/login' element={<LoginPage />} />
-        <Route path='/signup' element={<SignupPage />} />
+        {/* <Route path='/login' element={<LoginPage />} />
+        <Route path='/signup' element={<SignupPage />} /> */}
         {/* <Route path='/employee-registration' element={<EmployeeRegistration />} /> */}
-        <Route path='/school-registration' element={<SchoolRegistration />} />
+        {/* <Route path='/school-registration' element={<SchoolRegistration />} /> */}
 
         <Route element={<EmployerLayout />}>
           <Route path='/employer/new-candidate' element={<EmployerCandidates />} />
-            <Route path='/employer/shortlisted-candidates' element={<EmployeerShortlisedCandidates />} />
-             <Route path='/employer/saved-candidates' element={<EmployeerSavedCandidates />} />
+          <Route path='/employer/shortlisted-candidates' element={<EmployeerShortlisedCandidates />} />
+          <Route path='/employer/saved-candidates' element={<EmployeerSavedCandidates />} />
           <Route path='/employer/login' element={<EmployerLoginPage />} />
           <Route path='/employer/register' element={<EmployeerRegister />} />
           <Route path='/employer/search' element={<EmployeerCandidatesSearch />} />
@@ -103,7 +103,12 @@ function App() {
               <Route path='/post-job' element={<PostJob />} />
               <Route path='/candidate-apply-list' element={<CandidatesListEmployeer />} />
               <Route path='/apply/:id' element={<ApplyJob />} />
-                <Route path='/employee-registration' element={<EmployeeRegistration />} />
+
+              
+              <Route path='/login' element={<LoginPage />} />
+              <Route path='/signup' element={<SignupPage />} />
+              <Route path='/employee-registration' element={<EmployeeRegistration />} />
+              <Route path='/school-registration' element={<SchoolRegistration />} />
             </Routes>
           </Layout>
         } />

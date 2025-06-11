@@ -40,7 +40,7 @@ const SignupPage = () => {
                       />
                       <span className="jobplugin__usertype-radio__item">
                         <span className="jobplugin__usertype-radio__btn"></span>
-                        For Employeer
+                        For Employee
                       </span>
                     </label>
                     
@@ -53,7 +53,7 @@ const SignupPage = () => {
                       />
                       <span className="jobplugin__usertype-radio__item">
                         <span className="jobplugin__usertype-radio__btn"></span>
-                        For Candidates
+                        For Employer
                       </span>
                     </label>
                   </div>
@@ -78,7 +78,7 @@ const SignupPage = () => {
                           transition: 'all 0.3s ease'
                         }} 
                       /> 
-                      {selectedType === 'employee' ? 'Join as an Employee' : 'Join as a School'}
+                      {selectedType === 'employee' ? 'Join as an Employee' : 'Join as an Employer'}
                     </a>
                   </div>
                 </div>
@@ -94,7 +94,7 @@ const SignupPage = () => {
                 Already have an account?{' '}
                 <a 
                   className="hover:jobplugin__text-primary" 
-                  href="/" 
+                  href="/login" 
                   style={{
                     textDecoration: 'none',
                     color: 'black',

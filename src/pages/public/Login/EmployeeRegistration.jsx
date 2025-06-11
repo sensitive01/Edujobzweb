@@ -330,7 +330,7 @@ const EmployeeRegistration = () => {
               
               <div style={{ textAlign: 'center' }}>
                 <p className="mb-0"><b>Continue With</b></p>
-                <a href="#" className="button-continue bg-white text-secondary btn-app border border-secondary btn-play-store">
+                <a href="#" className="button-continue bg-white text-primary btn-app border border-secondary btn-play-store">
                   <span className="rj-icon rj-google"></span>
                 </a>
                 <a href="#" className="button-continue btn-app btn-app-store bg-secondary">
