@@ -9,7 +9,7 @@ const EmployerHeader = () => {
     const [jobsDropdown, setJobsDropdown] = useState(false);
     const [notificationDropdown, setNotificationDropdown] = useState(false);
     const [profileDropdown, setProfileDropdown] = useState(false);
-    
+
     const notificationRef = useRef(null);
     const profileRef = useRef(null);
 
@@ -31,15 +31,16 @@ const EmployerHeader = () => {
     }, []);
 
     const candidatesOptions = [
+        { name: 'Search Candidates', path: '/employer/search' },
+        { name: 'Saved Candidates', path: '/employer/saved-candidates' },
         { name: 'List Candidates', path: '/employer/new-candidate' },
-        { name: 'Shortlisted Candidates', path: '/employer/shortlisted-candidates' },
-            { name: 'Saved Candidates', path: '/employer/saved-candidates' },
-                { name: 'Search Candidates', path: '/employer/search' },
     ];
 
     const jobsOptions = [
         { name: 'Post Jobs', path: '/employer/post-jobs' },
         { name: 'List Jobs', path: '/employer/post-jobs' },
+          { name: 'Applied Candidates', path: '/employer/applied-candidates' },
+        { name: 'Shortlisted Candidates', path: '/employer/shortlisted-candidates' },
     ];
 
     const notifications = [
@@ -330,7 +331,7 @@ const EmployerHeader = () => {
                             </div>
                         )}
                     </div>
-                    
+
                     {/* Profile Dropdown */}
                     <div className="dropdown position-relative" ref={profileRef}>
                         <button

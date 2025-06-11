@@ -25,6 +25,7 @@ const JobDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [favoriteStatus, setfavoriteStatus] = useState(false)
 
   const toggleModal = () => setShowModal(!showModal);
 
@@ -38,14 +39,40 @@ const JobDetailsPage = () => {
     });
   };
 
+  const toggleFavorite = async (applicantId) => {
+    try {
+      const newFavoriteStatus = !favoriteStatus;
+      const response = await axios.put(`https://edujobzbackend.onrender.com/employer/updatefavorite/${id}/${applicantId}`,
+        { favourite: newFavoriteStatus },
+        {
+          header: {
+            'Authorization': `Bearer ${localStorage.getItem('employerToken')}`
+          }
+        }
+      );
+      if (response.data.success) {
+        setfavoriteStatus(newFavoriteStatus);
+        const updatedJob = { ...job };
+        const application = updatedJob.applications.find(app => app.applicantId === applicantId);
+        if (application) {
+          application.favourite = newFavoriteStatus;
+          setJob(updatedJob);
+        }
+      }
+    } catch (err) {
+      console.error('Error updating favorite status:', err);
+      setError(err.response?.data?.message || 'Failed to update favorite status');
+    }
+  };
+
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const employerData = JSON.parse(localStorage.getItem('employerData'));
-        
+
         if (!employerData || !employerData._id) {
           throw new Error('Employer not authenticated');
         }
@@ -55,12 +82,15 @@ const JobDetailsPage = () => {
             'Authorization': `Bearer ${localStorage.getItem('employerToken')}`
           }
         });
-        
+
         if (!response.data) {
           throw new Error('No job data received');
         }
-        
+
         setJob(response.data);
+        if (response.data.applications && response.data.applications.length > 0) {
+          setfavoriteStatus(response.data.applications[0].favourite || false);
+        }
       } catch (err) {
         setError(err.response?.data?.message || err.message || 'Failed to fetch job details');
         console.error('Error fetching job details:', err);
@@ -72,13 +102,13 @@ const JobDetailsPage = () => {
     const fetchRelatedJobs = async () => {
       try {
         const employerData = JSON.parse(localStorage.getItem('employerData'));
-        
+
         if (!employerData || !employerData._id) {
           return;
         }
-  
+
         const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`);
-        
+
         if (response.data && response.data.length > 0) {
           // Filter out the current job and limit to 4 related jobs
           const filtered = response.data
@@ -96,7 +126,7 @@ const JobDetailsPage = () => {
               icon: job.employerProfilePic || "default.svg",
               isRemote: job.isRemote || false
             }));
-          
+
           setRelatedJobs(filtered);
         }
       } catch (err) {
@@ -141,6 +171,10 @@ const JobDetailsPage = () => {
     );
   }
 
+  const firstApplicantId = job.applications && job. applications.length > 0
+  ? job.applications[0].applicantId
+  :null;
+
   return (
     <>
       <EmployerHeader />
@@ -154,11 +188,11 @@ const JobDetailsPage = () => {
             <span><img src={jobBg04} className="job-bg-04" alt="Background" /></span>
           </div>
         </div>
-        
+
         <h6 className="fw-medium d-flex align-items-center">
           <Link to="/employer/post-jobs">&nbsp; <i className="ti ti-arrow-left me-2"></i>Back to Jobs</Link>
         </h6>
-        
+
         <div className="content px-0">
           <div className="container">
             {/* Job Header Card */}
@@ -169,10 +203,10 @@ const JobDetailsPage = () => {
                     <div className="d-flex align-items-center mb-3">
                       <a href="#" className="me-2">
                         <span className="avatar avatar-lg bg-gray">
-                          <img 
-                            src={job.employerProfilePic || appleIcon} 
-                            className="w-auto h-auto" 
-                            alt="Company" 
+                          <img
+                            src={job.employerProfilePic || appleIcon}
+                            className="w-auto h-auto"
+                            alt="Company"
                             onError={(e) => {
                               e.target.onerror = null;
                               e.target.src = appleIcon;
@@ -200,7 +234,7 @@ const JobDetailsPage = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="row align-items-center">
                   <div className="col-xl-6 col-md-6">
                     <div className="d-flex align-items-center flex-wrap row-gap-2">
@@ -220,27 +254,32 @@ const JobDetailsPage = () => {
                   </div>
                   <div className="col-xl-6 col-md-6">
                     <div className="d-flex align-items-center justify-content-end">
-                      <button 
-                        className="btn btn-secondary flex-fill me-2" 
+                      <button
+                        className="btn btn-secondary flex-fill me-2"
                         onClick={toggleModal}
                       >
                         <i className="ti ti-user-check"></i> Apply for a Candidate
                       </button>
-                      <Link 
-                        to={`/employer/post-jobs/${id}/applicants`} 
+                      <Link
+                        to={`/employer/shortlisted-candidate-byjob/${id}`}
                         className="btn btn-primary flex-fill me-2"
                       >
-                        <i className="ti ti-circle-check"></i> Applied Candidates
+                        <i className="ti ti-circle-check"></i> Shortlisted Candidates
                       </Link>
-                      <button className="btn btn-icon bg-transparent-dark text-primary">
-                        <i className="ti ti-star"></i>
-                      </button>
+
+                      {firstApplicantId && (
+                        <button className= {`btn btn-icon ${favoriteStatus ? 'bg-warning text-white' : 'bg-transparent-dark text-primary'}`}
+                        onClick={() => toggleFavorite(firstApplicantId)}>
+                          <i className='ti ti-star'></i>
+
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            
+
             <div className="row">
               {/* Main Content */}
               <div className="col-lg-8">
@@ -331,7 +370,7 @@ const JobDetailsPage = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Job Description */}
                 <div className="card">
                   <div className="card-body">
@@ -343,7 +382,7 @@ const JobDetailsPage = () => {
                     </p>
                   </div>
                 </div>
-                
+
                 {/* Requirements */}
                 {job.skills && job.skills.length > 0 && (
                   <div className="card">
@@ -354,10 +393,10 @@ const JobDetailsPage = () => {
                       <ul>
                         {job.skills.map((skill, index) => (
                           <li key={index} className="d-flex align-items-center mb-2">
-                            <img 
-                              src={index % 3 === 0 ? appleIcon : index % 3 === 1 ? phpIcon : reactIcon} 
-                              className="me-1" 
-                              alt="Icon" 
+                            <img
+                              src={index % 3 === 0 ? appleIcon : index % 3 === 1 ? phpIcon : reactIcon}
+                              className="me-1"
+                              alt="Icon"
                             />
                             {skill}
                           </li>
@@ -366,7 +405,7 @@ const JobDetailsPage = () => {
                     </div>
                   </div>
                 )}
-                
+
                 {/* Benefits */}
                 {job.benefits && (
                   <div className="card">
@@ -380,7 +419,7 @@ const JobDetailsPage = () => {
                     </div>
                   </div>
                 )}
-                
+
                 {/* Share Job */}
                 <div className="d-flex align-items-center mb-4">
                   <h5 className="text-primary me-3">Share this job</h5>
@@ -388,16 +427,16 @@ const JobDetailsPage = () => {
                     <a href="#" className="btn border btn-white me-2">
                       <img src={socialIcons} alt="Social" />
                     </a>
-                    <a href="#" class="btn border btn-white me-2"><img src={socialIcons1} alt="Social"/></a>
-									<a href="#" class="btn border btn-white me-2"><img src={socialIcons2} alt="Social"/></a>
-									<a href="#" class="btn border btn-white me-2"><img src={socialIcons3} alt="Social"/></a>
-									<a href="#" class="btn border btn-white me-2"><img src={socialIcons4} alt="Social"/></a>
-									<a href="#" class="btn border btn-white me-2"><img src={socialIcons5} alt="Social"/></a>
+                    <a href="#" class="btn border btn-white me-2"><img src={socialIcons1} alt="Social" /></a>
+                    <a href="#" class="btn border btn-white me-2"><img src={socialIcons2} alt="Social" /></a>
+                    <a href="#" class="btn border btn-white me-2"><img src={socialIcons3} alt="Social" /></a>
+                    <a href="#" class="btn border btn-white me-2"><img src={socialIcons4} alt="Social" /></a>
+                    <a href="#" class="btn border btn-white me-2"><img src={socialIcons5} alt="Social" /></a>
                     {/* Add other social icons similarly */}
                   </div>
                 </div>
               </div>
-              
+
               {/* Sidebar */}
               <div className="col-lg-4 theiaStickySidebar">
                 {/* School Overview */}
@@ -411,10 +450,10 @@ const JobDetailsPage = () => {
                         <div className="d-flex align-items-center">
                           <a href="#" className="me-2">
                             <span className="avatar avatar-lg bg-gray-100">
-                              <img 
-                                src={job.employerProfilePic || appleIcon} 
-                                className="w-auto h-auto" 
-                                alt="Company" 
+                              <img
+                                src={job.employerProfilePic || appleIcon}
+                                className="w-auto h-auto"
+                                alt="Company"
                                 onError={(e) => {
                                   e.target.onerror = null;
                                   e.target.src = appleIcon;
@@ -435,7 +474,7 @@ const JobDetailsPage = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div>
                       <div className="d-flex align-items-center justify-content-between mb-2">
                         <span>Contact</span>
@@ -455,9 +494,9 @@ const JobDetailsPage = () => {
                         <span>Location</span>
                         <p className="text-gray-7">{job.location}</p>
                       </div>
-                      
+
                       <hr className="border border-bottom border-grey" />
-                      
+
                       <div className="d-flex align-items-center justify-content-between mb-2">
                         <span>Social media</span>
                         <div className="icons-social d-flex align-items-center">
@@ -483,11 +522,11 @@ const JobDetailsPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {relatedJobs.length > 0 && (
               <>
                 <hr /><br />
-                
+
                 {/* Related Jobs */}
                 <h4 className="mb-3 text-primary">Related Jobs <i className="ti ti-arrow-right"></i></h4>
                 <div className="row">
@@ -500,10 +539,10 @@ const JobDetailsPage = () => {
                               <div className="d-flex align-items-center">
                                 <a href="#" className="me-2">
                                   <span className="avatar avatar-lg bg-gray border border-white">
-                                    <img 
-                                      src={relatedJob.icon || appleIcon} 
-                                      className="w-auto h-auto" 
-                                      alt="Job" 
+                                    <img
+                                      src={relatedJob.icon || appleIcon}
+                                      className="w-auto h-auto"
+                                      alt="Job"
                                       onError={(e) => {
                                         e.target.onerror = null;
                                         e.target.src = appleIcon;
@@ -520,7 +559,7 @@ const JobDetailsPage = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="d-flex flex-column mb-3">
                             <p className="text-dark d-inline-flex align-items-center mb-2">
                               <i className="ti ti-map-pin-check text-primary me-2"></i>
@@ -535,27 +574,27 @@ const JobDetailsPage = () => {
                               {relatedJob.experience}
                             </p>
                           </div>
-                          
+
                           <div className="mb-3">
                             <span className="badge badge-pink-transparent me-1">{relatedJob.type}</span>
                             <span className="badge bg-secondary-transparent">Experience</span>
                           </div>
-                          
+
                           <div className="progress progress-xs mb-2">
-                            <div className="progress-bar bg-warning" role="progressbar" style={{width: '30%'}}></div>
+                            <div className="progress-bar bg-warning" role="progressbar" style={{ width: '30%' }}></div>
                           </div>
-                          
+
                           <div>
                             <p className="fs-12 text-gray fw-normal">10 of {relatedJob.applicants} filled</p>
                           </div>
-                          
+
                           <div className="d-flex align-items-center justify-content-between border-top pt-3 mt-3">
                             <p className="d-inline-flex align-items-center text-gray-9 mb-0">
                               <i className="ti ti-clock me-1"></i>{relatedJob.postedDate}
                             </p>
                             <div>
-                              <button 
-                                className="btn btn-secondary" 
+                              <button
+                                className="btn btn-secondary"
                                 onClick={toggleModal}
                               >
                                 Post Again
@@ -571,24 +610,24 @@ const JobDetailsPage = () => {
             )}
           </div>
         </div>
-        
+
         {/* Apply Job Modal */}
         {showModal && (
-          <div className="modal fade show" style={{display: 'block'}} id="apply_job">
+          <div className="modal fade show" style={{ display: 'block' }} id="apply_job">
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content">
                 <div className="modal-header">
                   <h4>Add Candidate Details</h4>
-                  <button 
-                    type="button" 
-                    className="btn-close custom-btn-close" 
+                  <button
+                    type="button"
+                    className="btn-close custom-btn-close"
                     onClick={toggleModal}
                     aria-label="Close"
                   >
                     <i className="ti ti-x"></i>
                   </button>
                 </div>
-                
+
                 <form action="">
                   <div className="modal-body">
                     <div className="mb-3">
@@ -612,11 +651,11 @@ const JobDetailsPage = () => {
                       <input type="file" className="form-control" id="cv_upload" />
                     </div>
                   </div>
-                  
+
                   <div className="modal-footer">
-                    <button 
-                      type="button" 
-                      className="btn btn-light me-2" 
+                    <button
+                      type="button"
+                      className="btn btn-light me-2"
                       onClick={toggleModal}
                     >
                       Cancel
@@ -628,7 +667,7 @@ const JobDetailsPage = () => {
             </div>
           </div>
         )}
-        
+
         {/* Modal Backdrop */}
         {showModal && <div className="modal-backdrop fade show"></div>}
       </div>

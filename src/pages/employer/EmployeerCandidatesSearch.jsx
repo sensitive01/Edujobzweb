@@ -141,7 +141,7 @@ const EmployeerCandidatesSearch = () => {
                     className="form-control flex-fill me-3" 
                     placeholder="Search Candidates" 
                   />
-                  <a href="/employer/new-candidate" className="btn btn-secondary">
+                  <a href="/employer/new-candidate" className="btn btn-secondary"  style={{  whiteSpace: 'nowrap' }}>
                     <Search size={16} className="me-1" /> Search
                   </a>
                 </div>

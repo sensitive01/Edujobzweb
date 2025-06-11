@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import user13 from '../../assets/employer/assets/img/users/user-13.jpg';
 import AddNewCandidate from '../../components/common/AddNewCAndidate';
 import EmployerCandidatesDetails from './EmployerCandidatesDetails';
@@ -6,8 +7,10 @@ import { FaArrowCircleUp } from 'react-icons/fa';
 import EmployerFooter from './EmployerFooter';
 import EmployerHeader from './EmployerHeader';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-const EmployeerShortlisedCandidates = () => {
+const EmployeerJobIdShortlistedCandidates = () => {
+  const { id: jobId } = useParams(); // Get job ID from URL params
   const [showCandidateModal, setShowCandidateModal] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -20,6 +23,7 @@ const EmployeerShortlisedCandidates = () => {
   const [filteredCandidates, setFilteredCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [jobDetails, setJobDetails] = useState(null);
   const navigate = useNavigate();
 
   const roles = [
@@ -30,10 +34,12 @@ const EmployeerShortlisedCandidates = () => {
     'Receptionist',
     'Bus Driver',
     'Security',
-    'flutter developer'
+    'flutter developer',
+    'English teacher'
   ];
   
   const statuses = [
+    'All',
     'Active',
     'Inactive',
     'New',
@@ -41,7 +47,9 @@ const EmployeerShortlisedCandidates = () => {
     'Shortlisted',
     'Rejected',
     'Applied',
-    'Pending'
+    'Pending',
+    'In Progress',
+    'Interview Scheduled'
   ];
   
   const sortOptions = [
@@ -82,7 +90,38 @@ const EmployeerShortlisedCandidates = () => {
   });
 
   useEffect(() => {
-    const fetchNonPendingCandidates = async () => {
+    const fetchJobDetails = async () => {
+      try {
+        const employerData = JSON.parse(localStorage.getItem('employerData'));
+        const token = localStorage.getItem('employerToken');
+        
+        if (!employerData || !employerData._id || !token) {
+          navigate('/employer/login');
+          return;
+        }
+
+        if (!jobId) {
+          setError('Job ID is required');
+          setLoading(false);
+          return;
+        }
+
+        const response = await axios.get(`https://edujobzbackend.onrender.com/employer/viewjobs/${jobId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.data) {
+          setJobDetails(response.data);
+        }
+      } catch (err) {
+        console.error('Error fetching job details:', err);
+        setError('Failed to fetch job details');
+      }
+    };
+
+    const fetchShortlistedCandidates = async () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('employerToken');
@@ -93,8 +132,14 @@ const EmployeerShortlisedCandidates = () => {
           return;
         }
 
-        const response = await fetch(
-          `https://edujobzbackend.onrender.com/employer/fetchallnonpending/${employerData._id}`,
+        if (!jobId) {
+          setError('Job ID is required');
+          setLoading(false);
+          return;
+        }
+
+        const response = await axios.get(
+          `https://edujobzbackend.onrender.com/employer/fetchshortlistcand/${jobId}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`
@@ -102,23 +147,38 @@ const EmployeerShortlisedCandidates = () => {
           }
         );
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch non-pending candidates');
-        }
+        console.log('Shortlisted candidates response:', response.data);
         
-        const data = await response.json();
-        setCandidates(data.data || []);
-        setFilteredCandidates(data.data || []);
+        if (response.data && response.data.success) {
+          const candidatesData = response.data.applications || [];
+          setCandidates(candidatesData);
+          setFilteredCandidates(candidatesData);
+        } else {
+          setCandidates([]);
+          setFilteredCandidates([]);
+        }
       } catch (err) {
         console.error('Fetch error:', err);
-        setError(err.message);
+        if (err.response?.status === 404) {
+          setError('No shortlisted candidates found for this job');
+          setCandidates([]);
+          setFilteredCandidates([]);
+        } else {
+          setError(err.response?.data?.message || err.message || 'Failed to fetch candidates');
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    fetchNonPendingCandidates();
-  }, [navigate]);
+    if (jobId) {
+      fetchJobDetails();
+      fetchShortlistedCandidates();
+    } else {
+      setError('Job ID is missing from URL');
+      setLoading(false);
+    }
+  }, [jobId, navigate]);
 
   useEffect(() => {
     // Apply filters whenever filters state changes
@@ -179,7 +239,7 @@ const EmployeerShortlisedCandidates = () => {
     }
 
     // Status filter
-    if (filters.status) {
+    if (filters.status && filters.status !== 'All') {
       result = result.filter(candidate => 
         candidate.employapplicantstatus && 
         candidate.employapplicantstatus.toLowerCase() === filters.status.toLowerCase()
@@ -243,6 +303,8 @@ const EmployeerShortlisedCandidates = () => {
       searchQuery: '',
       status: ''
     });
+    setSelectedRole('Role');
+    setSelectedStatus('Select Status');
   };
 
   const handleSubmit = () => {
@@ -276,6 +338,36 @@ const EmployeerShortlisedCandidates = () => {
     setShowDetails(true);
   };
 
+  const sortCandidates = (candidates, sortType) => {
+    const sorted = [...candidates];
+    
+    switch (sortType) {
+      case 'Recently Added':
+        return sorted.sort((a, b) => new Date(b.appliedDate) - new Date(a.appliedDate));
+      case 'Ascending':
+        return sorted.sort((a, b) => a.firstName.localeCompare(b.firstName));
+      case 'Descending':
+        return sorted.sort((a, b) => b.firstName.localeCompare(a.firstName));
+      case 'Last Month':
+        const monthAgo = new Date();
+        monthAgo.setMonth(monthAgo.getMonth() - 1);
+        return sorted.filter(candidate => new Date(candidate.appliedDate) >= monthAgo);
+      case 'Last 7 Days':
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return sorted.filter(candidate => new Date(candidate.appliedDate) >= weekAgo);
+      default:
+        return sorted;
+    }
+  };
+
+  const handleSortChange = (sortOption) => {
+    setSelectedSort(`Sort By: ${sortOption}`);
+    const sortedCandidates = sortCandidates(filteredCandidates, sortOption);
+    setFilteredCandidates(sortedCandidates);
+    closeAllDropdowns();
+  };
+
   if (loading) {
     return (
       <>
@@ -300,7 +392,7 @@ const EmployeerShortlisedCandidates = () => {
         <div className="content">
           <div className="text-center py-5 text-danger">
             <i className="fas fa-exclamation-triangle fa-2x mb-3"></i>
-            <h5>Error loading shortlisted candidates</h5>
+            <h5>Error loading candidates</h5>
             <p>{error}</p>
             <button 
               className="btn btn-primary mt-3"
@@ -324,6 +416,11 @@ const EmployeerShortlisedCandidates = () => {
         <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
           <div className="my-auto">
             <h2>&nbsp;<i className="fa fa-users text-primary"></i> Shortlisted Candidates</h2>
+            {jobDetails && (
+              <p className="text-muted mb-0">
+                Job: <strong>{jobDetails.jobTitle}</strong> | Location: <strong>{jobDetails.location}</strong>
+              </p>
+            )}
           </div>
 
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
@@ -422,10 +519,7 @@ const EmployeerShortlisedCandidates = () => {
                   <li key={option}>
                     <button
                       className="dropdown-item rounded-1"
-                      onClick={() => {
-                        setSelectedSort(`Sort By: ${option}`);
-                        closeAllDropdowns();
-                      }}
+                      onClick={() => handleSortChange(option)}
                     >
                       {option}
                     </button>
@@ -859,7 +953,7 @@ const EmployeerShortlisedCandidates = () => {
                           placeholder="Search Candidates (name, email, skills, etc.)" 
                           defaultValue={filters.searchQuery}
                         />
-                        <button type="submit" className="btn btn-secondary"  style={{  whiteSpace: 'nowrap' }}>Search</button>
+                        <button type="submit" className="btn btn-secondary">Search</button>
                       </div>
                     </form>
                   </div>
@@ -868,7 +962,7 @@ const EmployeerShortlisedCandidates = () => {
                 {/* Candidates Count */}
                 <div className="mb-3">
                   <span className="badge bg-warning">
-                    {filteredCandidates.length} {filteredCandidates.length === 1 ? 'shortlisted candidate' : 'shortlisted candidates'} found
+                    {filteredCandidates.length} {filteredCandidates.length === 1 ? 'candidate' : 'candidates'} found
                   </span>
                 </div>
 
@@ -906,10 +1000,8 @@ const EmployeerShortlisedCandidates = () => {
                                     </a>
                                   </h6>
                                   <p className="fs-13">
-                                    <b>Shortlisted On:</b> {new Date(candidate.appliedDate).toLocaleDateString()} &nbsp; | &nbsp; 
-                                    <span className={`badge ${candidate.employapplicantstatus === 'Pending' ? 'bg-warning' : 
-                                      candidate.employapplicantstatus === 'Interview Scheduled' ? 'bg-info' : 
-                                      candidate.employapplicantstatus === 'In Progress' ? 'bg-primary' : 'bg-success'}`}>
+                                    <b>Applied On:</b> {new Date(candidate.appliedDate).toLocaleDateString()} &nbsp; | &nbsp; 
+                                    <span className={`badge ${candidate.employapplicantstatus === 'Pending' ? 'bg-warning' : 'bg-success'}`}>
                                       {candidate.employapplicantstatus || 'Pending'}
                                     </span> &nbsp; | &nbsp; 
                                     {candidate.resume?.url && (
@@ -970,8 +1062,8 @@ const EmployeerShortlisedCandidates = () => {
                     ))
                   ) : (
                     <div className="col-12 text-center py-5">
-                      <img src="/images/no-jobs-found.png" alt="No shortlisted candidates found" width="150" className="mb-3" />
-                      <h4>No shortlisted candidates found</h4>
+                      <img src="/images/no-jobs-found.png" alt="No candidates found" width="150" className="mb-3" />
+                      <h4>No candidates found</h4>
                       <p className="text-muted">Try adjusting your search filters</p>
                     </div>
                   )}
@@ -1005,4 +1097,4 @@ const EmployeerShortlisedCandidates = () => {
   );
 };
 
-export default EmployeerShortlisedCandidates;
+export default EmployeerJobIdShortlistedCandidates;

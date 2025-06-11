@@ -859,7 +859,7 @@ const EmployeerSavedCandidates = () => {
                           placeholder="Search Candidates (name, email, skills, etc.)" 
                           defaultValue={filters.searchQuery}
                         />
-                        <button type="submit" className="btn btn-secondary">Search</button>
+                        <button type="submit" className="btn btn-secondary"  style={{  whiteSpace: 'nowrap' }}>Search</button>
                       </div>
                     </form>
                   </div>

@@ -323,6 +323,7 @@ const EmployeerPostJob = () => {
   return (
     <>
       <EmployerHeader />
+      {/* <div class="page-wrapper"> */}
       <div className="content">
         {/* Header Section */}
         <div className="d-flex align-items-center justify-content-between mb-3">
@@ -444,8 +445,9 @@ const EmployeerPostJob = () => {
                         placeholder="Search Jobs"
                         value={searchTerm}
                         onChange={handleSearchInputChange}
+
                       />
-                      <button type="submit" className="btn btn-secondary">Search</button>
+                      <button type="submit" className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }} >Search</button>
                     </div>
                   </form>
                 </div>
@@ -492,6 +494,7 @@ const EmployeerPostJob = () => {
           <SuccessModal onClose={() => setShowSuccessModal(false)} />
         )}
       </div>
+      {/* </div> */}
       <EmployerFooter />
     </>
   );
@@ -540,6 +543,25 @@ const FilterSidebar = ({
   onExperienceRangeChange,
   onReset
 }) => {
+  // State to track which accordion items are open
+  const [openAccordions, setOpenAccordions] = useState({
+    layoutsetting: true,
+    layoutsetting1: true,
+    genderFilter: true,
+    salaryFilter: true,
+    locationFilter: true,
+    qualificationFilter: true,
+    experienceFilter: true
+  });
+
+  // Toggle accordion open/close state
+  const toggleAccordion = (accordionId) => {
+    setOpenAccordions(prev => ({
+      ...prev,
+      [accordionId]: !prev[accordionId]
+    }));
+  };
+
   return (
     <div className="themesettings-inner offcanvas-body">
       <div className="accordion accordion-customicon1 accordions-items-seperate" id="settingtheme">
@@ -549,11 +571,23 @@ const FilterSidebar = ({
         {/* Job Category Filter */}
         <div className="accordion-item">
           <h2 className="accordion-header">
-            <button className="accordion-button text-dark fs-16 align-items-center justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#layoutsetting" aria-expanded="true" aria-controls="collapsecustomicon1One">
-              Select Job Category <a><ArrowUp className="text-primary" /></a>
+            <button
+              className="accordion-button text-dark fs-16 align-items-center justify-content-between"
+              type="button"
+              onClick={() => toggleAccordion('layoutsetting')}
+            >
+              Select Job Category
+              {openAccordions.layoutsetting ? (
+                <ChevronDown className="text-primary" />
+              ) : (
+                <ArrowUp className="text-primary" />
+              )}
             </button>
           </h2>
-          <div id="layoutsetting" className="accordion-collapse collapse show">
+          <div
+            id="layoutsetting"
+            className={`accordion-collapse collapse ${openAccordions.layoutsetting ? 'show' : ''}`}
+          >
             <div className="accordion-body">
               <div className="row gx-3">
                 <div className="form-group">
@@ -583,11 +617,23 @@ const FilterSidebar = ({
         {/* Job Type Filter */}
         <div className="accordion-item">
           <h2 className="accordion-header">
-            <button className="accordion-button text-dark fs-16 align-items-center justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#layoutsetting1" aria-expanded="true" aria-controls="collapsecustomicon1One">
-              Select Job Type <a><ArrowUp className="text-primary" /></a>
+            <button
+              className="accordion-button text-dark fs-16 align-items-center justify-content-between"
+              type="button"
+              onClick={() => toggleAccordion('layoutsetting1')}
+            >
+              Select Job Type
+              {openAccordions.layoutsetting1 ? (
+                <ChevronDown className="text-primary" />
+              ) : (
+                <ArrowUp className="text-primary" />
+              )}
             </button>
           </h2>
-          <div id="layoutsetting1" className="accordion-collapse collapse show">
+          <div
+            id="layoutsetting1"
+            className={`accordion-collapse collapse ${openAccordions.layoutsetting1 ? 'show' : ''}`}
+          >
             <div className="accordion-body">
               <div className="row">
                 <div className="form-group">
@@ -617,11 +663,23 @@ const FilterSidebar = ({
         {/* Gender Filter */}
         <div className="accordion-item">
           <h2 className="accordion-header">
-            <button className="accordion-button text-dark fs-16 align-items-center justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#genderFilter" aria-expanded="true">
-              Gender <a><ArrowUp className="text-primary" /></a>
+            <button
+              className="accordion-button text-dark fs-16 align-items-center justify-content-between"
+              type="button"
+              onClick={() => toggleAccordion('genderFilter')}
+            >
+              Gender
+              {openAccordions.genderFilter ? (
+                <ChevronDown className="text-primary" />
+              ) : (
+                <ArrowUp className="text-primary" />
+              )}
             </button>
           </h2>
-          <div id="genderFilter" className="accordion-collapse collapse show">
+          <div
+            id="genderFilter"
+            className={`accordion-collapse collapse ${openAccordions.genderFilter ? 'show' : ''}`}
+          >
             <div className="accordion-body">
               <div className="d-flex align-items-center">
                 <div className="theme-width m-1 me-2">
@@ -658,11 +716,23 @@ const FilterSidebar = ({
         {/* Salary Range Filter */}
         <div className="accordion-item">
           <h2 className="accordion-header">
-            <button className="accordion-button text-dark fs-16 align-items-center justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#salaryFilter" aria-expanded="true">
-              Salary Range <a><ArrowUp className="text-primary" /></a>
+            <button
+              className="accordion-button text-dark fs-16 align-items-center justify-content-between"
+              type="button"
+              onClick={() => toggleAccordion('salaryFilter')}
+            >
+              Salary Range
+              {openAccordions.salaryFilter ? (
+                <ChevronDown className="text-primary" />
+              ) : (
+                <ArrowUp className="text-primary" />
+              )}
             </button>
           </h2>
-          <div id="salaryFilter" className="accordion-collapse collapse show">
+          <div
+            id="salaryFilter"
+            className={`accordion-collapse collapse ${openAccordions.salaryFilter ? 'show' : ''}`}
+          >
             <div className="accordion-body pb-0">
               <div className="row gx-3">
                 <div className="form-group">
@@ -691,11 +761,23 @@ const FilterSidebar = ({
         {/* Location Filter */}
         <div className="accordion-item">
           <h2 className="accordion-header">
-            <button className="accordion-button text-dark fs-16 align-items-center justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#locationFilter" aria-expanded="true">
-              Location <a><ArrowUp className="text-primary" /></a>
+            <button
+              className="accordion-button text-dark fs-16 align-items-center justify-content-between"
+              type="button"
+              onClick={() => toggleAccordion('locationFilter')}
+            >
+              Location
+              {openAccordions.locationFilter ? (
+                <ChevronDown className="text-primary" />
+              ) : (
+                <ArrowUp className="text-primary" />
+              )}
             </button>
           </h2>
-          <div id="locationFilter" className="accordion-collapse collapse show">
+          <div
+            id="locationFilter"
+            className={`accordion-collapse collapse ${openAccordions.locationFilter ? 'show' : ''}`}
+          >
             <div className="accordion-body">
               <div className="d-flex align-items-center">
                 <input
@@ -713,11 +795,23 @@ const FilterSidebar = ({
         {/* Qualification Filter */}
         <div className="accordion-item">
           <h2 className="accordion-header">
-            <button className="accordion-button text-dark fs-16 align-items-center justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#qualificationFilter" aria-expanded="true">
-              Qualification <a><ArrowUp className="text-primary" /></a>
+            <button
+              className="accordion-button text-dark fs-16 align-items-center justify-content-between"
+              type="button"
+              onClick={() => toggleAccordion('qualificationFilter')}
+            >
+              Qualification
+              {openAccordions.qualificationFilter ? (
+                <ChevronDown className="text-primary" />
+              ) : (
+                <ArrowUp className="text-primary" />
+              )}
             </button>
           </h2>
-          <div id="qualificationFilter" className="accordion-collapse collapse show">
+          <div
+            id="qualificationFilter"
+            className={`accordion-collapse collapse ${openAccordions.qualificationFilter ? 'show' : ''}`}
+          >
             <div className="accordion-body">
               <div className="row gx-3">
                 <input
@@ -735,11 +829,23 @@ const FilterSidebar = ({
         {/* Experience Filter */}
         <div className="accordion-item">
           <h2 className="accordion-header">
-            <button className="accordion-button text-dark fs-16 align-items-center justify-content-between" type="button" data-bs-toggle="collapse" data-bs-target="#experienceFilter" aria-expanded="true">
-              Experience <a><ArrowUp className="text-primary" /></a>
+            <button
+              className="accordion-button text-dark fs-16 align-items-center justify-content-between"
+              type="button"
+              onClick={() => toggleAccordion('experienceFilter')}
+            >
+              Experience
+              {openAccordions.experienceFilter ? (
+                <ChevronDown className="text-primary" />
+              ) : (
+                <ArrowUp className="text-primary" />
+              )}
             </button>
           </h2>
-          <div id="experienceFilter" className="accordion-collapse collapse show">
+          <div
+            id="experienceFilter"
+            className={`accordion-collapse collapse ${openAccordions.experienceFilter ? 'show' : ''}`}
+          >
             <div className="accordion-body pb-0">
               <div className="row gx-3">
                 <div className="price-inputs d-flex mb-3">
@@ -829,9 +935,6 @@ const JobCard = ({ job }) => {
                     <a href="view-job">{job.title}</a>
                   </h6>
                   <p className="fs-13 text-primary fw-normal">{job.applicants} Applications</p>
-                  {/* <span className={`badge ${job.status === 'Active' ? 'bg-success' : 'bg-secondary'}`}>
-                    {job.status}
-                  </span> */}
                 </div>
               </div>
             </div>
@@ -882,30 +985,22 @@ const JobCard = ({ job }) => {
           </p>
         </div>
 
-        {/* First row - Applied Candidates and Date Posted (both right aligned) */}
-        <div className="d-flex justify-content-end align-items-center mb-1 me-2">
-          <span className="text-dark fs-13 me-3">
+        {/* Combined row for Date Posted and both buttons */}
+        <div className="d-flex justify-content-between align-items-center mb-2 mx-2">
+          <span className="text-dark fs-13 ms-4 me-3">
             <b className="text-secondary">Date Posted:</b> {job.postedDate}
           </span>
-          <a href="new-candidate" className="badge bg-warning fs-12 fw-medium" style={{
-            position: 'relative',
-            zIndex: 2,
-            marginBottom: '-8px'
-          }}>
-            <Users className="me-1" style={{ width: '12px', height: '12px' }} /> Applied Candidates
-          </a>
-        </div>
-
-        {/* Second row - View Job Details (right aligned) */}
-        <div className="d-flex justify-content-end mb-2 me-2" style={{
-          position: 'relative',
-          zIndex: 1
-        }}>
-          <Link to={`/employer/view-job/${job.id}`} className="badge bg-secondary fs-12 fw-medium" style={{
-            paddingTop: '12px'
-          }}>
-            <Eye className="me-1" style={{ width: '12px', height: '12px' }} /> View Job Details
-          </Link>
+          <div className="d-flex">
+            {/* <a href="applied-candidates" className="badge bg-warning fs-12 fw-medium me-2">
+              <Users className="me-1" style={{ width: '12px', height: '12px' }} /> Applied Candidates
+            </a> */}
+            <Link to={`/employer/applied-candidates/${job.id}`} className="badge bg-warning fs-12 fw-medium me-2">
+              <Users className="me-1" style={{ width: '12px', height: '12px' }} /> Applied Candidates
+            </Link>
+            <Link to={`/employer/view-job/${job.id}`} className="badge bg-secondary fs-12 fw-medium">
+              <Eye className="me-1" style={{ width: '12px', height: '12px' }} /> View Job Details
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -1085,6 +1180,7 @@ const JobsByStatusChart = ({ jobs }) => {
 
 const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }) => {
   const [selectedFile, setSelectedFile] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     employid: '',
     companyName: '',
@@ -1110,6 +1206,54 @@ const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }
     applicationInstructions: '',
     priority: ''
   });
+
+  const fetchEmployerData = async () => {
+    try {
+      const employerData = JSON.parse(localStorage.getItem('employerData'));
+
+      if (!employerData || !employerData._id) {
+        throw new Error('Employer not logged in or missing ID');
+      }
+
+      const token = localStorage.getItem('authToken');
+      const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchemployer/${employerData._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching employer data:', error);
+      throw error;
+    }
+  };
+  useEffect(() => {
+    const fetchAndPrefillData = async () => {
+      try {
+        const employerData = await fetchEmployerData();
+
+        // Prefill form with employer data
+        const newFormData = {
+          ...formData,
+          companyName: employerData.schoolName || employerData.companyName || '',
+          contactEmail: employerData.userEmail || '',
+          contactPhone: employerData.userMobile || '',
+          location: employerData.city || employerData.address || '',
+          companyUrl: employerData.website || '',
+          // Add other fields as needed
+        };
+
+        setFormData(newFormData);
+      } catch (error) {
+        console.error('Error pre-filling form:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAndPrefillData();
+  }, []);
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -1717,22 +1861,6 @@ const AddressTab = ({ formData, onInputChange }) => {
                 This is a Remote Job
               </label>
             </div>
-          </div>
-        </div>
-
-        {/* Map */}
-        <div className="col-md-12">
-          <div className="map-grid mb-3">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6509170.989457427!2d-123.80081967108484!3d37.192957227641294!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fb9fe5f285e3d%3A0x8b5109a227086f55!2sCalifornia%2C%20USA!5e0!3m2!1sen!2sin!4v1669181581381!5m2!1sen!2sin"
-              style={{ border: 0 }}
-              allowFullScreen=""
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="w-100"
-              height="300"
-              title="Location Map"
-            ></iframe>
           </div>
         </div>
       </div>
