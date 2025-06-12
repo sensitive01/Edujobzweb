@@ -300,7 +300,7 @@ const EmployeerSavedCandidates = () => {
         <div className="content">
           <div className="text-center py-5 text-danger">
             <i className="fas fa-exclamation-triangle fa-2x mb-3"></i>
-            <h5>Error loading shortlisted candidates</h5>
+            <h5>Error loading saved candidates</h5>
             <p>{error}</p>
             <button 
               className="btn btn-primary mt-3"
@@ -323,7 +323,7 @@ const EmployeerSavedCandidates = () => {
         {/* Breadcrumb */}
         <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
           <div className="my-auto">
-            <h2>&nbsp;<i className="fa fa-users text-primary"></i> Shortlisted Candidates</h2>
+            <h2>&nbsp;<i className="fa fa-users text-primary"></i> Saved Candidates</h2>
           </div>
 
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">

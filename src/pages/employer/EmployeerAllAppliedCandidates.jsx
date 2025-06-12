@@ -5,9 +5,9 @@ import EmployerCandidatesDetails from './EmployerCandidatesDetails';
 import { FaArrowCircleUp } from 'react-icons/fa';
 import EmployerFooter from './EmployerFooter';
 import EmployerHeader from './EmployerHeader';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-const EmployeerAppliedCandidates = () => {
+const EmployeerAllAppliedCandidates = () => {
   const [showCandidateModal, setShowCandidateModal] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -20,9 +20,7 @@ const EmployeerAppliedCandidates = () => {
   const [filteredCandidates, setFilteredCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [jobDetails, setJobDetails] = useState(null);
   const navigate = useNavigate();
-  const { id } = useParams();
 
   const roles = [
     'All',
@@ -96,22 +94,21 @@ const EmployeerAppliedCandidates = () => {
         }
 
         const response = await fetch(
-          `https://edujobzbackend.onrender.com/employer/fetchappliedcand/${id}`,
+          `https://edujobzbackend.onrender.com/employer/viewallappliedcandi/${employerData._id}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`
             }
           }
         );
-        
+        console.log('Response object:', response);
         if (!response.ok) {
           throw new Error('Failed to fetch candidates');
         }
         
         const data = await response.json();
-        // Corrected this line - the data is in data.applications, not data.data
-        setCandidates(data.applications || []);
-        setFilteredCandidates(data.applications || []);
+        setCandidates(data.data || []);
+        setFilteredCandidates(data.data || []);
       } catch (err) {
         console.error('Fetch error:', err);
         setError(err.message);
@@ -121,33 +118,40 @@ const EmployeerAppliedCandidates = () => {
     };
 
     fetchCandidates();
-  }, [navigate, id]); 
+  }, [navigate]);
 
   useEffect(() => {
+    // Apply filters whenever filters state changes
     filterCandidates();
   }, [filters, candidates]);
 
   const filterCandidates = () => {
     let result = [...candidates];
 
+    // Search query filter
     if (filters.searchQuery.trim()) {
       const searchTerm = filters.searchQuery.toLowerCase().trim();
       result = result.filter(candidate => {
         return (
           (candidate.firstName && candidate.firstName.toLowerCase().includes(searchTerm)) ||
+          (candidate.lastName && candidate.lastName.toLowerCase().includes(searchTerm)) ||
           (candidate.email && candidate.email.toLowerCase().includes(searchTerm)) ||
           (candidate.jobrole && candidate.jobrole.toLowerCase().includes(searchTerm)) ||
-          (candidate.currentcity && candidate.currentcity.toLowerCase().includes(searchTerm))
+          (candidate.currentcity && candidate.currentcity.toLowerCase().includes(searchTerm)) ||
+          (candidate.qualification && candidate.qualification.toLowerCase().includes(searchTerm)) ||
+          (candidate.currentDesignation && candidate.currentDesignation.toLowerCase().includes(searchTerm))
         );
       });
     }
 
+    // Job role filter
     if (filters.jobCategories.length > 0) {
       result = result.filter(candidate => 
         filters.jobCategories.includes(candidate.jobrole)
       );
     }
 
+    // Location filter
     if (filters.location) {
       result = result.filter(candidate => 
         candidate.currentcity && 
@@ -155,6 +159,7 @@ const EmployeerAppliedCandidates = () => {
       );
     }
 
+    // Experience filter
     if (filters.experienceFrom || filters.experienceTo) {
       const from = parseInt(filters.experienceFrom) || 0;
       const to = parseInt(filters.experienceTo) || Infinity;
@@ -165,6 +170,7 @@ const EmployeerAppliedCandidates = () => {
       });
     }
 
+    // Gender filter
     if (filters.gender) {
       result = result.filter(candidate => 
         candidate.gender && 
@@ -172,6 +178,7 @@ const EmployeerAppliedCandidates = () => {
       );
     }
 
+    // Status filter
     if (filters.status) {
       result = result.filter(candidate => 
         candidate.employapplicantstatus && 
@@ -239,6 +246,7 @@ const EmployeerAppliedCandidates = () => {
   };
 
   const handleSubmit = () => {
+    // Filters are applied automatically through useEffect
     console.log('Applied filters', filters);
   };
 
@@ -277,7 +285,7 @@ const EmployeerAppliedCandidates = () => {
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
-            <p className="mt-2">Loading candidates for this job...</p>
+            <p className="mt-2">Loading candidates...</p>
           </div>
         </div>
         <EmployerFooter />
@@ -315,9 +323,7 @@ const EmployeerAppliedCandidates = () => {
         {/* Breadcrumb */}
         <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
           <div className="my-auto">
-            <h2>&nbsp;<i className="fa fa-users text-primary"></i> 
-              {jobDetails ? `Candidates for ${jobDetails.jobTitle}` : 'Job Candidates'}
-            </h2>
+            <h2>&nbsp;<i className="fa fa-users text-primary"></i>Applied Candidates</h2>
           </div>
 
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
@@ -862,7 +868,7 @@ const EmployeerAppliedCandidates = () => {
                 {/* Candidates Count */}
                 <div className="mb-3">
                   <span className="badge bg-warning">
-                    {filteredCandidates.length} {filteredCandidates.length === 1 ? 'candidate' : 'candidates'} found for this job
+                    {filteredCandidates.length} {filteredCandidates.length === 1 ? 'applied candidate' : 'applied candidates'} found
                   </span>
                 </div>
 
@@ -893,7 +899,7 @@ const EmployeerAppliedCandidates = () => {
                                         e.preventDefault();
                                         viewCandidateDetails(candidate);
                                       }}>
-                                      {candidate.firstName} &nbsp; | &nbsp;
+                                      {candidate.firstName} {candidate.lastName || ''} &nbsp; | &nbsp;
                                       <span className="text-dark">
                                         <i className="ti ti-eye"></i> View Profile
                                       </span>
@@ -901,9 +907,7 @@ const EmployeerAppliedCandidates = () => {
                                   </h6>
                                   <p className="fs-13">
                                     <b>Applied On:</b> {new Date(candidate.appliedDate).toLocaleDateString()} &nbsp; | &nbsp; 
-                                    <span className={`badge ${candidate.employapplicantstatus === 'Pending' ? 'bg-warning' : 
-                                      candidate.employapplicantstatus === 'Interview Scheduled' ? 'bg-info' : 
-                                      candidate.employapplicantstatus === 'In Progress' ? 'bg-primary' : 'bg-success'}`}>
+                                    <span className={`badge ${candidate.employapplicantstatus === 'Pending' ? 'bg-warning' : 'bg-success'}`}>
                                       {candidate.employapplicantstatus || 'Pending'}
                                     </span> &nbsp; | &nbsp; 
                                     {candidate.resume?.url && (
@@ -965,7 +969,7 @@ const EmployeerAppliedCandidates = () => {
                   ) : (
                     <div className="col-12 text-center py-5">
                       <img src="/images/no-jobs-found.png" alt="No candidates found" width="150" className="mb-3" />
-                      <h4>No candidates found for this job</h4>
+                      <h4>No candidates found</h4>
                       <p className="text-muted">Try adjusting your search filters</p>
                     </div>
                   )}
@@ -991,7 +995,6 @@ const EmployeerAppliedCandidates = () => {
           show={showDetails}
           onClose={() => setShowDetails(false)}
           candidate={selectedCandidate}
-          jobId={id}
         />
       )}
 
@@ -1000,4 +1003,4 @@ const EmployeerAppliedCandidates = () => {
   );
 };
 
-export default EmployeerAppliedCandidates;
+export default EmployeerAllAppliedCandidates;

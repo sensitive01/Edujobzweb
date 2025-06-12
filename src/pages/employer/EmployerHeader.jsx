@@ -39,7 +39,7 @@ const EmployerHeader = () => {
     const jobsOptions = [
         { name: 'Post Jobs', path: '/employer/post-jobs' },
         { name: 'List Jobs', path: '/employer/post-jobs' },
-          { name: 'Applied Candidates', path: '/employer/applied-candidates' },
+          { name: 'Applied Candidates', path: '/employer/applied-candidates ' },
         { name: 'Shortlisted Candidates', path: '/employer/shortlisted-candidates' },
     ];
 

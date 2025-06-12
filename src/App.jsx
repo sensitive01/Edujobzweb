@@ -47,6 +47,8 @@ import EmployeerShortlisedCandidates from './pages/employer/EmployeerShortlisedC
 import EmployeerSavedCandidates from './pages/employer/EmployeerSavedCandidates';
 import EmployeerJobIdShortlistedCandidates from './pages/employer/EmployeerJobIdShortlistedCandidates';
 import EmployeerAppliedCandidates from './pages/employer/EmployeerAppliedCandidates';
+import EmployeerAllAppliedCandidates from './pages/employer/EmployeerAllAppliedCandidates';
+import EmployeerProfileView from './pages/employer/EmployeerProfileView';
 
 function App() {
   return (
@@ -62,7 +64,8 @@ function App() {
         <Route element={<EmployerLayout />}>
           <Route path='/employer/new-candidate' element={<EmployerCandidates />} />
           <Route path='/employer/shortlisted-candidates' element={<EmployeerShortlisedCandidates />} />
-           <Route path='/employer/applied-candidates/:id' element={<EmployeerAppliedCandidates />} />
+          <Route path='/employer/applied-candidates' element={<EmployeerAllAppliedCandidates />} />
+          <Route path='/employer/applied-candidates/:id' element={<EmployeerAppliedCandidates />} />
           <Route path='/employer/saved-candidates' element={<EmployeerSavedCandidates />} />
           <Route path='/employer/login' element={<EmployerLoginPage />} />
           <Route path='/employer/register' element={<EmployeerRegister />} />
@@ -70,6 +73,7 @@ function App() {
           <Route path='/employer/post-jobs' element={<EmployeerPostJob />} />
           <Route path='/employer/view-job/:id' element={<EmployeerJobDetails />} />
           <Route path='/employer/shortlisted-candidate-byjob/:id' element={<EmployeerJobIdShortlistedCandidates />} />
+          <Route path='/employer/profile' element={<EmployeerProfileView />} />
         </Route>
 
         {/* All other routes with Layout */}
