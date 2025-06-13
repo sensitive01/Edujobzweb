@@ -24,18 +24,19 @@ const EmployeerAppliedCandidates = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const roles = [
-    'All',
-    'PGT Mathematics Teacher',
-    'Physical Trainer',
-    'Chemistry Teacher',
-    'Receptionist',
-    'Bus Driver',
-    'Security',
-    'flutter developer'
-  ];
-  
+  // Extract roles dynamically from candidates data
+  const getUniqueRoles = (candidates) => {
+    const roles = new Set();
+    candidates.forEach(candidate => {
+      if (candidate.jobrole) {
+        roles.add(candidate.jobrole);
+      }
+    });
+    return ['All', ...Array.from(roles)];
+  };
+
   const statuses = [
+    'All',
     'Active',
     'Inactive',
     'New',
@@ -61,10 +62,10 @@ const EmployeerAppliedCandidates = () => {
 
   const [openSections, setOpenSections] = useState({
     jobCategory: true,
-    JobType: true,
+    jobType: true,
     gender: true,
     salaryRange: true,
-    Location: true,
+    location: true,
     qualification: true,
     experience: true,
   });
@@ -109,7 +110,6 @@ const EmployeerAppliedCandidates = () => {
         }
         
         const data = await response.json();
-        // Corrected this line - the data is in data.applications, not data.data
         setCandidates(data.applications || []);
         setFilteredCandidates(data.applications || []);
       } catch (err) {
@@ -121,33 +121,42 @@ const EmployeerAppliedCandidates = () => {
     };
 
     fetchCandidates();
-  }, [navigate, id]); 
+  }, [navigate, id]);
 
   useEffect(() => {
     filterCandidates();
-  }, [filters, candidates]);
+  }, [filters, candidates, selectedSort]);
 
   const filterCandidates = () => {
     let result = [...candidates];
 
+    // Search query filter
     if (filters.searchQuery.trim()) {
       const searchTerm = filters.searchQuery.toLowerCase().trim();
       result = result.filter(candidate => {
-        return (
-          (candidate.firstName && candidate.firstName.toLowerCase().includes(searchTerm)) ||
-          (candidate.email && candidate.email.toLowerCase().includes(searchTerm)) ||
-          (candidate.jobrole && candidate.jobrole.toLowerCase().includes(searchTerm)) ||
-          (candidate.currentcity && candidate.currentcity.toLowerCase().includes(searchTerm))
-        );
+        const searchFields = [
+          candidate.firstName,
+          candidate.lastName,
+          candidate.email,
+          candidate.phone,
+          candidate.jobrole,
+          candidate.currentcity,
+          candidate.qualification,
+          candidate.currentDesignation
+        ].filter(Boolean).join(' ').toLowerCase();
+        
+        return searchFields.includes(searchTerm);
       });
     }
 
+    // Job role filter
     if (filters.jobCategories.length > 0) {
       result = result.filter(candidate => 
         filters.jobCategories.includes(candidate.jobrole)
       );
     }
 
+    // Location filter
     if (filters.location) {
       result = result.filter(candidate => 
         candidate.currentcity && 
@@ -155,6 +164,7 @@ const EmployeerAppliedCandidates = () => {
       );
     }
 
+    // Experience filter
     if (filters.experienceFrom || filters.experienceTo) {
       const from = parseInt(filters.experienceFrom) || 0;
       const to = parseInt(filters.experienceTo) || Infinity;
@@ -165,6 +175,7 @@ const EmployeerAppliedCandidates = () => {
       });
     }
 
+    // Gender filter
     if (filters.gender) {
       result = result.filter(candidate => 
         candidate.gender && 
@@ -172,6 +183,7 @@ const EmployeerAppliedCandidates = () => {
       );
     }
 
+    // Status filter
     if (filters.status) {
       result = result.filter(candidate => 
         candidate.employapplicantstatus && 
@@ -179,7 +191,36 @@ const EmployeerAppliedCandidates = () => {
       );
     }
 
+    // Sort candidates
+    if (selectedSort.includes('Recently Added')) {
+      result.sort((a, b) => new Date(b.appliedDate) - new Date(a.appliedDate));
+    } else if (selectedSort.includes('Ascending')) {
+      result.sort((a, b) => (a.firstName || '').localeCompare(b.firstName || ''));
+    } else if (selectedSort.includes('Descending')) {
+      result.sort((a, b) => (b.firstName || '').localeCompare(a.firstName || ''));
+    }
+
     setFilteredCandidates(result);
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'shortlisted':
+        return 'bg-success';
+      case 'rejected':
+        return 'bg-danger';
+      case 'in progress':
+      case 'interview scheduled':
+        return 'bg-info';
+      case 'pending':
+        return 'bg-warning';
+      case 'applied':
+        return 'bg-primary';
+      case 'on hold':
+        return 'bg-secondary';
+      default:
+        return 'bg-secondary';
+    }
   };
 
   const toggleSection = (section) => {
@@ -236,10 +277,13 @@ const EmployeerAppliedCandidates = () => {
       searchQuery: '',
       status: ''
     });
+    setSelectedRole('Role');
+    setSelectedStatus('Select Status');
+    setSelectedSort('Sort By: Last 7 Days');
   };
 
   const handleSubmit = () => {
-    console.log('Applied filters', filters);
+    filterCandidates();
   };
 
   const toggleDropdown = (dropdownName) => {
@@ -306,6 +350,8 @@ const EmployeerAppliedCandidates = () => {
       </>
     );
   }
+
+  const roles = getUniqueRoles(candidates);
 
   return (
     <>
@@ -388,7 +434,7 @@ const EmployeerAppliedCandidates = () => {
                         setSelectedStatus(status);
                         setFilters(prev => ({
                           ...prev,
-                          status: status === 'Select Status' ? '' : status
+                          status: status === 'All' ? '' : status
                         }));
                         closeAllDropdowns();
                       }}
@@ -853,7 +899,7 @@ const EmployeerAppliedCandidates = () => {
                           placeholder="Search Candidates (name, email, skills, etc.)" 
                           defaultValue={filters.searchQuery}
                         />
-                        <button type="submit" className="btn btn-secondary"  style={{  whiteSpace: 'nowrap' }}>Search</button>
+                        <button type="submit" className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }}>Search</button>
                       </div>
                     </form>
                   </div>
@@ -893,7 +939,7 @@ const EmployeerAppliedCandidates = () => {
                                         e.preventDefault();
                                         viewCandidateDetails(candidate);
                                       }}>
-                                      {candidate.firstName} &nbsp; | &nbsp;
+                                      {candidate.firstName} {candidate.lastName || ''} &nbsp; | &nbsp;
                                       <span className="text-dark">
                                         <i className="ti ti-eye"></i> View Profile
                                       </span>
@@ -901,9 +947,7 @@ const EmployeerAppliedCandidates = () => {
                                   </h6>
                                   <p className="fs-13">
                                     <b>Applied On:</b> {new Date(candidate.appliedDate).toLocaleDateString()} &nbsp; | &nbsp; 
-                                    <span className={`badge ${candidate.employapplicantstatus === 'Pending' ? 'bg-warning' : 
-                                      candidate.employapplicantstatus === 'Interview Scheduled' ? 'bg-info' : 
-                                      candidate.employapplicantstatus === 'In Progress' ? 'bg-primary' : 'bg-success'}`}>
+                                    <span className={`badge ${getStatusBadgeClass(candidate.employapplicantstatus)}`}>
                                       {candidate.employapplicantstatus || 'Pending'}
                                     </span> &nbsp; | &nbsp; 
                                     {candidate.resume?.url && (

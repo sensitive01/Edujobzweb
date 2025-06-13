@@ -22,22 +22,23 @@ const Candidates = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const roles = [
-    'All',
-    'PGT Mathematics Teacher',
-    'Physical Trainer',
-    'Chemistry Teacher',
-    'Receptionist',
-    'Bus Driver',
-    'Security',
-    'flutter developer'
-  ];
-  
+  // Extract roles dynamically from candidates data
+  const getUniqueRoles = (candidates) => {
+    const roles = new Set();
+    candidates.forEach(candidate => {
+      if (candidate.jobrole) {
+        roles.add(candidate.jobrole);
+      }
+    });
+    return ['All', ...Array.from(roles)];
+  };
+
   const statuses = [
+    'All',
     'Active',
     'Inactive',
     'New',
-    'On Hold',
+    'In Progress',
     'Shortlisted',
     'Rejected',
     'Applied',
@@ -59,10 +60,10 @@ const Candidates = () => {
 
   const [openSections, setOpenSections] = useState({
     jobCategory: true,
-    JobType: true,
+    jobType: true,
     gender: true,
     salaryRange: true,
-    Location: true,
+    location: true,
     qualification: true,
     experience: true,
   });
@@ -101,7 +102,7 @@ const Candidates = () => {
             }
           }
         );
-        console.log('Response object:', response);
+        
         if (!response.ok) {
           throw new Error('Failed to fetch candidates');
         }
@@ -121,7 +122,6 @@ const Candidates = () => {
   }, [navigate]);
 
   useEffect(() => {
-    // Apply filters whenever filters state changes
     filterCandidates();
   }, [filters, candidates]);
 
@@ -132,15 +132,18 @@ const Candidates = () => {
     if (filters.searchQuery.trim()) {
       const searchTerm = filters.searchQuery.toLowerCase().trim();
       result = result.filter(candidate => {
-        return (
-          (candidate.firstName && candidate.firstName.toLowerCase().includes(searchTerm)) ||
-          (candidate.lastName && candidate.lastName.toLowerCase().includes(searchTerm)) ||
-          (candidate.email && candidate.email.toLowerCase().includes(searchTerm)) ||
-          (candidate.jobrole && candidate.jobrole.toLowerCase().includes(searchTerm)) ||
-          (candidate.currentcity && candidate.currentcity.toLowerCase().includes(searchTerm)) ||
-          (candidate.qualification && candidate.qualification.toLowerCase().includes(searchTerm)) ||
-          (candidate.currentDesignation && candidate.currentDesignation.toLowerCase().includes(searchTerm))
-        );
+        const searchFields = [
+          candidate.firstName,
+          candidate.lastName,
+          candidate.email,
+          candidate.phone,
+          candidate.jobrole,
+          candidate.currentcity,
+          candidate.qualification,
+          candidate.jobTitle
+        ].filter(Boolean).join(' ').toLowerCase();
+        
+        return searchFields.includes(searchTerm);
       });
     }
 
@@ -184,6 +187,15 @@ const Candidates = () => {
         candidate.employapplicantstatus && 
         candidate.employapplicantstatus.toLowerCase() === filters.status.toLowerCase()
       );
+    }
+
+    // Sort candidates
+    if (selectedSort.includes('Recently Added')) {
+      result.sort((a, b) => new Date(b.appliedDate) - new Date(a.appliedDate));
+    } else if (selectedSort.includes('Ascending')) {
+      result.sort((a, b) => (a.firstName || '').localeCompare(b.firstName || ''));
+    } else if (selectedSort.includes('Descending')) {
+      result.sort((a, b) => (b.firstName || '').localeCompare(a.firstName || ''));
     }
 
     setFilteredCandidates(result);
@@ -243,11 +255,13 @@ const Candidates = () => {
       searchQuery: '',
       status: ''
     });
+    setSelectedRole('Role');
+    setSelectedStatus('Select Status');
+    setSelectedSort('Sort By: Last 7 Days');
   };
 
   const handleSubmit = () => {
-    // Filters are applied automatically through useEffect
-    console.log('Applied filters', filters);
+    filterCandidates();
   };
 
   const toggleDropdown = (dropdownName) => {
@@ -274,6 +288,23 @@ const Candidates = () => {
   const viewCandidateDetails = (candidate) => {
     setSelectedCandidate(candidate);
     setShowDetails(true);
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'shortlisted':
+        return 'bg-success';
+      case 'rejected':
+        return 'bg-danger';
+      case 'in progress':
+        return 'bg-info';
+      case 'pending':
+        return 'bg-warning';
+      case 'applied':
+        return 'bg-primary';
+      default:
+        return 'bg-secondary';
+    }
   };
 
   if (loading) {
@@ -314,6 +345,8 @@ const Candidates = () => {
       </>
     );
   }
+
+  const roles = getUniqueRoles(candidates);
 
   return (
     <>
@@ -394,7 +427,7 @@ const Candidates = () => {
                         setSelectedStatus(status);
                         setFilters(prev => ({
                           ...prev,
-                          status: status === 'Select Status' ? '' : status
+                          status: status === 'All' ? '' : status
                         }));
                         closeAllDropdowns();
                       }}
@@ -425,6 +458,7 @@ const Candidates = () => {
                       onClick={() => {
                         setSelectedSort(`Sort By: ${option}`);
                         closeAllDropdowns();
+                        filterCandidates();
                       }}
                     >
                       {option}
@@ -859,7 +893,7 @@ const Candidates = () => {
                           placeholder="Search Candidates (name, email, skills, etc.)" 
                           defaultValue={filters.searchQuery}
                         />
-                        <button type="submit" className="btn btn-secondary"  style={{  whiteSpace: 'nowrap' }}>Search</button>
+                        <button type="submit" className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }}>Search</button>
                       </div>
                     </form>
                   </div>
@@ -907,7 +941,7 @@ const Candidates = () => {
                                   </h6>
                                   <p className="fs-13">
                                     <b>Applied On:</b> {new Date(candidate.appliedDate).toLocaleDateString()} &nbsp; | &nbsp; 
-                                    <span className={`badge ${candidate.employapplicantstatus === 'Pending' ? 'bg-warning' : 'bg-success'}`}>
+                                    <span className={`badge ${getStatusBadgeClass(candidate.employapplicantstatus)}`}>
                                       {candidate.employapplicantstatus || 'Pending'}
                                     </span> &nbsp; | &nbsp; 
                                     {candidate.resume?.url && (

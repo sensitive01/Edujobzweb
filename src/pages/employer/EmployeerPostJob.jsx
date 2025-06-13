@@ -28,25 +28,14 @@ const EmployeerPostJob = () => {
     experienceRange: { from: '', to: '' }
   });
 
-  const jobCategories = [
-    "Teachers", "Lab Assistants", "Principals", "Sports Trainers", "Office Staffs"
-  ];
-
-  const jobTypes = [
-    "Full Time", "Part Time", "Remote", "Temporary"
-  ];
-
-  const statusOptions = [
-    "Active", "Inactive", "New", "On Hold", "Shortlisted", "Rejected"
-  ];
+  // Extract unique values from jobs for filters
+  const jobCategories = [...new Set(jobs.map(job => job.category))].filter(Boolean);
+  const jobTypes = [...new Set(jobs.map(job => job.type))].filter(Boolean);
+  const statusOptions = [...new Set(jobs.map(job => job.status))].filter(Boolean);
+  const jobRoles = ['All', ...new Set(jobs.map(job => job.title))].filter(Boolean);
 
   const sortOptions = [
     "Recently Added", "Ascending", "Descending", "Last Month", "Last 7 Days"
-  ];
-
-  const jobRoles = [
-    "All", "PGT Mathematics Teacher", "Physical Trainer", "Chemistry Teacher",
-    "Receptionist", "Bus Driver", "Security"
   ];
 
   useEffect(() => {
@@ -79,6 +68,8 @@ const EmployeerPostJob = () => {
         applicants: job.applications?.length || 0,
         shortlisted: job.applications?.filter(app => app.employapplicantstatus === 'Shortlisted').length || 0,
         location: job.location,
+        salaryFrom: job.salaryFrom || 0,
+        salaryTo: job.salaryTo || 0,
         salary: `${job.salaryFrom || 'N/A'} - ${job.salaryTo || 'N/A'} ${job.salaryType || ''}`,
         experience: job.experienceLevel || 'Not specified',
         type: job.jobType || 'Not specified',
@@ -92,7 +83,8 @@ const EmployeerPostJob = () => {
         applications: job.applications || [],
         status: job.isActive ? 'Active' : 'Inactive',
         createdDate: new Date(job.createdAt),
-        priority: 'null',
+        priority: job.priority || 'null',
+        educationLevel: job.educationLevel || ''
       }));
 
       setJobs(formattedJobs);
@@ -119,100 +111,81 @@ const EmployeerPostJob = () => {
     }
   };
 
-
   const filterAndSortJobs = () => {
     let result = [...jobs];
 
-    // Apply all filters
-    result = result.filter(job => {
-      // Search term filter
-      if (
-        searchTerm &&
-        !(
-          job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          job.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          job.skills.some(skill => skill.toLowerCase().includes(searchTerm.toLowerCase()))
-        )
-      ) {
-        return false;
-      }
+    // Apply search term filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(job => 
+        job.title.toLowerCase().includes(term) ||
+        job.description.toLowerCase().includes(term) ||
+        (job.skills && job.skills.some(skill => skill.toLowerCase().includes(term))) ||
+        job.category.toLowerCase().includes(term) ||
+        job.type.toLowerCase().includes(term)
+      );
+    }
 
-      // Category filter
-      if (
-        filters.category.length > 0 &&
-        !filters.category.some(cat => job.category.includes(cat))
-      ) {
-        return false;
-      }
+    // Apply category filter
+    if (filters.category.length > 0) {
+      result = result.filter(job => 
+        job.category && filters.category.includes(job.category)
+      );
+    }
 
-      // Type filter
-      if (
-        filters.type.length > 0 &&
-        !filters.type.some(type => job.type.includes(type))
-      ) {
-        return false;
-      }
+    // Apply type filter
+    if (filters.type.length > 0) {
+      result = result.filter(job => 
+        job.type && filters.type.includes(job.type)
+      );
+    }
 
-      // Status filter
-      if (
-        filters.status.length > 0 &&
-        !filters.status.includes(job.status)
-      ) {
-        return false;
-      }
+    // Apply status filter
+    if (filters.status.length > 0) {
+      result = result.filter(job => 
+        job.status && filters.status.includes(job.status)
+      );
+    }
 
-      // Role filter
-      if (
-        filters.role !== 'All' &&
-        !job.title.includes(filters.role)
-      ) {
-        return false;
-      }
+    // Apply role filter
+    if (filters.role !== 'All') {
+      result = result.filter(job => 
+        job.title && job.title.includes(filters.role)
+      );
+    }
 
-      // Gender filter
-      if (
-        filters.gender &&
-        job.gender &&
-        job.gender !== filters.gender
-      ) {
-        return false;
-      }
+    // Apply salary range filter
+    if (filters.salaryRange.from || filters.salaryRange.to) {
+      result = result.filter(job => {
+        const from = filters.salaryRange.from ? Number(filters.salaryRange.from) : 0;
+        const to = filters.salaryRange.to ? Number(filters.salaryRange.to) : Infinity;
+        return job.salaryFrom >= from && job.salaryTo <= to;
+      });
+    }
 
-      // Salary range filter
-      if (
-        (filters.salaryRange.from && job.salaryFrom < Number(filters.salaryRange.from)) ||
-        (filters.salaryRange.to && job.salaryTo > Number(filters.salaryRange.to))
-      ) {
-        return false;
-      }
+    // Apply location filter
+    if (filters.location) {
+      result = result.filter(job => 
+        job.location && job.location.toLowerCase().includes(filters.location.toLowerCase())
+      );
+    }
 
-      // Location filter
-      if (
-        filters.location &&
-        !job.location.toLowerCase().includes(filters.location.toLowerCase())
-      ) {
-        return false;
-      }
+    // Apply qualification filter
+    if (filters.qualification) {
+      result = result.filter(job => 
+        job.educationLevel && job.educationLevel.toLowerCase().includes(filters.qualification.toLowerCase())
+      );
+    }
 
-      // Qualification filter
-      if (
-        filters.qualification &&
-        job.educationLevel &&
-        !job.educationLevel.toLowerCase().includes(filters.qualification.toLowerCase())
-      ) {
-        return false;
-      }
-
-      // Experience range filter
-      if (
-        (filters.experienceRange.from && getExperienceValue(job.experience) < Number(filters.experienceRange.from)) ||
-        (filters.experienceRange.to && getExperienceValue(job.experience) > Number(filters.experienceRange.to))
-      ) {
-        return false;
-      }
-
-      return true;
-    });
+    // Apply experience filter
+    if (filters.experienceRange.from || filters.experienceRange.to) {
+      result = result.filter(job => {
+        const expValue = getExperienceValue(job.experience);
+        const from = filters.experienceRange.from ? Number(filters.experienceRange.from) : 0;
+        const to = filters.experienceRange.to ? Number(filters.experienceRange.to) : Infinity;
+        return expValue >= from && expValue <= to;
+      });
+    }
 
     // Apply sorting
     switch (filters.sortBy) {
@@ -244,8 +217,6 @@ const EmployeerPostJob = () => {
     setFilteredJobs(result);
   };
 
-
-  // Helper function to convert experience string to numeric value
   const getExperienceValue = (expString) => {
     if (!expString) return 0;
     const matches = expString.match(/\d+/g);
@@ -275,13 +246,12 @@ const EmployeerPostJob = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Search is handled in the useEffect
+    filterAndSortJobs();
   };
 
   const handleSearchInputChange = (e) => {
     setSearchTerm(e.target.value);
   };
-
 
   const handleFilterChange = (filterType, value) => {
     if (filterType === 'category' || filterType === 'type' || filterType === 'status') {
@@ -323,7 +293,6 @@ const EmployeerPostJob = () => {
   return (
     <>
       <EmployerHeader />
-      {/* <div class="page-wrapper"> */}
       <div className="content">
         {/* Header Section */}
         <div className="d-flex align-items-center justify-content-between mb-3">
@@ -445,9 +414,8 @@ const EmployeerPostJob = () => {
                         placeholder="Search Jobs"
                         value={searchTerm}
                         onChange={handleSearchInputChange}
-
                       />
-                      <button type="submit" className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }} >Search</button>
+                      <button type="submit" className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }}>Search</button>
                     </div>
                   </form>
                 </div>
@@ -494,7 +462,6 @@ const EmployeerPostJob = () => {
           <SuccessModal onClose={() => setShowSuccessModal(false)} />
         )}
       </div>
-      {/* </div> */}
       <EmployerFooter />
     </>
   );

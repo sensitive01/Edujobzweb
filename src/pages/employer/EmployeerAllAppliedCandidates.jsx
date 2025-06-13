@@ -22,18 +22,19 @@ const EmployeerAllAppliedCandidates = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const roles = [
-    'All',
-    'PGT Mathematics Teacher',
-    'Physical Trainer',
-    'Chemistry Teacher',
-    'Receptionist',
-    'Bus Driver',
-    'Security',
-    'flutter developer'
-  ];
-  
+  // Extract roles dynamically from candidates data
+  const getUniqueRoles = (candidates) => {
+    const roles = new Set();
+    candidates.forEach(candidate => {
+      if (candidate.jobrole) {
+        roles.add(candidate.jobrole);
+      }
+    });
+    return ['All', ...Array.from(roles)];
+  };
+
   const statuses = [
+    'All',
     'Active',
     'Inactive',
     'New',
@@ -59,10 +60,10 @@ const EmployeerAllAppliedCandidates = () => {
 
   const [openSections, setOpenSections] = useState({
     jobCategory: true,
-    JobType: true,
+    jobType: true,
     gender: true,
     salaryRange: true,
-    Location: true,
+    location: true,
     qualification: true,
     experience: true,
   });
@@ -101,7 +102,7 @@ const EmployeerAllAppliedCandidates = () => {
             }
           }
         );
-        console.log('Response object:', response);
+        
         if (!response.ok) {
           throw new Error('Failed to fetch candidates');
         }
@@ -121,9 +122,8 @@ const EmployeerAllAppliedCandidates = () => {
   }, [navigate]);
 
   useEffect(() => {
-    // Apply filters whenever filters state changes
     filterCandidates();
-  }, [filters, candidates]);
+  }, [filters, candidates, selectedSort]);
 
   const filterCandidates = () => {
     let result = [...candidates];
@@ -132,15 +132,18 @@ const EmployeerAllAppliedCandidates = () => {
     if (filters.searchQuery.trim()) {
       const searchTerm = filters.searchQuery.toLowerCase().trim();
       result = result.filter(candidate => {
-        return (
-          (candidate.firstName && candidate.firstName.toLowerCase().includes(searchTerm)) ||
-          (candidate.lastName && candidate.lastName.toLowerCase().includes(searchTerm)) ||
-          (candidate.email && candidate.email.toLowerCase().includes(searchTerm)) ||
-          (candidate.jobrole && candidate.jobrole.toLowerCase().includes(searchTerm)) ||
-          (candidate.currentcity && candidate.currentcity.toLowerCase().includes(searchTerm)) ||
-          (candidate.qualification && candidate.qualification.toLowerCase().includes(searchTerm)) ||
-          (candidate.currentDesignation && candidate.currentDesignation.toLowerCase().includes(searchTerm))
-        );
+        const searchFields = [
+          candidate.firstName,
+          candidate.lastName,
+          candidate.email,
+          candidate.phone,
+          candidate.jobrole,
+          candidate.currentcity,
+          candidate.qualification,
+          candidate.currentDesignation
+        ].filter(Boolean).join(' ').toLowerCase();
+        
+        return searchFields.includes(searchTerm);
       });
     }
 
@@ -186,7 +189,36 @@ const EmployeerAllAppliedCandidates = () => {
       );
     }
 
+    // Sort candidates
+    if (selectedSort.includes('Recently Added')) {
+      result.sort((a, b) => new Date(b.appliedDate) - new Date(a.appliedDate));
+    } else if (selectedSort.includes('Ascending')) {
+      result.sort((a, b) => (a.firstName || '').localeCompare(b.firstName || ''));
+    } else if (selectedSort.includes('Descending')) {
+      result.sort((a, b) => (b.firstName || '').localeCompare(a.firstName || ''));
+    }
+
     setFilteredCandidates(result);
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'shortlisted':
+        return 'bg-success';
+      case 'rejected':
+        return 'bg-danger';
+      case 'in progress':
+      case 'interview scheduled':
+        return 'bg-info';
+      case 'pending':
+        return 'bg-warning';
+      case 'applied':
+        return 'bg-primary';
+      case 'on hold':
+        return 'bg-secondary';
+      default:
+        return 'bg-secondary';
+    }
   };
 
   const toggleSection = (section) => {
@@ -243,11 +275,13 @@ const EmployeerAllAppliedCandidates = () => {
       searchQuery: '',
       status: ''
     });
+    setSelectedRole('Role');
+    setSelectedStatus('Select Status');
+    setSelectedSort('Sort By: Last 7 Days');
   };
 
   const handleSubmit = () => {
-    // Filters are applied automatically through useEffect
-    console.log('Applied filters', filters);
+    filterCandidates();
   };
 
   const toggleDropdown = (dropdownName) => {
@@ -314,6 +348,8 @@ const EmployeerAllAppliedCandidates = () => {
       </>
     );
   }
+
+  const roles = getUniqueRoles(candidates);
 
   return (
     <>
@@ -394,7 +430,7 @@ const EmployeerAllAppliedCandidates = () => {
                         setSelectedStatus(status);
                         setFilters(prev => ({
                           ...prev,
-                          status: status === 'Select Status' ? '' : status
+                          status: status === 'All' ? '' : status
                         }));
                         closeAllDropdowns();
                       }}
@@ -859,7 +895,7 @@ const EmployeerAllAppliedCandidates = () => {
                           placeholder="Search Candidates (name, email, skills, etc.)" 
                           defaultValue={filters.searchQuery}
                         />
-                        <button type="submit" className="btn btn-secondary"  style={{  whiteSpace: 'nowrap' }}>Search</button>
+                        <button type="submit" className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }}>Search</button>
                       </div>
                     </form>
                   </div>
@@ -907,7 +943,7 @@ const EmployeerAllAppliedCandidates = () => {
                                   </h6>
                                   <p className="fs-13">
                                     <b>Applied On:</b> {new Date(candidate.appliedDate).toLocaleDateString()} &nbsp; | &nbsp; 
-                                    <span className={`badge ${candidate.employapplicantstatus === 'Pending' ? 'bg-warning' : 'bg-success'}`}>
+                                    <span className={`badge ${getStatusBadgeClass(candidate.employapplicantstatus)}`}>
                                       {candidate.employapplicantstatus || 'Pending'}
                                     </span> &nbsp; | &nbsp; 
                                     {candidate.resume?.url && (
