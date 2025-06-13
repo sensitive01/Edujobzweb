@@ -1,342 +1,453 @@
 import React, { useState } from 'react';
-import { Collapse } from 'react-bootstrap';
+import { Search, X, Filter } from 'lucide-react';
 
-const JobsFilter = () => {
+const JobsFilter = ({ 
+  filterOptions = {
+    categories: [],
+    jobTypes: [],
+    experienceLevels: [],
+    locations: [],
+    specializations: []
+  }, 
+  currentFilters = {
+    jobType: '',
+    location: '',
+    experienceLevel: '',
+    category: '',
+    searchQuery: '',
+    sort: '',
+    salaryFrom: '',
+    salaryTo: ''
+  }, 
+  onApplyFilters = () => {}, 
+  onClose = () => {}
+}) => {
   const [openCategory, setOpenCategory] = useState(true);
   const [openExperience, setOpenExperience] = useState(true);
   const [openType, setOpenType] = useState(true);
-  const [openSubject, setOpenSubject] = useState(true);
-  const [openSpecialization, setOpenSpecialization] = useState(true);
+  const [openLocation, setOpenLocation] = useState(true);
   const [openSalary, setOpenSalary] = useState(true);
-  const [showMoreCategories, setShowMoreCategories] = useState(false);
+  const [openSpecialization, setOpenSpecialization] = useState(true);
   
-  // State for filters
   const [filters, setFilters] = useState({
-    categories: [],
-    experience: { min: '', max: '' },
-    jobTypes: [],
-    subject: '',
-    specializations: [],
-    salary: { min: '', max: '' }
+    jobType: currentFilters.jobType || '',
+    location: currentFilters.location || '',
+    experienceLevel: currentFilters.experienceLevel || '',
+    category: currentFilters.category || '',
+    salaryFrom: currentFilters.salaryFrom || '',
+    salaryTo: currentFilters.salaryTo || '',
+    searchQuery: currentFilters.searchQuery || '',
+    sort: currentFilters.sort || ''
   });
 
-  // Job categories data
-  const jobCategories = [
-    { id: 1, name: 'Teachers' },
-    { id: 2, name: 'Lab Assistants' },
-    { id: 3, name: 'Principals' },
-    { id: 4, name: 'Sports Trainers' },
-    { id: 5, name: 'Office Staffs' }
-  ];
-
-  // Job types data
-  const jobTypes = [
-    { id: 1, name: 'Full Time' },
-    { id: 2, name: 'Part Time' },
-    { id: 3, name: 'Remote' },
-    { id: 4, name: 'Temporary' }
-  ];
-
-  // Specializations data
-  const specializations = [
-    'Physics', 'Chemistry', 'Mathematics', 'Science', 
-    'Kannada', 'English', 'Hindi', 'German', 'French'
-  ];
-
-  // Handle category selection
-  const handleCategoryChange = (categoryId) => {
-    setFilters(prev => {
-      const newCategories = prev.categories.includes(categoryId)
-        ? prev.categories.filter(id => id !== categoryId)
-        : [...prev.categories, categoryId];
-      return { ...prev, categories: newCategories };
-    });
+  const handleFilterChange = (name, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  // Handle job type selection
-  const handleJobTypeChange = (typeId) => {
-    setFilters(prev => {
-      const newTypes = prev.jobTypes.includes(typeId)
-        ? prev.jobTypes.filter(id => id !== typeId)
-        : [...prev.jobTypes, typeId];
-      return { ...prev, jobTypes: newTypes };
-    });
-  };
-
-  // Handle specialization selection
-  const handleSpecializationClick = (specialization) => {
-    setFilters(prev => {
-      const newSpecs = prev.specializations.includes(specialization)
-        ? prev.specializations.filter(s => s !== specialization)
-        : [...prev.specializations, specialization];
-      return { ...prev, specializations: newSpecs };
-    });
-  };
-
-  // Handle form reset
   const handleReset = () => {
     setFilters({
-      categories: [],
-      experience: { min: '', max: '' },
-      jobTypes: [],
-      subject: '',
-      specializations: [],
-      salary: { min: '', max: '' }
+      jobType: '',
+      location: '',
+      experienceLevel: '',
+      category: '',
+      salaryFrom: '',
+      salaryTo: '',
+      searchQuery: '',
+      sort: ''
     });
   };
 
-  return (
-    <aside className="filters-sidebar custom-filters">
-      <button className="btn btn-filters filters-opener" type="button">
-        <span></span>
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onApplyFilters(filters);
+  };
+
+  const handleSalaryChange = (type, value) => {
+    const numValue = value === '' ? '' : parseInt(value);
+    setFilters(prev => ({
+      ...prev,
+      [type]: numValue
+    }));
+  };
+
+  const CollapsibleSection = ({ title, isOpen, onToggle, children }) => (
+    <div style={{ 
+      marginBottom: '24px', 
+      borderBottom: '1px solid #e5e7eb', 
+      paddingBottom: isOpen ? '20px' : '16px'
+    }}>
+      <button 
+        type="button"
+        onClick={onToggle}
+        style={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: 'none',
+          border: 'none',
+          padding: '0 0 16px 0',
+          cursor: 'pointer',
+          fontSize: '16px',
+          fontWeight: '600',
+          color: '#1e40af',
+          textAlign: 'left'
+        }}
+      >
+        {title}
+        <span style={{ 
+          fontSize: '20px',
+          fontWeight: 'bold',
+          transition: 'transform 0.2s',
+          color: '#6b7280'
+        }}>
+          {isOpen ? '−' : '+'}
+        </span>
       </button>
+      {isOpen && (
+        <div>
+          {children}
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div style={{
+      width: '400px',
+      height: '100vh',
+      background: '#f8fafc',
+      overflowY: 'auto',
+      overflowX: 'hidden',
+      padding: '24px 20px',
+      boxShadow: '2px 0 10px rgba(0, 0, 0, 0.1)',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      zIndex: 1001,
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <h3 style={{ margin: 0, color: '#1e293b', fontSize: '20px' }}>Filter Jobs</h3>
+        <button 
+          onClick={onClose}
+          style={{
+            background: 'white',
+            border: '2px solid #d1d5db',
+            borderRadius: '50%',
+            width: '36px',
+            height: '36px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer'
+          }}
+        >
+          <X size={18} color="#6b7280" />
+        </button>
+      </div>
       
-      <form>
-        {/* Job Category Filter */}
-        <div className="filter-box">
-          <a 
-            className="filter-box-head" 
-            onClick={() => setOpenCategory(!openCategory)}
-            aria-controls="collapseCategory"
-            aria-expanded={openCategory}
-          >
-            <h2 className="h5 text-secondary">Job Category</h2>
-            <span className={`collapse-icon ${openCategory ? 'open' : ''}`}></span>
-          </a>
-          <Collapse in={openCategory}>
-            <div id="collapseCategory">
-              <div className="form-group">
-                <div className="checkbox-limit">
-                  <ul className="checkbox-list">
-                    {jobCategories.slice(0, showMoreCategories ? jobCategories.length : 3).map(category => (
-                      <li key={category.id}>
-                        <label className="custom-checkbox">
-                          <input 
-                            type="checkbox" 
-                            checked={filters.categories.includes(category.id)}
-                            onChange={() => handleCategoryChange(category.id)}
-                          />
-                          <span className="fake-checkbox"></span>
-                          <span className="label-text">{category.name}</span>
-                        </label>
-                      </li>
-                    ))}
-                  </ul>
-                  <button 
-                    type="button" 
-                    className="btn btn-primary btn-sm buttonShowMore"
-                    onClick={() => setShowMoreCategories(!showMoreCategories)}
-                  >
-                    <span className="btn-text">
-                      Show 
-                      <span className={showMoreCategories ? 'hide' : 'show'}>More</span>
-                      <span className={showMoreCategories ? 'show' : 'hide'}>Less</span>
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Collapse>
-        </div>
-
-        {/* Experience Filter */}
-        <div className="filter-box">
-          <a 
-            className="filter-box-head" 
-            onClick={() => setOpenExperience(!openExperience)}
-            aria-controls="collapseexperience"
-            aria-expanded={openExperience}
-          >
-            <h2 className="h5 text-secondary">Experience</h2>
-            <span className={`collapse-icon ${openExperience ? 'open' : ''}`}></span>
-          </a>
-          <Collapse in={openExperience}>
-            <div id="collapseexperience">
-              <div className="form-group">
-                <div className="price-inputs">
-                  <input 
-                    type="text" 
-                    id="price-start" 
-                    className="form-control" 
-                    placeholder="From" 
-                    value={filters.experience.min}
-                    onChange={(e) => setFilters({...filters, experience: {...filters.experience, min: e.target.value}})}
-                  />
-                  <input 
-                    type="text" 
-                    id="price-end" 
-                    className="form-control" 
-                    placeholder="To" 
-                    value={filters.experience.max}
-                    onChange={(e) => setFilters({...filters, experience: {...filters.experience, max: e.target.value}})}
-                  />
-                </div>
-                <div className="range-box">
-                  {/* Range slider would be implemented here */}
-                  <div id="price-range"></div>
-                </div>
-                <p className="text-center">Leave empty to Search Freshers</p>
-              </div>
-            </div>
-          </Collapse>
-        </div>
-
+      <form onSubmit={handleSubmit}>
         {/* Job Type Filter */}
-        <div className="filter-box">
-          <a 
-            className="filter-box-head" 
-            onClick={() => setOpenType(!openType)}
-            aria-controls="collapseType"
-            aria-expanded={openType}
-          >
-            <h2 className="h5 text-secondary">Job Type</h2>
-            <span className={`collapse-icon ${openType ? 'open' : ''}`}></span>
-          </a>
-          <Collapse in={openType}>
-            <div id="collapseType">
-              <div className="form-group">
-                <div className="checkbox-limit">
-                  <ul className="checkbox-list">
-                    {jobTypes.map(type => (
-                      <li key={type.id}>
-                        <label className="custom-checkbox">
-                          <input 
-                            type="checkbox" 
-                            checked={filters.jobTypes.includes(type.id)}
-                            onChange={() => handleJobTypeChange(type.id)}
-                          />
-                          <span className="fake-checkbox"></span>
-                          <span className="label-text">{type.name}</span>
-                        </label>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </Collapse>
-        </div>
+        <CollapsibleSection 
+          title="Job Type" 
+          isOpen={openType} 
+          onToggle={() => setOpenType(!openType)}
+        >
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            {filterOptions.jobTypes.map(type => (
+              <label key={type} style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                cursor: 'pointer',
+                fontSize: '14px',
+                color: '#374151'
+              }}>
+                <input 
+                  type="radio" 
+                  name="jobType"
+                  checked={filters.jobType === type}
+                  onChange={() => handleFilterChange('jobType', type)}
+                  style={{ 
+                    marginRight: '8px',
+                    width: '16px',
+                    height: '16px',
+                    accentColor: '#1e40af'
+                  }}
+                />
+                <span>{type}</span>
+              </label>
+            ))}
+            <label style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              cursor: 'pointer',
+              fontSize: '14px',
+              color: '#374151'
+            }}>
+              <input 
+                type="radio" 
+                name="jobType"
+                checked={filters.jobType === ''}
+                onChange={() => handleFilterChange('jobType', '')}
+                style={{ 
+                  marginRight: '8px',
+                  width: '16px',
+                  height: '16px',
+                  accentColor: '#1e40af'
+                }}
+              />
+              <span>Any Type</span>
+            </label>
+          </div>
+        </CollapsibleSection>
 
-        {/* Teaching Subject Filter */}
-        <div className="filter-box">
-          <a 
-            className="filter-box-head" 
-            onClick={() => setOpenSubject(!openSubject)}
-            aria-controls="collapseLocation"
-            aria-expanded={openSubject}
+        {/* Location Filter */}
+        <CollapsibleSection 
+          title="Location" 
+          isOpen={openLocation} 
+          onToggle={() => setOpenLocation(!openLocation)}
+        >
+          <select 
+            name="location"
+            value={filters.location || ''}
+            onChange={(e) => handleFilterChange('location', e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              border: '1px solid #d1d5db',
+              borderRadius: '24px',
+              background: 'white',
+              fontSize: '14px',
+              outline: 'none',
+              color: filters.location ? '#374151' : '#9ca3af'
+            }}
           >
-            <h2 className="h5 text-secondary">Teaching Subject</h2>
-            <span className={`collapse-icon ${openSubject ? 'open' : ''}`}></span>
-          </a>
-          <Collapse in={openSubject}>
-            <div id="collapseLocation">
-              <div className="form-group">
-                <select 
-                  className="select2 medium" 
-                  name="state" 
-                  value={filters.subject}
-                  onChange={(e) => setFilters({...filters, subject: e.target.value})}
-                >
-                  <option value="">Select Subject</option>
-                  <option>Bengaluru</option>
-                  <option>Mysuru</option>
-                </select>
-              </div>
-            </div>
-          </Collapse>
-        </div>
+            <option value="">All Locations</option>
+            <option value="Remote">Remote</option>
+            {filterOptions.locations.map(location => (
+              <option key={location} value={location} style={{ color: '#374151' }}>{location}</option>
+            ))}
+          </select>
+        </CollapsibleSection>
+
+        {/* Experience Level Filter */}
+        <CollapsibleSection 
+          title="Experience Level" 
+          isOpen={openExperience} 
+          onToggle={() => setOpenExperience(!openExperience)}
+        >
+          <select 
+            name="experienceLevel"
+            value={filters.experienceLevel || ''}
+            onChange={(e) => handleFilterChange('experienceLevel', e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              border: '1px solid #d1d5db',
+              borderRadius: '24px',
+              background: 'white',
+              fontSize: '14px',
+              outline: 'none',
+              color: filters.experienceLevel ? '#374151' : '#9ca3af'
+            }}
+          >
+            <option value="">Any Experience Level</option>
+            {filterOptions.experienceLevels.map(level => (
+              <option key={level} value={level} style={{ color: '#374151' }}>{level}</option>
+            ))}
+          </select>
+        </CollapsibleSection>
+
+        {/* Job Category Filter */}
+        <CollapsibleSection 
+          title="Job Category" 
+          isOpen={openCategory} 
+          onToggle={() => setOpenCategory(!openCategory)}
+        >
+          <select 
+            name="category"
+            value={filters.category || ''}
+            onChange={(e) => handleFilterChange('category', e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              border: '1px solid #d1d5db',
+              borderRadius: '24px',
+              background: 'white',
+              fontSize: '14px',
+              outline: 'none',
+              color: filters.category ? '#374151' : '#9ca3af'
+            }}
+          >
+            <option value="">All Categories</option>
+            {filterOptions.categories.map(category => (
+              <option key={category} value={category} style={{ color: '#374151' }}>{category}</option>
+            ))}
+          </select>
+        </CollapsibleSection>
 
         {/* Specialization Filter */}
-        <div className="filter-box">
-          <a 
-            className="filter-box-head" 
-            onClick={() => setOpenSpecialization(!openSpecialization)}
-            aria-controls="collapseTags"
-            aria-expanded={openSpecialization}
-          >
-            <h2 className="h5 text-secondary">Specialized in</h2>
-            <span className={`collapse-icon ${openSpecialization ? 'open' : ''}`}></span>
-          </a>
-          <Collapse in={openSpecialization}>
-            <div id="collapseTags">
-              <div className="form-group">
-                <ul className="tags-list">
-                  {specializations.map(spec => (
-                    <li key={spec}>
-                      <button 
-                        type="button"
-                        className={`tag ${filters.specializations.includes(spec) ? 'active' : ''}`}
-                        onClick={() => handleSpecializationClick(spec)}
-                      >
-                        {spec}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </Collapse>
-        </div>
+        <CollapsibleSection 
+          title="Specialization" 
+          isOpen={openSpecialization} 
+          onToggle={() => setOpenSpecialization(!openSpecialization)}
+        >
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 1fr', 
+            gap: '10px',
+            maxHeight: '200px',
+            overflowY: 'auto',
+            paddingRight: '8px'
+          }}>
+            {filterOptions.specializations.map(specialization => (
+              <label key={specialization} style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                cursor: 'pointer',
+                fontSize: '14px',
+                color: '#374151'
+              }}>
+                <input 
+                  type="radio" 
+                  name="category"
+                  checked={filters.category === specialization}
+                  onChange={() => handleFilterChange('category', specialization)}
+                  style={{ 
+                    marginRight: '8px',
+                    width: '16px',
+                    height: '16px',
+                    accentColor: '#1e40af'
+                  }}
+                />
+                <span>{specialization}</span>
+              </label>
+            ))}
+            <label style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              cursor: 'pointer',
+              fontSize: '14px',
+              color: '#374151'
+            }}>
+              <input 
+                type="radio" 
+                name="category"
+                checked={filters.category === ''}
+                onChange={() => handleFilterChange('category', '')}
+                style={{ 
+                  marginRight: '8px',
+                  width: '16px',
+                  height: '16px',
+                  accentColor: '#1e40af'
+                }}
+              />
+              <span>All Specializations</span>
+            </label>
+          </div>
+        </CollapsibleSection>
 
         {/* Salary Filter */}
-        <div className="filter-box">
-          <a 
-            className="filter-box-head" 
-            onClick={() => setOpenSalary(!openSalary)}
-            aria-controls="collapseSalary"
-            aria-expanded={openSalary}
-          >
-            <h2 className="h5 text-secondary">Salary per month</h2>
-            <span className={`collapse-icon ${openSalary ? 'open' : ''}`}></span>
-          </a>
-          <Collapse in={openSalary}>
-            <div id="collapseSalary">
-              <div className="form-group">
-                <div className="price-inputs">
-                  <input 
-                    type="text" 
-                    id="amount-start" 
-                    className="form-control" 
-                    placeholder="From" 
-                    value={filters.salary.min}
-                    onChange={(e) => setFilters({...filters, salary: {...filters.salary, min: e.target.value}})}
-                  />
-                  <input 
-                    type="text" 
-                    id="amount-end" 
-                    className="form-control" 
-                    placeholder="To" 
-                    value={filters.salary.max}
-                    onChange={(e) => setFilters({...filters, salary: {...filters.salary, max: e.target.value}})}
-                  />
-                </div>
-                <div className="range-box">
-                  {/* Range slider would be implemented here */}
-                  <div id="slider-range"></div>
-                </div>
-                <p className="text-center">Leave empty to search all range</p>
-              </div>
+        <CollapsibleSection 
+          title="Salary Range" 
+          isOpen={openSalary} 
+          onToggle={() => setOpenSalary(!openSalary)}
+        >
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+              <input 
+                type="number" 
+                name="salaryFrom"
+                placeholder="From" 
+                value={filters.salaryFrom || ''}
+                onChange={(e) => handleSalaryChange('salaryFrom', e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '10px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '20px',
+                  background: 'white',
+                  fontSize: '13px',
+                  outline: 'none',
+                  maxWidth: '120px'
+                }}
+              />
+              <input 
+                type="number" 
+                name="salaryTo"
+                placeholder="To" 
+                value={filters.salaryTo || ''}
+                onChange={(e) => handleSalaryChange('salaryTo', e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '10px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '20px',
+                  background: 'white',
+                  fontSize: '13px',
+                  outline: 'none',
+                  maxWidth: '120px'
+                }}
+              />
             </div>
-          </Collapse>
-        </div>
+            <p style={{ 
+              fontSize: '13px', 
+              color: '#6b7280', 
+              margin: 0,
+              textAlign: 'center'
+            }}>
+              Leave empty to search all salary ranges
+            </p>
+          </div>
+        </CollapsibleSection>
 
         {/* Filter Buttons */}
-        <div className="filter-buttons">
-          <button type="button" className="btn btn-secondary btn-sm">
-            <span className="btn-text">
-              <i className="fa fa-filter"></i> Apply Filter
-            </span>
-          </button>
+        <div style={{ display: 'flex', gap: '12px', marginTop: '32px', paddingTop: '20px' }}>
           <button 
             type="button" 
-            className="btn btn-text btn-sm"
             onClick={handleReset}
+            style={{
+              flex: 1,
+              padding: '14px 20px',
+              background: 'transparent',
+              color: '#1e40af',
+              border: '1px solid #1e40af',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
           >
             Reset filters
           </button>
+          <button 
+            type="submit"
+            style={{
+              flex: 1,
+              padding: '14px 20px',
+              background: '#1e40af',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+          >
+            <Filter size={16} />
+            Apply Filter
+          </button>
         </div>
       </form>
-    </aside>
+    </div>
   );
 };
 

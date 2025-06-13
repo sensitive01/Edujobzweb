@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Jobsbreadcrumb from './jobsbreadcrumb';
 import { Search } from 'lucide-react';
+import JobsFilter from './JobsFilter';
 
 const JobsPage = () => {
   const [allJobListings, setAllJobListings] = useState([]);
@@ -9,19 +10,24 @@ const JobsPage = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [jobsPerPage] = useState(8);
+  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     jobType: '',
     location: '',
     experienceLevel: '',
     searchQuery: '',
-    sort: ''
+    sort: '',
+    category: '',
+    salaryFrom: '',
+    salaryTo: ''
   });
   const [filterOptions, setFilterOptions] = useState({
     jobTypes: [],
     locations: [],
-    experienceLevels: []
+    experienceLevels: [],
+    categories: [],
+    specializations: []
   });
-
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -33,16 +39,23 @@ const JobsPage = () => {
         const data = await response.json();
         setAllJobListings(data);
         setFilteredJobListings(data);
-        const uniqueJobTypes = [...new Set(data.map(job => job.jobType))];
+        
+        const uniqueJobTypes = [...new Set(data.map(job => job.jobType))].filter(Boolean);
         const uniqueLocations = [...new Set(data.flatMap(job =>
           job.isRemote ? ['Remote'] : [job.location]
-        ))];
-        const uniqueExperienceLevels = [...new Set(data.map(job => job.experienceLevel))];
+        ))].filter(Boolean);
+        const uniqueExperienceLevels = [...new Set(data.map(job => job.experienceLevel))].filter(Boolean);
+        const uniqueCategories = [...new Set(data.map(job => job.category))].filter(Boolean);
+        
+        // Specializations can be the same as categories or you can define them separately
+        const uniqueSpecializations = [...new Set(data.map(job => job.category))].filter(Boolean);
 
         setFilterOptions({
-          jobTypes: uniqueJobTypes.filter(Boolean),
-          locations: uniqueLocations.filter(Boolean),
-          experienceLevels: uniqueExperienceLevels.filter(Boolean)
+          jobTypes: uniqueJobTypes,
+          locations: uniqueLocations,
+          experienceLevels: uniqueExperienceLevels,
+          categories: uniqueCategories,
+          specializations: uniqueSpecializations
         });
 
         setError(null);
@@ -58,16 +71,19 @@ const JobsPage = () => {
     fetchJobs();
   }, []);
 
-  useEffect(() => {
+
+   useEffect(() => {
     const applyFilters = () => {
       let filteredJobs = [...allJobListings];
+      
+      // Apply search query filter
       if (filters.searchQuery) {
         const query = filters.searchQuery.toLowerCase();
         filteredJobs = filteredJobs.filter(job => {
           const jobTitle = job.jobTitle?.toLowerCase() || '';
           const companyName = job.companyName?.toLowerCase() || '';
           const category = job.category?.toLowerCase() || '';
-          const skillsRequired = job.skillsRequired?.toLowerCase() || '';
+          const skillsRequired = job.skills?.join(' ')?.toLowerCase() || '';
 
           return (
             jobTitle.includes(query) ||
@@ -77,6 +93,8 @@ const JobsPage = () => {
           );
         });
       }
+      
+      // Apply other filters
       if (filters.jobType) {
         filteredJobs = filteredJobs.filter(job => job.jobType === filters.jobType);
       }
@@ -90,6 +108,11 @@ const JobsPage = () => {
       if (filters.experienceLevel) {
         filteredJobs = filteredJobs.filter(job => job.experienceLevel === filters.experienceLevel);
       }
+      if (filters.category) {
+        filteredJobs = filteredJobs.filter(job => job.category === filters.category);
+      }
+      
+      // Apply sorting
       if (filters.sort) {
         filteredJobs = [...filteredJobs].sort((a, b) => {
           switch (filters.sort) {
@@ -107,6 +130,18 @@ const JobsPage = () => {
         });
       }
 
+      // Apply salary range filter
+      if (filters.salaryFrom || filters.salaryTo) {
+        filteredJobs = filteredJobs.filter(job => {
+          const salaryFrom = job.salaryFrom || 0;
+          const salaryTo = job.salaryTo || Infinity;
+          return (
+            (!filters.salaryFrom || salaryFrom >= filters.salaryFrom) &&
+            (!filters.salaryTo || salaryTo <= filters.salaryTo)
+          );
+        });
+      }
+
       setFilteredJobListings(filteredJobs);
       setCurrentPage(1);
     };
@@ -116,7 +151,7 @@ const JobsPage = () => {
     }
   }, [filters, allJobListings]);
 
-  const handleFilterChange = (e) => {
+   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters(prevFilters => ({
       ...prevFilters,
@@ -133,19 +168,23 @@ const JobsPage = () => {
     }));
   };
 
-  const clearFilters = () => {
+    const clearFilters = () => {
     setFilters({
       jobType: '',
       location: '',
       experienceLevel: '',
       searchQuery: '',
-      sort: ''
+      sort: '',
+      category: '',
+      salaryFrom: '',
+      salaryTo: ''
     });
-    const searchInput = document.querySelector('input[name="search"]');
+     const searchInput = document.querySelector('input[name="search"]');
     if (searchInput) {
       searchInput.value = '';
     }
   };
+
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = filteredJobListings.slice(indexOfFirstJob, indexOfLastJob);
@@ -185,104 +224,43 @@ const JobsPage = () => {
       </div>
     );
   }
-  const handleBreadcrumbFilter = ({ keyword, location }) => {
+ const handleBreadcrumbFilter = ({ keyword, location }) => {
     setFilters(prevFilters => ({
       ...prevFilters,
       searchQuery: keyword || '',
       location: location || ''
     }));
   };
+
+   const handleApplyFilters = (newFilters) => {
+    setFilters(prev => ({
+      ...prev,
+      ...newFilters
+    }));
+    setShowFilters(false);
+  };
   return (
     <>
       <Jobsbreadcrumb onFilterChange={handleBreadcrumbFilter} />
       <main className="main">
+        {showFilters && (
+          <div className="filter-sidebar-overlay">
+            <JobsFilter
+              filterOptions={filterOptions}
+              currentFilters={filters}
+              onApplyFilters={handleApplyFilters}
+              onClose={() => setShowFilters(false)}
+            />
+            <div
+              className="filter-sidebar-backdrop"
+              onClick={() => setShowFilters(false)}
+            />
+          </div>
+        )}
         <section className="section section-categories section-theme-1 pt-35 pt-md-50 pt-lg-75 pt-xl-95 pb-35 pb-md-50 pb-xl-75 bg-light">
           <div className="container">
             <div className="row">
               <div className="col-12">
-                {/* <div className="card mb-4">
-                  <div className="card-body p-2">
-                    <form onSubmit={handleSearch}>
-                      <div className="row g-2 align-items-center">
-                        <div className="col-md-2">
-                          <input
-                            type="text"
-                            name="search"
-                            className="form-control form-control-sm"
-                            placeholder="Search jobs..."
-                            defaultValue={filters.searchQuery}
-                          />
-                        </div>
-                        <div className="col-md-2">
-                          <select
-                            name="jobType"
-                            className="form-select form-select-sm"
-                            value={filters.jobType}
-                            onChange={handleFilterChange}
-                          >
-                            <option value="">Job Types</option>
-                            {filterOptions.jobTypes.map((type, index) => (
-                              <option key={index} value={type}>{type}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="col-md-2">
-                          <select
-                            name="location"
-                            className="form-select form-select-sm"
-                            value={filters.location}
-                            onChange={handleFilterChange}
-                          >
-                            <option value="">All Locations</option>
-                            {filterOptions.locations.map((location, index) => (
-                              <option key={index} value={location}>{location}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="col-md-2">
-                          <select
-                            name="experienceLevel"
-                            className="form-select form-select-sm"
-                            value={filters.experienceLevel}
-                            onChange={handleFilterChange}
-                          >
-                            <option value="">Experience</option>
-                            {filterOptions.experienceLevels.map((level, index) => (
-                              <option key={index} value={level}>{level}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="col-md-2">
-                          <select
-                            name="sort"
-                            className="form-select form-select-sm"
-                            value={filters.sort}
-                            onChange={handleFilterChange}
-                          >
-                            <option value="">Sort by</option>
-                            <option value="newest">Newest</option>
-                            <option value="oldest">Oldest</option>
-                            <option value="salary-high">Salary High</option>
-                            <option value="salary-low">Salary Low</option>
-                          </select>
-                        </div>
-                        <div className="col-md-2 d-flex">
-                          <button type="submit" className="btn btn-primary btn-sm me-2 flex-grow-1">
-                            <i className="fas fa-search me-1"></i> Search
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-outline-secondary btn-sm"
-                            onClick={clearFilters}
-                            disabled={!filters.jobType && !filters.location && !filters.experienceLevel && !filters.searchQuery && !filters.sort}
-                          >
-                            <i className="fas fa-times"></i>
-                          </button>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                </div> */}
                 <header className="page-subheader mb-30 mb-md-40 d-lg-flex align-items-center justify-content-between">
                   <span></span>
                   <div className="subhead-filters">
@@ -299,7 +277,11 @@ const JobsPage = () => {
                       </h2>
                     )}
                     <div className="col-md-4 d-flex">
-                      <button type="submit" className="btn btn-primary btn-sm me-2 flex-grow-1">
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm me-2 flex-grow-1"
+                        onClick={() => setShowFilters(!showFilters)}
+                      >
                         <Search size={16} /> Filter Jobs
                       </button>
                       <button
@@ -478,6 +460,39 @@ const JobsPage = () => {
 
 .employer-profile-pic:hover {
   transform: scale(1.1);
+}
+
+.filter-sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+}
+
+.filter-sidebar-backdrop {
+  flex: 1;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.custom-filters {
+  width: 320px;
+  height: 100vh;
+  background: white;
+  overflow-y: auto;
+  padding: 20px;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1001;
+}
+
+/* Add responsive behavior */
+@media (max-width: 768px) {
+  .custom-filters {
+    width: 280px;
+  }
 }
       `}</style>
     </>

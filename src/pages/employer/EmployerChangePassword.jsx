@@ -1,32 +1,31 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { validateLoginForm } from '../../utils/validateLogin';
-import { loginSchool } from '../../api/services/projectServices';
 
-// Import images
+
+// Import images (use the same ones from login page)
 import logo from '../../assets/employer/assets/img/logo.svg';
 import bg1 from '../../assets/employer/assets/img/bg/bg-01.webp';
 import bg2 from '../../assets/employer/assets/img/bg/bg-02.png';
 import bg3 from '../../assets/employer/assets/img/bg/bg-03.webp';
 import authBg from '../../assets/employer/assets/img/bg/authentication-bg-01.webp';
-import googleLogo from '../../assets/employer/assets/img/icons/google-logo.svg';
-import appleLogo from '../../assets/employer/assets/img/icons/apple-logo.svg';
-import linkedinLogo from '../../assets/employer/assets/img/icons/linkedin.svg';
+import { changeEmployerPassword } from '../../api/services/projectServices';
 
-const EmployerLoginPage = () => {
+const EmployerChangePassword = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   
   // Form state
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    userMobile: '',
+    password: '',
+    confirmPassword: ''
   });
   
   const [errors, setErrors] = useState({});
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,43 +43,43 @@ const EmployerLoginPage = () => {
     }
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.userMobile) newErrors.userMobile = 'Mobile number is required';
+    if (!formData.password) newErrors.password = 'Password is required';
+    if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
+    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate form using existing validation utility
-    const formErrors = validateLoginForm(formData);
-    setErrors(formErrors);
-    
-    if (Object.keys(formErrors).length > 0) return;
+    if (!validateForm()) return;
     
     setIsLoading(true);
     setError(null);
+    setSuccess(null);
     
     try {
-      // Use existing API service
-      const response = await loginSchool({
-        userEmail: formData.email,
-        userPassword: formData.password
+      const response = await changeEmployerPassword({
+        userMobile: formData.userMobile,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword
       });
       
-      // Handle successful login
-      const { token, user } = response;
-      
-      // Store token and user data
-      localStorage.setItem('employerToken', token);
-      localStorage.setItem('employerData', JSON.stringify(user));
-      
-      // Set remember me if checked
-      if (rememberMe) {
-        localStorage.setItem('rememberEmployer', 'true');
-      }
-      
-      navigate('/employer/new-candidate');
+      setSuccess('Password changed successfully!');
+      // Optionally redirect after success
+      setTimeout(() => {
+        navigate('/employer/login');
+      }, 2000);
       
     } catch (err) {
-      console.error('Login error:', err);
-      const errorMessage = err.response?.data?.message || 'Login failed. Please try again.';
-      setError(errorMessage);
+      console.error('Password change error:', err);
+      setError(err.message || 'Failed to change password. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -88,6 +87,10 @@ const EmployerLoginPage = () => {
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setConfirmPasswordVisible(!confirmPasswordVisible);
   };
 
   return (
@@ -131,8 +134,8 @@ const EmployerLoginPage = () => {
                         </div>
                         <div>
                           <div className="text-center mb-3">
-                            <h2 className="mb-2">Sign In</h2>
-                            <p className="mb-0">Please enter your details to sign in</p>
+                            <h2 className="mb-2">Change Password</h2>
+                            <p className="mb-0">Please enter your details to change password</p>
                           </div>
 
                           {error && (
@@ -141,25 +144,31 @@ const EmployerLoginPage = () => {
                             </div>
                           )}
 
+                          {success && (
+                            <div className="alert alert-success mb-3">
+                              {success}
+                            </div>
+                          )}
+
                           <div className="mb-3">
-                            <label className="form-label">Email Address</label>
+                            <label className="form-label">Mobile Number</label>
                             <div className="input-group">
                               <input
-                                type="email"
-                                name="email"
-                                value={formData.email}
+                                type="text"
+                                name="userMobile"
+                                value={formData.userMobile}
                                 onChange={handleChange}
-                                className={`form-control border-end-0 ${errors.email ? 'is-invalid' : ''}`}
-                                placeholder="Enter your email"
+                                className={`form-control border-end-0 ${errors.userMobile ? 'is-invalid' : ''}`}
+                                placeholder="Enter your registered mobile number"
                               />
                               <span className="input-group-text border-start-0">
-                                <i className="ti ti-mail"></i>
+                                <i className="ti ti-phone"></i>
                               </span>
-                              {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                              {errors.userMobile && <div className="invalid-feedback">{errors.userMobile}</div>}
                             </div>
                           </div>
                           <div className="mb-3">
-                            <label className="form-label">Password</label>
+                            <label className="form-label">New Password</label>
                             <div className="pass-group">
                               <input
                                 type={passwordVisible ? "text" : "password"}
@@ -167,7 +176,7 @@ const EmployerLoginPage = () => {
                                 value={formData.password}
                                 onChange={handleChange}
                                 className={`pass-input form-control ${errors.password ? 'is-invalid' : ''}`}
-                                placeholder="Enter your password"
+                                placeholder="Enter new password (any length)"
                               />
                               <span
                                 className={`ti toggle-password ${passwordVisible ? 'ti-eye' : 'ti-eye-off'}`}
@@ -177,25 +186,23 @@ const EmployerLoginPage = () => {
                               {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                             </div>
                           </div>
-                          <div className="d-flex align-items-center justify-content-between mb-3">
-                            <div className="d-flex align-items-center">
-                              <div className="form-check form-check-md mb-0">
-                                <input
-                                  className="form-check-input"
-                                  id="remember_me"
-                                  type="checkbox"
-                                  checked={rememberMe}
-                                  onChange={() => setRememberMe(!rememberMe)}
-                                />
-                                <label htmlFor="remember_me" className="form-check-label mt-0">
-                                  Remember Me
-                                </label>
-                              </div>
-                            </div>
-                            <div className="text-end">
-                              <Link to="/employer/forgot-password" className="link-danger">
-                                Forgot Password?
-                              </Link>
+                          <div className="mb-3">
+                            <label className="form-label">Confirm Password</label>
+                            <div className="pass-group">
+                              <input
+                                type={confirmPasswordVisible ? "text" : "password"}
+                                name="confirmPassword"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                className={`pass-input form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
+                                placeholder="Confirm new password"
+                              />
+                              <span
+                                className={`ti toggle-password ${confirmPasswordVisible ? 'ti-eye' : 'ti-eye-off'}`}
+                                onClick={toggleConfirmPasswordVisibility}
+                                style={{ cursor: 'pointer' }}
+                              ></span>
+                              {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
                             </div>
                           </div>
                           <div className="mb-3">
@@ -207,64 +214,20 @@ const EmployerLoginPage = () => {
                               {isLoading ? (
                                 <>
                                   <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                  Signing In...
+                                  Changing Password...
                                 </>
-                              ) : 'Sign In'}
+                              ) : 'Change Password'}
                             </button>
                           </div>
                           <div className="text-center">
                             <h6 className="fw-normal text-dark mb-0">
-                              Don't have an account?{' '}
-                              <Link to="/employer/register" className="hover-a">
+                              Remember your password?{' '}
+                              <Link to="/employer/login" className="hover-a">
                                 {' '}
-                                Create Account
+                                Sign In
                               </Link>
                             </h6>
                           </div>
-                          {/* <div className="login-or">
-                            <span className="span-or">Or</span>
-                          </div>
-                          <div className="mt-2">
-                            <div className="d-flex align-items-center justify-content-center flex-wrap">
-                              <div className="text-center me-2 flex-fill">
-                                <button
-                                  type="button"
-                                  className="br-10 p-2 btn btn-outline-light border d-flex align-items-center justify-content-center"
-                                >
-                                  <img
-                                    className="img-fluid m-1"
-                                    src={googleLogo}
-                                    alt="Google"
-                                  />
-                                </button>
-                              </div>
-                              <div className="text-center me-2 flex-fill">
-                                <button
-                                  type="button"
-                                  className="bg-dark br-10 p-2 btn btn-dark d-flex align-items-center justify-content-center"
-                                >
-                                  <img
-                                    className="img-fluid m-1"
-                                    src={appleLogo}
-                                    alt="Apple"
-                                  />
-                                </button>
-                              </div>
-                              <div className="text-center flex-fill">
-                                <button
-                                  type="button"
-                                  className="br-10 p-2 btn btn-info d-flex align-items-center justify-content-center"
-                                >
-                                  <img
-                                    className="img-fluid m-1"
-                                    src={linkedinLogo}
-                                    width="20px"
-                                    alt="LinkedIn"
-                                  />
-                                </button>
-                              </div>
-                            </div>
-                          </div> */}
                         </div>
                         <div className="mt-5 pb-4 text-center">
                           <p className="mb-0 text-gray-9">Copyright &copy; 2025 - EduJobz</p>
@@ -282,4 +245,4 @@ const EmployerLoginPage = () => {
   );
 };
 
-export default EmployerLoginPage;
+export default EmployerChangePassword;

@@ -9,6 +9,24 @@ export const registerEmployee = async (employeeData) => {
   }
 };
 
+export const changeEmployerPassword = async (data) => {
+  try {
+    const token = localStorage.getItem('employerToken');
+    const response = await projectServices.post(
+      '/employer/employerchange-password',
+      data,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};
 export const registerSchool = async (employeeData) => {
   try {
     const response = await projectServices.post('/employer/signup', employeeData);

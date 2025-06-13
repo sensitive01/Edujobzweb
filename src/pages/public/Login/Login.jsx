@@ -209,6 +209,23 @@ const LoginPage = () => {
             <div className="jobplugin__userbox bg-light shadow">
               <span className="jobplugin__userbox-bar jobplugin__bg-primary"></span>
               <span className="jobplugin__userbox-bar"></span>
+               <div style={{ textAlign: 'center' }}>
+                <p className="mb-0"><b>Continue With</b></p>
+                <a href="#" className="button-continue bg-white text-primary btn-app border border-secondary btn-play-store">
+                  <span className="rj-icon rj-google"></span>
+                </a>
+                <a href="#" className="button-continue btn-app btn-app-store bg-secondary">
+                  <span className="btn-text">LinkedIn</span>
+                </a>
+                <a href="#" className="button-continue btn-app btn-app-store">
+                  <span className="rj-icon rj-apple"></span>
+                </a>
+              </div>
+              <br />
+              
+              <div className="jobplugin__userbox-seperator">
+                <span className="bg-light">or</span>
+              </div>
               
               <h1 className="text-secondary h3 mb-0">Login To Continue</h1>
               <br />
