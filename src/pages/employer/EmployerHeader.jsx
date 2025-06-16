@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, MessageSquare, Star, Calendar, HelpCircle, Maximize2, Bell, Plus, LayoutDashboard, Users, Briefcase } from 'lucide-react';
+import { ChevronDown, MessageSquare, Star, Calendar, HelpCircle, Maximize2, Bell, Plus, LayoutDashboard, Users, Briefcase, Menu, X } from 'lucide-react';
 import user19 from '../../assets/employer/assets/img/logo - dark.png';
 import { Link } from 'react-router-dom';
 import { FiLogOut } from 'react-icons/fi';
@@ -9,10 +9,48 @@ const EmployerHeader = () => {
     const [jobsDropdown, setJobsDropdown] = useState(false);
     const [notificationDropdown, setNotificationDropdown] = useState(false);
     const [profileDropdown, setProfileDropdown] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [profilePic, setProfilePic] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const notificationRef = useRef(null);
     const profileRef = useRef(null);
+    const mobileMenuRef = useRef(null);
 
+    useEffect(() => {
+        const fetchEmployerProfile = async () => {
+            try {
+                const token = localStorage.getItem('employerToken');
+                const employerData = JSON.parse(localStorage.getItem('employerData'));
+
+                if (!token || !employerData) {
+                    return;
+                }
+
+                const response = await fetch(
+                    `https://edujobzbackend.onrender.com/employer/fetchemployer/${employerData._id}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch employer details');
+                }
+
+                const data = await response.json();
+                setProfilePic(data.userProfilePic);
+            } catch (err) {
+                console.error('Error fetching employer profile:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEmployerProfile();
+    }, []);
     // Close dropdowns when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -21,6 +59,9 @@ const EmployerHeader = () => {
             }
             if (profileRef.current && !profileRef.current.contains(event.target)) {
                 setProfileDropdown(false);
+            }
+            if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+                setMobileMenuOpen(false);
             }
         };
 
@@ -39,7 +80,7 @@ const EmployerHeader = () => {
     const jobsOptions = [
         { name: 'Post Jobs', path: '/employer/post-jobs' },
         { name: 'List Jobs', path: '/employer/post-jobs' },
-          { name: 'Applied Candidates', path: '/employer/applied-candidates ' },
+        { name: 'Applied Candidates', path: '/employer/applied-candidates ' },
         { name: 'Shortlisted Candidates', path: '/employer/shortlisted-candidates' },
     ];
 
@@ -75,9 +116,16 @@ const EmployerHeader = () => {
         }
     ];
 
+    const closeMobileMenu = () => {
+        setMobileMenuOpen(false);
+        setCandidatesDropdown(false);
+        setJobsDropdown(false);
+    };
+
     return (
         <header className='bg-white border-bottom px-4 py-1' style={{ borderColor: '#e5e7eb' }}>
             <div className='d-flex align-items-center justify-content-between'>
+                {/* Logo */}
                 <div className='d-flex align-items-center'>
                     <div className='d-flex align-items-center me-4'>
                         <Link to="/employer/new-candidate" className='d-flex align-items-center justify-content-center me-3 rounded'
@@ -93,7 +141,8 @@ const EmployerHeader = () => {
                     </div>
                 </div>
 
-                <nav className='d-flex align-items-center'>
+                {/* Desktop Navigation */}
+                <nav className='d-none d-lg-flex align-items-center'>
                     <div className='d-flex align-items-center'>
                         <div className='position-relative me-2'>
                             <div
@@ -203,44 +252,48 @@ const EmployerHeader = () => {
                     </div>
                 </nav>
 
+                {/* Right side items */}
                 <div className='d-flex align-items-center'>
-                    {/* Fullscreen Button */}
-                    <button className='btn btn-link p-2 text-secondary me-2'>
-                        <Maximize2 size={16} />
-                    </button>
+                    {/* Desktop Right Items */}
+                    <div className='d-none d-lg-flex align-items-center'>
+                        {/* Fullscreen Button */}
+                        <button className='btn btn-link p-2 text-secondary me-2'>
+                            <Maximize2 size={16} />
+                        </button>
 
-                    {/* Support Button with Badge */}
-                    <Link to="/employer/support" className="btn btn-link p-2 text-secondary me-2 position-relative text-decoration-none">
-                        <HelpCircle size={16} />
-                        <span
-                            className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"
+                        {/* Support Button with Badge */}
+                        <Link to="/employer/support" className="btn btn-link p-2 text-secondary me-2 position-relative text-decoration-none">
+                            <HelpCircle size={16} />
+                            <span
+                                className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"
+                                style={{
+                                    width: '16px',
+                                    height: '16px',
+                                    fontSize: '10px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                5
+                            </span>
+                        </Link>
+
+                        {/* Ads Button */}
+                        <Link
+                            to="/employer/ads"
+                            className="btn fw-medium me-2 text-decoration-none"
                             style={{
-                                width: '16px',
-                                height: '16px',
-                                fontSize: '10px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
+                                backgroundColor: '#063970',
+                                color: 'white',
+                                border: 'none',
+                                paddingLeft: '20px',
+                                paddingRight: '20px'
                             }}
                         >
-                            5
-                        </span>
-                    </Link>
-
-                    {/* Ads Button */}
-                    <Link
-                        to="/employer/ads"
-                        className="btn fw-medium me-2 text-decoration-none"
-                        style={{
-                            backgroundColor: '#063970',
-                            color: 'white',
-                            border: 'none',
-                            paddingLeft: '20px',
-                            paddingRight: '20px'
-                        }}
-                    >
-                        Ads
-                    </Link>
+                            Ads
+                        </Link>
+                    </div>
 
                     {/* Notification Dropdown */}
                     <div className='me-2 position-relative' ref={notificationRef}>
@@ -342,7 +395,20 @@ const EmployerHeader = () => {
                             }}
                         >
                             <div className="avatar avatar-sm">
-                                <span className="avatar-initial rounded-circle bg-primary">A</span>
+                                {profilePic ? (
+                                    <img
+                                        src={profilePic}
+                                        alt="Profile"
+                                        className="avatar-initial rounded-circle"
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover'
+                                        }}
+                                    />
+                                ) : (
+                                    <span className="avatar-initial rounded-circle bg-primary">A</span>
+                                )}
                             </div>
                         </button>
 
@@ -361,7 +427,20 @@ const EmployerHeader = () => {
                                     <div className="card-header">
                                         <div className="d-flex align-items-center">
                                             <span className="avatar avatar-lg me-2">
-                                                <span className="avatar-initial rounded-circle bg-primary">A</span>
+                                                  {profilePic ? (
+                                                    <img
+                                                        src={profilePic}
+                                                        alt="Profile"
+                                                        className="avatar-initial rounded-circle"
+                                                        style={{
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            objectFit: 'cover'
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <span className="avatar-initial rounded-circle bg-primary">A</span>
+                                                )}
                                             </span>
                                             <div>
                                                 <h5 className="mb-0 text-primary">EduJobz</h5>
@@ -389,8 +468,157 @@ const EmployerHeader = () => {
                             </div>
                         )}
                     </div>
+
+                    {/* Mobile Menu Toggle Button */}
+                    <div className='d-lg-none ms-2'>
+                        <button
+                            className="btn btn-link p-2 text-secondary"
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        >
+                            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            {/* Mobile Menu */}
+            {mobileMenuOpen && (
+                <div
+                    className="d-lg-none mobile-menu bg-white border-top mt-2 pt-3"
+                    ref={mobileMenuRef}
+                    style={{ borderColor: '#e5e7eb' }}
+                >
+                    {/* Mobile Navigation Links */}
+                    <div className="mb-3">
+                        {/* Candidates Section */}
+                        <div className="mb-2">
+                            <div
+                                className="d-flex align-items-center justify-content-between fw-medium px-3 py-2 rounded mobile-dropdown-header"
+                                onClick={() => setCandidatesDropdown(!candidatesDropdown)}
+                                style={{ cursor: 'pointer', backgroundColor: candidatesDropdown ? '#f8f9fa' : 'transparent' }}
+                            >
+                                <div className="d-flex align-items-center">
+                                    <Users className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                    <span className="text-dark">Candidates</span>
+                                </div>
+                                <ChevronDown
+                                    className={`transition-transform ${candidatesDropdown ? 'rotate-180' : ''}`}
+                                    size={16}
+                                />
+                            </div>
+                            {candidatesDropdown && (
+                                <div className="mobile-dropdown-content bg-light rounded mx-3 mt-2">
+                                    {candidatesOptions.map((option, index) => (
+                                        <Link
+                                            key={index}
+                                            to={option.path}
+                                            className="d-block px-3 py-2 text-decoration-none mobile-dropdown-item"
+                                            style={{ color: '#374151' }}
+                                            onClick={closeMobileMenu}
+                                        >
+                                            {option.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Jobs Section */}
+                        <div className="mb-2">
+                            <div
+                                className="d-flex align-items-center justify-content-between fw-medium px-3 py-2 rounded mobile-dropdown-header"
+                                onClick={() => setJobsDropdown(!jobsDropdown)}
+                                style={{ cursor: 'pointer', backgroundColor: jobsDropdown ? '#f8f9fa' : 'transparent' }}
+                            >
+                                <div className="d-flex align-items-center">
+                                    <Briefcase className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                    <span className="text-dark">Jobs</span>
+                                </div>
+                                <ChevronDown
+                                    className={`transition-transform ${jobsDropdown ? 'rotate-180' : ''}`}
+                                    size={16}
+                                />
+                            </div>
+                            {jobsDropdown && (
+                                <div className="mobile-dropdown-content bg-light rounded mx-3 mt-2">
+                                    {jobsOptions.map((option, index) => (
+                                        <Link
+                                            key={index}
+                                            to={option.path}
+                                            className="d-block px-3 py-2 text-decoration-none mobile-dropdown-item"
+                                            style={{ color: '#374151' }}
+                                            onClick={closeMobileMenu}
+                                        >
+                                            {option.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Regular Menu Items */}
+                        <Link
+                            to="/employer/messages"
+                            className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                            onClick={closeMobileMenu}
+                        >
+                            <MessageSquare className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                            <span className="text-dark">Messages</span>
+                        </Link>
+                        <Link
+                            to="/employer/upgrade-plan"
+                            className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                            onClick={closeMobileMenu}
+                        >
+                            <Star className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                            <span className="text-dark">Upgrade Plan</span>
+                        </Link>
+                        <Link
+                            to="/employer/events"
+                            className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                            onClick={closeMobileMenu}
+                        >
+                            <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                            <span className="text-dark">Events</span>
+                        </Link>
+                        <Link
+                            to="/employer/faq"
+                            className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                            onClick={closeMobileMenu}
+                        >
+                            <HelpCircle className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                            <span className="text-dark">FAQ</span>
+                        </Link>
+                    </div>
+
+                    {/* Mobile Actions */}
+                    <div className="border-top pt-3 mt-3" style={{ borderColor: '#e5e7eb' }}>
+                        <div className="d-flex flex-wrap gap-2 px-3">
+                            <Link
+                                to="/employer/support"
+                                className="btn btn-outline-secondary btn-sm d-flex align-items-center text-decoration-none"
+                                onClick={closeMobileMenu}
+                            >
+                                <HelpCircle className='me-1' size={14} />
+                                Support (5)
+                            </Link>
+                            <Link
+                                to="/employer/ads"
+                                className="btn btn-sm text-decoration-none flex-grow-1"
+                                style={{
+                                    backgroundColor: '#063970',
+                                    color: 'white',
+                                    border: 'none'
+                                }}
+                                onClick={closeMobileMenu}
+                            >
+                                Ads
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <style jsx>{`
                 .dropdown:hover {
                     background-color: #f8f9fa !important;
@@ -441,6 +669,73 @@ const EmployerHeader = () => {
                 }
                 .bg-primary {
                     background-color: #3b82f6 !important;
+                }
+                
+                /* Mobile Menu Styles */
+                .mobile-menu {
+                    animation: slideDown 0.3s ease-out;
+                }
+                
+                @keyframes slideDown {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                .mobile-dropdown-header:hover {
+                    background-color: #f8f9fa !important;
+                }
+                
+                .mobile-dropdown-item:hover {
+                    background-color: #f8f9fa !important;
+                    color: #f97316 !important;
+                }
+                
+                .mobile-menu-item:hover {
+                    background-color: #f8f9fa !important;
+                }
+                
+                .transition-transform {
+                    transition: transform 0.2s ease;
+                }
+                
+                .rotate-180 {
+                    transform: rotate(180deg);
+                }
+                
+                /* Responsive Notification Dropdown */
+                @media (max-width: 575px) {
+                    .notification-dropdown {
+                        width: 300px !important;
+                        right: -100px !important;
+                    }
+                }
+                
+                @media (max-width: 480px) {
+                    .notification-dropdown {
+                        width: 280px !important;
+                        right: -120px !important;
+                    }
+                }
+                
+                /* Responsive Profile Dropdown */
+                @media (max-width: 575px) {
+                    .dropdown-menu.show {
+                        width: 250px !important;
+                        right: -50px !important;
+                    }
+                }
+                
+                @media (max-width: 480px) {
+                    .dropdown-menu.show {
+                        width: 220px !important;
+                        right: -70px !important;
+                    }
                 }
             `}</style>
         </header>
