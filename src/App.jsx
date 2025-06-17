@@ -52,6 +52,9 @@ import EmployeerProfileView from './pages/employer/EmployeerProfileView';
 import EmployerForgotPassword from './pages/employer/EmployerForgotPassword';
 import EmployerVerifyOTP from './pages/employer/EmployerVerifyOTP';
 import EmployerChangePassword from './pages/employer/EmployerChangePassword';
+import ForgotPasswordPage from './pages/public/Login/EmployeeForgotPasswordPage';
+import OTPVerificationPage from './pages/public/Login/EmployeeOTPVerificationPage';
+import ResetPasswordPage from './pages/public/Login/EmployeeResetPasswordPage';
 
 function App() {
   return (
@@ -74,7 +77,7 @@ function App() {
 
           <Route path='/employer/login' element={<EmployerLoginPage />} />
           <Route path='/employer/forgot-password' element={<EmployerForgotPassword />} />
-           <Route path='/employer/reset-password' element={<EmployerChangePassword />} />
+          <Route path='/employer/reset-password' element={<EmployerChangePassword />} />
           <Route path='/employer/verify-otp' element={<EmployerVerifyOTP />} />
           <Route path='/employer/register' element={<EmployeerRegister />} />
 
@@ -123,6 +126,9 @@ function App() {
 
 
               <Route path='/login' element={<LoginPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/verify-otp" element={<OTPVerificationPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path='/signup' element={<SignupPage />} />
               <Route path='/employee-registration' element={<EmployeeRegistration />} />
               <Route path='/school-registration' element={<SchoolRegistration />} />
