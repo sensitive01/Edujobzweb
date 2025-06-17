@@ -8,6 +8,11 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
     const [candidateDetails, setCandidateDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState(candidate?.employapplicantstatus || 'Pending');
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [updateError, setUpdateError] = useState(null);
+    const [updateSuccess, setUpdateSuccess] = useState(false);
+    const [notes, setNotes] = useState(candidate?.notes || '');
 
     useEffect(() => {
         if (show && candidate) {
@@ -47,6 +52,8 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
 
             const data = await response.json();
             setCandidateDetails(data);
+            setNotes(data.notes || candidate?.notes || '');
+            setSelectedStatus(data.employapplicantstatus || candidate?.employapplicantstatus || 'Pending');
         } catch (err) {
             console.error('Error fetching candidate details:', err);
             setError(err.message);
@@ -55,14 +62,99 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
         }
     };
 
-    const handleSubmitNote = (noteData) => {
-        console.log('Note Submitted', noteData);
+    const handleSubmitNote = async (noteData) => {
+        try {
+            setIsUpdating(true);
+            setUpdateError(null);
+            
+            const token = localStorage.getItem('employerToken');
+            if (!token) {
+                throw new Error('Authentication required');
+            }
+
+            // Create a new note with timestamp
+            const newNote = `[${new Date().toLocaleString()}] ${noteData.title}: ${noteData.description}\n${notes || ''}`;
+
+            // Update both status and notes in the backend
+            const response = await fetch(
+                `https://edujobzbackend.onrender.com/employer/update-status/${candidate._id}/${candidate.applicantId}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        status: selectedStatus,
+                        notes: newNote
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update status and notes');
+            }
+
+            // Update local state
+            setNotes(newNote);
+            setShowModal(false);
+            setUpdateSuccess(true);
+            
+            // Refresh candidate details
+            fetchCandidateDetails();
+        } catch (err) {
+            console.error('Error updating notes:', err);
+            setUpdateError(err.message);
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleStatusUpdate = async () => {
+        try {
+            setIsUpdating(true);
+            setUpdateError(null);
+            setUpdateSuccess(false);
+
+            const token = localStorage.getItem('employerToken');
+            if (!token) {
+                throw new Error('Authentication required');
+            }
+
+            const response = await fetch(
+                `https://edujobzbackend.onrender.com/employer/update-status/${candidate._id}/${candidate.applicantId}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        status: selectedStatus,
+                        notes: notes || "Status updated with no additional notes"
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update candidate status');
+            }
+
+            setUpdateSuccess(true);
+            fetchCandidateDetails();
+        } catch (err) {
+            console.error('Error updating candidate status:', err);
+            setUpdateError(err.message);
+        } finally {
+            setIsUpdating(false);
+        }
     };
 
     const formatDate = (dateString) => {
         if (!dateString) return 'Not specified';
         
-        // If it's a Date object or ISO string
         if (dateString instanceof Date || dateString.includes('-')) {
             const date = new Date(dateString);
             return date.toLocaleDateString('en-US', {
@@ -72,7 +164,6 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
             });
         }
         
-        // If it's in DD/MM/YYYY format
         if (dateString.includes('/')) {
             const [day, month, year] = dateString.split('/');
             return new Date(`${year}-${month}-${day}`).toLocaleDateString('en-US', {
@@ -83,6 +174,34 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
         }
         
         return dateString;
+    };
+
+    const statusOptions = [
+        'Pending',
+        'Hold',
+        'In Progress',
+        'Interview Scheduled',
+        'Hired',
+        'Rejected'
+    ];
+
+    const getStatusBadgeClass = (status) => {
+        switch (status) {
+            case 'Pending':
+                return 'bg-warning';
+            case 'Hold':
+                return 'bg-info';
+            case 'In Progress':
+                return 'bg-primary';
+            case 'Interview Scheduled':
+                return 'bg-purple';
+            case 'Hired':
+                return 'bg-success';
+            case 'Rejected':
+                return 'bg-danger';
+            default:
+                return 'bg-secondary';
+        }
     };
 
     const renderProfileTab = () => {
@@ -345,15 +464,62 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                 <div className="card">
                     <div className="card-body">
                         <h5 className="fw-medium mb-2">Candidate Pipeline Stage</h5>
-                        <div className="pipeline-list candidates border-0 mb-0">
-                            <ul className="mb-0">
-                                <li><span className="bg-purple">New</span></li>
-                                <li><span className="bg-purple">Scheduled</span></li>
-                                <li><span className="bg-purple">Interviewed</span></li>
-                                <li><span className="bg-gray-100">Offered</span></li>
-                                <li><span className="bg-gray-100">Hired / Rejected</span></li>
-                            </ul>
+                        <div className="mb-3">
+                            <div className="dropdown">
+                                <button 
+                                    className={`btn btn-${getStatusBadgeClass(selectedStatus).replace('bg-', '')} dropdown-toggle`} 
+                                    type="button" 
+                                    id="statusDropdown"
+                                    data-bs-toggle="dropdown" 
+                                    aria-expanded="false"
+                                >
+                                    {selectedStatus}
+                                </button>
+                                <ul className="dropdown-menu" aria-labelledby="statusDropdown">
+                                    {statusOptions.map((status) => (
+                                        <li key={status}>
+                                            <button 
+                                                className="dropdown-item" 
+                                                onClick={() => setSelectedStatus(status)}
+                                            >
+                                                {status}
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
                         </div>
+                        
+                        <div className="pipeline-progress mb-3">
+                            <div className="progress-container">
+                                <div className="progress-steps">
+                                    {statusOptions.map((status, index) => (
+                                        <div 
+                                            key={status} 
+                                            className={`progress-step ${statusOptions.indexOf(selectedStatus) >= index ? 'active' : ''}`}
+                                        >
+                                            <div className={`step-indicator ${selectedStatus === status ? 'current' : ''}`}>
+                                                {index + 1}
+                                            </div>
+                                            <div className="step-label">{status}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {updateError && (
+                            <div className="alert alert-danger mb-3">
+                                <i className="ti ti-alert-circle me-2"></i>
+                                {updateError}
+                            </div>
+                        )}
+                        {updateSuccess && (
+                            <div className="alert alert-success mb-3">
+                                <i className="ti ti-check me-2"></i>
+                                Status updated successfully!
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -366,9 +532,9 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                             <div className="col-md-3">
                                 <div className="mb-3">
                                     <p className="mb-1">Current Status</p>
-                                    <span className="badge badge-soft-purple d-inline-flex align-items-center">
+                                    <span className={`badge ${getStatusBadgeClass(selectedStatus)} d-inline-flex align-items-center`}>
                                         <i className="ti ti-point-filled me-1"></i>
-                                        {candidate?.employapplicantstatus || 'Pending'}
+                                        {selectedStatus}
                                     </span>
                                 </div>
                             </div>
@@ -390,15 +556,115 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                                     </h6>
                                 </div>
                             </div>
+                            <div className="col-md-3">
+                                <div className="mb-3">
+                                    <p className="mb-1">Last Updated</p>
+                                    <h6 className="fw-normal">
+                                        {candidate?.statusHistory?.length > 0 ? 
+                                            new Date(candidate.statusHistory[candidate.statusHistory.length - 1].updatedAt).toLocaleString() : 
+                                            'Not specified'}
+                                    </h6>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div className="card-footer">
-                        <div className="d-flex align-items-center justify-content-end">
-                            <button className="btn btn-dark me-3">Reject</button>
-                            <button className="btn btn-primary">Move to Next Stage</button>
+                        <div className="d-flex align-items-center justify-content-end gap-2">
+                            <button 
+                                className="btn btn-danger"
+                                onClick={onClose}
+                                disabled={isUpdating}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                className="btn btn-primary"
+                                onClick={() => setShowModal(true)}
+                                disabled={isUpdating || !selectedStatus}
+                            >
+                                {isUpdating ? 'Updating...' : 'Submit'}
+                            </button>
                         </div>
                     </div>
                 </div>
+
+                <style jsx>{`
+                    .pipeline-progress {
+                        width: 100%;
+                        overflow-x: auto;
+                        padding-bottom: 10px;
+                    }
+                    .progress-container {
+                        min-width: 600px;
+                    }
+                    .progress-steps {
+                        display: flex;
+                        justify-content: space-between;
+                        position: relative;
+                        margin-bottom: 20px;
+                    }
+                    .progress-steps::before {
+                        content: '';
+                        position: absolute;
+                        top: 15px;
+                        left: 0;
+                        right: 0;
+                        height: 4px;
+                        background-color: #e9ecef;
+                        z-index: 1;
+                    }
+                    .progress-step.active::before {
+                        content: '';
+                        position: absolute;
+                        top: 15px;
+                        left: 0;
+                        right: calc(100% - ${(statusOptions.indexOf(selectedStatus) / (statusOptions.length - 1)) * 100}%);
+                        height: 4px;
+                        background-color: var(--primary-color);
+                        z-index: 2;
+                        transition: right 0.3s ease;
+                    }
+                    .progress-step {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        position: relative;
+                        z-index: 2;
+                        flex: 1;
+                    }
+                    .step-indicator {
+                        width: 30px;
+                        height: 30px;
+                        border-radius: 50%;
+                        background-color: #e9ecef;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin-bottom: 5px;
+                        font-size: 12px;
+                        font-weight: 600;
+                        color: #6c757d;
+                        transition: all 0.3s ease;
+                    }
+                    .progress-step.active .step-indicator {
+                        background-color: var(--primary-color);
+                        color: white;
+                    }
+                    .step-indicator.current {
+                        background-color: var(--primary-color);
+                        color: white;
+                        transform: scale(1.2);
+                        box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.2);
+                    }
+                    .step-label {
+                        font-size: 12px;
+                        text-align: center;
+                        max-width: 100px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                `}</style>
             </>
         );
     };
@@ -411,15 +677,57 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                     <button 
                         className="btn btn-primary" 
                         onClick={() => setShowModal(true)}
+                        disabled={isUpdating}
                     >
-                        <i className="ti ti-circle-plus me-2"></i>Add Notes
+                        {isUpdating ? 'Processing...' : (
+                            <>
+                                <i className="ti ti-circle-plus me-2"></i>Add Notes
+                            </>
+                        )}
                     </button>
                 </div>
                 <div className="card-body">
-                    <p>
-                        {candidateDetails?.profilesummary || 
-                         'No notes available. Add notes about this candidate.'}
-                    </p>
+                    {notes ? (
+                        <div className="whitespace-pre-wrap">{notes}</div>
+                    ) : (
+                        <p>No notes available. Add notes about this candidate.</p>
+                    )}
+                    
+                    {updateError && (
+                        <div className="alert alert-danger mt-3">
+                            <i className="ti ti-alert-circle me-2"></i>
+                            {updateError}
+                        </div>
+                    )}
+                    {updateSuccess && (
+                        <div className="alert alert-success mt-3">
+                            <i className="ti ti-check me-2"></i>
+                            Notes updated successfully!
+                        </div>
+                    )}
+
+                    {candidate?.statusHistory?.length > 0 && (
+                        <div className="mt-4">
+                            <h6>Status History</h6>
+                            <ul className="list-group">
+                                {candidate.statusHistory.map((history, index) => (
+                                    <li key={index} className="list-group-item">
+                                        <div className="d-flex justify-content-between">
+                                            <span className={`badge ${getStatusBadgeClass(history.status)}`}>
+                                                {history.status}
+                                            </span>
+                                            <small className="text-muted">
+                                                {new Date(history.updatedAt).toLocaleString()}
+                                            </small>
+                                        </div>
+                                        {history.notes && (
+                                            <div className="mt-2 whitespace-pre-wrap">{history.notes}</div>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -552,12 +860,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                                                 <div className="col-md-4">
                                                     <div className="mb-3">
                                                         <p className="mb-1">Current Status</p>
-                                                        <span className={`badge ${
-                                                            candidate?.employapplicantstatus === 'Pending' ? 'bg-warning' :
-                                                            candidate?.employapplicantstatus === 'Rejected' ? 'bg-danger' :
-                                                            candidate?.employapplicantstatus === 'Shortlisted' ? 'bg-success' :
-                                                            'bg-purple'
-                                                        }`}>
+                                                        <span className={`badge ${getStatusBadgeClass(candidate?.employapplicantstatus || 'Pending')}`}>
                                                             {candidate?.employapplicantstatus || 'Pending'}
                                                         </span>
                                                     </div>
@@ -611,6 +914,11 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                 show={showModal}
                 onClose={() => setShowModal(false)}
                 onSubmit={handleSubmitNote}
+                isUpdating={isUpdating}
+                selectedStatus={selectedStatus}
+                onStatusChange={setSelectedStatus}
+                statusOptions={statusOptions}
+                getStatusBadgeClass={getStatusBadgeClass}
             />
         </>
     );

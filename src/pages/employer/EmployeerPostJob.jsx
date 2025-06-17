@@ -627,59 +627,6 @@ const FilterSidebar = ({
           </div>
         </div>
 
-        {/* Gender Filter */}
-        <div className="accordion-item">
-          <h2 className="accordion-header">
-            <button
-              className="accordion-button text-dark fs-16 align-items-center justify-content-between"
-              type="button"
-              onClick={() => toggleAccordion('genderFilter')}
-            >
-              Gender
-              {openAccordions.genderFilter ? (
-                <ChevronDown className="text-primary" />
-              ) : (
-                <ArrowUp className="text-primary" />
-              )}
-            </button>
-          </h2>
-          <div
-            id="genderFilter"
-            className={`accordion-collapse collapse ${openAccordions.genderFilter ? 'show' : ''}`}
-          >
-            <div className="accordion-body">
-              <div className="d-flex align-items-center">
-                <div className="theme-width m-1 me-2">
-                  <input
-                    type="radio"
-                    name="gender"
-                    id="maleGender"
-                    value="Male"
-                    checked={selectedGender === 'Male'}
-                    onChange={() => onGenderChange('Male')}
-                  />
-                  <label htmlFor="maleGender" className="d-block rounded fs-12">
-                    Male
-                  </label>
-                </div>
-                <div className="theme-width m-1">
-                  <input
-                    type="radio"
-                    name="gender"
-                    id="femaleGender"
-                    value="Female"
-                    checked={selectedGender === 'Female'}
-                    onChange={() => onGenderChange('Female')}
-                  />
-                  <label htmlFor="femaleGender" className="d-block rounded fs-12">
-                    Female
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Salary Range Filter */}
         <div className="accordion-item">
           <h2 className="accordion-header">
@@ -759,42 +706,8 @@ const FilterSidebar = ({
           </div>
         </div>
 
-        {/* Qualification Filter */}
-        <div className="accordion-item">
-          <h2 className="accordion-header">
-            <button
-              className="accordion-button text-dark fs-16 align-items-center justify-content-between"
-              type="button"
-              onClick={() => toggleAccordion('qualificationFilter')}
-            >
-              Qualification
-              {openAccordions.qualificationFilter ? (
-                <ChevronDown className="text-primary" />
-              ) : (
-                <ArrowUp className="text-primary" />
-              )}
-            </button>
-          </h2>
-          <div
-            id="qualificationFilter"
-            className={`accordion-collapse collapse ${openAccordions.qualificationFilter ? 'show' : ''}`}
-          >
-            <div className="accordion-body">
-              <div className="row gx-3">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Qualification"
-                  value={qualification}
-                  onChange={(e) => onQualificationChange(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Experience Filter */}
-        <div className="accordion-item">
+        {/* <div className="accordion-item">
           <h2 className="accordion-header">
             <button
               className="accordion-button text-dark fs-16 align-items-center justify-content-between"
@@ -834,7 +747,7 @@ const FilterSidebar = ({
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className="p-3 pt-5">
           <div className="row gx-3">
