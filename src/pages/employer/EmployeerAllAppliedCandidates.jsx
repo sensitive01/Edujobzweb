@@ -785,7 +785,7 @@ const EmployeerAllAppliedCandidates = () => {
               <button className="btn btn-icon btn-sm me-1">
                 <i className="ti ti-list-tree"></i>
               </button>
-              <button className="btn btn-icon btn-sm active bg-secondary text-white">
+              <button className="btn btn-icon btn-sm active bg-secondary text-white" onClick={() => navigate("/employer/new-candidate")}>
                 <i className="ti ti-layout-grid"></i>
               </button>
             </div>
@@ -818,32 +818,6 @@ const EmployeerAllAppliedCandidates = () => {
               </ul>
             </div>
 
-            {/* Header Icons */}
-            <div className="card-header d-flex align-items-center justify-content-between">
-              <div className="d-flex align-items-center">
-                <div className="head-icons ms-2">
-                  <button
-                    className="btn btn-icon"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      // Handle collapse functionality here
-                    }}
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="Collapse"
-                    id="collapse-header"
-                  >
-                    <i className="ti ti-chevrons-up"></i>
-                  </button>
-                </div>
-              </div>
-
-              <AddNewCandidate
-                show={showCandidateModal}
-                onClose={() => setShowCandidateModal(false)}
-                onSubmit={handleSubmitCandidate}
-              />
-            </div>
           </div>
         </div>
         {/* /Breadcrumb */}
