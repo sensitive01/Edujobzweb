@@ -24,6 +24,7 @@ const EmployeerAllAppliedCandidates = () => {
     start: '',
     end: ''
   });
+  const [selectedDateRange, setSelectedDateRange] = useState('This Year');
   const navigate = useNavigate();
 
   // Extract roles dynamically from candidates data
@@ -46,6 +47,121 @@ const EmployeerAllAppliedCandidates = () => {
     'Hired',
     'Rejected'
   ];
+
+  const getDynamicDateRangeOptions = () => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1;
+    const currentDate = today.getDate();
+
+    return [
+      {
+        label: 'Today',
+        value: 'today',
+        dateLabel: `${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`
+      },
+      {
+        label: 'Yesterday',
+        value: 'yesterday',
+        dateLabel: (() => {
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          return `${yesterday.getDate().toString().padStart(2, '0')}/${(yesterday.getMonth() + 1).toString().padStart(2, '0')}/${yesterday.getFullYear()}`;
+        })()
+      },
+      {
+        label: 'Last 7 Days',
+        value: 'last7days',
+        dateLabel: (() => {
+          const week = new Date(today);
+          week.setDate(week.getDate() - 7);
+          return `${week.getDate().toString().padStart(2, '0')}/${(week.getMonth() + 1).toString().padStart(2, '0')}/${week.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
+        })()
+      },
+      {
+        label: 'Last 30 Days',
+        value: 'last30days',
+        dateLabel: (() => {
+          const month = new Date(today);
+          month.setDate(month.getDate() - 30);
+          return `${month.getDate().toString().padStart(2, '0')}/${(month.getMonth() + 1).toString().padStart(2, '0')}/${month.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
+        })()
+      },
+      {
+        label: 'This Year',
+        value: 'thisyear',
+        dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`
+      },
+      {
+        label: 'Last Year',
+        value: 'lastyear',
+        dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`
+      },
+      {
+        label: 'Next Year',
+        value: 'nextyear',
+        dateLabel: `01/01/${currentYear + 1} - 31/12/${currentYear + 1}`
+      },
+      {
+        label: 'Custom Range',
+        value: 'custom',
+        dateLabel: 'Select dates'
+      }
+    ];
+  };
+
+  const handleDateRangeSelect = (option) => {
+    if (option.value === 'custom') {
+      setSelectedDateRange('Custom Range');
+      setActiveDropdown('customRange'); // Keep dropdown open but switch to custom range view
+      return;
+    }
+
+    setSelectedDateRange(option.dateLabel);
+    const today = new Date();
+    let startDate, endDate;
+
+    switch (option.value) {
+      case 'today':
+        startDate = endDate = today.toISOString().split('T')[0];
+        break;
+      case 'yesterday':
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        startDate = endDate = yesterday.toISOString().split('T')[0];
+        break;
+      case 'last7days':
+        const week = new Date(today);
+        week.setDate(week.getDate() - 7);
+        startDate = week.toISOString().split('T')[0];
+        endDate = today.toISOString().split('T')[0];
+        break;
+      case 'last30days':
+        const month = new Date(today);
+        month.setDate(month.getDate() - 30);
+        startDate = month.toISOString().split('T')[0];
+        endDate = today.toISOString().split('T')[0];
+        break;
+      case 'thisyear':
+        startDate = `${today.getFullYear()}-01-01`;
+        endDate = `${today.getFullYear()}-12-31`;
+        break;
+      case 'lastyear':
+        startDate = `${today.getFullYear() - 1}-01-01`;
+        endDate = `${today.getFullYear() - 1}-12-31`;
+        break;
+      case 'nextyear':
+        startDate = `${today.getFullYear() + 1}-01-01`;
+        endDate = `${today.getFullYear() + 1}-12-31`;
+        break;
+      default:
+        return;
+    }
+
+    setDateRange({ start: startDate, end: endDate });
+    closeAllDropdowns();
+  };
+
 
   const sortOptions = [
     'Recently Added',
@@ -476,23 +592,100 @@ const EmployeerAllAppliedCandidates = () => {
 
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
             {/* Date Range Picker */}
-            <div className="me-2 d-flex align-items-center">
-              <input
-                type="date"
-                className="form-control me-2"
-                style={{ width: "120px" }}
-                value={dateRange.start}
-                onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-              />
-              <span className="me-2">to</span>
-              <input
-                type="date"
-                className="form-control"
-                style={{ width: "120px" }}
-                value={dateRange.end}
-                onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                min={dateRange.start}
-              />
+            <div className="dropdown me-2">
+              <button
+                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                onClick={() => toggleDropdown('dateRange')}
+              >
+                <i className="ti ti-calendar me-1"></i>{selectedDateRange}
+              </button>
+              <ul
+                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'dateRange' || activeDropdown === 'customRange' ? 'show' : ''}`}
+                style={{ display: activeDropdown === 'dateRange' || activeDropdown === 'customRange' ? 'block' : 'none', minWidth: '280px' }}
+              >
+                {activeDropdown === 'customRange' ? (
+                  // Custom Range Date Picker View
+                  <li className="p-2">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <h6 className="mb-0">Select Date Range</h6>
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => setActiveDropdown('dateRange')}
+                      >
+                        <i className="ti ti-arrow-left"></i> Back
+                      </button>
+                    </div>
+                    <div className="d-flex align-items-center mb-2">
+                      <input
+                        type="date"
+                        className="form-control me-2"
+                        style={{ fontSize: '12px' }}
+                        value={dateRange.start}
+                        onChange={(e) => {
+                          setDateRange({ ...dateRange, start: e.target.value });
+                          if (dateRange.end && e.target.value) {
+                            setSelectedDateRange(`${e.target.value} - ${dateRange.end}`);
+                          }
+                        }}
+                        placeholder="Start Date"
+                      />
+                      <span className="me-2">to</span>
+                      <input
+                        type="date"
+                        className="form-control"
+                        style={{ fontSize: '12px' }}
+                        value={dateRange.end}
+                        onChange={(e) => {
+                          setDateRange({ ...dateRange, end: e.target.value });
+                          if (dateRange.start && e.target.value) {
+                            setSelectedDateRange(`${dateRange.start} - ${e.target.value}`);
+                          }
+                        }}
+                        min={dateRange.start}
+                        placeholder="End Date"
+                      />
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => {
+                          setDateRange({ start: '', end: '' });
+                          setSelectedDateRange('This Year');
+                          closeAllDropdowns();
+                        }}
+                      >
+                        Clear
+                      </button>
+                      <button
+                        className="btn btn-sm btn-primary"
+                        onClick={() => {
+                          if (dateRange.start && dateRange.end) {
+                            closeAllDropdowns();
+                          }
+                        }}
+                        disabled={!dateRange.start || !dateRange.end}
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </li>
+                ) : (
+                  // Regular Date Range Options
+                  <>
+                    {getDynamicDateRangeOptions().map((option) => (
+                      <li key={option.value}>
+                        <button
+                          className="dropdown-item rounded-1 d-flex justify-content-between align-items-center"
+                          onClick={() => handleDateRangeSelect(option)}
+                        >
+                          <span>{option.label}</span>
+                          <small className="text-muted">{option.dateLabel}</small>
+                        </button>
+                      </li>
+                    ))}
+                  </>
+                )}
+              </ul>
             </div>
 
             {/* Role Dropdown */}
