@@ -233,19 +233,19 @@ const EmployerHeader = () => {
                                 </div>
                             )}
                         </div>
-                        <Link to="/employer/messages" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                        <Link to="#" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                             <MessageSquare className='me-2' size={16} style={{ color: '#f9ab00' }} />
                             <span className="text-dark">Messages</span>
                         </Link>
-                        <Link to="/employer/upgrade-plan" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                        <Link to="#" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                             <Star className='me-2' size={16} style={{ color: '#f9ab00' }} />
                             <span className="text-dark">Upgrade Plan</span>
                         </Link>
-                        <Link to="/employer/events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                        <Link to="#" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                             <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
                             <span className="text-dark">Events</span>
                         </Link>
-                        <Link to="/employer/faq" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                        <Link to="#" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                             <HelpCircle className='me-2' size={16} style={{ color: '#f9ab00' }} />
                             <span className="text-dark">FAQ</span>
                         </Link>
@@ -262,7 +262,7 @@ const EmployerHeader = () => {
                         </button>
 
                         {/* Support Button with Badge */}
-                        <Link to="/employer/support" className="btn btn-link p-2 text-secondary me-2 position-relative text-decoration-none">
+                        <Link to="#" className="btn btn-link p-2 text-secondary me-2 position-relative text-decoration-none">
                             <HelpCircle size={16} />
                             <span
                                 className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"
@@ -281,7 +281,7 @@ const EmployerHeader = () => {
 
                         {/* Ads Button */}
                         <Link
-                            to="/employer/ads"
+                            to="#"
                             className="btn fw-medium me-2 text-decoration-none"
                             style={{
                                 backgroundColor: '#063970',
