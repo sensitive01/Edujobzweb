@@ -241,7 +241,7 @@ const EmployerHeader = () => {
                             <Star className='me-2' size={16} style={{ color: '#f9ab00' }} />
                             <span className="text-dark">Upgrade Plan</span>
                         </Link>
-                        <Link to="#" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                        <Link to="/employer/calendar-events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                             <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
                             <span className="text-dark">Events</span>
                         </Link>
@@ -574,7 +574,7 @@ const EmployerHeader = () => {
                             <span className="text-dark">Upgrade Plan</span>
                         </Link>
                         <Link
-                            to="/employer/events"
+                            to="/calendar-events"
                             className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                             onClick={closeMobileMenu}
                         >

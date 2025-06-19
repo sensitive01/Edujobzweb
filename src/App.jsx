@@ -55,6 +55,7 @@ import EmployerChangePassword from './pages/employer/EmployerChangePassword';
 import ForgotPasswordPage from './pages/public/Login/EmployeeForgotPasswordPage';
 import OTPVerificationPage from './pages/public/Login/EmployeeOTPVerificationPage';
 import ResetPasswordPage from './pages/public/Login/EmployeeResetPasswordPage';
+import EmployeerCalenderEvents from './pages/employer/EmployeerCalenderEvents';
 
 function App() {
   return (
@@ -73,7 +74,7 @@ function App() {
           <Route path='/employer/applied-candidates' element={<EmployeerAllAppliedCandidates />} />
           <Route path='/employer/applied-candidates/:id' element={<EmployeerAppliedCandidates />} />
           <Route path='/employer/saved-candidates' element={<EmployeerSavedCandidates />} />
-
+          <Route path='/employer/shortlisted-candidate-byjob/:id' element={<EmployeerJobIdShortlistedCandidates />} />
 
           <Route path='/employer/login' element={<EmployerLoginPage />} />
           <Route path='/employer/forgot-password' element={<EmployerForgotPassword />} />
@@ -84,8 +85,9 @@ function App() {
           <Route path='/employer/search' element={<EmployeerCandidatesSearch />} />
           <Route path='/employer/post-jobs' element={<EmployeerPostJob />} />
           <Route path='/employer/view-job/:id' element={<EmployeerJobDetails />} />
-          <Route path='/employer/shortlisted-candidate-byjob/:id' element={<EmployeerJobIdShortlistedCandidates />} />
           <Route path='/employer/profile' element={<EmployeerProfileView />} />
+
+          <Route path='/employer/calendar-events' element={<EmployeerCalenderEvents />} />
         </Route>
 
         {/* All other routes with Layout */}
