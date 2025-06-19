@@ -24,7 +24,7 @@ const EmployeerSavedCandidates = () => {
     start: '',
     end: ''
   });
-    const [selectedDateRange, setSelectedDateRange] = useState('This Year');
+  const [selectedDateRange, setSelectedDateRange] = useState('This Year');
   const navigate = useNavigate();
 
   // Extract roles dynamically from candidates data
@@ -48,7 +48,7 @@ const EmployeerSavedCandidates = () => {
     'Rejected'
   ];
 
- const getDynamicDateRangeOptions = () => {
+  const getDynamicDateRangeOptions = () => {
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth() + 1;
@@ -291,7 +291,7 @@ const EmployeerSavedCandidates = () => {
   });
 
   useEffect(() => {
-    const fetchShortlistedCandidates = async () => {
+    const fetchSavedCandidates = async () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('employerToken');
@@ -312,7 +312,7 @@ const EmployeerSavedCandidates = () => {
         );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch shortlisted candidates');
+          throw new Error('Failed to fetch Saved candidates');
         }
 
         const data = await response.json();
@@ -326,12 +326,55 @@ const EmployeerSavedCandidates = () => {
       }
     };
 
-    fetchShortlistedCandidates();
+    fetchSavedCandidates();
   }, [navigate]);
 
   useEffect(() => {
     filterCandidates();
   }, [filters, candidates, selectedSort, dateRange]);
+
+  const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
+    try {
+      const token = localStorage.getItem('employerToken');
+      if (!token) {
+        navigate('/employer/login');
+        return;
+      }
+
+      const response = await fetch(
+        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            favourite: !currentStatus
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to update favorite status');
+      }
+
+      // Update state
+      setCandidates(prev => prev.map(candidate =>
+        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
+      ));
+
+      setFilteredCandidates(prev => prev.map(candidate =>
+        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
+      ));
+
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+      alert(`Error: ${error.message}`);
+    }
+  };
 
   const filterCandidates = () => {
     let result = [...candidates];
@@ -426,7 +469,7 @@ const EmployeerSavedCandidates = () => {
 
   const getStatusBadgeClass = (status) => {
     switch (status?.toLowerCase()) {
-      case 'shortlisted':
+      case 'Saved':
         return 'bg-success';
       case 'rejected':
         return 'bg-danger';
@@ -546,7 +589,7 @@ const EmployeerSavedCandidates = () => {
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
-            <p className="mt-2">Loading shortlisted candidates...</p>
+            <p className="mt-2">Loading Saved candidates...</p>
           </div>
         </div>
         <EmployerFooter />
@@ -1097,7 +1140,7 @@ const EmployeerSavedCandidates = () => {
                 {/* Candidates Count */}
                 <div className="mb-3">
                   <span className="badge bg-warning">
-                    {filteredCandidates.length} {filteredCandidates.length === 1 ? 'shortlisted candidate' : 'shortlisted candidates'} found
+                    {filteredCandidates.length} {filteredCandidates.length === 1 ? 'Saved candidate' : 'Saved candidates'} found
                   </span>
                 </div>
 
@@ -1135,7 +1178,7 @@ const EmployeerSavedCandidates = () => {
                                     </a>
                                   </h6>
                                   <p className="fs-13">
-                                    <b>Shortlisted On:</b> {new Date(candidate.appliedDate).toLocaleDateString('en-GB')}
+                                    <b>Saved On:</b> {new Date(candidate.appliedDate).toLocaleDateString('en-GB')}
                                     <span className={`badge ${getStatusBadgeClass(candidate.employapplicantstatus)}`}>
                                       {candidate.employapplicantstatus || 'Pending'}
                                     </span> &nbsp; | &nbsp;
@@ -1161,8 +1204,20 @@ const EmployeerSavedCandidates = () => {
                                 <a data-bs-toggle="offcanvas" data-bs-target="#theme-setting" className="btn btn-light text-info btn-icon text-info btn-sm me-1">
                                   <i className="ti ti-brand-hipchat fs-16"></i>
                                 </a>
-                                <a href="#" className="btn btn-light text-primary btn-icon btn-sm">
-                                  <i className="ti ti-bookmark fs-16"></i>
+                                <a
+                                  href="#"
+                                  className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    const employerData = JSON.parse(localStorage.getItem('employerData'));
+                                    toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite || false);
+                                  }}
+                                  style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
+                                >
+                                  <i
+                                    className={`ti ti-bookmark fs-16`}
+                                    style={candidate.favourite ? { color: 'white' } : {}}
+                                  ></i>
                                 </a>
                               </div>
                             </div>
@@ -1197,8 +1252,8 @@ const EmployeerSavedCandidates = () => {
                     ))
                   ) : (
                     <div className="col-12 text-center py-5">
-                      <img src="/images/no-jobs-found.png" alt="No shortlisted candidates found" width="150" className="mb-3" />
-                      <h4>No shortlisted candidates found</h4>
+                      <img src="/images/no-jobs-found.png" alt="No Saved candidates found" width="150" className="mb-3" />
+                      <h4>No Saved candidates found</h4>
                       <p className="text-muted">Try adjusting your search filters</p>
                     </div>
                   )}

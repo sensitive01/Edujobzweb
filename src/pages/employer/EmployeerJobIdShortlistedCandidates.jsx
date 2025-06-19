@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const EmployeerJobIdShortlistedCandidates = () => {
-  const { id: jobId } = useParams(); // Get job ID from URL params
+  const { id: jobId } = useParams();
   const [showCandidateModal, setShowCandidateModal] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -24,34 +24,148 @@ const EmployeerJobIdShortlistedCandidates = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [jobDetails, setJobDetails] = useState(null);
+  const [dateRange, setDateRange] = useState({
+    start: '',
+    end: ''
+  });
+  const [selectedDateRange, setSelectedDateRange] = useState('This Year');
   const navigate = useNavigate();
 
-  const roles = [
-    'All',
-    'PGT Mathematics Teacher',
-    'Physical Trainer',
-    'Chemistry Teacher',
-    'Receptionist',
-    'Bus Driver',
-    'Security',
-    'flutter developer',
-    'English teacher'
-  ];
-  
+  // Extract roles dynamically from candidates data
+  const getUniqueRoles = (candidates) => {
+    const roles = new Set();
+    candidates.forEach(candidate => {
+      if (candidate.jobrole) {
+        roles.add(candidate.jobrole);
+      }
+    });
+    return ['All', ...Array.from(roles)];
+  };
+
   const statuses = [
     'All',
-    'Active',
-    'Inactive',
-    'New',
-    'On Hold',
-    'Shortlisted',
-    'Rejected',
-    'Applied',
     'Pending',
+    'Hold',
     'In Progress',
-    'Interview Scheduled'
+    'Interview Scheduled',
+    'Hired',
+    'Rejected'
   ];
-  
+
+  const getDynamicDateRangeOptions = () => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1;
+    const currentDate = today.getDate();
+
+    return [
+      {
+        label: 'Today',
+        value: 'today',
+        dateLabel: `${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`
+      },
+      {
+        label: 'Yesterday',
+        value: 'yesterday',
+        dateLabel: (() => {
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          return `${yesterday.getDate().toString().padStart(2, '0')}/${(yesterday.getMonth() + 1).toString().padStart(2, '0')}/${yesterday.getFullYear()}`;
+        })()
+      },
+      {
+        label: 'Last 7 Days',
+        value: 'last7days',
+        dateLabel: (() => {
+          const week = new Date(today);
+          week.setDate(week.getDate() - 7);
+          return `${week.getDate().toString().padStart(2, '0')}/${(week.getMonth() + 1).toString().padStart(2, '0')}/${week.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
+        })()
+      },
+      {
+        label: 'Last 30 Days',
+        value: 'last30days',
+        dateLabel: (() => {
+          const month = new Date(today);
+          month.setDate(month.getDate() - 30);
+          return `${month.getDate().toString().padStart(2, '0')}/${(month.getMonth() + 1).toString().padStart(2, '0')}/${month.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
+        })()
+      },
+      {
+        label: 'This Year',
+        value: 'thisyear',
+        dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`
+      },
+      {
+        label: 'Last Year',
+        value: 'lastyear',
+        dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`
+      },
+      {
+        label: 'Next Year',
+        value: 'nextyear',
+        dateLabel: `01/01/${currentYear + 1} - 31/12/${currentYear + 1}`
+      },
+      {
+        label: 'Custom Range',
+        value: 'custom',
+        dateLabel: 'Select dates'
+      }
+    ];
+  };
+
+  const handleDateRangeSelect = (option) => {
+    if (option.value === 'custom') {
+      setSelectedDateRange('Custom Range');
+      setActiveDropdown('customRange');
+      return;
+    }
+
+    setSelectedDateRange(option.dateLabel);
+    const today = new Date();
+    let startDate, endDate;
+
+    switch (option.value) {
+      case 'today':
+        startDate = endDate = today.toISOString().split('T')[0];
+        break;
+      case 'yesterday':
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        startDate = endDate = yesterday.toISOString().split('T')[0];
+        break;
+      case 'last7days':
+        const week = new Date(today);
+        week.setDate(week.getDate() - 7);
+        startDate = week.toISOString().split('T')[0];
+        endDate = today.toISOString().split('T')[0];
+        break;
+      case 'last30days':
+        const month = new Date(today);
+        month.setDate(month.getDate() - 30);
+        startDate = month.toISOString().split('T')[0];
+        endDate = today.toISOString().split('T')[0];
+        break;
+      case 'thisyear':
+        startDate = `${today.getFullYear()}-01-01`;
+        endDate = `${today.getFullYear()}-12-31`;
+        break;
+      case 'lastyear':
+        startDate = `${today.getFullYear() - 1}-01-01`;
+        endDate = `${today.getFullYear() - 1}-12-31`;
+        break;
+      case 'nextyear':
+        startDate = `${today.getFullYear() + 1}-01-01`;
+        endDate = `${today.getFullYear() + 1}-12-31`;
+        break;
+      default:
+        return;
+    }
+
+    setDateRange({ start: startDate, end: endDate });
+    closeAllDropdowns();
+  };
+
   const sortOptions = [
     'Recently Added',
     'Ascending',
@@ -59,18 +173,108 @@ const EmployeerJobIdShortlistedCandidates = () => {
     'Last Month',
     'Last 7 Days'
   ];
-  
+
+  const exportToPDF = () => {
+    const content = `
+      <h1>Candidates List</h1>
+      <table border="1" style="width:100%">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Job Role</th>
+            <th>Status</th>
+            <th>Applied Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filteredCandidates.map(candidate => `
+            <tr>
+              <td>${candidate.firstName} ${candidate.lastName || ''}</td>
+              <td>${candidate.email || 'N/A'}</td>
+              <td>${candidate.phone || 'N/A'}</td>
+              <td>${candidate.jobrole || 'N/A'}</td>
+              <td>${candidate.employapplicantstatus || 'N/A'}</td>
+              <td>${new Date(candidate.appliedDate).toLocaleDateString('en-GB') || 'N/A'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+
+    const printWindow = window.open('', '', 'width=800,height=600');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Candidates List</title>
+          <style>
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+          ${content}
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+                window.close();
+              }, 200);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  const exportToExcel = () => {
+    const headers = ['Name', 'Email', 'Phone', 'Job Role', 'Status', 'Applied Date'];
+    const rows = filteredCandidates.map(candidate => [
+      `"${candidate.firstName} ${candidate.lastName || ''}"`,
+      `"${candidate.email || 'N/A'}"`,
+      `"${candidate.phone || 'N/A'}"`,
+      `"${candidate.jobrole || 'N/A'}"`,
+      `"${candidate.employapplicantstatus || 'N/A'}"`,
+      `"${new Date(candidate.appliedDate).toLocaleDateString('en-GB') || 'N/A'}"`
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'candidates_list.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const exportOptions = [
-    { label: 'Export as PDF', icon: 'ti ti-file-type-pdf' },
-    { label: 'Export as Excel', icon: 'ti ti-file-type-xls' }
+    {
+      label: 'Export as PDF',
+      icon: 'ti ti-file-type-pdf',
+      onClick: exportToPDF
+    },
+    {
+      label: 'Export as Excel',
+      icon: 'ti ti-file-type-xls',
+      onClick: exportToExcel
+    }
   ];
 
   const [openSections, setOpenSections] = useState({
     jobCategory: true,
-    JobType: true,
+    jobType: true,
     gender: true,
     salaryRange: true,
-    Location: true,
+    location: true,
     qualification: true,
     experience: true,
   });
@@ -94,7 +298,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
       try {
         const employerData = JSON.parse(localStorage.getItem('employerData'));
         const token = localStorage.getItem('employerToken');
-        
+
         if (!employerData || !employerData._id || !token) {
           navigate('/employer/login');
           return;
@@ -111,7 +315,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
             'Authorization': `Bearer ${token}`
           }
         });
-        
+
         if (response.data) {
           setJobDetails(response.data);
         }
@@ -126,7 +330,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
         setLoading(true);
         const token = localStorage.getItem('employerToken');
         const employerData = JSON.parse(localStorage.getItem('employerData'));
-        
+
         if (!token || !employerData) {
           navigate('/employer/login');
           return;
@@ -146,9 +350,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
             }
           }
         );
-        
-        console.log('Shortlisted candidates response:', response.data);
-        
+
         if (response.data && response.data.success) {
           const candidatesData = response.data.applications || [];
           setCandidates(candidatesData);
@@ -181,72 +383,151 @@ const EmployeerJobIdShortlistedCandidates = () => {
   }, [jobId, navigate]);
 
   useEffect(() => {
-    // Apply filters whenever filters state changes
     filterCandidates();
-  }, [filters, candidates]);
+  }, [filters, candidates, selectedSort, dateRange]);
+
+  const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
+    try {
+      const token = localStorage.getItem('employerToken');
+      if (!token) {
+        navigate('/employer/login');
+        return;
+      }
+
+      const response = await fetch(
+        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            favourite: !currentStatus
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to update favorite status');
+      }
+
+      setCandidates(prev => prev.map(candidate => 
+        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
+      ));
+      
+      setFilteredCandidates(prev => prev.map(candidate => 
+        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
+      ));
+
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+      alert(`Error: ${error.message}`);
+    }
+  };
 
   const filterCandidates = () => {
     let result = [...candidates];
 
-    // Search query filter
-    if (filters.searchQuery.trim()) {
-      const searchTerm = filters.searchQuery.toLowerCase().trim();
+    if (dateRange.start && dateRange.end) {
+      const startDate = new Date(dateRange.start);
+      const endDate = new Date(dateRange.end);
+
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
+
       result = result.filter(candidate => {
-        return (
-          (candidate.firstName && candidate.firstName.toLowerCase().includes(searchTerm)) ||
-          (candidate.lastName && candidate.lastName.toLowerCase().includes(searchTerm)) ||
-          (candidate.email && candidate.email.toLowerCase().includes(searchTerm)) ||
-          (candidate.jobrole && candidate.jobrole.toLowerCase().includes(searchTerm)) ||
-          (candidate.currentcity && candidate.currentcity.toLowerCase().includes(searchTerm)) ||
-          (candidate.qualification && candidate.qualification.toLowerCase().includes(searchTerm)) ||
-          (candidate.currentDesignation && candidate.currentDesignation.toLowerCase().includes(searchTerm))
-        );
+        if (!candidate.appliedDate) return false;
+        const appliedDate = new Date(candidate.appliedDate);
+        return appliedDate >= startDate && appliedDate <= endDate;
       });
     }
 
-    // Job role filter
+    if (filters.searchQuery.trim()) {
+      const searchTerm = filters.searchQuery.toLowerCase().trim();
+      result = result.filter(candidate => {
+        const searchFields = [
+          candidate.firstName,
+          candidate.lastName,
+          candidate.email,
+          candidate.phone,
+          candidate.jobrole,
+          candidate.currentcity,
+          candidate.qualification,
+          candidate.currentDesignation
+        ].filter(Boolean).join(' ').toLowerCase();
+        return searchFields.includes(searchTerm);
+      });
+    }
+
     if (filters.jobCategories.length > 0) {
-      result = result.filter(candidate => 
+      result = result.filter(candidate =>
         filters.jobCategories.includes(candidate.jobrole)
       );
     }
 
-    // Location filter
     if (filters.location) {
-      result = result.filter(candidate => 
-        candidate.currentcity && 
+      result = result.filter(candidate =>
+        candidate.currentcity &&
         candidate.currentcity.toLowerCase().includes(filters.location.toLowerCase())
       );
     }
 
-    // Experience filter
     if (filters.experienceFrom || filters.experienceTo) {
       const from = parseInt(filters.experienceFrom) || 0;
       const to = parseInt(filters.experienceTo) || Infinity;
-      
+
       result = result.filter(candidate => {
         const exp = parseInt(candidate.experience) || 0;
         return exp >= from && exp <= to;
       });
     }
 
-    // Gender filter
     if (filters.gender) {
-      result = result.filter(candidate => 
-        candidate.gender && 
+      result = result.filter(candidate =>
+        candidate.gender &&
         candidate.gender.toLowerCase() === filters.gender.toLowerCase()
       );
     }
 
-    // Status filter
-    if (filters.status && filters.status !== 'All') {
-      result = result.filter(candidate => 
-        candidate.employapplicantstatus && 
+    if (filters.status) {
+      result = result.filter(candidate =>
+        candidate.employapplicantstatus &&
         candidate.employapplicantstatus.toLowerCase() === filters.status.toLowerCase()
       );
     }
 
+    if (selectedSort.includes('Recently Added')) {
+      result.sort((a, b) => new Date(b.appliedDate) - new Date(a.appliedDate));
+    } else if (selectedSort.includes('Ascending')) {
+      result.sort((a, b) => (a.firstName || '').localeCompare(b.firstName || ''));
+    } else if (selectedSort.includes('Descending')) {
+      result.sort((a, b) => (b.firstName || '').localeCompare(a.firstName || ''));
+    }
+
     setFilteredCandidates(result);
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'shortlisted':
+        return 'bg-success';
+      case 'rejected':
+        return 'bg-danger';
+      case 'in progress':
+      case 'interview scheduled':
+        return 'bg-info';
+      case 'pending':
+        return 'bg-warning';
+      case 'applied':
+        return 'bg-primary';
+      case 'on hold':
+        return 'bg-secondary';
+      default:
+        return 'bg-secondary';
+    }
   };
 
   const toggleSection = (section) => {
@@ -303,13 +584,17 @@ const EmployeerJobIdShortlistedCandidates = () => {
       searchQuery: '',
       status: ''
     });
+    setDateRange({
+      start: '',
+      end: ''
+    });
     setSelectedRole('Role');
     setSelectedStatus('Select Status');
+    setSelectedSort('Sort By: Last 7 Days');
   };
 
   const handleSubmit = () => {
-    // Filters are applied automatically through useEffect
-    console.log('Applied filters', filters);
+    filterCandidates();
   };
 
   const toggleDropdown = (dropdownName) => {
@@ -338,36 +623,6 @@ const EmployeerJobIdShortlistedCandidates = () => {
     setShowDetails(true);
   };
 
-  const sortCandidates = (candidates, sortType) => {
-    const sorted = [...candidates];
-    
-    switch (sortType) {
-      case 'Recently Added':
-        return sorted.sort((a, b) => new Date(b.appliedDate) - new Date(a.appliedDate));
-      case 'Ascending':
-        return sorted.sort((a, b) => a.firstName.localeCompare(b.firstName));
-      case 'Descending':
-        return sorted.sort((a, b) => b.firstName.localeCompare(a.firstName));
-      case 'Last Month':
-        const monthAgo = new Date();
-        monthAgo.setMonth(monthAgo.getMonth() - 1);
-        return sorted.filter(candidate => new Date(candidate.appliedDate) >= monthAgo);
-      case 'Last 7 Days':
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        return sorted.filter(candidate => new Date(candidate.appliedDate) >= weekAgo);
-      default:
-        return sorted;
-    }
-  };
-
-  const handleSortChange = (sortOption) => {
-    setSelectedSort(`Sort By: ${sortOption}`);
-    const sortedCandidates = sortCandidates(filteredCandidates, sortOption);
-    setFilteredCandidates(sortedCandidates);
-    closeAllDropdowns();
-  };
-
   if (loading) {
     return (
       <>
@@ -394,7 +649,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
             <i className="fas fa-exclamation-triangle fa-2x mb-3"></i>
             <h5>Error loading candidates</h5>
             <p>{error}</p>
-            <button 
+            <button
               className="btn btn-primary mt-3"
               onClick={() => window.location.reload()}
             >
@@ -407,9 +662,11 @@ const EmployeerJobIdShortlistedCandidates = () => {
     );
   }
 
+  const roles = getUniqueRoles(candidates);
+
   return (
     <>
-      <EmployerHeader/>
+      <EmployerHeader />
 
       <div className="content">
         {/* Breadcrumb */}
@@ -425,18 +682,98 @@ const EmployeerJobIdShortlistedCandidates = () => {
 
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
             {/* Date Range Picker */}
-            <div className="me-2">
-              <div className="input-icon-end position-relative">
-                <input
-                  type="text"
-                  className="form-control date-range bookingrange"
-                  style={{ width: "205px" }}
-                  placeholder="dd/mm/yyyy - dd/mm/yyyy"
-                />
-                <span className="input-icon-addon">
-                  <i className="ti ti-chevron-down"></i>
-                </span>
-              </div>
+            <div className="dropdown me-2">
+              <button
+                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                onClick={() => toggleDropdown('dateRange')}
+              >
+                <i className="ti ti-calendar me-1"></i>{selectedDateRange}
+              </button>
+              <ul
+                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'dateRange' || activeDropdown === 'customRange' ? 'show' : ''}`}
+                style={{ display: activeDropdown === 'dateRange' || activeDropdown === 'customRange' ? 'block' : 'none', minWidth: '280px' }}
+              >
+                {activeDropdown === 'customRange' ? (
+                  <li className="p-2">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <h6 className="mb-0">Select Date Range</h6>
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => setActiveDropdown('dateRange')}
+                      >
+                        <i className="ti ti-arrow-left"></i> Back
+                      </button>
+                    </div>
+                    <div className="d-flex align-items-center mb-2">
+                      <input
+                        type="date"
+                        className="form-control me-2"
+                        style={{ fontSize: '12px' }}
+                        value={dateRange.start}
+                        onChange={(e) => {
+                          setDateRange({ ...dateRange, start: e.target.value });
+                          if (dateRange.end && e.target.value) {
+                            setSelectedDateRange(`${e.target.value} - ${dateRange.end}`);
+                          }
+                        }}
+                        placeholder="Start Date"
+                      />
+                      <span className="me-2">to</span>
+                      <input
+                        type="date"
+                        className="form-control"
+                        style={{ fontSize: '12px' }}
+                        value={dateRange.end}
+                        onChange={(e) => {
+                          setDateRange({ ...dateRange, end: e.target.value });
+                          if (dateRange.start && e.target.value) {
+                            setSelectedDateRange(`${dateRange.start} - ${e.target.value}`);
+                          }
+                        }}
+                        min={dateRange.start}
+                        placeholder="End Date"
+                      />
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => {
+                          setDateRange({ start: '', end: '' });
+                          setSelectedDateRange('This Year');
+                          closeAllDropdowns();
+                        }}
+                      >
+                        Clear
+                      </button>
+                      <button
+                        className="btn btn-sm btn-primary"
+                        onClick={() => {
+                          if (dateRange.start && dateRange.end) {
+                            closeAllDropdowns();
+                          }
+                        }}
+                        disabled={!dateRange.start || !dateRange.end}
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </li>
+                ) : (
+                  <>
+                    {getDynamicDateRangeOptions().map((option) => (
+                      <li key={option.value}>
+                        <button
+                          className="dropdown-item rounded-1 d-flex justify-content-between align-items-center"
+                          onClick={() => handleDateRangeSelect(option)}
+                        >
+                          <span>{option.label}</span>
+                          <small className="text-muted">{option.dateLabel}</small>
+                        </button>
+                      </li>
+                    ))}
+                  </>
+                )}
+              </ul>
             </div>
 
             {/* Role Dropdown */}
@@ -491,7 +828,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
                         setSelectedStatus(status);
                         setFilters(prev => ({
                           ...prev,
-                          status: status === 'Select Status' ? '' : status
+                          status: status === 'All' ? '' : status
                         }));
                         closeAllDropdowns();
                       }}
@@ -519,7 +856,10 @@ const EmployeerJobIdShortlistedCandidates = () => {
                   <li key={option}>
                     <button
                       className="dropdown-item rounded-1"
-                      onClick={() => handleSortChange(option)}
+                      onClick={() => {
+                        setSelectedSort(`Sort By: ${option}`);
+                        closeAllDropdowns();
+                      }}
                     >
                       {option}
                     </button>
@@ -533,7 +873,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
               <button className="btn btn-icon btn-sm me-1">
                 <i className="ti ti-list-tree"></i>
               </button>
-              <button className="btn btn-icon btn-sm active bg-secondary text-white">
+              <button className="btn btn-icon btn-sm active bg-secondary text-white" onClick={() => navigate("/employer/new-candidate")}>
                 <i className="ti ti-layout-grid"></i>
               </button>
             </div>
@@ -555,7 +895,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
                     <button
                       className="dropdown-item rounded-1"
                       onClick={() => {
-                        setSelectedExport(option.label);
+                        option.onClick();
                         closeAllDropdowns();
                       }}
                     >
@@ -564,33 +904,6 @@ const EmployeerJobIdShortlistedCandidates = () => {
                   </li>
                 ))}
               </ul>
-            </div>
-
-            {/* Header Icons */}
-            <div className="card-header d-flex align-items-center justify-content-between">
-              <div className="d-flex align-items-center">
-                <div className="head-icons ms-2">
-                  <button
-                    className="btn btn-icon"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      // Handle collapse functionality here
-                    }}
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="Collapse"
-                    id="collapse-header"
-                  >
-                    <i className="ti ti-chevrons-up"></i>
-                  </button>
-                </div>
-              </div>
-
-              <AddNewCandidate
-                show={showCandidateModal}
-                onClose={() => setShowCandidateModal(false)}
-                onSubmit={handleSubmitCandidate}
-              />
             </div>
           </div>
         </div>
@@ -652,50 +965,6 @@ const EmployeerJobIdShortlistedCandidates = () => {
                       </div>
                     </div>
 
-                    {/* Job Type Accordion */}
-                    <div className="accordion-item">
-                      <h2 className="accordion-header">
-                        <button
-                          className="accordion-button text-dark fs-16 align-items-center justify-content-between"
-                          type="button"
-                          onClick={() => toggleSection('jobType')}
-                        >
-                          Select Job Type
-                          <span>
-                            <FaArrowCircleUp
-                              className={`text-primary transition-all duration-300 ${openSections.jobType ? 'rotate-180' : ''}`}
-                              size={20}
-                            />
-                          </span>
-                        </button>
-                      </h2>
-                      <div className={`accordion-collapse collapse ${openSections.jobType ? 'show' : ''}`}>
-                        <div className="accordion-body">
-                          <div className="row">
-                            <div className="form-group">
-                              <div className="checkbox-limit">
-                                <ul className="checkbox-list d-flex flex-wrap">
-                                  {['Full Time', 'Part Time', 'Remote', 'Temporary'].map(type => (
-                                    <li className="me-2 mb-2" key={type}>
-                                      <label className="custom-checkbox">
-                                        <input
-                                          type="checkbox"
-                                          checked={filters.jobTypes.includes(type)}
-                                          onChange={() => handleCheckboxChange('jobTypes', type)}
-                                        />
-                                        <span className="fake-checkbox"></span>
-                                        <span className="label-text">{type}</span>
-                                      </label>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
                     {/* Gender Accordion */}
                     <div className="accordion-item">
                       <h2 className="accordion-header">
@@ -716,7 +985,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
                       <div className={`accordion-collapse collapse ${openSections.gender ? 'show' : ''}`}>
                         <div className="accordion-body">
                           <div className="d-flex align-items-center">
-                            <div className="theme-width m-1 me-2">
+                            <div className="theme-width m-0 me-2">
                               <input
                                 type="radio"
                                 id="male"
@@ -727,7 +996,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
                               />
                               <label htmlFor="male" className="d-block rounded fs-12">Male</label>
                             </div>
-                            <div className="theme-width m-1">
+                            <div className="theme-width m-0">
                               <input
                                 type="radio"
                                 id="female"
@@ -748,53 +1017,6 @@ const EmployeerJobIdShortlistedCandidates = () => {
                                 onChange={handleRadioChange}
                               />
                               <label htmlFor="any" className="d-block rounded fs-12">Any</label>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Salary Range Accordion */}
-                    <div className="accordion-item">
-                      <h2 className="accordion-header">
-                        <button
-                          className="accordion-button text-dark fs-16 align-items-center justify-content-between"
-                          type="button"
-                          onClick={() => toggleSection('salaryRange')}
-                        >
-                          Salary Range
-                          <span>
-                            <FaArrowCircleUp
-                              className={`text-primary transition-all duration-300 ${openSections.salaryRange ? 'rotate-180' : ''}`}
-                              size={20}
-                            />
-                          </span>
-                        </button>
-                      </h2>
-                      <div className={`accordion-collapse collapse ${openSections.salaryRange ? 'show' : ''}`}>
-                        <div className="accordion-body pb-0">
-                          <div className="row gx-3">
-                            <div className="form-group">
-                              <div className="price-inputs d-flex mb-3">
-                                <input
-                                  type="text"
-                                  id="salary-from"
-                                  className="form-control me-3"
-                                  placeholder="From"
-                                  value={filters.salaryFrom}
-                                  onChange={(e) => handleInputChange(e)}
-                                  name="salaryFrom"
-                                />
-                                <input
-                                  type="text"
-                                  id="salary-to"
-                                  className="form-control"
-                                  placeholder="To"
-                                  value={filters.salaryTo}
-                                  onChange={(e) => handleInputChange(e)}
-                                  name="salaryTo"
-                                />
-                              </div>
                             </div>
                           </div>
                         </div>
@@ -939,18 +1161,18 @@ const EmployeerJobIdShortlistedCandidates = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Main Content Area */}
               <div className="col-lg-9 col-md-6">
                 <div className="card">
                   <div className="card-body">
                     <form onSubmit={handleSearch}>
                       <div className="d-flex align-items-center">
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           name="search"
-                          className="form-control flex-fill me-2" 
-                          placeholder="Search Candidates (name, email, skills, etc.)" 
+                          className="form-control flex-fill me-2"
+                          placeholder="Search Candidates (name, email, skills, etc.)"
                           defaultValue={filters.searchQuery}
                         />
                         <button type="submit" className="btn btn-secondary">Search</button>
@@ -976,10 +1198,10 @@ const EmployeerJobIdShortlistedCandidates = () => {
                             <div className="d-flex align-items-center justify-content-between mb-2">
                               <div className="d-flex align-items-center">
                                 <a href="javascript:void(0);" className="avatar flex-shrink-0">
-                                  <img 
-                                    src={candidate.profileurl || user13} 
-                                    className="img-fluid h-auto w-auto" 
-                                    alt="img" 
+                                  <img
+                                    src={candidate.profileurl || user13}
+                                    className="img-fluid h-auto w-auto"
+                                    alt="img"
                                     onError={(e) => {
                                       e.target.onerror = null;
                                       e.target.src = user13;
@@ -1000,10 +1222,10 @@ const EmployeerJobIdShortlistedCandidates = () => {
                                     </a>
                                   </h6>
                                   <p className="fs-13">
-                                    <b>Applied On:</b> {new Date(candidate.appliedDate).toLocaleDateString()} &nbsp; | &nbsp; 
+                                    <b>Applied On:</b> {new Date(candidate.appliedDate).toLocaleDateString()} &nbsp; | &nbsp;
                                     <span className={`badge ${candidate.employapplicantstatus === 'Pending' ? 'bg-warning' : 'bg-success'}`}>
                                       {candidate.employapplicantstatus || 'Pending'}
-                                    </span> &nbsp; | &nbsp; 
+                                    </span> &nbsp; | &nbsp;
                                     {candidate.resume?.url && (
                                       <a href={candidate.resume.url} className="fw-medium text-primary" target="_blank" rel="noopener noreferrer">
                                         <i className="ti ti-download"></i> Download Resume
@@ -1026,8 +1248,20 @@ const EmployeerJobIdShortlistedCandidates = () => {
                                 <a data-bs-toggle="offcanvas" data-bs-target="#theme-setting" className="btn btn-light text-info btn-icon text-info btn-sm me-1">
                                   <i className="ti ti-brand-hipchat fs-16"></i>
                                 </a>
-                                <a href="#" className="btn btn-light text-primary btn-icon btn-sm">
-                                  <i className="ti ti-bookmark fs-16"></i>
+                                <a
+                                  href="#"
+                                  className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    const employerData = JSON.parse(localStorage.getItem('employerData'));
+                                    toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite || false);
+                                  }}
+                                  style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
+                                >
+                                  <i
+                                    className={`ti ti-bookmark fs-16`}
+                                    style={candidate.favourite ? { color: 'white' } : {}}
+                                  ></i>
                                 </a>
                               </div>
                             </div>
@@ -1047,7 +1281,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
                               <div className="d-flex align-items-center justify-content-between">
                                 <span><b>Current Location</b> : {candidate.currentcity || 'Not specified'}</span>
                                 <span>
-                                  <button 
+                                  <button
                                     className="fs-10 fw-bold badge bg-warning"
                                     onClick={() => viewCandidateDetails(candidate)}
                                   >
@@ -1067,7 +1301,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
                       <p className="text-muted">Try adjusting your search filters</p>
                     </div>
                   )}
-                  
+
                   {filteredCandidates.length > 0 && (
                     <div className="col-md-12">
                       <div align="right" className="mb-4">
@@ -1092,7 +1326,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
         />
       )}
 
-      <EmployerFooter/>
+      <EmployerFooter />
     </>
   );
 };

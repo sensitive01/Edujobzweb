@@ -333,6 +333,49 @@ const EmployeerAllAppliedCandidates = () => {
     filterCandidates();
   }, [filters, candidates, selectedSort, dateRange]);
 
+
+  const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
+    try {
+      const token = localStorage.getItem('employerToken');
+      if (!token) {
+        navigate('/employer/login');
+        return;
+      }
+
+      const response = await fetch(
+        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            favourite: !currentStatus
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to update favorite status');
+      }
+
+      // Update state
+      setCandidates(prev => prev.map(candidate =>
+        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
+      ));
+
+      setFilteredCandidates(prev => prev.map(candidate =>
+        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
+      ));
+
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+      alert(`Error: ${error.message}`);
+    }
+  };
   const filterCandidates = () => {
     let result = [...candidates];
 
@@ -1162,8 +1205,20 @@ const EmployeerAllAppliedCandidates = () => {
                                 <a data-bs-toggle="offcanvas" data-bs-target="#theme-setting" className="btn btn-light text-info btn-icon text-info btn-sm me-1">
                                   <i className="ti ti-brand-hipchat fs-16"></i>
                                 </a>
-                                <a href="#" className="btn btn-light text-primary btn-icon btn-sm">
-                                  <i className="ti ti-bookmark fs-16"></i>
+                                <a
+                                  href="#"
+                                  className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    const employerData = JSON.parse(localStorage.getItem('employerData'));
+                                    toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite || false);
+                                  }}
+                                  style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
+                                >
+                                  <i
+                                    className={`ti ti-bookmark fs-16`}
+                                    style={candidate.favourite ? { color: 'white' } : {}}
+                                  ></i>
                                 </a>
                               </div>
                             </div>

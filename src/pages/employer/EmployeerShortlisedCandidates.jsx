@@ -21,9 +21,9 @@ const EmployeerShortlisedCandidates = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dateRange, setDateRange] = useState({
-  start: '',
-  end: ''
-});
+    start: '',
+    end: ''
+  });
   const [selectedDateRange, setSelectedDateRange] = useState('This Year');
   const navigate = useNavigate();
 
@@ -48,7 +48,7 @@ const EmployeerShortlisedCandidates = () => {
     'Rejected'
   ];
 
- const getDynamicDateRangeOptions = () => {
+  const getDynamicDateRangeOptions = () => {
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth() + 1;
@@ -111,56 +111,56 @@ const EmployeerShortlisedCandidates = () => {
   };
 
   const handleDateRangeSelect = (option) => {
-  if (option.value === 'custom') {
-    setSelectedDateRange('Custom Range');
-    setActiveDropdown('customRange'); // Keep dropdown open but switch to custom range view
-    return;
-  }
-
-  setSelectedDateRange(option.dateLabel);
-  const today = new Date();
-  let startDate, endDate;
-
-  switch (option.value) {
-    case 'today':
-      startDate = endDate = today.toISOString().split('T')[0];
-      break;
-    case 'yesterday':
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      startDate = endDate = yesterday.toISOString().split('T')[0];
-      break;
-    case 'last7days':
-      const week = new Date(today);
-      week.setDate(week.getDate() - 7);
-      startDate = week.toISOString().split('T')[0];
-      endDate = today.toISOString().split('T')[0];
-      break;
-    case 'last30days':
-      const month = new Date(today);
-      month.setDate(month.getDate() - 30);
-      startDate = month.toISOString().split('T')[0];
-      endDate = today.toISOString().split('T')[0];
-      break;
-    case 'thisyear':
-      startDate = `${today.getFullYear()}-01-01`;
-      endDate = `${today.getFullYear()}-12-31`;
-      break;
-    case 'lastyear':
-      startDate = `${today.getFullYear() - 1}-01-01`;
-      endDate = `${today.getFullYear() - 1}-12-31`;
-      break;
-    case 'nextyear':
-      startDate = `${today.getFullYear() + 1}-01-01`;
-      endDate = `${today.getFullYear() + 1}-12-31`;
-      break;
-    default:
+    if (option.value === 'custom') {
+      setSelectedDateRange('Custom Range');
+      setActiveDropdown('customRange'); // Keep dropdown open but switch to custom range view
       return;
-  }
+    }
 
-  setDateRange({ start: startDate, end: endDate });
-  closeAllDropdowns();
-};
+    setSelectedDateRange(option.dateLabel);
+    const today = new Date();
+    let startDate, endDate;
+
+    switch (option.value) {
+      case 'today':
+        startDate = endDate = today.toISOString().split('T')[0];
+        break;
+      case 'yesterday':
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        startDate = endDate = yesterday.toISOString().split('T')[0];
+        break;
+      case 'last7days':
+        const week = new Date(today);
+        week.setDate(week.getDate() - 7);
+        startDate = week.toISOString().split('T')[0];
+        endDate = today.toISOString().split('T')[0];
+        break;
+      case 'last30days':
+        const month = new Date(today);
+        month.setDate(month.getDate() - 30);
+        startDate = month.toISOString().split('T')[0];
+        endDate = today.toISOString().split('T')[0];
+        break;
+      case 'thisyear':
+        startDate = `${today.getFullYear()}-01-01`;
+        endDate = `${today.getFullYear()}-12-31`;
+        break;
+      case 'lastyear':
+        startDate = `${today.getFullYear() - 1}-01-01`;
+        endDate = `${today.getFullYear() - 1}-12-31`;
+        break;
+      case 'nextyear':
+        startDate = `${today.getFullYear() + 1}-01-01`;
+        endDate = `${today.getFullYear() + 1}-12-31`;
+        break;
+      default:
+        return;
+    }
+
+    setDateRange({ start: startDate, end: endDate });
+    closeAllDropdowns();
+  };
 
   const sortOptions = [
     'Recently Added',
@@ -170,7 +170,7 @@ const EmployeerShortlisedCandidates = () => {
     'Last 7 Days'
   ];
   const exportToPDF = () => {
-  const content = `
+    const content = `
     <h1>Candidates List</h1>
     <table border="1" style="width:100%">
       <thead>
@@ -198,8 +198,8 @@ const EmployeerShortlisedCandidates = () => {
     </table>
   `;
 
-  const printWindow = window.open('', '', 'width=800,height=600');
-  printWindow.document.write(`
+    const printWindow = window.open('', '', 'width=800,height=600');
+    printWindow.document.write(`
     <html>
       <head>
         <title>Candidates List</title>
@@ -222,48 +222,48 @@ const EmployeerShortlisedCandidates = () => {
       </body>
     </html>
   `);
-  printWindow.document.close();
-};
+    printWindow.document.close();
+  };
 
-const exportToExcel = () => {
-  // Create CSV content
-  const headers = ['Name', 'Email', 'Phone', 'Job Role', 'Status', 'Applied Date'];
-  const rows = filteredCandidates.map(candidate => [
-    `"${candidate.firstName} ${candidate.lastName || ''}"`,
-    `"${candidate.email || 'N/A'}"`,
-    `"${candidate.phone || 'N/A'}"`,
-    `"${candidate.jobrole || 'N/A'}"`,
-    `"${candidate.employapplicantstatus || 'N/A'}"`,
-    `"${new Date(candidate.appliedDate).toLocaleDateString('en-GB') || 'N/A'}"`
-  ]);
+  const exportToExcel = () => {
+    // Create CSV content
+    const headers = ['Name', 'Email', 'Phone', 'Job Role', 'Status', 'Applied Date'];
+    const rows = filteredCandidates.map(candidate => [
+      `"${candidate.firstName} ${candidate.lastName || ''}"`,
+      `"${candidate.email || 'N/A'}"`,
+      `"${candidate.phone || 'N/A'}"`,
+      `"${candidate.jobrole || 'N/A'}"`,
+      `"${candidate.employapplicantstatus || 'N/A'}"`,
+      `"${new Date(candidate.appliedDate).toLocaleDateString('en-GB') || 'N/A'}"`
+    ]);
 
-  const csvContent = [
-    headers.join(','),
-    ...rows.map(row => row.join(','))
-  ].join('\n');
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
 
-  // Create download link
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', 'candidates_list.csv');
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'candidates_list.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   const exportOptions = [
-  { 
-    label: 'Export as PDF', 
-    icon: 'ti ti-file-type-pdf',
-    onClick: exportToPDF
-  },
-  { 
-    label: 'Export as Excel', 
-    icon: 'ti ti-file-type-xls',
-    onClick: exportToExcel
-  }
-];
+    {
+      label: 'Export as PDF',
+      icon: 'ti ti-file-type-pdf',
+      onClick: exportToPDF
+    },
+    {
+      label: 'Export as Excel',
+      icon: 'ti ti-file-type-xls',
+      onClick: exportToExcel
+    }
+  ];
 
   const [openSections, setOpenSections] = useState({
     jobCategory: true,
@@ -332,24 +332,68 @@ const exportToExcel = () => {
     filterCandidates();
   }, [filters, candidates, selectedSort, dateRange]);
 
+
+  const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
+    try {
+      const token = localStorage.getItem('employerToken');
+      if (!token) {
+        navigate('/employer/login');
+        return;
+      }
+
+      const response = await fetch(
+        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            favourite: !currentStatus
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to update favorite status');
+      }
+
+      // Update state
+      setCandidates(prev => prev.map(candidate =>
+        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
+      ));
+
+      setFilteredCandidates(prev => prev.map(candidate =>
+        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
+      ));
+
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+      alert(`Error: ${error.message}`);
+    }
+  };
+
   const filterCandidates = () => {
     let result = [...candidates];
 
-      if (dateRange.start && dateRange.end) {
-    const startDate = new Date(dateRange.start);
-    const endDate = new Date(dateRange.end);
-    
-    // Set time to beginning and end of day respectively
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(23, 59, 59, 999);
+    if (dateRange.start && dateRange.end) {
+      const startDate = new Date(dateRange.start);
+      const endDate = new Date(dateRange.end);
 
-    result = result.filter(candidate => {
-      if (!candidate.appliedDate) return false;
-      
-      const appliedDate = new Date(candidate.appliedDate);
-      return appliedDate >= startDate && appliedDate <= endDate;
-    });
-  }
+      // Set time to beginning and end of day respectively
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
+
+      result = result.filter(candidate => {
+        if (!candidate.appliedDate) return false;
+
+        const appliedDate = new Date(candidate.appliedDate);
+        return appliedDate >= startDate && appliedDate <= endDate;
+      });
+    }
     // Search query filter
     if (filters.searchQuery.trim()) {
       const searchTerm = filters.searchQuery.toLowerCase().trim();
@@ -590,7 +634,7 @@ const exportToExcel = () => {
 
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
             {/* Date Range Picker */}
-              <div className="dropdown me-2">
+            <div className="dropdown me-2">
               <button
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
                 onClick={() => toggleDropdown('dateRange')}
@@ -782,7 +826,7 @@ const exportToExcel = () => {
               <button className="btn btn-icon btn-sm me-1">
                 <i className="ti ti-list-tree"></i>
               </button>
-              <button className="btn btn-icon btn-sm active bg-secondary text-white"  onClick={() => navigate("/employer/new-candidate")}>
+              <button className="btn btn-icon btn-sm active bg-secondary text-white" onClick={() => navigate("/employer/new-candidate")}>
                 <i className="ti ti-layout-grid"></i>
               </button>
             </div>
@@ -795,7 +839,7 @@ const exportToExcel = () => {
               >
                 <i className="ti ti-file-export me-1"></i>{selectedExport}
               </button>
-                <ul
+              <ul
                 className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'export' ? 'show' : ''}`}
                 style={{ display: activeDropdown === 'export' ? 'block' : 'none' }}
               >
@@ -1204,8 +1248,20 @@ const exportToExcel = () => {
                                 <a data-bs-toggle="offcanvas" data-bs-target="#theme-setting" className="btn btn-light text-info btn-icon text-info btn-sm me-1">
                                   <i className="ti ti-brand-hipchat fs-16"></i>
                                 </a>
-                                <a href="#" className="btn btn-light text-primary btn-icon btn-sm">
-                                  <i className="ti ti-bookmark fs-16"></i>
+                                <a
+                                  href="#"
+                                  className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    const employerData = JSON.parse(localStorage.getItem('employerData'));
+                                    toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite || false);
+                                  }}
+                                  style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
+                                >
+                                  <i
+                                    className={`ti ti-bookmark fs-16`}
+                                    style={candidate.favourite ? { color: 'white' } : {}}
+                                  ></i>
                                 </a>
                               </div>
                             </div>
