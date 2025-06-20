@@ -117,7 +117,7 @@ const EmployeerPostJob = () => {
     // Apply search term filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(job => 
+      result = result.filter(job =>
         job.title.toLowerCase().includes(term) ||
         job.description.toLowerCase().includes(term) ||
         (job.skills && job.skills.some(skill => skill.toLowerCase().includes(term))) ||
@@ -128,28 +128,28 @@ const EmployeerPostJob = () => {
 
     // Apply category filter
     if (filters.category.length > 0) {
-      result = result.filter(job => 
+      result = result.filter(job =>
         job.category && filters.category.includes(job.category)
       );
     }
 
     // Apply type filter
     if (filters.type.length > 0) {
-      result = result.filter(job => 
+      result = result.filter(job =>
         job.type && filters.type.includes(job.type)
       );
     }
 
     // Apply status filter
     if (filters.status.length > 0) {
-      result = result.filter(job => 
+      result = result.filter(job =>
         job.status && filters.status.includes(job.status)
       );
     }
 
     // Apply role filter
     if (filters.role !== 'All') {
-      result = result.filter(job => 
+      result = result.filter(job =>
         job.title && job.title.includes(filters.role)
       );
     }
@@ -165,14 +165,14 @@ const EmployeerPostJob = () => {
 
     // Apply location filter
     if (filters.location) {
-      result = result.filter(job => 
+      result = result.filter(job =>
         job.location && job.location.toLowerCase().includes(filters.location.toLowerCase())
       );
     }
 
     // Apply qualification filter
     if (filters.qualification) {
-      result = result.filter(job => 
+      result = result.filter(job =>
         job.educationLevel && job.educationLevel.toLowerCase().includes(filters.qualification.toLowerCase())
       );
     }
@@ -290,6 +290,18 @@ const EmployeerPostJob = () => {
     setSearchTerm('');
   };
 
+  const handleJobStatusChange = (jobId, newStatus) => {
+    setJobs(prevJobs =>
+      prevJobs.map(job =>
+        job.id === jobId ? { ...job, status: newStatus } : job
+      )
+    );
+    setFilteredJobs(prevJobs =>
+      prevJobs.map(job =>
+        job.id === jobId ? { ...job, status: newStatus } : job
+      )
+    );
+  };
   return (
     <>
       <EmployerHeader />
@@ -432,7 +444,7 @@ const EmployeerPostJob = () => {
                 <>
                   <div className="row">
                     {filteredJobs.map(job => (
-                      <JobCard key={job.id} job={job} />
+                      <JobCard key={job.id} job={job} onStatusChange={handleJobStatusChange} />
                     ))}
                   </div>
 
@@ -771,7 +783,55 @@ const FilterSidebar = ({
   );
 };
 
-const JobCard = ({ job }) => {
+const JobCard = ({ job, onStatusChange }) => {
+  const [isActive, setIsActive] = useState(job.status === 'Active');
+  const [isUpdating, setIsUpdating] = useState(false);
+
+
+
+  const handleStatusChange = async () => {
+    try {
+      setIsUpdating(true);
+      const newStatus = !isActive;
+
+      const token = localStorage.getItem('employerToken');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
+      if (!job.id) {
+        throw new Error('Job ID is missing');
+      }
+
+      const response = await axios.put(
+        `https://edujobzbackend.onrender.com/employer/updatejobstatus/${job.id}`,
+        { isActive: newStatus },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.message) {
+        setIsActive(newStatus);
+        onStatusChange(job.id, newStatus ? 'Active' : 'Inactive');
+        // You can add a toast notification here if you want
+        console.log(response.data.message);
+      } else {
+        throw new Error('Failed to update status');
+      }
+    } catch (error) {
+      console.error('Error updating job status:', error);
+      // Revert the toggle if the request failed
+      setIsActive(!isActive);
+      alert(`Error: ${error.message}`);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   return (
     <div className="col-xl-6 col-lg-6 col-md-6">
       <div className="card job" style={{
@@ -789,6 +849,27 @@ const JobCard = ({ job }) => {
           e.currentTarget.style.transform = '';
         }}>
         <div className="card-body mb-1 pb-1">
+          {/* Add status toggle at the top right */}
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <span className="badge bg-light text-dark">
+              Status: {isActive ? 'Active' : 'Inactive'}
+            </span>
+            <div className="form-check form-switch">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id={`status-toggle-${job.id}`}
+                checked={isActive}
+                onChange={handleStatusChange}
+                disabled={isUpdating}
+              />
+              <label className="form-check-label" htmlFor={`status-toggle-${job.id}`}>
+                {isUpdating ? 'Updating...' : (isActive ? 'Active' : 'Inactive')}
+              </label>
+            </div>
+          </div>
+
+
           <div className="card bg-light mb-3">
             <div className="card-body p-3">
               <div className="d-flex align-items-center">

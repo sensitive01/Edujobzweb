@@ -6,6 +6,7 @@ import { FaArrowCircleUp } from 'react-icons/fa';
 import EmployerFooter from './EmployerFooter';
 import EmployerHeader from './EmployerHeader';
 import { useNavigate } from 'react-router-dom';
+import EmployeerChatSidebar from './EmployeerChatSidebar';
 
 const Candidates = () => {
   const [showCandidateModal, setShowCandidateModal] = useState(false);
@@ -25,6 +26,8 @@ const Candidates = () => {
     end: ''
   });
   const [selectedDateRange, setSelectedDateRange] = useState('This Year');
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedCandidateForChat, setSelectedCandidateForChat] = useState(null);
   const navigate = useNavigate();
 
   // Extract roles dynamically from candidates data
@@ -1216,9 +1219,22 @@ const Candidates = () => {
                                     <i className="ti ti-mail-bolt fs-16"></i>
                                   </a>
                                 )}
-                                <a data-bs-toggle="offcanvas" data-bs-target="#theme-setting" className="btn btn-light text-info btn-icon text-info btn-sm me-1">
+                                {/* <a data-bs-toggle="offcanvas" data-bs-target="#theme-setting" className="btn btn-light text-info btn-icon text-info btn-sm me-1">
+                                  <i className="ti ti-brand-hipchat fs-16"></i>
+                                </a> */}
+
+                                <a
+                                  href="#"
+                                  className="btn btn-light text-info btn-icon text-info btn-sm me-1"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setSelectedCandidateForChat(candidate);
+                                    setIsChatOpen(true);
+                                  }}
+                                >
                                   <i className="ti ti-brand-hipchat fs-16"></i>
                                 </a>
+
                                 <a
                                   href="#"
                                   className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
@@ -1296,7 +1312,13 @@ const Candidates = () => {
           candidate={selectedCandidate}
         />
       )}
-
+      {isChatOpen && (
+        <EmployeerChatSidebar
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          candidate={selectedCandidateForChat}
+        />
+      )}
       <EmployerFooter />
     </>
   );
