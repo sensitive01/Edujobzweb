@@ -148,3 +148,41 @@ export const postJob = async (jobData) => {
     throw err.response?.data?.message || 'Failed to post job';
   }
 };
+
+export const getAllEvents = async () => {
+  try {
+    const response = await projectServices.get('/employer/getallevents');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    throw error;
+  }
+};
+
+export const getEventDetails = async (eventId) => {
+  try {
+    const response = await projectServices.get(`/employer/details/${eventId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching event details:', error);
+    throw error;
+  }
+};
+
+export const registerForEvent = async (eventId, registrationData) => {
+  try {
+    const response = await projectServices.post(
+      `/employer/events/${eventId}/registerevents`,
+      registrationData, // Send as JSON
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};

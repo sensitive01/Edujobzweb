@@ -373,7 +373,7 @@ const EmployeerPostJob = () => {
 
             <button
               onClick={handleAddPost}
-              className="btn btn-primary d-flex align-items-center"
+              className="btn btn-primary d-flex align-items-center" 
             >
               <PlusCircle className="me-2" />Post Job
             </button>

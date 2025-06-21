@@ -56,6 +56,9 @@ import ForgotPasswordPage from './pages/public/Login/EmployeeForgotPasswordPage'
 import OTPVerificationPage from './pages/public/Login/EmployeeOTPVerificationPage';
 import ResetPasswordPage from './pages/public/Login/EmployeeResetPasswordPage';
 import EmployeerCalenderEvents from './pages/employer/EmployeerCalenderEvents';
+import EventDetails from './pages/public/EventDetails';
+import EventRegistration from './pages/public/EventRegistration';
+import EmployeerEvents from './pages/employer/EmployeerEvents.Jsx';
 
 function App() {
   return (
@@ -63,10 +66,7 @@ function App() {
       <Routes>
         {/* Auth routes without Layout */}
         {/* <Route path='/' element={<HomePage />} /> */}
-        {/* <Route path='/login' element={<LoginPage />} />
-        <Route path='/signup' element={<SignupPage />} /> */}
-        {/* <Route path='/employee-registration' element={<EmployeeRegistration />} /> */}
-        {/* <Route path='/school-registration' element={<SchoolRegistration />} /> */}
+
 
         <Route element={<EmployerLayout />}>
           <Route path='/employer/new-candidate' element={<EmployerCandidates />} />
@@ -88,6 +88,7 @@ function App() {
           <Route path='/employer/profile' element={<EmployeerProfileView />} />
 
           <Route path='/employer/calendar-events' element={<EmployeerCalenderEvents />} />
+              <Route path='/employer/events' element={<EmployeerEvents />} />
         </Route>
 
         {/* All other routes with Layout */}
@@ -117,6 +118,8 @@ function App() {
               <Route path='/shortlisted' element={<Shortlisted />} />
               <Route path='/certificates-trainings' element={<CertificatesTrainings />} />
               <Route path='/events' element={<Events />} />
+              <Route path="/events-details/:eventId" element={<EventDetails />} />
+              <Route path="/event-register/:eventId" element={<EventRegistration />} />
               <Route path='/refer-us' element={<ReferAndEarn />} />
               <Route path='/notifications' element={<Notifications />} />
               <Route path='/support' element={<Inbox />} />
