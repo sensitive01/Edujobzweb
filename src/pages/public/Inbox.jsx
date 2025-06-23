@@ -211,61 +211,131 @@
 // export default Inbox;
 
 
-
 import React, { useState, useEffect } from 'react';
 import { FaCog, FaComments, FaEnvelope, FaPhone, FaVideo, FaTimes } from 'react-icons/fa';
 import Sidebar from '../../components/layout/Sidebar';
+import axios from 'axios';
 
 const Inbox = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [chats, setChats] = useState([]);
-    const [selectedChat, setSelectedChat] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [conversations, setConversations] = useState([]);
+    const [selectedConversation, setSelectedConversation] = useState(null);
+    const [messages, setMessages] = useState([]);
+    const [newMessage, setNewMessage] = useState('');
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
-
+    
     const closeSidebar = () => {
         setIsSidebarOpen(false);
     }
 
     useEffect(() => {
-        const fetchChats = async () => {
+        const fetchConversations = async () => {
             try {
                 setLoading(true);
-                // Get user data from localStorage
                 const userData = JSON.parse(localStorage.getItem('userData'));
                 if (!userData || !userData._id) {
-                    throw new Error('User data not found in localStorage');
+                    setConversations([]);
+                    setLoading(false);
+                    return;
                 }
 
-                const employeeId = userData._id;
-                const response = await fetch(`https://edujobzbackend.onrender.com/employer/employee/${employeeId}`);
+                const response = await axios.get(`https://edujobzbackend.onrender.com/employer/employee/${userData._id}`);
                 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch chats');
-                }
-
-                const data = await response.json();
-                setChats(data);
-                if (data.length > 0) {
-                    setSelectedChat(data[0]);
+                if (response.data && response.data.length > 0) {
+                    setConversations(response.data);
+                    // Select the first conversation by default
+                    setSelectedConversation(response.data[0]);
+                } else {
+                    setConversations([]);
                 }
             } catch (err) {
-                setError(err.message);
+                console.error('Error fetching conversations:', err);
+                setError(err.response?.data?.message || err.message || 'Failed to fetch conversations');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchChats();
+        fetchConversations();
     }, []);
 
-    const handleChatSelect = (chat) => {
-        setSelectedChat(chat);
+    useEffect(() => {
+        if (!selectedConversation) return;
+
+        const fetchMessages = async () => {
+            try {
+                setLoading(true);
+                const response = await axios.get('https://edujobzbackend.onrender.com/employer/view', {
+                    params: {
+                        employeeId: selectedConversation.employeeId,
+                        employerId: selectedConversation.employerId,
+                        jobId: selectedConversation.jobId
+                    }
+                });
+
+                if (response.data && response.data.messages) {
+                    setMessages(response.data.messages);
+                }
+            } catch (err) {
+                console.error('Error fetching messages:', err);
+                setError(err.response?.data?.message || err.message || 'Failed to fetch messages');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMessages();
+    }, [selectedConversation]);
+
+    const handleSendMessage = async (e) => {
+        e.preventDefault();
+        if (!newMessage.trim() || !selectedConversation) return;
+
+        try {
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            
+            const messageData = {
+                employeeId: selectedConversation.employeeId,
+                employerId: selectedConversation.employerId,
+                jobId: selectedConversation.jobId,
+                message: newMessage,
+                sender: 'employer'
+            };
+
+            const response = await axios.post('https://edujobzbackend.onrender.com/employer/sendchat', messageData);
+
+            if (response.data.success) {
+                const newMsg = {
+                    ...response.data.data,
+                    isMe: true,
+                    sender: 'You'
+                };
+                setMessages(prev => [...prev, newMsg]);
+                setNewMessage('');
+            }
+        } catch (err) {
+            console.error('Error sending message:', err);
+            setError('Failed to send message. Please try again.');
+        }
     };
+
+    const formatTime = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
+
+    if (loading) {
+        return <div className="jobplugin__container">Loading conversations...</div>;
+    }
+
+    if (error) {
+        return <div className="jobplugin__container">Error: {error}</div>;
+    }
 
     return (
         <>
@@ -276,7 +346,6 @@ const Inbox = () => {
             <main className="jobplugin__main">
                 <div className="jobplugin__main-holder">
                     <div className="jobplugin__container">
-
                         <div className="jobplugin__settings">
                             {/* Settings Nav Opener */}
                             <a href="#" className="jobplugin__settings-opener jobplugin__text-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
@@ -288,6 +357,7 @@ const Inbox = () => {
                                 <FaCog className="rj-icon rj-settings" />
                             </a>
                             <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
+                            
                             {/* Chat History Content */}
                             <div className="jobplugin__container">
                                 <h2 className="h5 text-secondary mb-20"> &nbsp; <FaComments /> Chat History</h2>
@@ -303,28 +373,26 @@ const Inbox = () => {
                                         </div>
                                         <div className="jobplugin__messenger-aside__scroller">
                                             {/* Messenger Users */}
-                                            {loading ? (
-                                                <div className="text-center">Loading chats...</div>
-                                            ) : error ? (
-                                                <div className="text-danger">{error}</div>
-                                            ) : (
-                                                <ul className="jobplugin__messenger-users">
-                                                    {chats.map((chat, index) => (
-                                                        <li key={chat._id} className={selectedChat?._id === chat._id ? 'active' : ''}>
+                                            <ul className="jobplugin__messenger-users">
+                                                {conversations.length > 0 ? (
+                                                    conversations.map((conversation, index) => (
+                                                        <li key={conversation._id} className={selectedConversation?._id === conversation._id ? 'active' : ''}>
                                                             <button 
                                                                 className="jobplugin__messenger-users__button" 
                                                                 type="button"
-                                                                onClick={() => handleChatSelect(chat)}
+                                                                onClick={() => setSelectedConversation(conversation)}
                                                             >
-                                                                <strong className={`jobplugin__messenger-users__avatar bg-${['red', 'blue', 'green', 'yellow'][index % 4]}`}>
-                                                                    {chat.jobId ? chat.jobId.charAt(0) : 'J'}
+                                                                <strong className="jobplugin__messenger-users__avatar bg-red">
+                                                                    {conversation.employeeId?.charAt(0) || 'U'}
                                                                 </strong>
                                                                 <span className="jobplugin__messenger-users__textbox">
                                                                     <strong className="jobplugin__messenger-users__name">
-                                                                        Job ID: {chat.jobId}
+                                                                        {conversation.employeeId || 'Unknown User'}
                                                                     </strong>
                                                                     <span className="jobplugin__messenger-users__shortmsg">
-                                                                        Last updated: {new Date(chat.updatedAt).toLocaleString()}
+                                                                        {conversation.messages.length > 0 
+                                                                            ? conversation.messages[conversation.messages.length - 1].message 
+                                                                            : 'No messages yet'}
                                                                     </span>
                                                                 </span>
                                                             </button>
@@ -337,26 +405,30 @@ const Inbox = () => {
                                                                         <li><a href="#">Remove</a></li>
                                                                     </ul>
                                                                 </div>
-                                                                <span className="jobplugin__messenger-users__time">
-                                                                    {new Date(chat.updatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                                                                </span>
+                                                                {conversation.messages.length > 0 && (
+                                                                    <span className="jobplugin__messenger-users__time">
+                                                                        {formatTime(conversation.messages[conversation.messages.length - 1].createdAt)}
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         </li>
-                                                    ))}
-                                                </ul>
-                                            )}
+                                                    ))
+                                                ) : (
+                                                    <li className="text-center p-20">No conversations found</li>
+                                                )}
+                                            </ul>
                                         </div>
                                     </aside>
                                     
                                     {/* Messenger Content */}
                                     <div className="jobplugin__messenger-content">
-                                        {selectedChat ? (
+                                        {selectedConversation ? (
                                             <div className="jobplugin__messenger-dialog">
                                                 {/* Messenger Dialog header */}
                                                 <header className="jobplugin__messenger-header">
                                                     <div className="jobplugin__messenger-header__left">
                                                         <strong className="jobplugin__messenger-header__title text-secondary">
-                                                            Job ID: {selectedChat.jobId}
+                                                            {selectedConversation.employeeId || 'Unknown User'}
                                                         </strong>
                                                     </div>
                                                     <div className="jobplugin__messenger-header__right">
@@ -389,19 +461,19 @@ const Inbox = () => {
                                                 {/* Messenger Content */}
                                                 <div className="jobplugin__messenger-dialog__content">
                                                     <div className="jobplugin__messenger-dialog__scroller">
-                                                        {selectedChat.messages && selectedChat.messages.length > 0 ? (
-                                                            selectedChat.messages.map((msg, index) => (
-                                                                <div key={index} className={`jobplugin__messenger-message ${msg.sender === 'employee' ? '' : 'reverse'}`}>
+                                                        {messages.length > 0 ? (
+                                                            messages.map((message, index) => (
+                                                                <div key={index} className={`jobplugin__messenger-message ${message.sender === 'employer' ? '' : 'reverse'}`}>
                                                                     <div className="jobplugin__messenger-message__head">
                                                                         <div className="jobplugin__messenger-message__avatar">
-                                                                            {msg.sender === 'employee' ? (
-                                                                                <strong className="jobplugin__messenger-users__avatar bg-green">Y</strong>
+                                                                            {message.sender === 'employer' ? (
+                                                                                <img src="images/img10.jpg" alt="User" />
                                                                             ) : (
-                                                                                <strong className="jobplugin__messenger-users__avatar bg-blue">E</strong>
+                                                                                <img src="images/img11.jpg" alt="User" />
                                                                             )}
                                                                         </div>
                                                                         <div className="jobplugin__messenger-message__time">
-                                                                            {new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                                                            {formatTime(message.createdAt)}
                                                                         </div>
                                                                     </div>
                                                                     <div className="jobplugin__messenger-message__item">
@@ -409,7 +481,7 @@ const Inbox = () => {
                                                                             <div className="jobplugin__messenger-message__content">
                                                                                 <div className="jobplugin__messenger-message__body">
                                                                                     <div className="jobplugin__messenger-message__text">
-                                                                                        {msg.message}
+                                                                                        {message.message}
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -418,7 +490,7 @@ const Inbox = () => {
                                                                 </div>
                                                             ))
                                                         ) : (
-                                                            <div className="text-center py-4">No messages in this chat yet</div>
+                                                            <div className="text-center p-20">No messages in this conversation</div>
                                                         )}
                                                         <div className="jobplugin__messenger-dialog__scroller-bottom"></div>
                                                     </div>
@@ -434,8 +506,14 @@ const Inbox = () => {
                                                             ))}
                                                         </ul>
                                                         {/* Messenger Footer Form */}
-                                                        <form className="jobplugin__messenger-form__holder" action="#">
-                                                            <textarea rows="1" className="form-control" placeholder="Type your message..."></textarea>
+                                                        <form className="jobplugin__messenger-form__holder" onSubmit={handleSendMessage}>
+                                                            <textarea 
+                                                                rows="1" 
+                                                                className="form-control" 
+                                                                placeholder="Type your message..."
+                                                                value={newMessage}
+                                                                onChange={(e) => setNewMessage(e.target.value)}
+                                                            ></textarea>
                                                             <div className="jobplugin__messenger-form__buttons">
                                                                 <a href="#" className="jobplugin__button btn-attachment">
                                                                     <img src="images/icon-attach.svg" alt="Attachment" /> Add Attachment
@@ -448,8 +526,8 @@ const Inbox = () => {
                                             </div>
                                         ) : (
                                             <div className="jobplugin__messenger-dialog">
-                                                <div className="text-center py-4">
-                                                    {loading ? 'Loading...' : error ? error : 'Select a chat to view messages'}
+                                                <div className="text-center p-20">
+                                                    {conversations.length === 0 ? 'No conversations available' : 'Select a conversation to view messages'}
                                                 </div>
                                             </div>
                                         )}

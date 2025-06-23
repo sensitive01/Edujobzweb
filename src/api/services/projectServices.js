@@ -169,6 +169,15 @@ export const getEventDetails = async (eventId) => {
   }
 };
 
+export const updateEvent = async (eventId, eventData) => {
+  try {
+    const response = await axios.put(`/employer/updateevent/${eventId}`, eventData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating event:', error);
+    throw error;
+  }
+};
 export const registerForEvent = async (eventId, registrationData) => {
   try {
     const response = await projectServices.post(

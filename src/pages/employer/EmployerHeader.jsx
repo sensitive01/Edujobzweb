@@ -241,9 +241,13 @@ const EmployerHeader = () => {
                             <Star className='me-2' size={16} style={{ color: '#f9ab00' }} />
                             <span className="text-dark">Upgrade Plan</span>
                         </Link>
-                        <Link to="/employer/calendar-events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                        <Link to="/employer/events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                             <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
                             <span className="text-dark">Events</span>
+                        </Link>
+                         <Link to="/employer/calendar-events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                            <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                            <span className="text-dark">Reminder</span>
                         </Link>
                         <Link to="#" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                             <HelpCircle className='me-2' size={16} style={{ color: '#f9ab00' }} />
@@ -262,7 +266,7 @@ const EmployerHeader = () => {
                         </button>
 
                         {/* Support Button with Badge */}
-                        <Link to="#" className="btn btn-link p-2 text-secondary me-2 position-relative text-decoration-none">
+                        <Link to="/employer/support" className="btn btn-link p-2 text-secondary me-2 position-relative text-decoration-none">
                             <HelpCircle size={16} />
                             <span
                                 className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info"
@@ -573,13 +577,21 @@ const EmployerHeader = () => {
                             <Star className='me-2' size={16} style={{ color: '#f9ab00' }} />
                             <span className="text-dark">Upgrade Plan</span>
                         </Link>
-                        <Link
-                            to="/calendar-events"
+                          <Link
+                            to="/employer/events"
                             className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                             onClick={closeMobileMenu}
                         >
                             <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
                             <span className="text-dark">Events</span>
+                        </Link>
+                        <Link
+                            to="/employer/calendar-events"
+                            className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                            onClick={closeMobileMenu}
+                        >
+                            <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                            <span className="text-dark">Reminder</span>
                         </Link>
                         <Link
                             to="/employer/faq"

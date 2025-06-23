@@ -59,6 +59,8 @@ import EmployeerCalenderEvents from './pages/employer/EmployeerCalenderEvents';
 import EventDetails from './pages/public/EventDetails';
 import EventRegistration from './pages/public/EventRegistration';
 import EmployeerEvents from './pages/employer/EmployeerEvents.Jsx';
+import EmployerSupportChatList from './pages/employer/EmployerSupportChatList';
+import EmployerEventDetails from './pages/employer/EmployerEventDetails';
 
 function App() {
   return (
@@ -88,7 +90,9 @@ function App() {
           <Route path='/employer/profile' element={<EmployeerProfileView />} />
 
           <Route path='/employer/calendar-events' element={<EmployeerCalenderEvents />} />
-              <Route path='/employer/events' element={<EmployeerEvents />} />
+          <Route path='/employer/events' element={<EmployeerEvents />} />
+               <Route path='/employer/events-details/:eventId' element={<EmployerEventDetails />} />
+          <Route path='/employer/support' element={<EmployerSupportChatList />} />
         </Route>
 
         {/* All other routes with Layout */}

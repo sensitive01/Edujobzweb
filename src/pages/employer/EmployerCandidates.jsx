@@ -1219,9 +1219,6 @@ const Candidates = () => {
                                     <i className="ti ti-mail-bolt fs-16"></i>
                                   </a>
                                 )}
-                                {/* <a data-bs-toggle="offcanvas" data-bs-target="#theme-setting" className="btn btn-light text-info btn-icon text-info btn-sm me-1">
-                                  <i className="ti ti-brand-hipchat fs-16"></i>
-                                </a> */}
 
                                 <a
                                   href="#"

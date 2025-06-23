@@ -5,6 +5,7 @@ import EmployerCandidatesDetails from './EmployerCandidatesDetails';
 import { FaArrowCircleUp } from 'react-icons/fa';
 import EmployerFooter from './EmployerFooter';
 import EmployerHeader from './EmployerHeader';
+import EmployeerChatSidebar from './EmployeerChatSidebar';
 import { useNavigate } from 'react-router-dom';
 
 const EmployeerShortlisedCandidates = () => {
@@ -25,6 +26,8 @@ const EmployeerShortlisedCandidates = () => {
     end: ''
   });
   const [selectedDateRange, setSelectedDateRange] = useState('This Year');
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedCandidateForChat, setSelectedCandidateForChat] = useState(null);
   const navigate = useNavigate();
 
   // Extract roles dynamically from candidates data
@@ -1245,7 +1248,16 @@ const EmployeerShortlisedCandidates = () => {
                                     <i className="ti ti-mail-bolt fs-16"></i>
                                   </a>
                                 )}
-                                <a data-bs-toggle="offcanvas" data-bs-target="#theme-setting" className="btn btn-light text-info btn-icon text-info btn-sm me-1">
+
+                                <a
+                                  href="#"
+                                  className="btn btn-light text-info btn-icon text-info btn-sm me-1"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setSelectedCandidateForChat(candidate);
+                                    setIsChatOpen(true);
+                                  }}
+                                >
                                   <i className="ti ti-brand-hipchat fs-16"></i>
                                 </a>
                                 <a
@@ -1325,7 +1337,13 @@ const EmployeerShortlisedCandidates = () => {
           candidate={selectedCandidate}
         />
       )}
-
+      {isChatOpen && (
+        <EmployeerChatSidebar
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          candidate={selectedCandidateForChat}
+        />
+      )}
       <EmployerFooter />
     </>
   );
