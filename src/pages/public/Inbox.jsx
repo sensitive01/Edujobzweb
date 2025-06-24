@@ -12,6 +12,8 @@ const Inbox = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [openMenuId, setOpenMenuId] = useState(null);
+    const [conversationDetails, setConversationDetails] = useState({});
+    const [employeeProfilePic, setEmployeeProfilePic] = useState('');
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
@@ -22,6 +24,34 @@ const Inbox = () => {
     }
 
     useEffect(() => {
+        const fetchEmployeeProfile = async (employeeId) => {
+            try {
+                const response = await axios.get(`https://edujobzbackend.onrender.com/fetchemployee/${employeeId}`);
+                if (response.data && response.data.userProfilePic) {
+                    setEmployeeProfilePic(response.data.userProfilePic);
+                }
+            } catch (err) {
+                console.error('Error fetching employee profile:', err);
+            }
+        };
+
+        const fetchEmployerProfile = async (employerId) => {
+            try {
+                const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchemployer/${employerId}`);
+                if (response.data) {
+                    return {
+                        employerProfilePic: response.data.userProfilePic || 'images/img10.jpg',
+                        employerName: response.data.schoolName || response.data.firstName + ' ' + response.data.lastName || 'Employer',
+                        employerType: response.data.employerType || 'Employer'
+                    };
+                }
+                return null;
+            } catch (err) {
+                console.error('Error fetching employer profile:', err);
+                return null;
+            }
+        };
+
         const fetchConversations = async () => {
             try {
                 setLoading(true);
@@ -32,11 +62,43 @@ const Inbox = () => {
                     return;
                 }
 
+                // Fetch employee profile picture first
+                await fetchEmployeeProfile(userData._id);
+
                 const response = await axios.get(`https://edujobzbackend.onrender.com/employer/employee/${userData._id}`);
 
                 if (response.data && response.data.length > 0) {
                     setConversations(response.data);
                     setSelectedConversation(response.data[0]);
+
+                    // Fetch profile pictures and names for all conversations
+                    const details = {};
+                    for (const conversation of response.data) {
+                        try {
+                            // Fetch employer details from employer profile API
+                            const employerProfile = await fetchEmployerProfile(conversation.employerId);
+                            
+                            // Also fetch job details for job title
+                            const jobDetailsResponse = await axios.get(
+                                `https://edujobzbackend.onrender.com/employer/fetchjob/${conversation.employerId}`
+                            );
+                            
+                            if (jobDetailsResponse.data && jobDetailsResponse.data.length > 0) {
+                                const job = jobDetailsResponse.data.find(j => j._id === conversation.jobId);
+                                if (job) {
+                                    details[conversation._id] = {
+                                        ...(employerProfile || {}),
+                                        jobTitle: job.jobTitle || 'Job'
+                                    };
+                                }
+                            } else if (employerProfile) {
+                                details[conversation._id] = employerProfile;
+                            }
+                        } catch (err) {
+                            console.error('Error fetching conversation details:', err);
+                        }
+                    }
+                    setConversationDetails(details);
                 } else {
                     setConversations([]);
                 }
@@ -54,10 +116,11 @@ const Inbox = () => {
     useEffect(() => {
         if (!selectedConversation) return;
 
-        const fetchMessages = async () => {
+        const fetchMessagesAndDetails = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get('https://edujobzbackend.onrender.com/employer/view', {
+                // Fetch messages
+                const messagesResponse = await axios.get('https://edujobzbackend.onrender.com/employer/view', {
                     params: {
                         employeeId: selectedConversation.employeeId,
                         employerId: selectedConversation.employerId,
@@ -65,19 +128,64 @@ const Inbox = () => {
                     }
                 });
 
-                if (response.data && response.data.messages) {
-                    setMessages(response.data.messages);
+                // If we don't already have the profile details for this conversation, fetch them
+                if (!conversationDetails[selectedConversation._id]) {
+                    const employerProfile = await fetchEmployerProfile(selectedConversation.employerId);
+                    
+                    // Also fetch job details
+                    const jobDetailsResponse = await axios.get(
+                        `https://edujobzbackend.onrender.com/employer/fetchjob/${selectedConversation.employerId}`
+                    );
+                    
+                    if (jobDetailsResponse.data && jobDetailsResponse.data.length > 0) {
+                        const job = jobDetailsResponse.data.find(j => j._id === selectedConversation.jobId);
+                        if (job) {
+                            setConversationDetails(prev => ({
+                                ...prev,
+                                [selectedConversation._id]: {
+                                    ...(employerProfile || {}),
+                                    jobTitle: job.jobTitle || 'Job'
+                                }
+                            }));
+                        }
+                    } else if (employerProfile) {
+                        setConversationDetails(prev => ({
+                            ...prev,
+                            [selectedConversation._id]: employerProfile
+                        }));
+                    }
+                }
+
+                if (messagesResponse.data && messagesResponse.data.messages) {
+                    setMessages(messagesResponse.data.messages);
                 }
             } catch (err) {
-                console.error('Error fetching messages:', err);
-                setError(err.response?.data?.message || err.message || 'Failed to fetch messages');
+                console.error('Error fetching data:', err);
+                setError(err.response?.data?.message || err.message || 'Failed to fetch data');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchMessages();
+        fetchMessagesAndDetails();
     }, [selectedConversation]);
+
+    const fetchEmployerProfile = async (employerId) => {
+        try {
+            const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchemployer/${employerId}`);
+            if (response.data) {
+                return {
+                    employerProfilePic: response.data.userProfilePic || 'images/img10.jpg',
+                    employerName: response.data.schoolName || response.data.firstName + ' ' + response.data.lastName || 'Employer',
+                    employerType: response.data.employerType || 'Employer'
+                };
+            }
+            return null;
+        } catch (err) {
+            console.error('Error fetching employer profile:', err);
+            return null;
+        }
+    };
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
@@ -94,7 +202,7 @@ const Inbox = () => {
                 sender: 'employee'
             };
 
-            const response = await axios.post('https://edujobzbackend.onrender.com/employer/sendchat', messageData);
+            const response = await axios.post('https://edujobzbackend.onrender.com/employer/sendchats', messageData);
 
             if (response.data.success) {
                 const newMsg = {
@@ -185,13 +293,28 @@ const Inbox = () => {
                                                             }}
                                                         >
                                                             <div className="jobplugin__messenger-users__button">
-                                                                <strong className="jobplugin__messenger-users__avatar bg-red">
-                                                                    {conversation.employeeId?.charAt(0) || 'U'}
-                                                                </strong>
+                                                                <div className="jobplugin__messenger-users__avatar">
+                                                                    <img
+                                                                        src={conversationDetails[conversation._id]?.employerProfilePic || 'images/img10.jpg'}
+                                                                        alt="Employer"
+                                                                        style={{
+                                                                            width: '40px',
+                                                                            height: '40px',
+                                                                            borderRadius: '50%',
+                                                                            objectFit: 'cover'
+                                                                        }}
+                                                                    />
+                                                                </div>
                                                                 <span className="jobplugin__messenger-users__textbox">
                                                                     <strong className="jobplugin__messenger-users__name">
-                                                                        {conversation.employeeId || 'Unknown User'}
+                                                                        {conversationDetails[conversation._id]?.employerName || 'Employer'}
                                                                     </strong>
+                                                                    <span className="jobplugin__messenger-users__type">
+                                                                        {conversationDetails[conversation._id]?.employerType || 'Employer'}
+                                                                    </span>
+                                                                    <span className="jobplugin__messenger-users__job">
+                                                                        {conversationDetails[conversation._id]?.jobTitle || 'Job'}
+                                                                    </span>
                                                                     <span className="jobplugin__messenger-users__shortmsg">
                                                                         {conversation.messages.length > 0
                                                                             ? conversation.messages[conversation.messages.length - 1].message.length > 25
@@ -252,8 +375,14 @@ const Inbox = () => {
                                                 <header className="jobplugin__messenger-header">
                                                     <div className="jobplugin__messenger-header__left">
                                                         <strong className="jobplugin__messenger-header__title text-secondary">
-                                                            {selectedConversation.employeeId || 'Unknown User'}
+                                                            {conversationDetails[selectedConversation._id]?.employerName || 'Employer'}
                                                         </strong>
+                                                        <span className="jobplugin__messenger-header__subtitle">
+                                                            {conversationDetails[selectedConversation._id]?.jobTitle || 'Job'}
+                                                        </span>
+                                                        <span className="jobplugin__messenger-header__type">
+                                                            {conversationDetails[selectedConversation._id]?.employerType || 'Employer'}
+                                                        </span>
                                                     </div>
                                                     <div className="jobplugin__messenger-header__right">
                                                         <ul className="jobplugin__messenger-header__buttons">
@@ -289,9 +418,27 @@ const Inbox = () => {
                                                                     <div className="jobplugin__messenger-message__head">
                                                                         <div className="jobplugin__messenger-message__avatar">
                                                                             {message.sender === 'employer' ? (
-                                                                                <img src="images/img10.jpg" alt="User" />
+                                                                                <img
+                                                                                    src={conversationDetails[selectedConversation._id]?.employerProfilePic || 'images/img10.jpg'}
+                                                                                    alt="Employer"
+                                                                                    style={{
+                                                                                        width: '40px',
+                                                                                        height: '40px',
+                                                                                        borderRadius: '50%',
+                                                                                        objectFit: 'cover'
+                                                                                    }}
+                                                                                />
                                                                             ) : (
-                                                                                <img src="images/img11.jpg" alt="User" />
+                                                                                <img
+                                                                                    src={employeeProfilePic || 'images/img11.jpg'}
+                                                                                    alt="Employee"
+                                                                                    style={{
+                                                                                        width: '40px',
+                                                                                        height: '40px',
+                                                                                        borderRadius: '50%',
+                                                                                        objectFit: 'cover'
+                                                                                    }}
+                                                                                />
                                                                             )}
                                                                         </div>
                                                                         <div className="jobplugin__messenger-message__time">
@@ -381,81 +528,110 @@ const Inbox = () => {
                     color: #888;
                     font-size: 13px;
                 }
-                    .meta-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-    margin-left: auto;
-    padding-left: 10px;
-}
 
-.time-menu-wrapper {
-    position: relative;
-    height: 16px;
-}
+                .jobplugin__messenger-users__job,
+                .jobplugin__messenger-users__type {
+                    display: block;
+                    font-size: 12px;
+                    color: #666;
+                    margin-top: 2px;
+                }
 
-.menu-dots {
-    background: none;
-    border: none;
-    color: #888;
-    cursor: pointer;
-    padding: 0;
-    font-size: 16px;
-    line-height: 1;
-    display: inline-block;
-    vertical-align: middle;
-}
+                .jobplugin__messenger-users__type {
+                    color: #888;
+                    font-size: 11px;
+                    text-transform: capitalize;
+                }
 
-.message-menu {
-    position: absolute;
-    right: 0;
-    top: 100%;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 5px 0;
-    z-index: 10;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    min-width: 100px;
-}
+                .meta-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                    gap: 2px;
+                    margin-left: auto;
+                    padding-left: 10px;
+                }
 
-.message-menu button {
-    display: block;
-    width: 100%;
-    padding: 5px 15px;
-    text-align: left;
-    background: none;
-    border: none;
-    color: #333;
-    cursor: pointer;
-    white-space: nowrap;
-}
+                .time-menu-wrapper {
+                    position: relative;
+                    height: 16px;
+                }
 
-.message-menu button:hover {
-    background: #f5f5f5;
-}
+                .menu-dots {
+                    background: none;
+                    border: none;
+                    color: #888;
+                    cursor: pointer;
+                    padding: 0;
+                    font-size: 16px;
+                    line-height: 1;
+                    display: inline-block;
+                    vertical-align: middle;
+                }
 
-.time-unread-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
+                .message-menu {
+                    position: absolute;
+                    right: 0;
+                    top: 100%;
+                    background: white;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    padding: 5px 0;
+                    z-index: 10;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                    min-width: 100px;
+                }
 
-.message-time {
-    color: #888;
-    font-size: 11px;
-    white-space: nowrap;
-    line-height: 1;
-}
+                .message-menu button {
+                    display: block;
+                    width: 100%;
+                    padding: 5px 15px;
+                    text-align: left;
+                    background: none;
+                    border: none;
+                    color: #333;
+                    cursor: pointer;
+                    white-space: nowrap;
+                }
 
-.unread-badge {
-    width: 8px;
-    height: 8px;
-    background: #25D366;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
+                .message-menu button:hover {
+                    background: #f5f5f5;
+                }
+
+                .time-unread-wrapper {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                }
+
+                .message-time {
+                    color: #888;
+                    font-size: 11px;
+                    white-space: nowrap;
+                    line-height: 1;
+                }
+
+                .unread-badge {
+                    width: 8px;
+                    height: 8px;
+                    background: #25D366;
+                    border-radius: 50%;
+                    flex-shrink: 0;
+                }
+
+                .jobplugin__messenger-header__subtitle,
+                .jobplugin__messenger-header__type {
+                    display: block;
+                    font-size: 13px;
+                    color: #666;
+                    margin-top: 2px;
+                }
+
+                .jobplugin__messenger-header__type {
+                    color: #888;
+                    font-size: 12px;
+                    text-transform: capitalize;
+                }
             `}</style>
         </>
     );
