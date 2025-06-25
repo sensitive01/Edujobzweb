@@ -6,6 +6,7 @@ import { FaArrowCircleUp } from 'react-icons/fa';
 import EmployerFooter from './EmployerFooter';
 import EmployerHeader from './EmployerHeader';
 import { useNavigate } from 'react-router-dom';
+import EmployeerChatSidebar from './EmployeerChatSidebar';
 
 const EmployeerSavedCandidates = () => {
   const [showCandidateModal, setShowCandidateModal] = useState(false);
@@ -25,6 +26,9 @@ const EmployeerSavedCandidates = () => {
     end: ''
   });
   const [selectedDateRange, setSelectedDateRange] = useState('This Year');
+  const [showChatSidebar, setShowChatSidebar] = useState(false);
+  const [selectedCandidateForChat, setSelectedCandidateForChat] = useState(null);
+  const [jobs, setJobs] = useState([]);
   const navigate = useNavigate();
 
   // Extract roles dynamically from candidates data
@@ -291,6 +295,33 @@ const EmployeerSavedCandidates = () => {
   });
 
   useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const employerData = JSON.parse(localStorage.getItem('employerData'));
+        if (!employerData) return;
+
+        const response = await fetch(
+          `https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('employerToken')}`
+            }
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setJobs(data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
+  useEffect(() => {
     const fetchSavedCandidates = async () => {
       try {
         setLoading(true);
@@ -329,6 +360,18 @@ const EmployeerSavedCandidates = () => {
     fetchSavedCandidates();
   }, [navigate]);
 
+  const findJobIdForCandidate = (candidate) => {
+    // Find the job that contains this candidate in its applications
+    const job = jobs.find(job =>
+      job.applications && job.applications.some(app =>
+        app.applicantId === candidate.applicantId ||
+        app.applicantId === candidate._id ||
+        app._id === candidate._id
+      )
+    );
+
+    return job ? job._id : 'default-job-id';
+  };
   useEffect(() => {
     filterCandidates();
   }, [filters, candidates, selectedSort, dateRange]);
@@ -1201,7 +1244,20 @@ const EmployeerSavedCandidates = () => {
                                     <i className="ti ti-mail-bolt fs-16"></i>
                                   </a>
                                 )}
-                                <a data-bs-toggle="offcanvas" data-bs-target="#theme-setting" className="btn btn-light text-info btn-icon text-info btn-sm me-1">
+                                <a
+                                  href="#"
+                                  className="btn btn-light text-info btn-icon text-info btn-sm me-1"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    const jobId = findJobIdForCandidate(candidate);
+                                    setSelectedCandidateForChat({
+                                      ...candidate,
+                                      jobId: jobId,
+                                      applicantId: candidate.applicantId || candidate._id
+                                    });
+                                    setShowChatSidebar(true);
+                                  }}
+                                >
                                   <i className="ti ti-brand-hipchat fs-16"></i>
                                 </a>
                                 <a
@@ -1281,6 +1337,13 @@ const EmployeerSavedCandidates = () => {
           candidate={selectedCandidate}
         />
       )}
+      {selectedCandidateForChat && (
+        <EmployeerChatSidebar
+          isOpen={showChatSidebar}
+          onClose={() => setShowChatSidebar(false)}
+          candidate={selectedCandidateForChat}
+        />
+      )}
 
       <EmployerFooter />
     </>
@@ -1288,3 +1351,4 @@ const EmployeerSavedCandidates = () => {
 };
 
 export default EmployeerSavedCandidates;
+

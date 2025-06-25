@@ -6,6 +6,7 @@ import { FaArrowCircleUp } from 'react-icons/fa';
 import EmployerFooter from './EmployerFooter';
 import EmployerHeader from './EmployerHeader';
 import { useNavigate, useParams } from 'react-router-dom';
+import EmployeerChatSidebar from './EmployeerChatSidebar';
 
 const EmployeerAppliedCandidates = () => {
   const [showCandidateModal, setShowCandidateModal] = useState(false);
@@ -26,6 +27,9 @@ const EmployeerAppliedCandidates = () => {
     end: ''
   });
   const [selectedDateRange, setSelectedDateRange] = useState('This Year');
+  const [showChatSidebar, setShowChatSidebar] = useState(false);
+  const [selectedCandidateForChat, setSelectedCandidateForChat] = useState(null);
+  const [jobs, setJobs] = useState([]);
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -295,6 +299,46 @@ const EmployeerAppliedCandidates = () => {
   });
 
   useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const employerData = JSON.parse(localStorage.getItem('employerData'));
+        if (!employerData) return;
+
+        const response = await fetch(
+          `https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('employerToken')}`
+            }
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setJobs(data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
+    const findJobIdForCandidate = (candidate) => {
+    // Find the job that contains this candidate in its applications
+    const job = jobs.find(job =>
+      job.applications && job.applications.some(app =>
+        app.applicantId === candidate.applicantId ||
+        app.applicantId === candidate._id ||
+        app._id === candidate._id
+      )
+    );
+
+    return job ? job._id : 'default-job-id';
+  };
+
+  useEffect(() => {
     const fetchCandidates = async () => {
       try {
         setLoading(true);
@@ -337,48 +381,48 @@ const EmployeerAppliedCandidates = () => {
     filterCandidates();
   }, [filters, candidates, selectedSort, dateRange]);
 
-const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
-  try {
-    const token = localStorage.getItem('employerToken');
-    if (!token) {
-      navigate('/employer/login');
-      return;
-    }
-
-    const response = await fetch(
-      `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          favourite: !currentStatus
-        })
+  const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
+    try {
+      const token = localStorage.getItem('employerToken');
+      if (!token) {
+        navigate('/employer/login');
+        return;
       }
-    );
 
-    const data = await response.json();
+      const response = await fetch(
+        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            favourite: !currentStatus
+          })
+        }
+      );
 
-    if (!response.ok || !data.success) {
-      throw new Error(data.message || 'Failed to update favorite status');
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to update favorite status');
+      }
+
+      // Update state
+      setCandidates(prev => prev.map(candidate =>
+        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
+      ));
+
+      setFilteredCandidates(prev => prev.map(candidate =>
+        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
+      ));
+
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+      alert(`Error: ${error.message}`);
     }
-
-    // Update state
-    setCandidates(prev => prev.map(candidate => 
-      candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
-    ));
-    
-    setFilteredCandidates(prev => prev.map(candidate => 
-      candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
-    ));
-
-  } catch (error) {
-    console.error('Error updating favorite status:', error);
-    alert(`Error: ${error.message}`);
-  }
-};
+  };
 
   const filterCandidates = () => {
     let result = [...candidates];
@@ -1207,24 +1251,37 @@ const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
                                     <i className="ti ti-mail-bolt fs-16"></i>
                                   </a>
                                 )}
-                                <a data-bs-toggle="offcanvas" data-bs-target="#theme-setting" className="btn btn-light text-info btn-icon text-info btn-sm me-1">
+                                <a
+                                  href="#"
+                                  className="btn btn-light text-info btn-icon text-info btn-sm me-1"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    const jobId = findJobIdForCandidate(candidate);
+                                    setSelectedCandidateForChat({
+                                      ...candidate,
+                                      jobId: jobId,
+                                      applicantId: candidate.applicantId || candidate._id
+                                    });
+                                    setShowChatSidebar(true);
+                                  }}
+                                >
                                   <i className="ti ti-brand-hipchat fs-16"></i>
                                 </a>
                                 <a
-  href="#"
-  className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
-  onClick={(e) => {
-    e.preventDefault();
-    const employerData = JSON.parse(localStorage.getItem('employerData'));
-    toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite || false);
-  }}
-  style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
->
-  <i
-    className={`ti ti-bookmark fs-16`}
-    style={candidate.favourite ? { color: 'white' } : {}}
-  ></i>
-</a>
+                                  href="#"
+                                  className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    const employerData = JSON.parse(localStorage.getItem('employerData'));
+                                    toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite || false);
+                                  }}
+                                  style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
+                                >
+                                  <i
+                                    className={`ti ti-bookmark fs-16`}
+                                    style={candidate.favourite ? { color: 'white' } : {}}
+                                  ></i>
+                                </a>
                               </div>
                             </div>
                             <div className="bg-light rounder p-2">
@@ -1288,7 +1345,13 @@ const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
           jobId={id}
         />
       )}
-
+      {selectedCandidateForChat && (
+        <EmployeerChatSidebar
+          isOpen={showChatSidebar}
+          onClose={() => setShowChatSidebar(false)}
+          candidate={selectedCandidateForChat}
+        />
+      )}
       <EmployerFooter />
     </>
   );
