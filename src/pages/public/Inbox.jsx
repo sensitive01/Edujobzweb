@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { FaCog, FaComments, FaEnvelope, FaPhone, FaVideo, FaTimes } from 'react-icons/fa';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaCog, FaComments, FaEnvelope, FaPhone, FaVideo, FaTimes, FaMicrophone, FaPaperclip } from 'react-icons/fa';
 import Sidebar from '../../components/layout/Sidebar';
 import axios from 'axios';
 
@@ -14,6 +14,11 @@ const Inbox = () => {
     const [openMenuId, setOpenMenuId] = useState(null);
     const [conversationDetails, setConversationDetails] = useState({});
     const [employeeProfilePic, setEmployeeProfilePic] = useState('');
+    const [isRecording, setIsRecording] = useState(false);
+    const [mediaRecorder, setMediaRecorder] = useState(null);
+    const [audioChunks, setAudioChunks] = useState([]);
+    const fileInputRef = useRef(null);
+    const audioRef = useRef(null);
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
@@ -189,20 +194,42 @@ const Inbox = () => {
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
-        if (!newMessage.trim() || !selectedConversation) return;
+        if (!newMessage.trim() && !audioChunks.length && !fileInputRef.current?.files?.[0]) {
+            return;
+        }
 
         try {
             const userData = JSON.parse(localStorage.getItem('userData'));
+            const formData = new FormData();
 
-            const messageData = {
-                employeeId: selectedConversation.employeeId,
-                employerId: selectedConversation.employerId,
-                jobId: selectedConversation.jobId,
-                message: newMessage,
-                sender: 'employee'
-            };
+            formData.append('employeeId', selectedConversation.employeeId);
+            formData.append('employerId', selectedConversation.employerId);
+            formData.append('jobId', selectedConversation.jobId);
+            formData.append('message', newMessage);
+            formData.append('sender', 'employee');
+            formData.append('employerName', conversationDetails[selectedConversation._id]?.employerName || 'Employer');
+            formData.append('employerImage', conversationDetails[selectedConversation._id]?.employerProfilePic || '');
+            formData.append('employeeName', userData.firstName + ' ' + userData.lastName);
+            formData.append('employeeImage', employeeProfilePic || '');
 
-            const response = await axios.post('https://edujobzbackend.onrender.com/employer/sendchats', messageData);
+            // Handle file upload
+            if (fileInputRef.current?.files?.[0]) {
+                formData.append('file', fileInputRef.current.files[0]);
+                formData.append('fileType', fileInputRef.current.files[0].type);
+            }
+
+            // Handle audio upload
+            if (audioChunks.length > 0) {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                formData.append('file', audioBlob, 'audio-message.wav');
+                formData.append('fileType', 'audio/wav');
+            }
+
+            const response = await axios.post('https://edujobzbackend.onrender.com/employer/sendchats', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
 
             if (response.data.success) {
                 const newMsg = {
@@ -212,10 +239,71 @@ const Inbox = () => {
                 };
                 setMessages(prev => [...prev, newMsg]);
                 setNewMessage('');
+                setAudioChunks([]);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
             }
         } catch (err) {
             console.error('Error sending message:', err);
             setError('Failed to send message. Please try again.');
+        }
+    };
+
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const recorder = new MediaRecorder(stream);
+            setMediaRecorder(recorder);
+            
+            recorder.ondataavailable = (e) => {
+                if (e.data.size > 0) {
+                    setAudioChunks(prev => [...prev, e.data]);
+                }
+            };
+            
+            recorder.start(1000); // Collect data every 1 second
+            setIsRecording(true);
+        } catch (err) {
+            console.error('Error starting recording:', err);
+            setError('Could not access microphone. Please check permissions.');
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorder) {
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            setIsRecording(false);
+        }
+    };
+
+    const toggleRecording = () => {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    };
+
+    const playAudio = () => {
+        if (audioChunks.length > 0) {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            if (audioRef.current) {
+                audioRef.current.src = audioUrl;
+                audioRef.current.play();
+            }
+        }
+    };
+
+    const clearRecording = () => {
+        setAudioChunks([]);
+    };
+
+    const handleFileChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            // You can add validation here for file types/sizes if needed
         }
     };
 
@@ -451,6 +539,24 @@ const Inbox = () => {
                                                                                 <div className="jobplugin__messenger-message__body">
                                                                                     <div className="jobplugin__messenger-message__text">
                                                                                         {message.message}
+                                                                                        {message.mediaType === 'image' && (
+                                                                                            <div className="message-image-container">
+                                                                                                <img 
+                                                                                                    src={message.mediaUrl} 
+                                                                                                    alt="Chat image" 
+                                                                                                    style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px', borderRadius: '8px' }}
+                                                                                                />
+                                                                                            </div>
+                                                                                        )}
+                                                                                        {message.mediaType === 'audio' && (
+                                                                                            <div className="message-audio-container" style={{ marginTop: '10px' }}>
+                                                                                                <audio 
+                                                                                                    controls 
+                                                                                                    src={message.mediaUrl}
+                                                                                                    style={{ width: '250px' }}
+                                                                                                />
+                                                                                            </div>
+                                                                                        )}
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -481,11 +587,73 @@ const Inbox = () => {
                                                                 onChange={(e) => setNewMessage(e.target.value)}
                                                             ></textarea>
                                                             <div className="jobplugin__messenger-form__buttons">
-                                                                <a href="#" className="jobplugin__button btn-attachment">
-                                                                    <img src="images/icon-attach.svg" alt="Attachment" /> Add Attachment
-                                                                </a>
+                                                                <input 
+                                                                    type="file" 
+                                                                    ref={fileInputRef} 
+                                                                    onChange={handleFileChange}
+                                                                    accept="image/*"
+                                                                    style={{ display: 'none' }}
+                                                                    id="file-upload"
+                                                                />
+                                                                <label 
+                                                                    htmlFor="file-upload" 
+                                                                    className="jobplugin__button btn-attachment"
+                                                                    style={{ cursor: 'pointer', marginRight: '10px' }}
+                                                                >
+                                                                    <FaPaperclip /> Attach Image
+                                                                </label>
+                                                                <button 
+                                                                    type="button" 
+                                                                    className={`jobplugin__button ${isRecording ? 'recording-active' : ''}`}
+                                                                    onClick={toggleRecording}
+                                                                    style={{ marginRight: '10px', backgroundColor: isRecording ? '#ff4444' : '' }}
+                                                                >
+                                                                    <FaMicrophone /> {isRecording ? 'Stop' : 'Record'}
+                                                                </button>
+                                                                {audioChunks.length > 0 && (
+                                                                    <>
+                                                                        <button 
+                                                                            type="button" 
+                                                                            className="jobplugin__button"
+                                                                            onClick={playAudio}
+                                                                            style={{ marginRight: '10px' }}
+                                                                        >
+                                                                            Play
+                                                                        </button>
+                                                                        <button 
+                                                                            type="button" 
+                                                                            className="jobplugin__button"
+                                                                            onClick={clearRecording}
+                                                                            style={{ marginRight: '10px' }}
+                                                                        >
+                                                                            Clear
+                                                                        </button>
+                                                                    </>
+                                                                )}
                                                                 <button className="jobplugin__button jobplugin__bg-primary hover:jobplugin__bg-secondary" type="submit">Send</button>
                                                             </div>
+                                                            <audio ref={audioRef} style={{ display: 'none' }} />
+                                                            {fileInputRef.current?.files?.[0] && (
+                                                                <div style={{ marginTop: '10px' }}>
+                                                                    Selected file: {fileInputRef.current.files[0].name}
+                                                                    <button 
+                                                                        type="button" 
+                                                                        onClick={() => {
+                                                                            if (fileInputRef.current) {
+                                                                                fileInputRef.current.value = '';
+                                                                            }
+                                                                        }}
+                                                                        style={{ marginLeft: '10px', background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}
+                                                                    >
+                                                                        ×
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                            {audioChunks.length > 0 && (
+                                                                <div style={{ marginTop: '10px' }}>
+                                                                    Audio recorded ({Math.round(audioChunks.reduce((acc, chunk) => acc + chunk.size, 0) / 1024)} KB)
+                                                                </div>
+                                                            )}
                                                         </form>
                                                     </div>
                                                 </footer>
@@ -587,7 +755,7 @@ const Inbox = () => {
                     width: 100%;
                     padding: 5px 15px;
                     text-align: left;
-                    background: none;
+                                    background: none;
                     border: none;
                     color: #333;
                     cursor: pointer;
@@ -631,6 +799,31 @@ const Inbox = () => {
                     color: #888;
                     font-size: 12px;
                     text-transform: capitalize;
+                }
+
+                .recording-active {
+                    animation: pulse 1.5s infinite;
+                }
+
+                @keyframes pulse {
+                    0% {
+                        box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+                    }
+                    70% {
+                        box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+                    }
+                    100% {
+                        box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
+                    }
+                }
+
+                .message-image-container {
+                    margin-top: 8px;
+                }
+
+                .message-audio-container audio {
+                    width: 100%;
+                    max-width: 250px;
                 }
             `}</style>
         </>

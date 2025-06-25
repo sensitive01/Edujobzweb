@@ -61,6 +61,10 @@ import EventRegistration from './pages/public/EventRegistration';
 import EmployeerEvents from './pages/employer/EmployeerEvents.Jsx';
 import EmployerSupportChatList from './pages/employer/EmployerSupportChatList';
 import EmployerEventDetails from './pages/employer/EmployerEventDetails';
+import EmployeerMessage from './pages/employer/EmployeerMessage';
+import EmployeerPlans from './pages/employer/Plans/EmployeerPlans';
+import EmployeerPlansGrid from './pages/employer/Plans/EmployeerPlansGrid';
+import FAQs from './pages/employer/Faqs/FAQs';
 
 function App() {
   return (
@@ -91,8 +95,12 @@ function App() {
 
           <Route path='/employer/calendar-events' element={<EmployeerCalenderEvents />} />
           <Route path='/employer/events' element={<EmployeerEvents />} />
-               <Route path='/employer/events-details/:eventId' element={<EmployerEventDetails />} />
+          <Route path='/employer/events-details/:eventId' element={<EmployerEventDetails />} />
           <Route path='/employer/support' element={<EmployerSupportChatList />} />
+          <Route path='/employer/messages' element={<EmployeerMessage />} />
+          <Route path='/employer/plans' element={<EmployeerPlans />} />
+           <Route path='/employer/plans-grid' element={<EmployeerPlansGrid />} />
+                 <Route path='/employer/FAQs' element={<FAQs />} />
         </Route>
 
         {/* All other routes with Layout */}
