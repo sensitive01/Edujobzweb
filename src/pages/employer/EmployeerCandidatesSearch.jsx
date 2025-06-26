@@ -25,6 +25,7 @@ const EmployeerCandidatesSearch = () => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedCandidateForChat, setSelectedCandidateForChat] = useState(null);
+  const [jobs, setJobs] = useState([]);
   const navigate = useNavigate();
 
   const statuses = [
