@@ -28,10 +28,8 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
   const audioRef = useRef(null);
   const chatBodyRef = useRef(null);
 
-  // Get employer data from localStorage
   const employerData = JSON.parse(localStorage.getItem('employerData'));
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
