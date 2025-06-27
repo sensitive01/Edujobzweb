@@ -1,3 +1,5 @@
+// wth  job for chat
+
 import React, { useState, useEffect } from 'react';
 import { ChevronsUp, Search, ChevronDown, Download, FileText, FileSpreadsheet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -25,6 +27,7 @@ const EmployeerCandidatesSearch = () => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedCandidateForChat, setSelectedCandidateForChat] = useState(null);
+  const [showChatSidebar, setShowChatSidebar] = useState(false);
   const [jobs, setJobs] = useState([]);
   const navigate = useNavigate();
 
@@ -162,11 +165,106 @@ const EmployeerCandidatesSearch = () => {
   };
 
   const exportToPDF = () => {
-    // ... export logic remains the same ...
+    try {
+      // Create a printable HTML content
+      let htmlContent = `
+      <h2 style="text-align: center; margin-bottom: 20px;">Candidates Report</h2>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background-color: #f8f9fa;">
+            <th style="border: 1px solid #ddd; padding: 8px;">Name</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Email</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Phone</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Experience</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Skills</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Location</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+      // Add rows for each candidate
+      filteredCandidates.forEach(candidate => {
+        htmlContent += `
+        <tr>
+          <td style="border: 1px solid #ddd; padding: 8px;">${candidate.userName || 'N/A'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${candidate.userEmail || 'N/A'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${candidate.userMobile || 'N/A'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${candidate.totalExperience || '0'} years</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${candidate.skills?.join(', ') || 'N/A'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${candidate.currentCity || 'N/A'}</td>
+        </tr>
+      `;
+      });
+
+      htmlContent += `
+        </tbody>
+      </table>
+      <p style="text-align: right; margin-top: 20px; font-size: 12px;">
+        Generated on ${new Date().toLocaleDateString()}
+      </p>
+    `;
+
+      // Open a new window with the content and trigger print
+      const win = window.open('', '_blank');
+      win.document.write(`
+      <html>
+        <head>
+          <title>Candidates Report</title>
+          <style>
+            @media print {
+              @page { size: landscape; margin: 10mm; }
+              table { width: 100%; font-size: 12px; }
+              th { background-color: #f8f9fa !important; }
+            }
+          </style>
+        </head>
+        <body>
+          ${htmlContent}
+          <script>
+            setTimeout(function() {
+              window.print();
+              window.close();
+            }, 100);
+          </script>
+        </body>
+      </html>
+    `);
+      win.document.close();
+
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      alert('Failed to export PDF: ' + error.message);
+    }
   };
 
   const exportToExcel = () => {
-    // ... export logic remains the same ...
+    try {
+      // Create CSV content
+      let csvContent = "Name,Email,Phone,Experience,Skills,Location\n";
+
+      // Add rows for each candidate
+      filteredCandidates.forEach(candidate => {
+        csvContent += `"${candidate.userName || ''}","${candidate.userEmail || ''}","${candidate.userMobile || ''}",` +
+          `"${candidate.totalExperience || '0'} years","${candidate.skills?.join(', ') || ''}",` +
+          `"${candidate.currentCity || ''}"\n`;
+      });
+
+      // Create download link
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `candidates_${new Date().toISOString().slice(0, 10)}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      alert('Failed to export Excel: ' + error.message);
+    }
   };
 
   const exportOptions = [
@@ -205,12 +303,38 @@ const EmployeerCandidatesSearch = () => {
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const employerData = JSON.parse(localStorage.getItem('employerData'));
+        if (!employerData) return;
+
+        const response = await fetch(
+          `https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('employerToken')}`
+            }
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setJobs(data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+      }
+    };
+
+    fetchJobs();
+  }, []);
 
   const fetchCandidates = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('employerToken');
-      
+
       if (!token) {
         navigate('/employer/login');
         return;
@@ -248,10 +372,10 @@ const EmployeerCandidatesSearch = () => {
       const searchTerm = searchQuery.toLowerCase().trim();
       results = results.filter(candidate => {
         // Check for exact experience match
-        const experienceMatch = candidate.totalExperience && 
-          (candidate.totalExperience.toString() === searchTerm || 
-           `${candidate.totalExperience} years`.toLowerCase() === searchTerm ||
-           `${candidate.totalExperience} year`.toLowerCase() === searchTerm);
+        const experienceMatch = candidate.totalExperience &&
+          (candidate.totalExperience.toString() === searchTerm ||
+            `${candidate.totalExperience} years`.toLowerCase() === searchTerm ||
+            `${candidate.totalExperience} year`.toLowerCase() === searchTerm);
 
         if (experienceMatch) return true;
 
@@ -266,7 +390,7 @@ const EmployeerCandidatesSearch = () => {
           candidate.workExperience?.map(exp => `${exp.position} ${exp.company}`).join(' '),
           candidate.languages?.join(' ')
         ].filter(Boolean).join(' ').toLowerCase();
-        
+
         return searchFields.includes(searchTerm);
       });
     }
@@ -327,28 +451,50 @@ const EmployeerCandidatesSearch = () => {
     filterCandidates();
   };
 
-const viewCandidateDetails = (candidate) => {
-  setSelectedCandidate({
-    ...candidate,
-    applicantId: candidate._id
-  });
-  setShowDetails(true);
-};
+  const viewCandidateDetails = (candidate) => {
+    setSelectedCandidate({
+      ...candidate,
+      applicantId: candidate._id
+    });
+    setShowDetails(true);
+  };
 
-  const toggleFavoriteStatus = async (candidateId, currentStatus) => {
+  const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
     try {
+      console.log("Updating favorite status with:", {
+        applicationId,
+        employid,
+        currentStatus
+      });
       const token = localStorage.getItem('employerToken');
       if (!token) {
         navigate('/employer/login');
         return;
       }
 
-      // Here you would call your API to update favorite status
-      // Since the API endpoint isn't provided, I'll mock the state update
-      
+      const response = await fetch(
+        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            favourite: !currentStatus
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to update favorite status');
+      }
+
       // Update state only after successful API call
       setCandidates(prev => prev.map(candidate => {
-        if (candidate._id === candidateId) {
+        if (candidate._id === applicationId) {
           return {
             ...candidate,
             favourite: !currentStatus
@@ -358,7 +504,7 @@ const viewCandidateDetails = (candidate) => {
       }));
 
       setFilteredCandidates(prev => prev.map(candidate => {
-        if (candidate._id === candidateId) {
+        if (candidate._id === applicationId) {
           return {
             ...candidate,
             favourite: !currentStatus
@@ -372,7 +518,6 @@ const viewCandidateDetails = (candidate) => {
       alert(`Error: ${error.message}`);
     }
   };
-
   const getStatusBadgeClass = (status) => {
     switch (status?.toLowerCase()) {
       case 'shortlisted':
@@ -393,7 +538,18 @@ const viewCandidateDetails = (candidate) => {
   useEffect(() => {
     fetchCandidates();
   }, []);
+  const findJobIdForCandidate = (candidate) => {
+    // Find the job that contains this candidate in its applications
+    const job = jobs.find(job =>
+      job.applications && job.applications.some(app =>
+        app.applicantId === candidate.applicantId ||
+        app.applicantId === candidate._id ||
+        app._id === candidate._id
+      )
+    );
 
+    return job ? job._id : 'default-job-id';
+  };
   useEffect(() => {
     filterCandidates();
   }, [searchQuery, filtersApplied, status, sortBy, dateRange]);
@@ -440,7 +596,7 @@ const viewCandidateDetails = (candidate) => {
   return (
     <>
       <EmployerHeader />
-   
+
       <div className="content">
         {/* Breadcrumb */}
         <div className={`d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3 ${isCollapsed ? 'collapsed' : ''}`}>
@@ -544,23 +700,23 @@ const viewCandidateDetails = (candidate) => {
                 )}
               </ul>
             </div>
-            
+
             {/* Status Dropdown */}
             <div className="dropdown me-2">
-              <button 
-                className="dropdown-toggle btn btn-white d-inline-flex align-items-center" 
+              <button
+                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
                 onClick={() => toggleDropdown('status')}
               >
                 {status}
               </button>
-              <ul 
+              <ul
                 className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'status' ? 'show' : ''}`}
                 style={{ display: activeDropdown === 'status' ? 'block' : 'none' }}
               >
                 {statuses.map((item) => (
                   <li key={item}>
-                    <button 
-                      className="dropdown-item rounded-1" 
+                    <button
+                      className="dropdown-item rounded-1"
                       onClick={() => {
                         handleStatusSelect(item);
                         closeAllDropdowns();
@@ -572,23 +728,23 @@ const viewCandidateDetails = (candidate) => {
                 ))}
               </ul>
             </div>
-            
+
             {/* Sort By Dropdown */}
             <div className="dropdown me-2">
-              <button 
-                className="dropdown-toggle btn btn-white d-inline-flex align-items-center" 
+              <button
+                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
                 onClick={() => toggleDropdown('sort')}
               >
                 {sortBy}
               </button>
-              <ul 
+              <ul
                 className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'sort' ? 'show' : ''}`}
                 style={{ display: activeDropdown === 'sort' ? 'block' : 'none' }}
               >
                 {sortOptions.map((item) => (
                   <li key={item}>
-                    <button 
-                      className="dropdown-item rounded-1" 
+                    <button
+                      className="dropdown-item rounded-1"
                       onClick={() => {
                         handleSortBySelect(item);
                         closeAllDropdowns();
@@ -600,24 +756,24 @@ const viewCandidateDetails = (candidate) => {
                 ))}
               </ul>
             </div>
-            
+
             {/* Export Dropdown */}
             <div className="dropdown me-2">
-              <button 
-                className="dropdown-toggle btn btn-white d-inline-flex align-items-center" 
+              <button
+                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
                 onClick={() => toggleDropdown('export')}
                 disabled={filteredCandidates.length === 0}
               >
                 <Download size={16} className="me-1" /> Export
               </button>
-              <ul 
+              <ul
                 className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'export' ? 'show' : ''}`}
                 style={{ display: activeDropdown === 'export' ? 'block' : 'none' }}
               >
                 {exportOptions.map((item) => (
                   <li key={item.label}>
-                    <button 
-                      className="dropdown-item rounded-1" 
+                    <button
+                      className="dropdown-item rounded-1"
                       onClick={() => {
                         item.onClick();
                         closeAllDropdowns();
@@ -629,39 +785,27 @@ const viewCandidateDetails = (candidate) => {
                 ))}
               </ul>
             </div>
-            
-            <div className="head-icons ms-2">
-              <button 
-                className="" 
-                onClick={toggleCollapse}
-                data-bs-toggle="tooltip" 
-                data-bs-placement="top" 
-                title="Collapse"
-              >
-                <ChevronsUp size={16} />
-              </button>
-            </div>
           </div>
         </div>
         {/* /Breadcrumb */}
-        
+
         <br />
-        
+
         <div className="row">
           <div className="card">
             <div className="card-body">
               <form onSubmit={handleSearch}>
                 <div className="d-flex align-items-center">
-                  <input 
-                    type="text" 
-                    className="form-control flex-fill me-3" 
-                    placeholder="Search Candidates (name, email, skills, experience, etc.)" 
+                  <input
+                    type="text"
+                    className="form-control flex-fill me-3"
+                    placeholder="Search Candidates (name, email, skills, experience, etc.)"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                  <button 
-                    type="submit" 
-                    className="btn btn-secondary" 
+                  <button
+                    type="submit"
+                    className="btn btn-secondary"
                     style={{ whiteSpace: 'nowrap' }}
                   >
                     <Search size={16} className="me-1" /> Search
@@ -678,8 +822,8 @@ const viewCandidateDetails = (candidate) => {
             {filteredCandidates.length} {filteredCandidates.length === 1 ? 'candidate' : 'candidates'} found
           </span>
           {(searchQuery || filtersApplied) && (
-            <button 
-              className="btn btn-sm btn-link ms-2" 
+            <button
+              className="btn btn-sm btn-link ms-2"
               onClick={() => {
                 setSearchQuery('');
                 setStatus('Select Status');
@@ -729,9 +873,6 @@ const viewCandidateDetails = (candidate) => {
                           </h6>
                           <p className="fs-13">
                             <b>Registered On:</b> {new Date(candidate.createdAt).toLocaleDateString('en-GB')} &nbsp; | &nbsp;
-                            <span className={`badge ${getStatusBadgeClass(status)}`}>
-                              {status || 'Pending'}
-                            </span> &nbsp; | &nbsp;
                             {candidate.resume?.url && (
                               <a href={candidate.resume.url} className="fw-medium text-primary" target="_blank" rel="noopener noreferrer">
                                 <i className="ti ti-download"></i> Download Resume
@@ -751,14 +892,20 @@ const viewCandidateDetails = (candidate) => {
                             <i className="ti ti-mail-bolt fs-16"></i>
                           </a>
                         )}
-
                         <a
                           href="#"
                           className="btn btn-light text-info btn-icon text-info btn-sm me-1"
                           onClick={(e) => {
                             e.preventDefault();
-                            setSelectedCandidateForChat(candidate);
-                            setIsChatOpen(true);
+                            const jobId = findJobIdForCandidate(candidate);
+                            setSelectedCandidateForChat({
+                              ...candidate,
+                              jobId: jobId,
+                              applicantId: candidate.applicantId || candidate._id,
+                               firstName: candidate.userName,
+                               avatar: candidate.userProfilePic
+                            });
+                            setShowChatSidebar(true);
                           }}
                         >
                           <i className="ti ti-brand-hipchat fs-16"></i>
@@ -769,7 +916,8 @@ const viewCandidateDetails = (candidate) => {
                           className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
                           onClick={(e) => {
                             e.preventDefault();
-                            toggleFavoriteStatus(candidate._id, candidate.favourite);
+                            const employerData = JSON.parse(localStorage.getItem('employerData'));
+                            toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite);
                           }}
                           style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
                         >
@@ -838,20 +986,18 @@ const viewCandidateDetails = (candidate) => {
         <EmployerCandidatesDetails
           show={showDetails}
           onClose={() => setShowDetails(false)}
-          candidate={selectedCandidate}
+          candidate={selectedCandidate} 
         />
       )}
-
-      {/* Chat Sidebar */}
-      {isChatOpen && (
+        {selectedCandidateForChat && (
         <EmployeerChatSidebar
-          isOpen={isChatOpen}
-          onClose={() => setIsChatOpen(false)}
+          isOpen={showChatSidebar}
+          onClose={() => setShowChatSidebar(false)}
           candidate={selectedCandidateForChat}
         />
       )}
-   
-      <EmployerFooter/>
+
+      <EmployerFooter />
     </>
   );
 };

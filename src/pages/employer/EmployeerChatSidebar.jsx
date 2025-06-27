@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
@@ -22,6 +23,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [statusNotes, setStatusNotes] = useState('');
   const [currentApplication, setCurrentApplication] = useState(null);
+  const [employerProfile, setEmployerProfile] = useState(null);
 
   const dropdownRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -61,25 +63,43 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
     }
   }, [messages]);
 
-  // Fetch job details when component mounts or candidate changes
-  useEffect(() => {
-    if (isOpen && candidate?.jobId) {
-      fetchJobDetails(candidate.jobId);
-    }
-  }, [isOpen, candidate]);
 
+    const fetchEmployerDetails = async () => {
+    try {
+      const token = localStorage.getItem('employerToken');
+      const response = await axios.get(
+        `https://edujobzbackend.onrender.com/employer/fetchemployer/${employerData._id}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      setEmployerProfile(response.data);
+    } catch (err) {
+      console.error('Error fetching employer details:', err);
+    }
+  };
+
+  // Fetch employee details when component mounts or candidate changes
   useEffect(() => {
     if (isOpen && candidate?.applicantId) {
       fetchEmployeeDetails(candidate.applicantId);
     }
   }, [isOpen, candidate]);
 
-  // Fetch chat messages when job details are available
+  // Fetch chat messages when component mounts or candidate changes
   useEffect(() => {
-    if (isOpen && jobDetails && candidate) {
+    if (isOpen && candidate) {
       fetchChatMessages();
     }
-  }, [isOpen, jobDetails, candidate]);
+  }, [isOpen, candidate]);
+
+   useEffect(() => {
+    if (isOpen && employerData?._id) {
+      fetchEmployerDetails();
+    }
+  }, [isOpen, employerData]);
 
   const fetchEmployeeDetails = async (employeeId) => {
     try {
@@ -95,54 +115,16 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
     }
   };
 
-  const fetchJobDetails = async (jobId) => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('employerToken');
-      const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.data || response.data.length === 0) {
-        throw new Error('No jobs found for this employer');
-      }
-
-      const job = response.data.find(j => j._id === jobId);
-      if (!job) {
-        throw new Error('Job not found');
-      }
-
-      setJobDetails(job);
-
-      // Find the current application
-      if (job.applications && job.applications.length > 0) {
-        const application = job.applications.find(app => app.applicantId === candidate.applicantId);
-        if (application) {
-          setCurrentApplication(application);
-          setSelectedStatus(application.employapplicantstatus || '');
-        }
-      }
-
-      setLoading(false);
-    } catch (err) {
-      console.error('Error fetching job details:', err);
-      setError(err.message || 'Failed to load job details');
-      setLoading(false);
-    }
-  };
-
   const fetchChatMessages = async () => {
     try {
-      if (!candidate?.jobId || !candidate?.applicantId || !employerData?._id) return;
+      if (!candidate?.applicantId || !employerData?._id) return;
 
       const token = localStorage.getItem('employerToken');
       const response = await axios.get(`https://edujobzbackend.onrender.com/employer/view`, {
         params: {
           employeeId: candidate.applicantId,
           employerId: employerData._id,
-          jobId: candidate.jobId
+          jobId: candidate.jobId || 'general' // Use 'general' if no jobId
         },
         headers: {
           'Authorization': `Bearer ${token}`
@@ -157,7 +139,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
             id: msg._id || Date.now(),
             sender: msg.sender === 'employer' ? 'You' : candidate.firstName || candidate.name || 'Candidate',
             avatar: msg.sender === 'employer'
-              ? jobDetails?.employerProfilePic || employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg'
+              ? employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg'
               : employeeDetails?.userProfilePic || candidate.avatar || 'employer/assets/img/profiles/avatar-29.jpg',
             time: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             content: msg.message,
@@ -186,18 +168,18 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
 
   const handleSendMessage = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
-    if ((newMessage.trim() === '' && !fileInputRef.current?.files?.length) || !candidate || !jobDetails) return;
+    if ((newMessage.trim() === '' && !fileInputRef.current?.files?.length) || !candidate) return;
 
     try {
       const token = localStorage.getItem('employerToken');
       const formData = new FormData();
       formData.append('employeeId', candidate.applicantId);
       formData.append('employerId', employerData._id);
-      formData.append('jobId', candidate.jobId);
+      formData.append('jobId', candidate.jobId || 'general'); // Use 'general' if no jobId
       formData.append('message', newMessage);
       formData.append('sender', 'employer');
       formData.append('employerName', employerData.companyName);
-      formData.append('employerImage', jobDetails?.employerProfilePic || employerData.profilePicture);
+      formData.append('employerImage', employerData.profilePicture);
       formData.append('employeeName', candidate.firstName || candidate.name);
       formData.append('employeeImage', candidate.avatar);
 
@@ -210,7 +192,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
       const newMsg = {
         id: Date.now(),
         sender: 'You',
-        avatar: jobDetails?.employerProfilePic || employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg',
+        avatar: employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         content: newMessage || (file ? `[${file.type.startsWith('image') ? 'Image' : 'Audio'}]` : ''),
         isMe: true,
@@ -244,7 +226,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
   };
 
   const handleUpdateStatus = async () => {
-    if (!selectedStatus || !currentApplication) {
+    if (!selectedStatus) {
       setError('Please select a status');
       return;
     }
@@ -252,10 +234,11 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
     try {
       const token = localStorage.getItem('employerToken');
       const response = await axios.put(
-        `https://edujobzbackend.onrender.com/employer/update-status/${currentApplication._id}/${candidate.applicantId}`,
+        `https://edujobzbackend.onrender.com/employer/update-status/${candidate._id}/${candidate.applicantId}`,
         {
           status: selectedStatus,
-          notes: statusNotes
+          notes: statusNotes,
+          jobId: candidate.jobId || 'general'
         },
         {
           headers: {
@@ -265,28 +248,6 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
       );
 
       if (response.data.success) {
-        // Update local state to reflect the change
-        const updatedJobDetails = { ...jobDetails };
-        const applicationIndex = updatedJobDetails.applications.findIndex(
-          app => app._id === currentApplication._id
-        );
-
-        if (applicationIndex !== -1) {
-          updatedJobDetails.applications[applicationIndex].employapplicantstatus = selectedStatus;
-          updatedJobDetails.applications[applicationIndex].notes = statusNotes;
-          updatedJobDetails.applications[applicationIndex].statusHistory = [
-            ...(updatedJobDetails.applications[applicationIndex].statusHistory || []),
-            {
-              status: selectedStatus,
-              notes: statusNotes,
-              updatedAt: new Date()
-            }
-          ];
-
-          setJobDetails(updatedJobDetails);
-          setCurrentApplication(updatedJobDetails.applications[applicationIndex]);
-        }
-
         // Send automatic status update message
         await sendStatusUpdateMessage(selectedStatus);
 
@@ -324,18 +285,18 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
       const formData = new FormData();
       formData.append('employeeId', candidate.applicantId);
       formData.append('employerId', employerData._id);
-      formData.append('jobId', candidate.jobId);
+      formData.append('jobId', candidate.jobId || 'general');
       formData.append('message', statusMessage);
       formData.append('sender', 'employer');
       formData.append('employerName', employerData.companyName);
-      formData.append('employerImage', jobDetails?.employerProfilePic || employerData.profilePicture);
+      formData.append('employerImage', employerData.profilePicture);
       formData.append('employeeName', candidate.firstName || candidate.name);
       formData.append('employeeImage', candidate.avatar);
 
       const newMsg = {
         id: Date.now(),
         sender: 'You',
-        avatar: jobDetails?.employerProfilePic || employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg',
+        avatar: employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         content: statusMessage,
         isMe: true
@@ -365,7 +326,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
       const newMsg = {
         id: Date.now(),
         sender: 'You',
-        avatar: jobDetails?.employerProfilePic || employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg',
+        avatar: employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         content: `[${file.type.startsWith('image') ? 'Image' : 'Audio'}]`,
         isMe: true,
@@ -420,7 +381,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
       const newMsg = {
         id: Date.now(),
         sender: 'You',
-        avatar: jobDetails?.employerProfilePic || employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg',
+        avatar: employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         content: '[Voice Message]',
         isMe: true,
@@ -435,10 +396,10 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
       const formData = new FormData();
       formData.append('employeeId', candidate.applicantId);
       formData.append('employerId', employerData._id);
-      formData.append('jobId', candidate.jobId);
+      formData.append('jobId', candidate.jobId || 'general');
       formData.append('sender', 'employer');
       formData.append('employerName', employerData.companyName);
-      formData.append('employerImage', jobDetails?.employerProfilePic || employerData.profilePicture);
+      formData.append('employerImage', employerData.profilePicture);
       formData.append('employeeName', candidate.firstName || candidate.name);
       formData.append('employeeImage', candidate.avatar);
       formData.append('file', audioFile);
@@ -671,9 +632,9 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
                           </small>
                         </div>
                       </div>
-                      <div className="chat-avatar">
+                       <div className="chat-avatar">
                         <img
-                          src={message.avatar || employeeDetails?.userProfilePic || candidate?.avatar || 'employer/assets/img/profiles/avatar-29.jpg'}
+                          src={employerProfile?.userProfilePic || employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg'}
                           className="rounded-circle"
                           alt="image"
                           style={avatarStyles}
@@ -699,12 +660,12 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
                   ) : (
                     <div className="chats mb-3" style={theirMessageStyles}>
                       <div className="chat-avatar me-2">
-                        <img
-                          src={message.avatar}
-                          className="rounded-circle"
-                          alt="image"
-                          style={avatarStyles}
-                        />
+                         <img
+                    src={employeeDetails?.userProfilePic || candidate?.avatar || 'employer/assets/img/profiles/avatar-29.jpg'}
+                    className="rounded-circle"
+                    alt="image"
+                    style={avatarStyles}
+                  />
                       </div>
                       <div className="chat-content" style={theirMessageContentStyles}>
                         <div className="chat-info">
@@ -1030,6 +991,7 @@ const typingDotStyles = {
   marginLeft: '2px',
   animation: 'typing 1.4s infinite both'
 };
+
 
 const footerStyles = {
   flexShrink: 0,
