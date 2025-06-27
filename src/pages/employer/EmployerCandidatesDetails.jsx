@@ -470,33 +470,33 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
         const currentStageIndex = pipelineStages.indexOf(selectedStatus);
         return (
             <>
-                <div className="card">
-                    <div className="card-body">
-                        <h5 className="fw-medium mb-2">Candidate Pipeline Stage</h5>
-                        <div className="pipeline-list candidates border-0 mb-0">
-                            <ul className="mb-0">
-                                {pipelineStages.map((stage, index) => {
-                                    const isActive = index <= currentStageIndex;
-                                    return (
-                                        <li key={stage}>
-                                            <a
-                                                href="javascript:void(0);"
-                                                className={isActive ? 'bg-purple' : 'bg-gray-100'}
-                                                onClick={() => setSelectedStatus(stage)}
-                                                style={{
-                                                    whiteSpace: 'nowrap',
-                                                    fontSize: '12px'
-                                                }}
-                                            >
-                                                {stage}
-                                            </a>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
+                    <div className="card">
+                        <div className="card-body">
+                            <h5 className="fw-medium mb-2">Candidate Pipeline Stage</h5>
+                            <div className="pipeline-list candidates border-0 mb-0">
+                                <ul className="mb-0">
+                                    {pipelineStages.map((stage, index) => {
+                                        const isActive = index <= currentStageIndex;
+                                        return (
+                                            <li key={stage}>
+                                                <a
+                                                    href="javascript:void(0);"
+                                                    className={isActive ? 'bg-purple' : 'bg-gray-100'}
+                                                    onClick={() => setSelectedStatus(stage)}
+                                                    style={{
+                                                        whiteSpace: 'nowrap',
+                                                        fontSize: '12px'
+                                                    }}
+                                                >
+                                                    {stage}
+                                                </a>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
 
                 <div className="card">
                     <div className="card-header">
@@ -592,7 +592,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                         padding: 0;
                         margin: 0;
                         list-style: none;
-                        gap: 10px;
+                        gap: 0px;
                     }
                     .pipeline-list.candidates ul li {
                         flex: 1;
@@ -606,6 +606,11 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                         text-decoration: none;
                         font-weight: 500;
                         transition: all 0.3s ease;
+                            top: 0;
+    right: 0px;
+    width: 45px;
+    height: 45px;
+    
                     }
                     .pipeline-list.candidates ul li a.bg-purple {
                         background-color: #7a6fbe;

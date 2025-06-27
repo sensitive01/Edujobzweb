@@ -1,5 +1,3 @@
-// wth  job for chat
-
 import React, { useState, useEffect } from 'react';
 import { ChevronsUp, Search, ChevronDown, Download, FileText, FileSpreadsheet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
