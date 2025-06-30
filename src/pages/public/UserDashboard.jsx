@@ -155,7 +155,7 @@ const UserDashboard = () => {
                         </address>
                       </div>
                     </div>
-                    <div className="jobplugin__profile-intro__right">
+                    {/* <div className="jobplugin__profile-intro__right">
                       <div className="jobplugin__profile-intro__success">
                         <div className="jobplugin__profile-intro__success-icon">
                           <span className="rj-icon rj-crown"></span>
@@ -166,7 +166,13 @@ const UserDashboard = () => {
                           </strong>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
+                    <button
+                      onClick={handleLogout}
+                      className="jobplugin__button border-dark shadow bg-primary hover:jobplugin__bg-secondary small"
+                    >
+                      <FaPowerOff /> &nbsp; Logout
+                    </button>
 
                   </div>
                 </div>

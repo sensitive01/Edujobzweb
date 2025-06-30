@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, MessageSquare, Star, Calendar, HelpCircle, Maximize2, Bell, Plus, LayoutDashboard, Users, Briefcase, Menu, X } from 'lucide-react';
 import user19 from '../../assets/employer/assets/img/logo - dark.png';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FiLogOut } from 'react-icons/fi';
 
 const EmployerHeader = () => {
@@ -12,6 +12,7 @@ const EmployerHeader = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [profilePic, setProfilePic] = useState(null);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const notificationRef = useRef(null);
     const profileRef = useRef(null);
@@ -51,6 +52,7 @@ const EmployerHeader = () => {
 
         fetchEmployerProfile();
     }, []);
+
     // Close dropdowns when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -70,6 +72,22 @@ const EmployerHeader = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    const handleLogout = () => {
+        // Clear all employer-related data from localStorage
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        localStorage.removeItem('employerToken');
+        localStorage.removeItem('employerData');
+
+
+        // Close any open dropdowns/menus
+        setProfileDropdown(false);
+        setMobileMenuOpen(false);
+
+        // Navigate to login page
+        navigate('/employer/login');
+    };
 
     const candidatesOptions = [
         { name: 'Search Candidates', path: '/employer/search' },
@@ -459,17 +477,18 @@ const EmployerHeader = () => {
                                             <Link
                                                 className="dropdown-item d-inline-flex align-items-center p-0 py-2 text-decoration-none"
                                                 to="/employer/profile"
+                                                onClick={() => setProfileDropdown(false)}
                                             >
                                                 <span className="me-1 text-primary">↑</span>My Account
                                             </Link>
                                         </div>
                                         <div className="card-footer py-1">
-                                            <Link
-                                                className="dropdown-item d-inline-flex align-items-center p-0 py-2 text-decoration-none"
-                                                to="/employer/login"
+                                            <button
+                                                className="dropdown-item d-inline-flex align-items-center p-0 py-2 text-decoration-none border-0 bg-transparent w-100 text-start"
+                                                onClick={handleLogout}
                                             >
                                                 <FiLogOut className="me-2 text-primary" />Logout
-                                            </Link>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -629,6 +648,15 @@ const EmployerHeader = () => {
                                 >
                                     Ads
                                 </Link>
+                            </div>
+                            <div className="mt-3 px-3">
+                                <button
+                                    className="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center"
+                                    onClick={handleLogout}
+                                >
+                                    <FiLogOut className="me-1" size={14} />
+                                    Logout
+                                </button>
                             </div>
                         </div>
                     </div>
