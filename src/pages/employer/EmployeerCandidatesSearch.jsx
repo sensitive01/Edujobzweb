@@ -9,7 +9,6 @@ import EmployeerChatSidebar from './EmployeerChatSidebar';
 import { FaArrowCircleUp } from 'react-icons/fa';
 
 const EmployeerCandidatesSearch = () => {
-  const [status, setStatus] = useState('Select Status');
   const [sortBy, setSortBy] = useState('Sort By : Last 7 Days');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,15 +28,24 @@ const EmployeerCandidatesSearch = () => {
   const [jobs, setJobs] = useState([]);
   const navigate = useNavigate();
 
-  const statuses = [
-    'All',
-    'Pending',
-    'Hold',
-    'In Progress',
-    'Interview Scheduled',
-    'Hired',
-    'Rejected'
-  ];
+  // Filter state
+  const [openSections, setOpenSections] = useState({
+    jobCategory: true,
+    gender: true,
+    location: true,
+    qualification: true,
+    experience: true,
+  });
+
+  const [filters, setFilters] = useState({
+    jobCategories: [],
+    gender: '',
+    location: '',
+    qualification: '',
+    experienceFrom: '',
+    experienceTo: '',
+    searchQuery: '',
+  });
 
   const sortOptions = [
     'Recently Added',
@@ -286,12 +294,6 @@ const EmployeerCandidatesSearch = () => {
     setActiveDropdown(null);
   };
 
-  const handleStatusSelect = (selectedStatus) => {
-    setStatus(selectedStatus);
-    setFiltersApplied(true);
-    closeAllDropdowns();
-  };
-
   const handleSortBySelect = (selectedSort) => {
     setSortBy(`Sort By : ${selectedSort}`);
     setFiltersApplied(true);
@@ -301,6 +303,83 @@ const EmployeerCandidatesSearch = () => {
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
+
+  // Extract unique job categories from candidates
+  const getUniqueJobCategories = () => {
+    const categories = new Set();
+    candidates.forEach(candidate => {
+      if (candidate.skills && candidate.skills.length > 0) {
+        candidate.skills.forEach(skill => categories.add(skill));
+      }
+    });
+    return Array.from(categories);
+  };
+
+  const toggleSection = (section) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const handleCheckboxChange = (type, value) => {
+    setFilters(prev => {
+      const currentValues = [...prev[type]];
+      const index = currentValues.indexOf(value);
+
+      if (index === -1) {
+        currentValues.push(value);
+      } else {
+        currentValues.splice(index, 1);
+      }
+
+      return {
+        ...prev,
+        [type]: currentValues
+      };
+    });
+  };
+
+  const handleRadioChange = (e) => {
+    setFilters(prev => ({
+      ...prev,
+      gender: e.target.value
+    }));
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleReset = () => {
+    setFilters({
+      jobCategories: [],
+      gender: '',
+      location: '',
+      qualification: '',
+      experienceFrom: '',
+      experienceTo: '',
+      searchQuery: '',
+    });
+    setDateRange({
+      start: '',
+      end: ''
+    });
+    setSortBy('Sort By : Last 7 Days');
+    setSelectedDateRange('This Year');
+    setFiltersApplied(false);
+    setSearchQuery('');
+  };
+
+  const handleSubmit = () => {
+    setFiltersApplied(true);
+    filterCandidates();
+  };
+
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -362,90 +441,104 @@ const EmployeerCandidatesSearch = () => {
     }
   };
 
-  const filterCandidates = () => {
-    let results = [...candidates];
+ const filterCandidates = () => {
+  let results = [...candidates];
 
-    // Apply search filter if search query exists
-    if (searchQuery.trim()) {
-      const searchTerm = searchQuery.toLowerCase().trim();
+  // Apply search filter first
+  if (searchQuery.trim()) {
+    const searchTerm = searchQuery.toLowerCase().trim();
+    results = results.filter(candidate => {
+      const searchFields = [
+        candidate.userName,
+        candidate.userEmail,
+        candidate.userMobile,
+        candidate.skills?.join(' '),
+        candidate.currentCity,
+        candidate.education?.map(edu => `${edu.degree} ${edu.institution}`).join(' '),
+      ].filter(Boolean).join(' ').toLowerCase();
+
+      return searchFields.includes(searchTerm);
+    });
+  }
+
+  // Apply other filters
+  if (filtersApplied) {
+    // Job category filter (skills)
+    if (filters.jobCategories.length > 0) {
+      results = results.filter(candidate => 
+        candidate.skills && 
+        candidate.skills.some(skill => 
+          filters.jobCategories.includes(skill)
+        )
+      );
+    }
+
+    // Gender filter
+    if (filters.gender) {
+      results = results.filter(candidate => 
+        candidate.gender && 
+        candidate.gender.toLowerCase() === filters.gender.toLowerCase()
+      );
+    }
+
+    // Location filter
+    if (filters.location) {
+      results = results.filter(candidate => 
+        candidate.currentCity && 
+        candidate.currentCity.toLowerCase().includes(filters.location.toLowerCase())
+      );
+    }
+
+    // Qualification filter
+    if (filters.qualification) {
+      results = results.filter(candidate => 
+        candidate.education && 
+        candidate.education.some(edu => 
+          edu.degree && 
+          edu.degree.toLowerCase().includes(filters.qualification.toLowerCase())
+        )
+      );
+    }
+
+    // Experience range filter
+    if (filters.experienceFrom || filters.experienceTo) {
+      const from = parseInt(filters.experienceFrom) || 0;
+      const to = parseInt(filters.experienceTo) || 100; // Set reasonable max
+
       results = results.filter(candidate => {
-        // Check for exact experience match
-        const experienceMatch = candidate.totalExperience &&
-          (candidate.totalExperience.toString() === searchTerm ||
-            `${candidate.totalExperience} years`.toLowerCase() === searchTerm ||
-            `${candidate.totalExperience} year`.toLowerCase() === searchTerm);
-
-        if (experienceMatch) return true;
-
-        // Check other fields
-        const searchFields = [
-          candidate.userName,
-          candidate.userEmail,
-          candidate.userMobile,
-          candidate.skills?.join(' '),
-          candidate.currentCity,
-          candidate.education?.map(edu => `${edu.degree} ${edu.institution}`).join(' '),
-          candidate.workExperience?.map(exp => `${exp.position} ${exp.company}`).join(' '),
-          candidate.languages?.join(' ')
-        ].filter(Boolean).join(' ').toLowerCase();
-
-        return searchFields.includes(searchTerm);
+        const exp = parseInt(candidate.totalExperience) || 0;
+        return exp >= from && exp <= to;
       });
     }
 
-    // Apply additional filters only if filters are applied
-    if (filtersApplied) {
-      // Date range filter
-      if (dateRange.start && dateRange.end) {
-        const startDate = new Date(dateRange.start);
-        const endDate = new Date(dateRange.end);
+    // Date range filter
+    if (dateRange.start && dateRange.end) {
+      const startDate = new Date(dateRange.start);
+      const endDate = new Date(dateRange.end);
 
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(23, 59, 59, 999);
-
-        results = results.filter(candidate => {
-          if (!candidate.createdAt) return false;
-          const createdDate = new Date(candidate.createdAt);
-          return createdDate >= startDate && createdDate <= endDate;
-        });
-      }
-
-      // Status filter
-      if (status !== 'Select Status' && status !== 'All') {
-        // Filter logic here if you add status to your data
-      }
-
-      // Sort candidates
-      if (sortBy.includes('Recently Added')) {
-        results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      } else if (sortBy.includes('Ascending')) {
-        results.sort((a, b) => (a.userName || '').localeCompare(b.userName || ''));
-      } else if (sortBy.includes('Descending')) {
-        results.sort((a, b) => (b.userName || '').localeCompare(a.userName || ''));
-      } else if (sortBy.includes('Last Month')) {
-        const lastMonth = new Date();
-        lastMonth.setMonth(lastMonth.getMonth() - 1);
-        results = results.filter(candidate => {
-          if (!candidate.createdAt) return false;
-          const createdDate = new Date(candidate.createdAt);
-          return createdDate >= lastMonth;
-        });
-      } else if (sortBy.includes('Last 7 Days')) {
-        const lastWeek = new Date();
-        lastWeek.setDate(lastWeek.getDate() - 7);
-        results = results.filter(candidate => {
-          if (!candidate.createdAt) return false;
-          const createdDate = new Date(candidate.createdAt);
-          return createdDate >= lastWeek;
-        });
-      }
+      results = results.filter(candidate => {
+        if (!candidate.createdAt) return false;
+        const createdDate = new Date(candidate.createdAt);
+        return createdDate >= startDate && createdDate <= endDate;
+      });
     }
 
-    setFilteredCandidates(results);
-  };
+    // Sorting
+    if (sortBy.includes('Recently Added')) {
+      results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (sortBy.includes('Ascending')) {
+      results.sort((a, b) => (a.userName || '').localeCompare(b.userName || ''));
+    } else if (sortBy.includes('Descending')) {
+      results.sort((a, b) => (b.userName || '').localeCompare(a.userName || ''));
+    }
+  }
+
+  setFilteredCandidates(results);
+};
 
   const handleSearch = (e) => {
     e.preventDefault();
+    setFiltersApplied(true);
     filterCandidates();
   };
 
@@ -516,6 +609,7 @@ const EmployeerCandidatesSearch = () => {
       alert(`Error: ${error.message}`);
     }
   };
+  
   const getStatusBadgeClass = (status) => {
     switch (status?.toLowerCase()) {
       case 'shortlisted':
@@ -536,6 +630,7 @@ const EmployeerCandidatesSearch = () => {
   useEffect(() => {
     fetchCandidates();
   }, []);
+  
   const findJobIdForCandidate = (candidate) => {
     // Find the job that contains this candidate in its applications
     const job = jobs.find(job =>
@@ -548,9 +643,10 @@ const EmployeerCandidatesSearch = () => {
 
     return job ? job._id : 'default-job-id';
   };
+  
   useEffect(() => {
     filterCandidates();
-  }, [searchQuery, filtersApplied, status, sortBy, dateRange]);
+  }, [searchQuery, filtersApplied, sortBy, dateRange, filters]);
 
   if (loading) {
     return (
@@ -699,34 +795,6 @@ const EmployeerCandidatesSearch = () => {
               </ul>
             </div>
 
-            {/* Status Dropdown */}
-            <div className="dropdown me-2">
-              <button
-                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                onClick={() => toggleDropdown('status')}
-              >
-                {status}
-              </button>
-              <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'status' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'status' ? 'block' : 'none' }}
-              >
-                {statuses.map((item) => (
-                  <li key={item}>
-                    <button
-                      className="dropdown-item rounded-1"
-                      onClick={() => {
-                        handleStatusSelect(item);
-                        closeAllDropdowns();
-                      }}
-                    >
-                      {item}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
             {/* Sort By Dropdown */}
             <div className="dropdown me-2">
               <button
@@ -766,7 +834,10 @@ const EmployeerCandidatesSearch = () => {
               </button>
               <ul
                 className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'export' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'export' ? 'block' : 'none' }}
+                style={{
+                  display: activeDropdown === 'export' ? 'block' : 'none',
+                  marginLeft: '-65px',
+                }}
               >
                 {exportOptions.map((item) => (
                   <li key={item.label}>
@@ -787,195 +858,443 @@ const EmployeerCandidatesSearch = () => {
         </div>
         {/* /Breadcrumb */}
 
-        <br />
-
         <div className="row">
-          <div className="card">
-            <div className="card-body">
-              <form onSubmit={handleSearch}>
-                <div className="d-flex align-items-center">
-                  <input
-                    type="text"
-                    className="form-control flex-fill me-3"
-                    placeholder="Search Candidates (name, email, skills, experience, etc.)"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <button
-                    type="submit"
-                    className="btn btn-secondary"
-                    style={{ whiteSpace: 'nowrap' }}
+          {/* Filter Sidebar */}
+          <div className="col-lg-3 col-md-6 card card-body">
+            <div className="themesettings-inner offcanvas-body">
+              <div className="accordion accordion-customicon1 accordions-items-seperate" id="settingtheme">
+                <h3 className="mb-1 text-secondary">Filter Candidates</h3>
+                <p className="text-dark">Search & Filter</p>
+
+                {/* Job Category Accordion */}
+                <div className="accordion-item">
+                  <h2 className="accordion-header">
+                    <button
+                      className="accordion-button text-dark fs-16 align-items-center justify-content-between"
+                      type="button"
+                      onClick={() => toggleSection('jobCategory')}
+                    >
+                      Select Job Category
+                      <span>
+                        <FaArrowCircleUp
+                          className={`text-primary transition-all duration-300 ${openSections.jobCategory ? 'rotate-180' : ''}`}
+                          size={20}
+                        />
+                      </span>
+                    </button>
+                  </h2>
+                  <div
+                    className={`accordion-collapse collapse ${openSections.jobCategory ? 'show' : ''}`}
                   >
-                    <Search size={16} className="me-1" /> Search
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-
-        {/* Candidates Count */}
-        <div className="mb-3">
-          <span className="badge bg-warning">
-            {filteredCandidates.length} {filteredCandidates.length === 1 ? 'candidate' : 'candidates'} found
-          </span>
-          {(searchQuery || filtersApplied) && (
-            <button
-              className="btn btn-sm btn-link ms-2"
-              onClick={() => {
-                setSearchQuery('');
-                setStatus('Select Status');
-                setSortBy('Sort By : Last 7 Days');
-                setDateRange({ start: '', end: '' });
-                setSelectedDateRange('This Year');
-                setFiltersApplied(false);
-              }}
-            >
-              Clear all
-            </button>
-          )}
-        </div>
-
-        {/* Candidates Grid */}
-        <div className="row mt-4">
-          {filteredCandidates.length > 0 ? (
-            filteredCandidates.map(candidate => (
-              <div key={candidate._id} className="col-xxl-12 col-xl-4 col-md-6">
-                <div className="card">
-                  <div className="card-body">
-                    <div className="d-flex align-items-center justify-content-between mb-2">
-                      <div className="d-flex align-items-center">
-                        <a href="javascript:void(0);" className="avatar flex-shrink-0">
-                          <img
-                            src={candidate.userProfilePic || user13}
-                            className="img-fluid h-auto w-auto"
-                            alt="img"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = user13;
-                            }}
-                          />
-                        </a>
-                        <div className="ms-2">
-                          <h6 className="fs-14 fw-medium text-truncate text-primary mb-1">
-                            <a className="text-secondary" href="#"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                viewCandidateDetails(candidate);
-                              }}>
-                              {candidate.userName} &nbsp; | &nbsp;
-                              <span className="text-dark">
-                                <i className="ti ti-eye"></i> View Profile
-                              </span>
-                            </a>
-                          </h6>
-                          <p className="fs-13">
-                            <b>Registered On:</b> {new Date(candidate.createdAt).toLocaleDateString('en-GB')} &nbsp; | &nbsp;
-                            {candidate.resume?.url && (
-                              <a href={candidate.resume.url} className="fw-medium text-primary" target="_blank" rel="noopener noreferrer">
-                                <i className="ti ti-download"></i> Download Resume
-                              </a>
-                            )}
-                          </p>
+                    <div className="accordion-body">
+                      <div className="row gx-3">
+                        <div className="form-group">
+                          <div className="checkbox-limit">
+                            <ul className="checkbox-list">
+                              {getUniqueJobCategories().map(category => (
+                                <li className="mb-2" key={category}>
+                                  <label className="custom-checkbox">
+                                    <input
+                                      type="checkbox"
+                                      checked={filters.jobCategories.includes(category)}
+                                      onChange={() => handleCheckboxChange('jobCategories', category)}
+                                    />
+                                    <span className="fake-checkbox"></span>
+                                    <span className="label-text">{category}</span>
+                                  </label>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
                         </div>
                       </div>
-                      <div className="d-flex align-items-center">
-                        {candidate.userMobile && (
-                          <a href={`tel:${candidate.userMobile}`} className="btn btn-light text-success btn-icon btn-sm me-1">
-                            <i className="ti ti-phone fs-16"></i>
-                          </a>
-                        )}
-                        {candidate.userEmail && (
-                          <a href={`mailto:${candidate.userEmail}`} className="btn btn-light btn-icon text-danger btn-sm me-1">
-                            <i className="ti ti-mail-bolt fs-16"></i>
-                          </a>
-                        )}
-                        <a
-                          href="#"
-                          className="btn btn-light text-info btn-icon text-info btn-sm me-1"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            const jobId = findJobIdForCandidate(candidate);
-                            setSelectedCandidateForChat({
-                              ...candidate,
-                              jobId: jobId,
-                              applicantId: candidate.applicantId || candidate._id,
-                               firstName: candidate.userName,
-                               avatar: candidate.userProfilePic
-                            });
-                            setShowChatSidebar(true);
-                          }}
-                        >
-                          <i className="ti ti-brand-hipchat fs-16"></i>
-                        </a>
+                    </div>
+                  </div>
+                </div>
 
-                        <a
-                          href="#"
-                          className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            const employerData = JSON.parse(localStorage.getItem('employerData'));
-                            toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite);
-                          }}
-                          style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
-                        >
-                          <i
-                            className={`ti ti-bookmark fs-16 ${candidate.favourite ? 'filled' : ''}`}
-                            style={candidate.favourite ? { color: 'white' } : {}}
-                          ></i>
-                        </a>
+                {/* Gender Accordion */}
+                <div className="accordion-item">
+                  <h2 className="accordion-header">
+                    <button
+                      className="accordion-button text-dark fs-16 align-items-center justify-content-between"
+                      type="button"
+                      onClick={() => toggleSection('gender')}
+                    >
+                      Gender
+                      <span>
+                        <FaArrowCircleUp
+                          className={`text-primary transition-all duration-300 ${openSections.gender ? 'rotate-180' : ''}`}
+                          size={20}
+                        />
+                      </span>
+                    </button>
+                  </h2>
+                  <div className={`accordion-collapse collapse ${openSections.gender ? 'show' : ''}`}>
+                    <div className="accordion-body">
+                      <div className="d-flex align-items-center">
+                        <div className="theme-width m-0 me-2">
+                          <input
+                            type="radio"
+                            id="male"
+                            name="gender"
+                            value="male"
+                            checked={filters.gender === 'male'}
+                            onChange={handleRadioChange}
+                          />
+                          <label htmlFor="male" className="d-block rounded fs-12">Male</label>
+                        </div>
+                        <div className="theme-width m-0">
+                          <input
+                            type="radio"
+                            id="female"
+                            name="gender"
+                            value="female"
+                            checked={filters.gender === 'female'}
+                            onChange={handleRadioChange}
+                          />
+                          <label htmlFor="female" className="d-block rounded fs-12">Female</label>
+                        </div>
+                        <div className="theme-width m-1">
+                          <input
+                            type="radio"
+                            id="any"
+                            name="gender"
+                            value=""
+                            checked={!filters.gender}
+                            onChange={handleRadioChange}
+                          />
+                          <label htmlFor="any" className="d-block rounded fs-12">Any</label>
+                        </div>
                       </div>
                     </div>
-                    <div className="bg-light rounder p-2">
-                      <div className="d-flex align-items-center justify-content-between mb-2">
-                        <span><b>Experience</b> : {candidate.totalExperience || '0'} Years</span>
-                        <span><b>Skills</b> : {candidate.skills?.join(', ') || 'Not specified'}</span>
+                  </div>
+                </div>
+
+                {/* Location Accordion */}
+                <div className="accordion-item">
+                  <h2 className="accordion-header">
+                    <button
+                      className="accordion-button text-dark fs-16 align-items-center justify-content-between"
+                      type="button"
+                      onClick={() => toggleSection('location')}
+                    >
+                      Location
+                      <span>
+                        <FaArrowCircleUp
+                          className={`text-primary transition-all duration-300 ${openSections.location ? 'rotate-180' : ''}`}
+                          size={20}
+                        />
+                      </span>
+                    </button>
+                  </h2>
+                  <div className={`accordion-collapse collapse ${openSections.location ? 'show' : ''}`}>
+                    <div className="accordion-body">
+                      <div className="d-flex align-items-center">
+                        <input
+                          type="text"
+                          id="location"
+                          className="form-control"
+                          placeholder="Choose Location"
+                          value={filters.location}
+                          onChange={(e) => handleInputChange(e)}
+                          name="location"
+                        />
                       </div>
-                      <div className="d-flex align-items-center justify-content-between mb-2">
-                        <span><b>Gender</b> : {candidate.gender || 'Not specified'}</span>
-                        <span><b>Email</b> : {candidate.userEmail || 'Not specified'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Qualification Accordion */}
+                <div className="accordion-item">
+                  <h2 className="accordion-header">
+                    <button
+                      className="accordion-button text-dark fs-16 align-items-center justify-content-between"
+                      type="button"
+                      onClick={() => toggleSection('qualification')}
+                    >
+                      Qualification
+                      <span>
+                        <FaArrowCircleUp
+                          className={`text-primary transition-all duration-300 ${openSections.qualification ? 'rotate-180' : ''}`}
+                          size={20}
+                        />
+                      </span>
+                    </button>
+                  </h2>
+                  <div className={`accordion-collapse collapse ${openSections.qualification ? 'show' : ''}`}>
+                    <div className="accordion-body">
+                      <div className="row gx-3">
+                        <input
+                          type="text"
+                          id="qualification"
+                          className="form-control"
+                          placeholder="Qualification"
+                          value={filters.qualification}
+                          onChange={(e) => handleInputChange(e)}
+                          name="qualification"
+                        />
                       </div>
-                      <div className="d-flex align-items-center justify-content-between mb-2">
-                        <span><b>Phone</b> : {candidate.userMobile || 'Not specified'}</span>
-                        <span><b>Education</b> : {candidate.education?.[0]?.degree || 'Not specified'}</span>
-                      </div>
-                      <div className="d-flex align-items-center justify-content-between">
-                        <span><b>Current Location</b> : {candidate.currentCity || 'Not specified'}</span>
-                        <span>
-                          <button
-                            className="fs-10 fw-bold badge bg-warning"
-                            onClick={() => viewCandidateDetails(candidate)}
-                          >
-                            <i className="ti ti-eye"></i> View Profile
-                          </button>
-                        </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Experience Accordion */}
+                <div className="accordion-item">
+                  <h2 className="accordion-header">
+                    <button
+                      className="accordion-button text-dark fs-16 align-items-center justify-content-between"
+                      type="button"
+                      onClick={() => toggleSection('experience')}
+                    >
+                      Experience
+                      <span>
+                        <FaArrowCircleUp
+                          className={`text-primary transition-all duration-300 ${openSections.experience ? 'rotate-180' : ''}`}
+                          size={20}
+                        />
+                      </span>
+                    </button>
+                  </h2>
+                  <div className={`accordion-collapse collapse ${openSections.experience ? 'show' : ''}`}>
+                    <div className="accordion-body pb-0">
+                      <div className="row gx-3">
+                        <div className="price-inputs d-flex mb-3">
+                          <input
+                            type="text"
+                            id="experience-from"
+                            className="form-control me-3"
+                            placeholder="From"
+                            value={filters.experienceFrom}
+                            onChange={(e) => handleInputChange(e)}
+                            name="experienceFrom"
+                          />
+                          <input
+                            type="text"
+                            id="experience-to"
+                            className="form-control"
+                            placeholder="To"
+                            value={filters.experienceTo}
+                            onChange={(e) => handleInputChange(e)}
+                            name="experienceTo"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            ))
-          ) : searchQuery || filtersApplied ? (
-            <div className="col-12">
-              <div className="card">
-                <div className="card-body text-center py-5">
-                  <img src="/images/no-results.png" alt="No results" width="150" className="mb-3" />
-                  <h4>No candidates found</h4>
-                  <p className="text-muted">Try adjusting your search query or filters</p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="p-3 pt-5">
+              <div className="row gx-3">
+                <div className="col-6">
+                  <button
+                    id="resetbutton"
+                    className="btn btn-light close-theme w-100"
+                    onClick={handleReset}
+                  >
+                    <i className="ti ti-restore me-1"></i>Reset
+                  </button>
+                </div>
+                <div className="col-6">
+                  <button
+                    className="btn btn-secondary w-100"
+                    onClick={handleSubmit}
+                  >
+                    <i className="ti ti-circle-check me-1"></i>Submit
+                  </button>
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="col-12">
-              <div className="card">
-                <div className="card-body text-center py-5">
-                  <i className="ti ti-users fs-1 text-muted mb-3"></i>
-                  <h4>All Candidates</h4>
-                  <p className="text-muted">Start typing to search or apply filters</p>
-                </div>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="col-lg-9 col-md-6">
+            <div className="card">
+              <div className="card-body">
+                <form onSubmit={handleSearch}>
+                  <div className="d-flex align-items-center">
+                    <input
+                      type="text"
+                      name="search"
+                      className="form-control flex-fill me-2"
+                      placeholder="Search Candidates (name, email, skills, etc.)"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <button type="submit" className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }}>
+                      <Search size={16} className="me-1" /> Search
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
-          )}
+
+            {/* Candidates Count */}
+            <div className="mb-3">
+              <span className="badge bg-warning">
+                {filteredCandidates.length} {filteredCandidates.length === 1 ? 'candidate' : 'candidates'} found
+              </span>
+              {(searchQuery || filtersApplied) && (
+                <button
+                  className="btn btn-sm btn-link ms-2"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSortBy('Sort By : Last 7 Days');
+                    setDateRange({ start: '', end: '' });
+                    setSelectedDateRange('This Year');
+                    setFiltersApplied(false);
+                    handleReset();
+                  }}
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+
+            {/* Candidates Grid */}
+            <div className="row mt-4">
+              {filteredCandidates.length > 0 ? (
+                filteredCandidates.map(candidate => (
+                  <div key={candidate._id} className="col-xxl-12 col-xl-4 col-md-6">
+                    <div className="card">
+                      <div className="card-body">
+                        <div className="d-flex align-items-center justify-content-between mb-2">
+                          <div className="d-flex align-items-center">
+                            <a href="javascript:void(0);" className="avatar flex-shrink-0">
+                              <img
+                                src={candidate.userProfilePic || user13}
+                                className="img-fluid h-auto w-auto"
+                                alt="img"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = user13;
+                                }}
+                              />
+                            </a>
+                            <div className="ms-2">
+                              <h6 className="fs-14 fw-medium text-truncate text-primary mb-1">
+                                <a className="text-secondary" href="#"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    viewCandidateDetails(candidate);
+                                  }}>
+                                  {candidate.userName} &nbsp; | &nbsp;
+                                  <span className="text-dark">
+                                    <i className="ti ti-eye"></i> View Profile
+                                  </span>
+                                </a>
+                              </h6>
+                              <p className="fs-13">
+                                <b>Registered On:</b> {new Date(candidate.createdAt).toLocaleDateString('en-GB')} &nbsp; | &nbsp;
+                                {candidate.resume?.url && (
+                                  <a href={candidate.resume.url} className="fw-medium text-primary" target="_blank" rel="noopener noreferrer">
+                                    <i className="ti ti-download"></i> Download Resume
+                                  </a>
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="d-flex align-items-center">
+                            {candidate.userMobile && (
+                              <a href={`tel:${candidate.userMobile}`} className="btn btn-light text-success btn-icon btn-sm me-1">
+                                <i className="ti ti-phone fs-16"></i>
+                              </a>
+                            )}
+                            {candidate.userEmail && (
+                              <a href={`mailto:${candidate.userEmail}`} className="btn btn-light btn-icon text-danger btn-sm me-1">
+                                <i className="ti ti-mail-bolt fs-16"></i>
+                              </a>
+                            )}
+                            <a
+                              href="#"
+                              className="btn btn-light text-info btn-icon text-info btn-sm me-1"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                const jobId = findJobIdForCandidate(candidate);
+                                setSelectedCandidateForChat({
+                                  ...candidate,
+                                  jobId: jobId,
+                                  applicantId: candidate.applicantId || candidate._id,
+                                  firstName: candidate.userName,
+                                  avatar: candidate.userProfilePic
+                                });
+                                setShowChatSidebar(true);
+                              }}
+                            >
+                              <i className="ti ti-brand-hipchat fs-16"></i>
+                            </a>
+
+                            <a
+                              href="#"
+                              className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                const employerData = JSON.parse(localStorage.getItem('employerData'));
+                                toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite);
+                              }}
+                              style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
+                            >
+                              <i
+                                className={`ti ti-bookmark fs-16 ${candidate.favourite ? 'filled' : ''}`}
+                                style={candidate.favourite ? { color: 'white' } : {}}
+                              ></i>
+                            </a>
+                          </div>
+                        </div>
+                        <div className="bg-light rounder p-2">
+                          <div className="d-flex align-items-center justify-content-between mb-2">
+                            <span><b>Experience</b> : {candidate.totalExperience || '0'} Years</span>
+                            <span><b>Skills</b> : {candidate.skills?.join(', ') || 'Not specified'}</span>
+                          </div>
+                          <div className="d-flex align-items-center justify-content-between mb-2">
+                            <span><b>Gender</b> : {candidate.gender || 'Not specified'}</span>
+                            <span><b>Email</b> : {candidate.userEmail || 'Not specified'}</span>
+                          </div>
+                          <div className="d-flex align-items-center justify-content-between mb-2">
+                            <span><b>Phone</b> : {candidate.userMobile || 'Not specified'}</span>
+                            <span><b>Education</b> : {candidate.education?.[0]?.degree || 'Not specified'}</span>
+                          </div>
+                          <div className="d-flex align-items-center justify-content-between">
+                            <span><b>Current Location</b> : {candidate.currentCity || 'Not specified'}</span>
+                            <span>
+                              <button
+                                className="fs-10 fw-bold badge bg-warning"
+                                onClick={() => viewCandidateDetails(candidate)}
+                              >
+                                <i className="ti ti-eye"></i> View Profile
+                              </button>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : searchQuery || filtersApplied ? (
+                <div className="col-12">
+                  <div className="card">
+                    <div className="card-body text-center py-5">
+                      <img src="/images/no-results.png" alt="No results" width="150" className="mb-3" />
+                      <h4>No candidates found</h4>
+                      <p className="text-muted">Try adjusting your search query or filters</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="col-12">
+                  <div className="card">
+                    <div className="card-body text-center py-5">
+                      <i className="ti ti-users fs-1 text-muted mb-3"></i>
+                      <h4>All Candidates</h4>
+                      <p className="text-muted">Start typing to search or apply filters</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -984,10 +1303,10 @@ const EmployeerCandidatesSearch = () => {
         <EmployerCandidatesDetails
           show={showDetails}
           onClose={() => setShowDetails(false)}
-          candidate={selectedCandidate} 
+          candidate={selectedCandidate}
         />
       )}
-        {selectedCandidateForChat && (
+      {selectedCandidateForChat && (
         <EmployeerChatSidebar
           isOpen={showChatSidebar}
           onClose={() => setShowChatSidebar(false)}

@@ -38,6 +38,103 @@ const EmployeerPostJob = () => {
     "Recently Added", "Ascending", "Descending", "Last Month", "Last 7 Days"
   ];
 
+  const exportToPDF = () => {
+    try {
+      let htmlContent = `
+      <h2 style="text-align: center; margin-bottom: 20px;">Jobs Report</h2>
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background-color: #f8f9fa;">
+            <th style="border: 1px solid #ddd; padding: 8px;">Job Title</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Category</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Type</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Location</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Salary</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+      filteredJobs.forEach(job => {
+        htmlContent += `
+        <tr>
+          <td style="border: 1px solid #ddd; padding: 8px;">${job.title || 'N/A'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${job.category || 'N/A'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${job.type || 'N/A'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${job.location || 'N/A'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${job.salary || 'N/A'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${job.status || 'N/A'}</td>
+        </tr>
+      `;
+      });
+
+      htmlContent += `
+        </tbody>
+      </table>
+      <p style="text-align: right; margin-top: 20px; font-size: 12px;">
+        Generated on ${new Date().toLocaleDateString()}
+      </p>
+    `;
+
+      const win = window.open('', '_blank');
+      win.document.write(`
+      <html>
+        <head>
+          <title>Jobs Report</title>
+          <style>
+            @media print {
+              @page { size: landscape; margin: 10mm; }
+              table { width: 100%; font-size: 12px; }
+              th { background-color: #f8f9fa !important; }
+            }
+          </style>
+        </head>
+        <body>
+          ${htmlContent}
+          <script>
+            setTimeout(function() {
+              window.print();
+              window.close();
+            }, 100);
+          </script>
+        </body>
+      </html>
+    `);
+      win.document.close();
+
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      alert('Failed to export PDF: ' + error.message);
+    }
+  };
+
+  const exportToExcel = () => {
+    try {
+      let csvContent = "Job Title,Category,Type,Location,Salary,Status,Applicants\n";
+
+      filteredJobs.forEach(job => {
+        csvContent += `"${job.title || ''}","${job.category || ''}","${job.type || ''}",` +
+          `"${job.location || ''}","${job.salary || ''}","${job.status || ''}",` +
+          `"${job.applicants || 0}"\n`;
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `jobs_${new Date().toISOString().slice(0, 10)}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      alert('Failed to export Excel: ' + error.message);
+    }
+  };
+
   useEffect(() => {
     fetchJobs();
   }, []);
@@ -359,12 +456,16 @@ const EmployeerPostJob = () => {
               </a>
               <ul className="dropdown-menu dropdown-menu-end p-3">
                 <li>
-                  <a href="javascript:void(0);" className="dropdown-item rounded-1">
+                  <a href="javascript:void(0);"
+                    className="dropdown-item rounded-1"
+                    onClick={exportToPDF}>
                     <i className="ti ti-file-type-pdf me-1"></i>Export as PDF
                   </a>
                 </li>
                 <li>
-                  <a href="javascript:void(0);" className="dropdown-item rounded-1">
+                  <a href="javascript:void(0);"
+                    className="dropdown-item rounded-1"
+                    onClick={exportToExcel}>
                     <i className="ti ti-file-type-xls me-1"></i>Export as Excel
                   </a>
                 </li>
@@ -373,7 +474,7 @@ const EmployeerPostJob = () => {
 
             <button
               onClick={handleAddPost}
-              className="btn btn-primary d-flex align-items-center" 
+              className="btn btn-primary d-flex align-items-center"
             >
               <PlusCircle className="me-2" />Post Job
             </button>

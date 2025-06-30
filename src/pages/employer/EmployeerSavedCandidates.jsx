@@ -885,7 +885,7 @@ const EmployeerSavedCandidates = () => {
               </button>
               <ul
                 className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'export' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'export' ? 'block' : 'none' }}
+                style={{ display: activeDropdown === 'export' ? 'block' : 'none',marginLeft: '-65px', }}
               >
                 {exportOptions.map((option) => (
                   <li key={option.label}>
