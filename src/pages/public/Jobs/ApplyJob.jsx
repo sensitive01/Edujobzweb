@@ -25,32 +25,28 @@
 //   const [submitError, setSubmitError] = useState(null);
 //   const [formErrors, setFormErrors] = useState({});
 //   const [activeStep, setActiveStep] = useState(1);
-//   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
 //   useEffect(() => {
 //     const checkAuth = () => {
 //       const token = localStorage.getItem('authToken');
 //       const userData = JSON.parse(localStorage.getItem('userData'));
-      
-//       if (token && userData) {
-//         setIsAuthenticated(true);
-//         return userData._id; // Return the user ID if authenticated
+
+//       if (!token || !userData) {
+//         // Redirect to login immediately if not authenticated
+//         navigate('/login', { state: { from: `/apply-job/${id}` } });
+//         return null;
 //       }
-//       return null;
+//       return userData._id; // Return the user ID if authenticated
 //     };
 
 //     const fetchData = async () => {
 //       try {
 //         setLoading(true);
 //         setError(null);
-        
-//         // Check authentication first
+
+//         // Check authentication first - will redirect if not authenticated
 //         const userId = checkAuth();
-//         if (!userId) {
-//           setError('Please login to apply for this job');
-//           setLoading(false);
-//           return;
-//         }
+//         if (!userId) return; // Redirect already happened
 
 //         // Fetch job details
 //         const jobResponse = await axios.get(`https://edujobzbackend.onrender.com/employer/viewjobs/${id}`);
@@ -58,20 +54,20 @@
 //           throw new Error('Failed to fetch job details');
 //         }
 //         setJob(jobResponse.data);
-        
+
 //         // Fetch employee details
 //         const token = localStorage.getItem('authToken');
 //         console.log('Fetching employee details for userId:', userId);
 //         const employeeResponse = await getEmployeeDetails(userId, token);
 //         console.log('Employee data received:', employeeResponse);
-          
+
 //         if (!employeeResponse) {
 //           console.warn('No employee data received');
 //           return;
 //         }
-          
+
 //         setEmployeeData(employeeResponse);
-          
+
 //         // Prefill form with employee data
 //         const newFormData = {
 //           firstName: employeeResponse.userName || employeeResponse.name || '',
@@ -86,10 +82,10 @@
 //             url: employeeResponse.resume.url || ''
 //           } : null
 //         };
-          
+
 //         console.log('Prefilling form with:', newFormData);
 //         setFormData(newFormData);
-        
+
 //       } catch (err) {
 //         console.error('Error in fetchData:', err);
 //         setError(err.response?.data?.message || err.message || 'Failed to load data');
@@ -99,7 +95,7 @@
 //     };
 
 //     fetchData();
-//   }, [id]);
+//   }, [id, navigate]);
 
 //   const validateStep = (step) => {
 //     const errors = {};
@@ -160,10 +156,9 @@
 //   };
 
 //   const uploadResume = async (file) => {
-//     // In a real implementation, upload to cloud storage
 //     const formData = new FormData();
 //     formData.append('resume', file);
-    
+
 //     try {
 //       const response = await axios.post(
 //         'https://edujobzbackend.onrender.com/upload/resume',
@@ -184,22 +179,23 @@
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
-    
+
 //     if (!validateStep(3)) return;
-    
+
 //     setIsSubmitting(true);
 //     setSubmitError(null);
 
 //     try {
 //       const token = localStorage.getItem('authToken');
 //       const userData = JSON.parse(localStorage.getItem('userData'));
-      
+
 //       if (!token || !userData) {
-//         throw new Error('Authentication required. Please login again.');
+//         navigate('/login', { state: { from: `/apply-job/${id}` } });
+//         return;
 //       }
 
 //       let resumeData = formData.resume;
-      
+
 //       // If a new file was uploaded, process it
 //       if (formData.resume && formData.resume instanceof File) {
 //         resumeData = await uploadResume(formData.resume);
@@ -217,7 +213,7 @@
 //         currentcity: formData.currentcity,
 //         profileurl: formData.profileurl,
 //         resume: resumeData,
-//         applicantId: userData._id // Using the userId from localStorage
+//         applicantId: userData._id
 //       };
 
 //       const response = await axios.post(
@@ -264,23 +260,14 @@
 //     return (
 //       <div className="text-center py-5 text-danger">
 //         <i className="fas fa-exclamation-triangle fa-2x mb-3"></i>
-//         <h5>{error.includes('login') ? 'Authentication Required' : 'Error loading job details'}</h5>
+//         <h5>Error loading job details</h5>
 //         <p>{error}</p>
-//         {error.includes('login') ? (
-//           <button 
-//             className="btn btn-primary mt-3"
-//             onClick={() => navigate('/login')}
-//           >
-//             Go to Login Page
-//           </button>
-//         ) : (
-//           <button 
-//             className="btn btn-primary mt-3"
-//             onClick={() => window.location.reload()}
-//           >
-//             Try Again
-//           </button>
-//         )}
+//         <button 
+//           className="btn btn-primary mt-3"
+//           onClick={() => window.location.reload()}
+//         >
+//           Try Again
+//         </button>
 //       </div>
 //     );
 //   }
@@ -504,7 +491,7 @@
 //                           )}
 //                         </div>
 //                       )}
-                      
+
 //                       <div className="mb-30">
 //                         <label htmlFor="resume" className="form-label">Resume *</label>
 //                         <div className="file-upload-wrapper">
@@ -613,6 +600,7 @@
 
 // export default ApplyJob;
 
+// wthout resume router
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -634,8 +622,7 @@ const ApplyJob = () => {
     jobrole: '',
     currentcity: '',
     resume: null,
-    profileurl: '',
-    resumeUrl: ''
+    profileurl: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -646,45 +633,38 @@ const ApplyJob = () => {
     const checkAuth = () => {
       const token = localStorage.getItem('authToken');
       const userData = JSON.parse(localStorage.getItem('userData'));
-      
+
       if (!token || !userData) {
-        // Redirect to login immediately if not authenticated
         navigate('/login', { state: { from: `/apply-job/${id}` } });
         return null;
       }
-      return userData._id; // Return the user ID if authenticated
+      return userData._id;
     };
 
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        
-        // Check authentication first - will redirect if not authenticated
-        const userId = checkAuth();
-        if (!userId) return; // Redirect already happened
 
-        // Fetch job details
+        const userId = checkAuth();
+        if (!userId) return;
+
         const jobResponse = await axios.get(`https://edujobzbackend.onrender.com/employer/viewjobs/${id}`);
         if (!jobResponse.data) {
           throw new Error('Failed to fetch job details');
         }
         setJob(jobResponse.data);
-        
-        // Fetch employee details
+
         const token = localStorage.getItem('authToken');
-        console.log('Fetching employee details for userId:', userId);
         const employeeResponse = await getEmployeeDetails(userId, token);
-        console.log('Employee data received:', employeeResponse);
-          
+
         if (!employeeResponse) {
           console.warn('No employee data received');
           return;
         }
-          
+
         setEmployeeData(employeeResponse);
-          
-        // Prefill form with employee data
+
         const newFormData = {
           firstName: employeeResponse.userName || employeeResponse.name || '',
           email: employeeResponse.userEmail || employeeResponse.email || '',
@@ -693,15 +673,11 @@ const ApplyJob = () => {
           jobrole: employeeResponse.currentJobRole || employeeResponse.jobRole || '',
           currentcity: employeeResponse.currentCity || employeeResponse.city || '',
           profileurl: employeeResponse.profileUrl || employeeResponse.linkedIn || '',
-          resume: employeeResponse.resume ? {
-            name: employeeResponse.resume.name || 'resume.pdf',
-            url: employeeResponse.resume.url || ''
-          } : null
+          resume: employeeResponse.resume || null
         };
-          
-        console.log('Prefilling form with:', newFormData);
+
         setFormData(newFormData);
-        
+
       } catch (err) {
         console.error('Error in fetchData:', err);
         setError(err.response?.data?.message || err.message || 'Failed to load data');
@@ -765,60 +741,37 @@ const ApplyJob = () => {
   };
 
   const handleFileChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      resume: e.target.files[0]
-    }));
-  };
-
-  const uploadResume = async (file) => {
-    const formData = new FormData();
-    formData.append('resume', file);
-    
-    try {
-      const response = await axios.post(
-        'https://edujobzbackend.onrender.com/upload/resume',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-          }
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        resume: {
+          name: file.name,
+          url: URL.createObjectURL(file)
         }
-      );
-      return response.data;
-    } catch (err) {
-      console.error('Error uploading resume:', err);
-      throw err;
+      }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateStep(3)) return;
-    
+
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
       const token = localStorage.getItem('authToken');
       const userData = JSON.parse(localStorage.getItem('userData'));
-      
+
       if (!token || !userData) {
         navigate('/login', { state: { from: `/apply-job/${id}` } });
         return;
       }
 
-      let resumeData = formData.resume;
-      
-      // If a new file was uploaded, process it
-      if (formData.resume && formData.resume instanceof File) {
-        resumeData = await uploadResume(formData.resume);
-      } else if (employeeData?.resume) {
-        // Use existing resume from profile if available
-        resumeData = employeeData.resume;
-      }
+      // Use the resume from formData if a new one was selected, otherwise use from employeeData
+      const resumeToSubmit = formData.resume || employeeData?.resume;
 
       const payload = {
         firstName: formData.firstName,
@@ -828,7 +781,7 @@ const ApplyJob = () => {
         jobrole: formData.jobrole,
         currentcity: formData.currentcity,
         profileurl: formData.profileurl,
-        resume: resumeData,
+        resume: resumeToSubmit,
         applicantId: userData._id
       };
 
@@ -844,17 +797,19 @@ const ApplyJob = () => {
       );
 
       if (response.data.success) {
-        navigate('/job-vacancies', { 
-          state: { 
+        window.alert('Application submitted successfully!');
+        navigate('/applied-jobs', {
+          state: {
             applicationSuccess: true,
             jobTitle: job.jobTitle,
             companyName: job.companyName
-          } 
+          }
         });
       } else {
         throw new Error(response.data.message || 'Application failed');
       }
     } catch (err) {
+         window.alert('Failed to submit application: ' + (err.response?.data?.message || err.message));
       setSubmitError(err.response?.data?.message || err.message || 'Failed to submit application');
     } finally {
       setIsSubmitting(false);
@@ -878,7 +833,7 @@ const ApplyJob = () => {
         <i className="fas fa-exclamation-triangle fa-2x mb-3"></i>
         <h5>Error loading job details</h5>
         <p>{error}</p>
-        <button 
+        <button
           className="btn btn-primary mt-3"
           onClick={() => window.location.reload()}
         >
@@ -1085,52 +1040,44 @@ const ApplyJob = () => {
                           className="btn btn-primary"
                           onClick={handleNext}
                         >
-                          Next: Upload Resume
+                          Next: Review & Submit
                           <i className="fas fa-arrow-right ms-2"></i>
                         </button>
                       </div>
                     </div>
                   )}
 
-                  {/* Step 3: Upload Resume */}
+                  {/* Step 3: Review & Submit */}
                   {activeStep === 3 && (
                     <div className="step-content">
-                      <h4 className="text-secondary mb-30">Upload Resume</h4>
+                      <h4 className="text-secondary mb-30">Review & Submit</h4>
+
                       {employeeData?.resume?.url && (
                         <div className="alert alert-info mb-4">
                           <i className="fas fa-info-circle me-2"></i>
-                          You already have a resume uploaded in your profile. 
-                          {formData.resume instanceof File ? (
-                            <span> A new resume has been selected and will replace your current one.</span>
-                          ) : (
-                            <span> We'll use this resume for your application.</span>
-                          )}
+                          {formData.resume ?
+                            "A new resume has been selected and will be used for this application." :
+                            "We'll use your existing resume for this application."}
                         </div>
                       )}
-                      
+
                       <div className="mb-30">
-                        <label htmlFor="resume" className="form-label">Resume *</label>
-                        <div className="file-upload-wrapper">
-                          <input
-                            type="file"
-                            className={`form-control ${formErrors.resume ? 'is-invalid' : ''}`}
-                            id="resume"
-                            name="resume"
-                            onChange={handleFileChange}
-                            accept=".pdf,.doc,.docx"
-                            required={!employeeData?.resume?.url}
-                          />
-                          <div className="file-upload-label">
-                            <i className="fas fa-cloud-upload-alt me-2"></i>
-                            {formData.resume ? 
-                              (formData.resume instanceof File ? formData.resume.name : formData.resume.name) 
-                              : 'Choose file or drag here'}
-                          </div>
-                          {formErrors.resume && (
-                            <div className="invalid-feedback d-block">{formErrors.resume}</div>
-                          )}
-                          <div className="form-text">Accepted formats: PDF, DOC, DOCX (Max 5MB)</div>
-                        </div>
+                        <label htmlFor="resume" className="form-label">
+                          {employeeData?.resume?.url ? 'Change Resume' : 'Upload Resume *'}
+                        </label>
+                        <input
+                          type="file"
+                          className={`form-control ${formErrors.resume ? 'is-invalid' : ''}`}
+                          id="resume"
+                          name="resume"
+                          onChange={handleFileChange}
+                          accept=".pdf,.doc,.docx"
+                          required={!employeeData?.resume?.url}
+                        />
+                        {formErrors.resume && (
+                          <div className="invalid-feedback d-block">{formErrors.resume}</div>
+                        )}
+                        <div className="form-text">Accepted formats: PDF, DOC, DOCX (Max 5MB)</div>
                       </div>
 
                       <div className="review-section bg-light-sky p-30 rounded mb-30">
@@ -1167,9 +1114,9 @@ const ApplyJob = () => {
                           <div className="col-md-6 mb-15">
                             <p className="mb-1"><strong>Resume:</strong></p>
                             <p>
-                              {formData.resume ? 
-                                (formData.resume instanceof File ? formData.resume.name : formData.resume.name) 
-                                : (employeeData?.resume?.name || 'Not uploaded')}
+                              {formData.resume?.name ||
+                                employeeData?.resume?.name ||
+                                'No resume uploaded'}
                             </p>
                           </div>
                         </div>

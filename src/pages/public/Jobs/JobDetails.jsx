@@ -50,6 +50,7 @@ const JobDetails = () => {
   const handleSaveJob = async () => {
     if (!applicantId) {
       // Redirect to login if user is not logged in
+      localStorage.setItem('redirectAfterLogin', `/job-details/${id}`);
       navigate('/login');
       return;
     }
@@ -94,6 +95,15 @@ const JobDetails = () => {
   const handleViewSavedJobs = () => {
     navigate('/saved-jobs');
   };
+  const handleApplyNow = () => {
+    if (!applicantId) {
+      localStorage.setItem('redirectAfterLogin', `/apply/${job._id}`);
+      navigate('/login');
+      return;
+    }
+    navigate(`/apply/${job._id}`);
+  };
+
 
   if (loading) {
     return (
@@ -280,7 +290,12 @@ const JobDetails = () => {
                         <span className="text">{job.applydatetime}</span>
                       </li>
                     </ul>
-                    <a href={`/apply/${job._id}`} className="btn btn-secondary btn-sm">
+                    {/* <a href={`/apply/${job._id}`} className="btn btn-secondary btn-sm">
+                      <span className="btn-text">
+                        <CheckCircle className="text-primary" size={18} /> &nbsp; Apply Now
+                      </span>
+                    </a> */}
+                    <a onClick={handleApplyNow} className="btn btn-secondary btn-sm" style={{ cursor: 'pointer' }}>
                       <span className="btn-text">
                         <CheckCircle className="text-primary" size={18} /> &nbsp; Apply Now
                       </span>
@@ -357,7 +372,7 @@ const JobDetails = () => {
                       <span className="text">{job.applydatetime}</span>
                     </li>
                   </ul>
-                  <a href={`/apply/${job._id}`} className="btn btn-secondary btn-sm">
+                  <a onClick={handleApplyNow} className="btn btn-secondary btn-sm" style={{ cursor: 'pointer' }}>
                     <span className="btn-text">
                       <CheckCircle className="text-primary" size={18} /> &nbsp; Apply Now
                     </span>
@@ -368,8 +383,8 @@ const JobDetails = () => {
           </div>
         </section>
       </main>
-    
-       <style>{`
+
+      <style>{`
       .company-logo {
   position: relative;
   margin: 0 auto;
