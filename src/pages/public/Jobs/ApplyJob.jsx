@@ -770,7 +770,6 @@ const ApplyJob = () => {
         return;
       }
 
-      // Use the resume from formData if a new one was selected, otherwise use from employeeData
       const resumeToSubmit = formData.resume || employeeData?.resume;
 
       const payload = {
@@ -809,7 +808,7 @@ const ApplyJob = () => {
         throw new Error(response.data.message || 'Application failed');
       }
     } catch (err) {
-         window.alert('Failed to submit application: ' + (err.response?.data?.message || err.message));
+      window.alert('Failed to submit application: ' + (err.response?.data?.message || err.message));
       setSubmitError(err.response?.data?.message || err.message || 'Failed to submit application');
     } finally {
       setIsSubmitting(false);
@@ -863,20 +862,21 @@ const ApplyJob = () => {
               <p className="mb-0">{job.companyName} • {job.location}</p>
             </div>
 
-            <div className="application-stepper mb-45">
-              <div className={`stepper-step ${activeStep >= 1 ? 'active' : ''}`}>
-                <div className="step-number">1</div>
-                <div className="step-label">Personal Information</div>
-              </div>
-              <div className="stepper-connector"></div>
-              <div className={`stepper-step ${activeStep >= 2 ? 'active' : ''}`}>
-                <div className="step-number">2</div>
-                <div className="step-label">Professional Details</div>
-              </div>
-              <div className="stepper-connector"></div>
-              <div className={`stepper-step ${activeStep >= 3 ? 'active' : ''}`}>
-                <div className="step-number">3</div>
-                <div className="step-label">Review & Submit</div>
+            {/* Pipeline Stepper */}
+            <div className="card mb-4">
+              <div className="card-body">
+                <h5 className="fw-medium mb-3">Application Progress</h5>
+                <div className="pipeline-stepper">
+                  <div className={`pipeline-step ${activeStep >= 1 ? 'active' : ''}`}>
+                    <span className="step-label">Personal Information</span>
+                  </div>
+                  <div className={`pipeline-step ${activeStep >= 2 ? 'active' : ''}`}>
+                    <span className="step-label">Professional Details</span>
+                  </div>
+                  <div className={`pipeline-step ${activeStep >= 3 ? 'active' : ''}`}>
+                    <span className="step-label">Review & Submit</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1157,6 +1157,80 @@ const ApplyJob = () => {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .pipeline-stepper {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          position: relative;
+        }
+
+        .pipeline-step {
+          flex: 1;
+          height: 50px;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+          color: #6c757d;
+          font-weight: 500;
+          font-size: 14px;
+          text-align: center;
+          margin-right: 2px;
+          transition: all 0.3s ease;
+          clip-path: polygon(0% 0%, calc(100% - 15px) 0%, 100% 50%, calc(100% - 15px) 100%, 0% 100%, 15px 50%);
+        }
+
+        .pipeline-step:first-child {
+          clip-path: polygon(0% 0%, calc(100% - 15px) 0%, 100% 50%, calc(100% - 15px) 100%, 0% 100%);
+          padding-left: 15px;
+        }
+
+       .pipeline-step:last-child {
+    clip-path: polygon(2px 0%, 123% 0%, 100% 100%, 0px 100%, 5% 53%);
+          padding-right: 15px;
+          margin-right: 0;
+        }
+
+        .pipeline-step.active {
+          background: linear-gradient(135deg, #ab47bc 0%, #ab47bc 50%, #ab47bc 100%);
+          color: white;
+          font-weight: 600;
+          box-shadow: 0 2px 8px rgb(171,71,188);
+        }
+
+        .pipeline-step .step-label {
+          white-space: nowrap;
+          padding: 0 10px;
+          position: relative;
+          z-index: 1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+          .pipeline-step {
+            font-size: 12px;
+            height: 45px;
+          }
+          
+          .pipeline-step .step-label {
+            padding: 0 8px;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .pipeline-step {
+            font-size: 11px;
+            height: 40px;
+          }
+          
+          .pipeline-step .step-label {
+            padding: 0 5px;
+          }
+        }
+      `}</style>
     </div>
   );
 };
