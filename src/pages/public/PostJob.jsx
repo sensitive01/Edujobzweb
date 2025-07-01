@@ -70,8 +70,8 @@ const PostJob = () => {
     
     const employid = localStorage.getItem('employid');
     if(!employid){
-      alert('unable to create the job, Please login first');
-      navigate('/login');
+      alert('unable to create the job, Please register first');
+      navigate('/school-registration');
       setLoading(false);
         return;
     }
