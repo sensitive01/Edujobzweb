@@ -50,7 +50,7 @@ const EmployeeRegistration = () => {
     setOtpError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/send-otp', {
+      const response = await axios.post('https://edujobemailverification.onrender.com/api/send-otp', {
         email: values.userEmail
       });
 
@@ -77,7 +77,7 @@ const EmployeeRegistration = () => {
     setOtpError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/verify-otp', {
+      const response = await axios.post('https://edujobemailverification.onrender.com/api/verify-otp', {
         email: values.userEmail,
         otp
       });
