@@ -14,7 +14,7 @@ const EmployeProfile = () => {
       try {
         const token = localStorage.getItem('authToken');
         const userData = JSON.parse(localStorage.getItem('userData'));
-        
+
         if (!token || !userData) {
           navigate('/login');
           return;
@@ -50,6 +50,13 @@ const EmployeProfile = () => {
     return `${day}/${month}/${year}`;
   };
 
+  const formatDuration = (seconds) => {
+    if (!seconds) return '00:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   if (loading) {
     return <div className="text-center py-5">Loading...</div>;
   }
@@ -73,13 +80,13 @@ const EmployeProfile = () => {
                 <div className="jobplugin__profile-intro__left">
                   <div className="jobplugin__profile-intro__image border-primary">
                     <div className="jobplugin__profile-intro__avatar">
-                      <img 
-                        src={employeeData.userProfilePic || employeeData.profileImage || 'images/img-profile.jpg'} 
-                        alt={employeeData.userName} 
+                      <img
+                        src={employeeData.userProfilePic || employeeData.profileImage || 'images/img-profile.jpg'}
+                        alt={employeeData.userName}
                       />
                     </div>
                     <Link
-                      to={`/employee/edit/${employeeData._id}`} 
+                      to={`/employee/edit/${employeeData._id}`}
                       className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
                     >
                       <FaEdit />
@@ -106,7 +113,7 @@ const EmployeProfile = () => {
                   <Link to="/dashboard" className="jobplugin__button jobplugin__bg-white jobplugin__border-primary hover:jobplugin__bg-white small text-black">
                     <FaArrowLeft /> &nbsp; Back to Dashboard
                   </Link>
-                  <button 
+                  <button
                     onClick={handleLogout}
                     className="jobplugin__button border-dark shadow bg-primary hover:jobplugin__bg-secondary small"
                   >
@@ -114,7 +121,7 @@ const EmployeProfile = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div className="jobplugin__profile-container">
                 <aside className="jobplugin__profile-aside">
                   <div className="jobplugin__profile-box border border-dark shadow">
@@ -124,7 +131,7 @@ const EmployeProfile = () => {
                         <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                       </div>
                       <div className="jobplugin__profile-box__buttons">
-                        <Link 
+                        <Link
                           to={`/employee/edit/${employeeData._id}`}
                           className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
                         >
@@ -146,9 +153,9 @@ const EmployeProfile = () => {
                         </li>
                         {employeeData.linkedin && (
                           <li>
-                            <a 
-                              href={employeeData.linkedin} 
-                              target="_blank" 
+                            <a
+                              href={employeeData.linkedin}
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="hover:jobplugin__bg-primary hover:jobplugin__text-white"
                             >
@@ -158,9 +165,9 @@ const EmployeProfile = () => {
                         )}
                         {employeeData.github && (
                           <li>
-                            <a 
-                              href={employeeData.github} 
-                              target="_blank" 
+                            <a
+                              href={employeeData.github}
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="hover:jobplugin__bg-primary hover:jobplugin__text-white"
                             >
@@ -170,9 +177,9 @@ const EmployeProfile = () => {
                         )}
                         {employeeData.portfolio && (
                           <li>
-                            <a 
-                              href={employeeData.portfolio} 
-                              target="_blank" 
+                            <a
+                              href={employeeData.portfolio}
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="hover:jobplugin__bg-primary hover:jobplugin__text-white"
                             >
@@ -183,7 +190,82 @@ const EmployeProfile = () => {
                       </ul>
                     </div>
                   </div>
-                  
+
+                  <div className="jobplugin__profile-box border border-dark shadow">
+                    <div className="jobplugin__profile-box__head">
+                      <div className="jobplugin__profile-box__heading">
+                        <h2 className="h5">Media Profile</h2>
+                        <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
+                      </div>
+                      <div className="jobplugin__profile-box__buttons">
+                        <Link
+                          to={`/employee/edit/${employeeData._id}`}
+                          className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
+                        >
+                          <FaEdit />
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="jobplugin__profile-box__body">
+                      {/* Audio Profile Section */}
+                      <div className="mb-6">
+                        <h3 className="text-lg font-medium mb-2">Audio Introduction</h3>
+                        {employeeData.introductionAudio?.url ? (
+                          <div className="bg-gray-100 rounded-lg p-4">
+                            <div className="flex items-center mb-2">
+                              <div className="flex-grow">
+                                <h4 className="font-medium">{employeeData.introductionAudio.name}</h4>
+                                <p className="text-sm text-gray-600">
+                                  Duration: {formatDuration(employeeData.introductionAudio.duration)}
+                                </p>
+                              </div>
+                            </div>
+                            <audio controls className="w-full mt-2">
+                              <source src={employeeData.introductionAudio.url} type="audio/mpeg" />
+                              Your browser does not support the audio element.
+                            </audio>
+                          </div>
+                        ) : (
+                          <div className="bg-gray-100 rounded-lg p-4 text-center text-gray-500">
+                            No audio introduction available
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Video Profile Section - Fixed Size */}
+                      <div>
+                        <h3 className="text-lg font-medium mb-2">Video Profile</h3>
+                        {employeeData.profileVideo?.url ? (
+                          <div className="bg-gray-100 rounded-lg overflow-hidden">
+                            <div className="p-4">
+                              <div className="flex items-center mb-2">
+                                <div className="flex-grow">
+                                  <h4 className="font-medium">{employeeData.profileVideo.name}</h4>
+                                </div>
+                              </div>
+                            </div>
+                            {/* Fixed size video container with max-width constraints */}
+                            <div className="w-full max-w-full h-64 bg-black relative overflow-hidden">
+                              <video
+                                controls
+                                className="absolute top-0 left-0 w-full h-full object-contain"
+                                poster={employeeData.profileVideo.thumbnail}
+                                style={{ maxHeight: '100%' }}
+                              >
+                                <source src={employeeData.profileVideo.url} type="video/mp4" />
+                                Your browser does not support the video tag.
+                              </video>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="bg-gray-100 rounded-lg p-4 text-center text-gray-500">
+                            No video profile available
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="jobplugin__profile-box border border-dark shadow">
                     <div className="jobplugin__profile-box__head">
                       <div className="jobplugin__profile-box__heading">
@@ -191,7 +273,7 @@ const EmployeProfile = () => {
                         <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                       </div>
                       <div className="jobplugin__profile-box__buttons">
-                        <Link 
+                        <Link
                           to={`/employee/edit/${employeeData._id}`}
                           className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
                         >
@@ -211,7 +293,7 @@ const EmployeProfile = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="jobplugin__profile-box border border-dark shadow">
                     <div className="jobplugin__profile-box__head">
                       <div className="jobplugin__profile-box__heading">
@@ -219,7 +301,7 @@ const EmployeProfile = () => {
                         <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                       </div>
                       <div className="jobplugin__profile-box__buttons">
-                        <Link 
+                        <Link
                           to={`/employee/edit/${employeeData._id}`}
                           className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
                         >
@@ -240,66 +322,6 @@ const EmployeProfile = () => {
                     </div>
                   </div>
 
-                  <div className="jobplugin__profile-box border border-dark shadow">
-                    <div className="jobplugin__profile-box__head">
-                      <div className="jobplugin__profile-box__heading">
-                        <h2 className="h5">Skills</h2>
-                        <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
-                      </div>
-                      <div className="jobplugin__profile-box__buttons">
-                        <Link 
-                          to={`/employee/edit/${employeeData._id}`}
-                          className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
-                        >
-                          <FaEdit />
-                        </Link>
-                      </div>
-                    </div>
-                    <div className="jobplugin__profile-box__body">
-                      {employeeData.skills?.length > 0 ? (
-                        <div className="jobplugin__profile-box__skills">
-                          {employeeData.skills.map((skill, index) => (
-                            <span key={index} className="jobplugin__profile-box__skill-tag">
-                              {skill}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <p>No skills added yet</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="jobplugin__profile-box border border-dark shadow">
-                    <div className="jobplugin__profile-box__head">
-                      <div className="jobplugin__profile-box__heading">
-                        <h2 className="h5">Languages</h2>
-                        <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
-                      </div>
-                      <div className="jobplugin__profile-box__buttons">
-                        <Link 
-                          to={`/employee/edit/${employeeData._id}`}
-                          className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
-                        >
-                          <FaEdit />
-                        </Link>
-                      </div>
-                    </div>
-                    <div className="jobplugin__profile-box__body">
-                      {employeeData.languages?.length > 0 ? (
-                        <div className="jobplugin__profile-box__skills">
-                          {employeeData.languages.map((language, index) => (
-                            <span key={index} className="jobplugin__profile-box__skill-tag">
-                              {language}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <p>No languages added yet</p>
-                      )}
-                    </div>
-                  </div>
-
                   {employeeData.gradeLevels?.length > 0 && (
                     <div className="jobplugin__profile-box border border-dark shadow">
                       <div className="jobplugin__profile-box__head">
@@ -308,7 +330,7 @@ const EmployeProfile = () => {
                           <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                         </div>
                         <div className="jobplugin__profile-box__buttons">
-                          <Link 
+                          <Link
                             to={`/employee/edit/${employeeData._id}`}
                             className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
                           >
@@ -328,12 +350,12 @@ const EmployeProfile = () => {
                     </div>
                   )}
                 </aside>
-                
+
                 <div className="jobplugin__profile-content border border-dark shadow">
                   <div className="jobplugin__profile-block">
                     <div className="jobplugin__profile-block__header">
                       <h2 className="h4">Profile Summary</h2>
-                      <Link 
+                      <Link
                         to={`/employee/edit/${employeeData._id}`}
                         className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
                       >
@@ -352,7 +374,7 @@ const EmployeProfile = () => {
                   <div className="jobplugin__profile-block">
                     <div className="jobplugin__profile-block__header">
                       <h2 className="h4">Education</h2>
-                      <Link 
+                      <Link
                         to={`/employee/edit/${employeeData._id}`}
                         className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
                       >
@@ -383,7 +405,7 @@ const EmployeProfile = () => {
                   <div className="jobplugin__profile-block">
                     <div className="jobplugin__profile-block__header">
                       <h2 className="h4">Work Experience</h2>
-                      <Link 
+                      <Link
                         to={`/employee/edit/${employeeData._id}`}
                         className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
                       >
@@ -421,7 +443,7 @@ const EmployeProfile = () => {
                   <div className="jobplugin__profile-block">
                     <div className="jobplugin__profile-block__header">
                       <h2 className="h4">Documents</h2>
-                      <Link 
+                      <Link
                         to={`/employee/edit/${employeeData._id}`}
                         className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
                       >
@@ -433,13 +455,13 @@ const EmployeProfile = () => {
                         <div className="jobplugin__profile-block__textbox">
                           {employeeData.resume?.url ? (
                             <p>
-                              <a 
-                                href={employeeData.resume.url} 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
+                              <a
+                                href={employeeData.resume.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="flex items-center hover:text-primary"
                               >
-                                <FaFilePdf className="mr-2" /> 
+                                <FaFilePdf className="mr-2" />
                                 {employeeData.resume.name || 'Download Resume'}
                               </a>
                             </p>
@@ -448,13 +470,13 @@ const EmployeProfile = () => {
                           )}
                           {employeeData.coverLetterFile?.url ? (
                             <p className="mt-2">
-                              <a 
-                                href={employeeData.coverLetterFile.url} 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
+                              <a
+                                href={employeeData.coverLetterFile.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="flex items-center hover:text-primary"
                               >
-                                <FaFilePdf className="mr-2" /> 
+                                <FaFilePdf className="mr-2" />
                                 {employeeData.coverLetterFile.name || 'Download Cover Letter'}
                               </a>
                             </p>
@@ -463,6 +485,72 @@ const EmployeProfile = () => {
                           )}
                         </div>
                       </div>
+                    </div>
+                  </div>
+                  <div className="jobplugin__profile-block">
+                    <div className="jobplugin__profile-block__header">
+                      <h2 className="h4">Skills</h2>
+                      <Link
+                        to={`/employee/edit/${employeeData._id}`}
+                        className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
+                      >
+                        <FaEdit />
+                      </Link>
+                    </div>
+                    <div className="jobplugin__profile-block__body">
+                      {employeeData.skills?.length > 0 ? (
+                        <ul className="jobplugin__settings-card__tags">
+                          {employeeData.skills.map((skill, index) => (
+                            <li key={index}>
+                              <a
+                                className="hover:jobplugin__bg-primary hover:jobplugin__text-white hover:jobplugin__border-primary"
+                                href="#"
+                              >
+                                {skill}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="jobplugin__profile-block__textarea">
+                          <div className="jobplugin__profile-block__textbox">
+                            <p>No skills added yet</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="jobplugin__profile-block">
+                    <div className="jobplugin__profile-block__header">
+                      <h2 className="h4">Languages</h2>
+                      <Link
+                        to={`/employee/edit/${employeeData._id}`}
+                        className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
+                      >
+                        <FaEdit />
+                      </Link>
+                    </div>
+                    <div className="jobplugin__profile-block__body">
+                      {employeeData.languages?.length > 0 ? (
+                        <div className="jobplugin__profile-block__textarea">
+                          <div className="jobplugin__profile-block__textbox">
+                            <div className="jobplugin__profile-box__skills">
+                              {employeeData.languages.map((language, index) => (
+                                <span key={index} className="jobplugin__profile-box__skill-tag">
+                                  {language}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="jobplugin__profile-block__textarea">
+                          <div className="jobplugin__profile-block__textbox">
+                            <p>No languages added yet</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -8675,7 +8675,7 @@
 }
 .jobplugin__profile-intro {
   padding: 15px;
-  border-radius: 20px;
+  border-radius: 10px;
   background: #fff;
   border: 3px solid #ffa500;
   margin: 0 0 20px;
@@ -8707,7 +8707,7 @@
 }
 @media (min-width: 1440px) {
   .jobplugin__profile-intro {
-    padding: 30px 45px;
+    padding: 20px 45px;
   }
 }
 .jobplugin__profile-intro__left {
@@ -9010,12 +9010,12 @@
 @media (min-width: 1200px) {
   .jobplugin__profile-box {
     padding: 25px;
-    border-radius: 20px;
+    border-radius: 10px;
   }
 }
 @media (min-width: 1440px) {
   .jobplugin__profile-box {
-    padding: 30px;
+    padding: 20px;
   }
 }
 .jobplugin__profile-box:last-child {
@@ -9348,7 +9348,7 @@
 }
 @media (min-width: 1024px) {
   .jobplugin__profile-content {
-    border-radius: 20px;
+    border-radius: 10px;
   }
 }
 @media (min-width: 1200px) {
@@ -9382,7 +9382,7 @@
 }
 @media (min-width: 1440px) {
   .jobplugin__profile-block {
-    padding: 40px;
+    padding: 20px;
   }
 }
 .jobplugin__profile-block + .jobplugin__profile-block {
