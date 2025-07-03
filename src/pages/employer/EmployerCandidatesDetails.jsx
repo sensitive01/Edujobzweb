@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import user01 from '../../assets/employer/assets/img/users/user-01.jpg';
 import AddNoteModal from '../../components/common/AddNoteModal';
-
+import { FaLink, FaFilePdf } from 'react-icons/fa';
 const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
     const [activeTab, setActiveTab] = useState('profile');
     const [showModal, setShowModal] = useState(false);
@@ -213,6 +213,14 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
         }
     };
 
+
+// Add these constants/functions near your other utility functions
+const formatDuration = (seconds) => {
+  if (!seconds) return '00:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};
     const renderProfileTab = () => {
         if (!candidateDetails) return null;
 
@@ -296,6 +304,201 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                     </div>
                 </div>
 
+
+                <div className="card">
+                    <div className="card-header">
+                        <h5>Social Links</h5>
+                    </div>
+                    <div className="card-body pb-0">
+                        <div className="row align-items-center">
+                            {candidateDetails.linkedin && (
+                                <div className="col-md-4">
+                                    <div className="mb-3">
+                                        <p className="mb-1">LinkedIn</p>
+                                        <h6 className="fw-normal">
+                                            <a href={candidateDetails.linkedin} target="_blank" rel="noopener noreferrer">
+                                                <FaLink className="me-1" /> View Profile
+                                            </a>
+                                        </h6>
+                                    </div>
+                                </div>
+                            )}
+                            {candidateDetails.github && (
+                                <div className="col-md-4">
+                                    <div className="mb-3">
+                                        <p className="mb-1">GitHub</p>
+                                        <h6 className="fw-normal">
+                                            <a href={candidateDetails.github} target="_blank" rel="noopener noreferrer">
+                                                <FaLink className="me-1" /> View Profile
+                                            </a>
+                                        </h6>
+                                    </div>
+                                </div>
+                            )}
+                            {candidateDetails.portfolio && (
+                                <div className="col-md-4">
+                                    <div className="mb-3">
+                                        <p className="mb-1">Portfolio</p>
+                                        <h6 className="fw-normal">
+                                            <a href={candidateDetails.portfolio} target="_blank" rel="noopener noreferrer">
+                                                <FaLink className="me-1" /> View Website
+                                            </a>
+                                        </h6>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="card">
+                    <div className="card-header">
+                        <h5>Media Profile</h5>
+                    </div>
+                    <div className="card-body">
+                        {/* Audio Profile Section */}
+                        <div className="mb-4">
+                            <h6 className="fw-medium mb-3">Audio Introduction</h6>
+                            {candidateDetails.introductionAudio?.url ? (
+                                <div className="bg-light rounded-lg p-3">
+                                    <div className="d-flex align-items-center mb-2">
+                                        <div className="flex-grow">
+                                            <p className="mb-0">{candidateDetails.introductionAudio.name}</p>
+                                            <small className="text-muted">
+                                                Duration: {formatDuration(candidateDetails.introductionAudio.duration)}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <audio controls className="w-100 mt-2">
+                                        <source src={candidateDetails.introductionAudio.url} type="audio/mpeg" />
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                </div>
+                            ) : (
+                                <div className="bg-light rounded-lg p-3 text-center text-muted">
+                                    No audio introduction available
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Video Profile Section */}
+                        <div>
+                            <h6 className="fw-medium mb-3">Video Profile</h6>
+                            {candidateDetails.profileVideo?.url ? (
+                                <div className="bg-light rounded-lg overflow-hidden">
+                                    <div className="p-3">
+                                        <div className="d-flex align-items-center mb-2">
+                                            <div className="flex-grow">
+                                                <p className="mb-0">{candidateDetails.profileVideo.name}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="ratio ratio-16x9">
+                                        <video
+                                            controls
+                                            className="w-100"
+                                            poster={candidateDetails.profileVideo.thumbnail}
+                                        >
+                                            <source src={candidateDetails.profileVideo.url} type="video/mp4" />
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="bg-light rounded-lg p-3 text-center text-muted">
+                                    No video profile available
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="card">
+                    <div className="card-header">
+                        <h5>Documents</h5>
+                    </div>
+                    <div className="card-body pb-0">
+                        <div className="row align-items-center">
+                            <div className="col-md-6">
+                                <div className="d-flex align-items-center mb-3">
+                                    <span className="avatar avatar-lg bg-light-500 border text-dark me-2">
+                                        <i className="ti ti-file-description fs-24"></i>
+                                    </span>
+                                    <div>
+                                        <h6 className="fw-medium">
+                                            {candidateDetails.resume?.name || 'Resume.pdf'}
+                                        </h6>
+                                        <span>Download</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-md-6">
+                                <div className="mb-3 text-md-end">
+                                    {candidateDetails.resume?.url ? (
+                                        <a
+                                            href={candidateDetails.resume.url}
+                                            className="btn btn-dark d-inline-flex align-items-center"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <i className="ti ti-download me-1"></i>Download
+                                        </a>
+                                    ) : (
+                                        <button className="btn btn-secondary" disabled>
+                                            No Resume Available
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        {candidateDetails.coverLetterFile?.url && (
+                            <div className="row align-items-center mt-3">
+                                <div className="col-md-6">
+                                    <div className="d-flex align-items-center mb-3">
+                                        <span className="avatar avatar-lg bg-light-500 border text-dark me-2">
+                                            <i className="ti ti-file-description fs-24"></i>
+                                        </span>
+                                        <div>
+                                            <h6 className="fw-medium">
+                                                {candidateDetails.coverLetterFile?.name || 'CoverLetter.pdf'}
+                                            </h6>
+                                            <span>Download</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-md-6">
+                                    <div className="mb-3 text-md-end">
+                                        <a
+                                            href={candidateDetails.coverLetterFile.url}
+                                            className="btn btn-dark d-inline-flex align-items-center"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <i className="ti ti-download me-1"></i>Download
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {candidateDetails.gradeLevels?.length > 0 && (
+                    <div className="card">
+                        <div className="card-header">
+                            <h5>Grade Levels</h5>
+                        </div>
+                        <div className="card-body pb-0">
+                            <div className="d-flex flex-wrap gap-2">
+                                {candidateDetails.gradeLevels.map((grade, index) => (
+                                    <span key={index} className="badge bg-primary-transparent">
+                                        {grade}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
                 <div className="card">
                     <div className="card-header">
                         <h5>Address Information</h5>
@@ -470,33 +673,33 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
         const currentStageIndex = pipelineStages.indexOf(selectedStatus);
         return (
             <>
-                    <div className="card">
-                        <div className="card-body">
-                            <h5 className="fw-medium mb-2">Candidate Pipeline Stage</h5>
-                            <div className="pipeline-list candidates border-0 mb-0">
-                                <ul className="mb-0">
-                                    {pipelineStages.map((stage, index) => {
-                                        const isActive = index <= currentStageIndex;
-                                        return (
-                                            <li key={stage}>
-                                                <a
-                                                    href="javascript:void(0);"
-                                                    className={isActive ? 'bg-purple' : 'bg-gray-100'}
-                                                    onClick={() => setSelectedStatus(stage)}
-                                                    style={{
-                                                        whiteSpace: 'nowrap',
-                                                        fontSize: '12px'
-                                                    }}
-                                                >
-                                                    {stage}
-                                                </a>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
-                            </div>
+                <div className="card">
+                    <div className="card-body">
+                        <h5 className="fw-medium mb-2">Candidate Pipeline Stage</h5>
+                        <div className="pipeline-list candidates border-0 mb-0">
+                            <ul className="mb-0">
+                                {pipelineStages.map((stage, index) => {
+                                    const isActive = index <= currentStageIndex;
+                                    return (
+                                        <li key={stage}>
+                                            <a
+                                                href="javascript:void(0);"
+                                                className={isActive ? 'bg-purple' : 'bg-gray-100'}
+                                                onClick={() => setSelectedStatus(stage)}
+                                                style={{
+                                                    whiteSpace: 'nowrap',
+                                                    fontSize: '12px'
+                                                }}
+                                            >
+                                                {stage}
+                                            </a>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
                         </div>
                     </div>
+                </div>
 
                 <div className="card">
                     <div className="card-header">
@@ -760,7 +963,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                 style={{
                     visibility: show ? 'visible' : 'hidden',
                     zIndex: 1045,
-                    width: '800px' 
+                    width: '800px'
                 }}>
                 <div className="offcanvas-body p-0">
                     <div className="candidate-details-page">
@@ -876,7 +1079,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                                 </li>
                             </ul>
                         </div>
-                         <div className="tab-content px-3" id="myTabContent" style={{ paddingBottom: '20px' }}>
+                        <div className="tab-content px-3" id="myTabContent" style={{ paddingBottom: '20px' }}>
                             <div className={`tab-pane fade ${activeTab === 'profile' ? 'show active' : ''}`}>
                                 {activeTab === 'profile' && renderProfileTab()}
                             </div>

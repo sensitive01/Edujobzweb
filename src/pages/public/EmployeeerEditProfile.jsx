@@ -72,33 +72,23 @@ const EmployeeerEditProfile = () => {
   const audioRef = useRef(null);
   const videoRef = useRef(null);
 
-  const inputStyles = `
-    input[type="text"],
-    input[type="email"],
-    input[type="tel"],
-    input[type="url"],
-    input[type="number"],
-    input[type="date"],
-    .form-control {
-      height: 36px !important;
-      padding: 6px 12px !important;
-      line-height: 1.5 !important;
-      border-radius: 10px !important;
-    }
+  // Input styles converted to inline styles
+  const inputStyle = {
+    height: '36px',
+    padding: '6px 12px',
+    lineHeight: '1.5',
+    borderRadius: '10px'
+  };
 
-    textarea.form-control {
-      height: auto !important;
-      min-height: 100px;
-    }
+  const textareaStyle = {
+    height: 'auto',
+    minHeight: '100px'
+  };
 
-    select.form-control {
-      height: 36px !important;
-      padding: 6px 12px !important;
-    }
-
-   
-
-  `;
+  const selectStyle = {
+    height: '36px',
+    padding: '2px 12px'
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -109,8 +99,7 @@ const EmployeeerEditProfile = () => {
           return;
         }
         const data = await getEmployeeDetails(id, token);
-        
-        // Ensure all file objects have proper structure
+
         setEmployeeData({
           ...data,
           resume: data.resume ? { ...data.resume } : { url: '', name: '' },
@@ -272,7 +261,7 @@ const EmployeeerEditProfile = () => {
     setIsFormDirty(true);
   };
 
-  const handleProfilePicChange = (e) => {
+  const handleProfilePicChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (!file.type.match('image.*')) {
@@ -287,6 +276,44 @@ const EmployeeerEditProfile = () => {
       setProfilePicFile(file);
       setIsFormDirty(true);
 
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        setUploading(true);
+
+        const response = await axios.put(
+          `https://edujobzbackend.onrender.com/uploadfile/${id}?fileType=profileImage`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+
+        // Update the profile image in state with the new URL
+        setEmployeeData(prev => ({
+          ...prev,
+          profileImage: response.data.file.url,
+          userProfilePic: response.data.file.url
+        }));
+
+      } catch (err) {
+        console.error('Error uploading profile image:', err);
+        setError(err.response?.data?.message || 'Failed to upload image');
+      } finally {
+        setUploading(false);
+      }
+
+      // Preview the image while it's uploading
       const reader = new FileReader();
       reader.onload = (event) => {
         setEmployeeData(prev => ({
@@ -339,7 +366,7 @@ const EmployeeerEditProfile = () => {
   };
 
   const handleProfileVideoChange = async (e) => {
-    e.preventDefault(); // Add this line
+    e.preventDefault();
     e.stopPropagation();
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -397,11 +424,9 @@ const EmployeeerEditProfile = () => {
   };
 
   const handleIntroAudioChange = async (e) => {
-    // Prevent form submission completely
     e.preventDefault();
     e.stopPropagation();
 
-    // Stop any form submission that might be triggered
     if (e.target.form) {
       e.target.form.onsubmit = (event) => {
         event.preventDefault();
@@ -428,7 +453,6 @@ const EmployeeerEditProfile = () => {
         const formData = new FormData();
         formData.append('file', file);
 
-        // Create audio element to get duration
         const audio = new Audio();
         audio.src = URL.createObjectURL(file);
         audio.onloadedmetadata = () => {
@@ -439,7 +463,6 @@ const EmployeeerEditProfile = () => {
               duration: Math.round(audio.duration)
             }
           }));
-          // Clean up the blob URL
           URL.revokeObjectURL(audio.src);
         };
 
@@ -461,17 +484,17 @@ const EmployeeerEditProfile = () => {
             }
           }
         );
+        console.log("response--->", response)
 
         setEmployeeData(prev => ({
           ...prev,
           introductionAudio: {
             name: file.name,
-            url: response.data.file.url,
+            url: response.data.employee.introductionAudio.url,
             duration: prev.introductionAudio.duration || 0
           }
         }));
 
-        // Reset the file input to allow re-uploading the same file if needed
         e.target.value = '';
 
       } catch (err) {
@@ -530,7 +553,6 @@ const EmployeeerEditProfile = () => {
 
       setUploading(true);
 
-      // First upload files if changed
       if (profilePicFile) {
         const profileFormData = new FormData();
         profileFormData.append('file', profilePicFile);
@@ -582,7 +604,6 @@ const EmployeeerEditProfile = () => {
         );
       }
 
-      // Then update other details
       await updateEmployeeProfile(id, employeeData, token);
       navigate('/employee-profile', { state: { success: 'Profile updated successfully' } });
     } catch (err) {
@@ -604,7 +625,6 @@ const EmployeeerEditProfile = () => {
 
   return (
     <>
-      <style>{inputStyles}</style>
       <div className="subvisual-block subvisual-theme-1 bg-light d-flex pt-60 pt-md-90 text-white"></div>
       <main className="jobplugin__main bg-light">
         <div className="jobplugin__main-holder">
@@ -623,13 +643,18 @@ const EmployeeerEditProfile = () => {
                       htmlFor="profilePicUpload"
                       className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
                     >
-                      <FaUpload />
+                      {uploading ? (
+                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      ) : (
+                        <FaUpload />
+                      )}
                       <input
                         type="file"
                         id="profilePicUpload"
                         className="d-none"
                         onChange={handleProfilePicChange}
                         accept="image/*"
+                        disabled={uploading}
                       />
                     </label>
                   </div>
@@ -694,6 +719,7 @@ const EmployeeerEditProfile = () => {
                             value={employeeData.userName}
                             onChange={handleChange}
                             required
+                            style={inputStyle}
                           />
                         </div>
                         <div className="form-group mb-3">
@@ -705,6 +731,7 @@ const EmployeeerEditProfile = () => {
                             value={employeeData.userEmail}
                             onChange={handleChange}
                             required
+                            style={inputStyle}
                           />
                         </div>
                         <div className="form-group mb-3">
@@ -717,6 +744,7 @@ const EmployeeerEditProfile = () => {
                             onChange={handleChange}
                             pattern="[0-9]{10}"
                             title="Please enter a 10-digit mobile number"
+                            style={inputStyle}
                           />
                         </div>
                         <div className="form-group mb-3">
@@ -728,6 +756,7 @@ const EmployeeerEditProfile = () => {
                             value={employeeData.linkedin || ''}
                             onChange={handleChange}
                             placeholder="https://linkedin.com/in/yourprofile"
+                            style={inputStyle}
                           />
                         </div>
                         <div className="form-group mb-3">
@@ -739,6 +768,7 @@ const EmployeeerEditProfile = () => {
                             value={employeeData.github || ''}
                             onChange={handleChange}
                             placeholder="https://github.com/yourusername"
+                            style={inputStyle}
                           />
                         </div>
                         <div className="form-group">
@@ -750,6 +780,7 @@ const EmployeeerEditProfile = () => {
                             value={employeeData.portfolio || ''}
                             onChange={handleChange}
                             placeholder="https://yourportfolio.com"
+                            style={inputStyle}
                           />
                         </div>
                       </div>
@@ -771,6 +802,7 @@ const EmployeeerEditProfile = () => {
                               className="form-control"
                               onChange={handleResumeChange}
                               accept="application/pdf"
+                              style={inputStyle}
                             />
                           </div>
                           {employeeData.resume?.name && (
@@ -785,6 +817,7 @@ const EmployeeerEditProfile = () => {
                               className="form-control"
                               onChange={handleCoverLetterChange}
                               accept="application/pdf"
+                              style={inputStyle}
                             />
                           </div>
                           {employeeData.coverLetterFile?.name && (
@@ -792,7 +825,6 @@ const EmployeeerEditProfile = () => {
                           )}
                         </div>
 
-                        {/* Profile Video Upload */}
                         <div className="form-group mb-3">
                           <label>Profile Video (Max 10MB)</label>
                           <div className="input-group">
@@ -803,6 +835,7 @@ const EmployeeerEditProfile = () => {
                               accept="video/*"
                               disabled={uploading}
                               onClick={(e) => e.stopPropagation()}
+                              style={inputStyle}
                             />
                           </div>
                           {uploadProgress.video > 0 && uploadProgress.video < 100 && (
@@ -836,7 +869,7 @@ const EmployeeerEditProfile = () => {
                                   className="position-absolute top-50 start-50 translate-middle rounded-circle"
                                   style={{ width: '40px', height: '40px', border: 'none' }}
                                   onClick={(e) => {
-                                    e.preventDefault(); // Prevent form submission
+                                    e.preventDefault();
                                     toggleVideoPlayback();
                                   }}
                                   disabled={uploading || !employeeData.profileVideo?.url}
@@ -848,7 +881,6 @@ const EmployeeerEditProfile = () => {
                           )}
                         </div>
 
-                        {/* Introduction Audio Upload */}
                         <div className="form-group">
                           <label>Introduction Audio (Max 10MB)</label>
                           <div className="input-group">
@@ -859,6 +891,7 @@ const EmployeeerEditProfile = () => {
                               accept="audio/*"
                               disabled={uploading}
                               onClick={(e) => e.stopPropagation()}
+                              style={inputStyle}
                             />
                           </div>
                           {uploadProgress.audio > 0 && uploadProgress.audio < 100 && (
@@ -925,6 +958,7 @@ const EmployeeerEditProfile = () => {
                             value={employeeData.specialization || ''}
                             onChange={handleChange}
                             placeholder="Your area of expertise"
+                            style={inputStyle}
                           />
                         </div>
                         <div className="form-group mb-3">
@@ -935,6 +969,7 @@ const EmployeeerEditProfile = () => {
                               name="gender"
                               value={employeeData.gender || ''}
                               onChange={handleChange}
+                              style={selectStyle}
                             >
                               <option value="">Select Gender</option>
                               <option value="Male">Male</option>
@@ -952,6 +987,7 @@ const EmployeeerEditProfile = () => {
                             name="dob"
                             value={employeeData.dob || ''}
                             onChange={handleChange}
+                            style={inputStyle}
                           />
                         </div>
                         <div className="form-group mb-3">
@@ -962,6 +998,7 @@ const EmployeeerEditProfile = () => {
                               name="maritalStatus"
                               value={employeeData.maritalStatus || ''}
                               onChange={handleChange}
+                              style={selectStyle}
                             >
                               <option value="">Select Status</option>
                               <option value="Single">Single</option>
@@ -981,6 +1018,7 @@ const EmployeeerEditProfile = () => {
                             value={employeeData.totalExperience || ''}
                             onChange={handleChange}
                             placeholder="e.g., 5 years or Fresher"
+                            style={inputStyle}
                           />
                         </div>
                         <div className="form-group">
@@ -992,11 +1030,11 @@ const EmployeeerEditProfile = () => {
                             value={employeeData.expectedSalary || ''}
                             onChange={handleChange}
                             placeholder="Expected salary in INR"
+                            style={inputStyle}
                           />
                         </div>
                       </div>
                     </div>
-
                   </aside>
 
                   <div className="jobplugin__profile-content border border-dark shadow">
@@ -1013,6 +1051,7 @@ const EmployeeerEditProfile = () => {
                             value={employeeData.profilesummary || employeeData.coverLetter || ''}
                             onChange={handleChange}
                             placeholder="Write a brief summary about yourself and your career objectives"
+                            style={textareaStyle}
                           />
                         </div>
                       </div>
@@ -1031,12 +1070,13 @@ const EmployeeerEditProfile = () => {
                               value={newSkill}
                               onChange={(e) => setNewSkill(e.target.value)}
                               placeholder="Add a new skill"
+                              style={inputStyle}
                             />
                             <button
                               type="button"
                               className="btn btn-primary"
                               onClick={handleAddSkill}
-                              style={{ marginLeft: '-6px', fontSize: '15px' }}
+                              style={{ marginLeft: '-6px', fontSize: '15px', height: '0px' }}
                             >
                               Add
                             </button>
@@ -1072,12 +1112,13 @@ const EmployeeerEditProfile = () => {
                               value={newLanguage}
                               onChange={(e) => setNewLanguage(e.target.value)}
                               placeholder="Add a new language"
+                              style={inputStyle}
                             />
                             <button
                               type="button"
                               className="btn btn-primary"
                               onClick={handleAddLanguage}
-                              style={{ marginLeft: '-6px', fontSize: '15px' }}
+                              style={{ marginLeft: '-6px', fontSize: '15px', height: '0px' }}
                             >
                               Add
                             </button>
@@ -1113,12 +1154,13 @@ const EmployeeerEditProfile = () => {
                               value={newGradeLevel}
                               onChange={(e) => setNewGradeLevel(e.target.value)}
                               placeholder="Add a grade level (e.g., Class 1, Class 2)"
+                              style={inputStyle}
                             />
                             <button
                               type="button"
                               className="btn btn-primary"
                               onClick={handleAddGradeLevel}
-                              style={{ marginLeft: '-6px', fontSize: '15px' }}
+                              style={{ marginLeft: '-6px', fontSize: '15px', height: '0px' }}
                             >
                               Add
                             </button>
@@ -1147,7 +1189,6 @@ const EmployeeerEditProfile = () => {
                       </div>
                       <div className="jobplugin__profile-block__body">
                         <div className="row g-3">
-                          {/* Row 1 */}
                           <div className="col-md-6">
                             <div className="form-group">
                               <label>Address Line 1</label>
@@ -1158,6 +1199,7 @@ const EmployeeerEditProfile = () => {
                                 value={employeeData.addressLine1 || ''}
                                 onChange={handleChange}
                                 placeholder="Street address, P.O. box"
+                                style={inputStyle}
                               />
                             </div>
                           </div>
@@ -1171,11 +1213,11 @@ const EmployeeerEditProfile = () => {
                                 value={employeeData.addressLine2 || ''}
                                 onChange={handleChange}
                                 placeholder="Apartment, suite, unit"
+                                style={inputStyle}
                               />
                             </div>
                           </div>
 
-                          {/* Row 2 */}
                           <div className="col-md-6">
                             <div className="form-group">
                               <label>City</label>
@@ -1185,6 +1227,7 @@ const EmployeeerEditProfile = () => {
                                 name="city"
                                 value={employeeData.city || ''}
                                 onChange={handleChange}
+                                style={inputStyle}
                               />
                             </div>
                           </div>
@@ -1197,11 +1240,11 @@ const EmployeeerEditProfile = () => {
                                 name="state"
                                 value={employeeData.state || ''}
                                 onChange={handleChange}
+                                style={inputStyle}
                               />
                             </div>
                           </div>
 
-                          {/* Row 3 */}
                           <div className="col-md-6">
                             <div className="form-group">
                               <label>PIN Code</label>
@@ -1213,6 +1256,7 @@ const EmployeeerEditProfile = () => {
                                 onChange={handleChange}
                                 pattern="[0-9]{6}"
                                 title="6-digit PIN code"
+                                style={inputStyle}
                               />
                             </div>
                           </div>
@@ -1226,6 +1270,7 @@ const EmployeeerEditProfile = () => {
                                 value={employeeData.preferredLocation || ''}
                                 onChange={handleChange}
                                 placeholder="Preferred work location"
+                                style={inputStyle}
                               />
                             </div>
                           </div>
@@ -1248,6 +1293,7 @@ const EmployeeerEditProfile = () => {
                                 value={newEducation.degree}
                                 onChange={(e) => setNewEducation({ ...newEducation, degree: e.target.value })}
                                 placeholder="Degree/Certificate"
+                                style={inputStyle}
                               />
                             </div>
                             <div className="col-md-6">
@@ -1258,6 +1304,7 @@ const EmployeeerEditProfile = () => {
                                 value={newEducation.institution}
                                 onChange={(e) => setNewEducation({ ...newEducation, institution: e.target.value })}
                                 placeholder="School/University"
+                                style={inputStyle}
                               />
                             </div>
                             <div className="col-md-4">
@@ -1267,6 +1314,7 @@ const EmployeeerEditProfile = () => {
                                   className="form-control"
                                   value={newEducation.type}
                                   onChange={(e) => setNewEducation({ ...newEducation, type: e.target.value })}
+                                  style={selectStyle}
                                 >
                                   <option value="">Select Type</option>
                                   <option value="Full-time">Full-time</option>
@@ -1283,6 +1331,7 @@ const EmployeeerEditProfile = () => {
                                 className="form-control"
                                 value={newEducation.startDate}
                                 onChange={(e) => setNewEducation({ ...newEducation, startDate: e.target.value })}
+                                style={inputStyle}
                               />
                             </div>
                             <div className="col-md-4">
@@ -1292,6 +1341,7 @@ const EmployeeerEditProfile = () => {
                                 className="form-control"
                                 value={newEducation.endDate}
                                 onChange={(e) => setNewEducation({ ...newEducation, endDate: e.target.value })}
+                                style={inputStyle}
                               />
                             </div>
                             <div className="col-12 mt-4">
@@ -1344,6 +1394,7 @@ const EmployeeerEditProfile = () => {
                                 value={newExperience.position}
                                 onChange={(e) => setNewExperience({ ...newExperience, position: e.target.value })}
                                 placeholder="Job Title"
+                                style={inputStyle}
                               />
                             </div>
                             <div className="col-md-6">
@@ -1354,6 +1405,7 @@ const EmployeeerEditProfile = () => {
                                 value={newExperience.company}
                                 onChange={(e) => setNewExperience({ ...newExperience, company: e.target.value })}
                                 placeholder="Company Name"
+                                style={inputStyle}
                               />
                             </div>
                             <div className="col-md-4">
@@ -1363,6 +1415,7 @@ const EmployeeerEditProfile = () => {
                                   className="form-control"
                                   value={newExperience.employmentType}
                                   onChange={(e) => setNewExperience({ ...newExperience, employmentType: e.target.value })}
+                                  style={selectStyle}
                                 >
                                   <option value="">Select Type</option>
                                   <option value="Full-time">Full-time</option>
@@ -1381,6 +1434,7 @@ const EmployeeerEditProfile = () => {
                                 className="form-control"
                                 value={newExperience.startDate}
                                 onChange={(e) => setNewExperience({ ...newExperience, startDate: e.target.value })}
+                                style={inputStyle}
                               />
                             </div>
                             <div className="col-md-4">
@@ -1390,6 +1444,7 @@ const EmployeeerEditProfile = () => {
                                 className="form-control"
                                 value={newExperience.endDate}
                                 onChange={(e) => setNewExperience({ ...newExperience, endDate: e.target.value })}
+                                style={inputStyle}
                               />
                             </div>
                             <div className="col-12">
@@ -1400,6 +1455,7 @@ const EmployeeerEditProfile = () => {
                                 value={newExperience.description}
                                 onChange={(e) => setNewExperience({ ...newExperience, description: e.target.value })}
                                 placeholder="Describe your responsibilities and achievements"
+                                style={textareaStyle}
                               />
                             </div>
                             <div className="col-12 mt-4">
