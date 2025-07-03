@@ -1,51 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
+import { Users, GraduationCap, FileSearch, Briefcase } from 'lucide-react';
+import { FaSquarePen, FaSuitcase, FaUsers } from 'react-icons/fa6';
+import { IoDocumentText } from 'react-icons/io5';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [location, setLocation] = useState('India');
-  const [locations, setLocations] = useState(['India', 'Remote']);
+  const [location, setLocation] = useState('All Locations');
+  const [locations, setLocations] = useState(['All Locations', 'India', 'Remote']);
+  const [jobTitles, setJobTitles] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchLocations = async () => {
+    const fetchJobData = async () => {
       try {
         setLoading(true);
         const response = await fetch('https://edujobzbackend.onrender.com/employer/fetchjobs');
         if (!response.ok) {
-          throw new Error('Failed to fetch location options');
+          throw new Error('Failed to fetch job data');
         }
         const data = await response.json();
+        
+        // Extract unique locations
         const jobLocations = [...new Set(
           data.flatMap(job => 
             job.isRemote ? ['Remote'] : [job.location || 'India']
           )
         )].filter(Boolean);
+        
+        // Extract unique job titles and categories
+        const titles = [...new Set(data.map(job => job.jobTitle))].filter(Boolean);
+        const cats = [...new Set(data.map(job => job.category))].filter(Boolean);
+        
         setLocations(['All Locations', 'India', 'Remote', ...jobLocations]);
+        setJobTitles(titles);
+        setCategories(cats);
         setError(null);
       } catch (err) {
         setError(err.message);
-        setLocations(['India', 'Remote']); // Fallback options
+        setLocations(['All Locations', 'India', 'Remote']); // Fallback options
       } finally {
         setLoading(false);
       }
     };
 
-    fetchLocations();
+    fetchJobData();
   }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (!searchTerm.trim() && location === 'All Locations') {
-      // If no search term and "All Locations" selected, just go to job vacancies
-      navigate('/job-vacancies');
-    } else {
-      // Navigate with search parameters
-      navigate(`/job-vacancies?keyword=${encodeURIComponent(searchTerm)}&location=${encodeURIComponent(location)}`);
+    
+    // Prepare search parameters
+    const params = new URLSearchParams();
+    
+    if (searchTerm.trim()) {
+      params.append('keyword', searchTerm.trim());
     }
+    
+    if (location && location !== 'All Locations') {
+      params.append('location', location);
+    }
+    
+    // Navigate to job vacancies with search parameters
+    navigate(`/job-vacancies?${params.toString()}`);
   };
 
   return (
@@ -78,7 +99,16 @@ const HomePage = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         disabled={loading}
+                        list="jobTitles"
                       />
+                      <datalist id="jobTitles">
+                        {jobTitles.map((title, index) => (
+                          <option key={`title-${index}`} value={title} />
+                        ))}
+                        {categories.map((category, index) => (
+                          <option key={`cat-${index}`} value={category} />
+                        ))}
+                      </datalist>
                     </div>
                     <div className="form-group">
                       <i className="icon icon-map-pin text-secondary"></i>
@@ -147,16 +177,21 @@ const HomePage = () => {
                 { title: "Curriculum and Content Development", jobs: "16", iconBlue: "/images/img_23.png", iconWhite: "/images/img_23_white.png" },
                 { title: "EdTech and Digital Learning", jobs: "6", iconBlue: "/images/img_24.png", iconWhite: "/images/img_24_white.png" },
                 { title: "Special Education and Inclusive Learning", jobs: "2", iconBlue: "/images/special.png", iconWhite: "/images/special1.png" },
-                { title: "Non-Teaching Staffs", jobs: "14", icon: "users" },
-                { title: "Training and Development", jobs: "12", icon: "pencil-square" },
-                { title: "Research and Policy Development", jobs: "06", icon: "file-text" },
-                { title: "Other Specialized Roles", jobs: "06", icon: "suitcase" },
+                { title: "Non-Teaching Staffs", jobs: "14", lucideIcon: FaUsers },
+                { title: "Training and Development", jobs: "12", lucideIcon: FaSquarePen },
+                { title: "Research and Policy Development", jobs: "06", lucideIcon: IoDocumentText },
+                { title: "Other Specialized Roles", jobs: "06", lucideIcon: FaSuitcase },
               ].map((category, index) => (
                 <div key={index} className={`col-6 col-lg-4 col-xl-3 ${index % 2 === 0 ? 'pe-5' : 'ps-5'} mb-30 mb-md-50`} align="center">
                   <div className="info_box">
                     <div className="wrap_info">
                       <div className="icon_wrap">
-                        {category.icon ? (
+                        {category.lucideIcon ? (
+                          <>
+                            <category.lucideIcon className="blueImg" size={32} color="#3f71ef" />
+                            <category.lucideIcon className="whiteImg" size={32} color="#ffffff" />
+                          </>
+                        ) : category.icon ? (
                           <>
                             <i className={`blueImg fa fa-${category.icon} fa-2xl`}></i>
                             <i className={`whiteImg fa fa-${category.icon} fa-2xl`}></i>

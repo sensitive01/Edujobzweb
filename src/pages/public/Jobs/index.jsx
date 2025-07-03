@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Jobsbreadcrumb from './jobsbreadcrumb';
 import { Search } from 'lucide-react';
 import JobsFilter from './JobsFilter';
+import { useLocation } from 'react-router-dom';
 
 const JobsPage = () => {
+  const location = useLocation();
   const [allJobListings, setAllJobListings] = useState([]);
   const [filteredJobListings, setFilteredJobListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,6 +30,21 @@ const JobsPage = () => {
     categories: [],
     specializations: []
   });
+
+  useEffect(() => {
+    // Parse URL parameters
+    const searchParams = new URLSearchParams(location.search);
+    const keyword = searchParams.get('keyword') || '';
+    const locationParam = searchParams.get('location') || '';
+
+    // Initialize filters with URL parameters
+    setFilters(prev => ({
+      ...prev,
+      searchQuery: keyword,
+      location: locationParam
+    }));
+  }, [location.search]);
+
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -38,16 +55,14 @@ const JobsPage = () => {
         }
         const data = await response.json();
         setAllJobListings(data);
-        setFilteredJobListings(data);
         
+        // Set filter options
         const uniqueJobTypes = [...new Set(data.map(job => job.jobType))].filter(Boolean);
         const uniqueLocations = [...new Set(data.flatMap(job =>
           job.isRemote ? ['Remote'] : [job.location]
         ))].filter(Boolean);
         const uniqueExperienceLevels = [...new Set(data.map(job => job.experienceLevel))].filter(Boolean);
         const uniqueCategories = [...new Set(data.map(job => job.category))].filter(Boolean);
-        
-        // Specializations can be the same as categories or you can define them separately
         const uniqueSpecializations = [...new Set(data.map(job => job.category))].filter(Boolean);
 
         setFilterOptions({
@@ -62,7 +77,6 @@ const JobsPage = () => {
       } catch (err) {
         setError(err.message);
         setAllJobListings([]);
-        setFilteredJobListings([]);
       } finally {
         setLoading(false);
       }
@@ -71,8 +85,7 @@ const JobsPage = () => {
     fetchJobs();
   }, []);
 
-
-   useEffect(() => {
+  useEffect(() => {
     const applyFilters = () => {
       let filteredJobs = [...allJobListings];
       
@@ -94,16 +107,18 @@ const JobsPage = () => {
         });
       }
       
-      // Apply other filters
-      if (filters.jobType) {
-        filteredJobs = filteredJobs.filter(job => job.jobType === filters.jobType);
-      }
+      // Apply location filter
       if (filters.location) {
         if (filters.location === 'Remote') {
           filteredJobs = filteredJobs.filter(job => job.isRemote);
         } else {
           filteredJobs = filteredJobs.filter(job => job.location === filters.location);
         }
+      }
+
+      // Apply other filters
+      if (filters.jobType) {
+        filteredJobs = filteredJobs.filter(job => job.jobType === filters.jobType);
       }
       if (filters.experienceLevel) {
         filteredJobs = filteredJobs.filter(job => job.experienceLevel === filters.experienceLevel);
@@ -241,7 +256,11 @@ const JobsPage = () => {
   };
   return (
     <>
-      <Jobsbreadcrumb onFilterChange={handleBreadcrumbFilter} />
+       <Jobsbreadcrumb 
+        onFilterChange={handleBreadcrumbFilter} 
+        initialKeyword={filters.searchQuery}
+        initialLocation={filters.location}
+      />
       <main className="main">
         {showFilters && (
           <div className="filter-sidebar-overlay">

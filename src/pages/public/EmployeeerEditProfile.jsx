@@ -72,6 +72,33 @@ const EmployeeerEditProfile = () => {
   const audioRef = useRef(null);
   const videoRef = useRef(null);
 
+  const inputStyles = `
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="number"],
+    input[type="date"],
+    .form-control {
+      height: 36px !important;
+      padding: 6px 12px !important;
+      line-height: 1.5 !important;
+      border-radius: 10px !important;
+    }
+
+    textarea.form-control {
+      height: auto !important;
+      min-height: 100px;
+    }
+
+    select.form-control {
+      height: 36px !important;
+      padding: 6px 12px !important;
+    }
+
+   
+
+  `;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -82,7 +109,20 @@ const EmployeeerEditProfile = () => {
           return;
         }
         const data = await getEmployeeDetails(id, token);
-        setEmployeeData(data);
+        
+        // Ensure all file objects have proper structure
+        setEmployeeData({
+          ...data,
+          resume: data.resume ? { ...data.resume } : { url: '', name: '' },
+          coverLetterFile: data.coverLetterFile ? { ...data.coverLetterFile } : { url: '', name: '' },
+          profileVideo: data.profileVideo ? { ...data.profileVideo } : { url: '', name: '', thumbnail: '' },
+          introductionAudio: data.introductionAudio ? { ...data.introductionAudio } : { url: '', name: '', duration: 0 },
+          skills: data.skills || [],
+          languages: data.languages || [],
+          gradeLevels: data.gradeLevels || [],
+          education: data.education || [],
+          workExperience: data.workExperience || []
+        });
         setLoading(false);
       } catch (err) {
         setError(err.message || 'Failed to fetch employee data');
@@ -299,6 +339,8 @@ const EmployeeerEditProfile = () => {
   };
 
   const handleProfileVideoChange = async (e) => {
+    e.preventDefault(); // Add this line
+    e.stopPropagation();
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (!file.type.match('video.*')) {
@@ -355,6 +397,18 @@ const EmployeeerEditProfile = () => {
   };
 
   const handleIntroAudioChange = async (e) => {
+    // Prevent form submission completely
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Stop any form submission that might be triggered
+    if (e.target.form) {
+      e.target.form.onsubmit = (event) => {
+        event.preventDefault();
+        return false;
+      };
+    }
+
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (!file.type.match('audio.*')) {
@@ -374,45 +428,52 @@ const EmployeeerEditProfile = () => {
         const formData = new FormData();
         formData.append('file', file);
 
-        // Get duration of audio file
+        // Create audio element to get duration
         const audio = new Audio();
         audio.src = URL.createObjectURL(file);
-
-        audio.onloadedmetadata = async () => {
-          formData.append('duration', Math.round(audio.duration));
-
-          setUploading(true);
-          setUploadProgress(prev => ({ ...prev, audio: 0 }));
-
-          const response = await axios.put(
-            `https://edujobzbackend.onrender.com/uploadintroaudio/${id}`,
-            formData,
-            {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-                'Authorization': `Bearer ${token}`,
-                'fileType': 'audio'
-              },
-              onUploadProgress: (progressEvent) => {
-                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                setUploadProgress(prev => ({ ...prev, audio: percentCompleted }));
-              }
-            }
-          );
-
+        audio.onloadedmetadata = () => {
           setEmployeeData(prev => ({
             ...prev,
             introductionAudio: {
-              name: file.name,
-              url: response.data.file.url,
+              ...prev.introductionAudio,
               duration: Math.round(audio.duration)
             }
           }));
+          // Clean up the blob URL
+          URL.revokeObjectURL(audio.src);
         };
 
-        audio.onerror = () => {
-          setError('Could not determine audio duration');
-        };
+        setUploading(true);
+        setUploadProgress(prev => ({ ...prev, audio: 0 }));
+
+        const response = await axios.put(
+          `https://edujobzbackend.onrender.com/uploadintroaudio/${id}`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': `Bearer ${token}`,
+              'fileType': 'audio'
+            },
+            onUploadProgress: (progressEvent) => {
+              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setUploadProgress(prev => ({ ...prev, audio: percentCompleted }));
+            }
+          }
+        );
+
+        setEmployeeData(prev => ({
+          ...prev,
+          introductionAudio: {
+            name: file.name,
+            url: response.data.file.url,
+            duration: prev.introductionAudio.duration || 0
+          }
+        }));
+
+        // Reset the file input to allow re-uploading the same file if needed
+        e.target.value = '';
+
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to upload audio');
       } finally {
@@ -422,7 +483,12 @@ const EmployeeerEditProfile = () => {
     }
   };
 
-  const toggleAudioPlayback = () => {
+  const toggleAudioPlayback = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     if (audioRef.current) {
       if (audioRef.current.paused) {
         audioRef.current.play()
@@ -518,7 +584,7 @@ const EmployeeerEditProfile = () => {
 
       // Then update other details
       await updateEmployeeProfile(id, employeeData, token);
-      navigate('/dashboard', { state: { success: 'Profile updated successfully' } });
+      navigate('/employee-profile', { state: { success: 'Profile updated successfully' } });
     } catch (err) {
       setError(err.message || 'Failed to update profile');
     } finally {
@@ -538,6 +604,7 @@ const EmployeeerEditProfile = () => {
 
   return (
     <>
+      <style>{inputStyles}</style>
       <div className="subvisual-block subvisual-theme-1 bg-light d-flex pt-60 pt-md-90 text-white"></div>
       <main className="jobplugin__main bg-light">
         <div className="jobplugin__main-holder">
@@ -735,6 +802,7 @@ const EmployeeerEditProfile = () => {
                               onChange={handleProfileVideoChange}
                               accept="video/*"
                               disabled={uploading}
+                              onClick={(e) => e.stopPropagation()}
                             />
                           </div>
                           {uploadProgress.video > 0 && uploadProgress.video < 100 && (
@@ -760,7 +828,7 @@ const EmployeeerEditProfile = () => {
                                   src={employeeData.profileVideo.url}
                                   controls={false}
                                   className="w-100 rounded"
-                                  style={{ maxHeight: '200px', backgroundColor: '#f8f9fa' }}
+                                  style={{ maxHeight: '300px' }}
                                   onEnded={() => setIsVideoPlaying(false)}
                                   onPause={() => setIsVideoPlaying(false)}
                                 />
@@ -790,6 +858,7 @@ const EmployeeerEditProfile = () => {
                               onChange={handleIntroAudioChange}
                               accept="audio/*"
                               disabled={uploading}
+                              onClick={(e) => e.stopPropagation()}
                             />
                           </div>
                           {uploadProgress.audio > 0 && uploadProgress.audio < 100 && (
@@ -813,7 +882,8 @@ const EmployeeerEditProfile = () => {
                                 <button
                                   style={{ width: '40px', height: '40px', border: 'none' }}
                                   onClick={(e) => {
-                                    e.preventDefault(); // Prevent form submission
+                                    e.preventDefault();
+                                    e.stopPropagation();
                                     toggleAudioPlayback();
                                   }}
                                   disabled={uploading || !employeeData.introductionAudio?.url}
@@ -838,7 +908,6 @@ const EmployeeerEditProfile = () => {
                       </div>
                     </div>
 
-                    {/* ... (keep all your remaining existing sections like Personal Details, Address, etc.) */}
                     <div className="jobplugin__profile-box border border-dark shadow">
                       <div className="jobplugin__profile-box__head">
                         <div className="jobplugin__profile-box__heading">
@@ -928,81 +997,6 @@ const EmployeeerEditProfile = () => {
                       </div>
                     </div>
 
-                    {/* <div className="jobplugin__profile-box border border-dark shadow">
-                      <div className="jobplugin__profile-box__head">
-                        <div className="jobplugin__profile-box__heading">
-                          <h2 className="h5">Address</h2>
-                          <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
-                        </div>
-                      </div>
-                      <div className="jobplugin__profile-box__body">
-                        <div className="form-group mb-3">
-                          <label>Address Line 1</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="addressLine1"
-                            value={employeeData.addressLine1 || ''}
-                            onChange={handleChange}
-                            placeholder="Street address, P.O. box, company name"
-                          />
-                        </div>
-                        <div className="form-group mb-3">
-                          <label>Address Line 2</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="addressLine2"
-                            value={employeeData.addressLine2 || ''}
-                            onChange={handleChange}
-                            placeholder="Apartment, suite, unit, building, floor, etc."
-                          />
-                        </div>
-                        <div className="form-group mb-3">
-                          <label>City</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="city"
-                            value={employeeData.city || ''}
-                            onChange={handleChange}
-                          />
-                        </div>
-                        <div className="form-group mb-3">
-                          <label>State</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="state"
-                            value={employeeData.state || ''}
-                            onChange={handleChange}
-                          />
-                        </div>
-                        <div className="form-group mb-3">
-                          <label>PIN Code</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="pincode"
-                            value={employeeData.pincode || ''}
-                            onChange={handleChange}
-                            pattern="[0-9]{6}"
-                            title="6-digit PIN code"
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label>Preferred Location</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="preferredLocation"
-                            value={employeeData.preferredLocation || ''}
-                            onChange={handleChange}
-                            placeholder="Preferred work location if different"
-                          />
-                        </div>
-                      </div>
-                    </div> */}
                   </aside>
 
                   <div className="jobplugin__profile-content border border-dark shadow">
@@ -1042,6 +1036,7 @@ const EmployeeerEditProfile = () => {
                               type="button"
                               className="btn btn-primary"
                               onClick={handleAddSkill}
+                              style={{ marginLeft: '-6px', fontSize: '15px' }}
                             >
                               Add
                             </button>
@@ -1082,6 +1077,7 @@ const EmployeeerEditProfile = () => {
                               type="button"
                               className="btn btn-primary"
                               onClick={handleAddLanguage}
+                              style={{ marginLeft: '-6px', fontSize: '15px' }}
                             >
                               Add
                             </button>
@@ -1122,6 +1118,7 @@ const EmployeeerEditProfile = () => {
                               type="button"
                               className="btn btn-primary"
                               onClick={handleAddGradeLevel}
+                              style={{ marginLeft: '-6px', fontSize: '15px' }}
                             >
                               Add
                             </button>
@@ -1302,6 +1299,7 @@ const EmployeeerEditProfile = () => {
                                 type="button"
                                 className="btn btn-primary"
                                 onClick={handleAddEducation}
+                                style={{ marginLeft: '-6px', fontSize: '15px' }}
                               >
                                 Add Education
                               </button>
@@ -1409,6 +1407,7 @@ const EmployeeerEditProfile = () => {
                                 type="button"
                                 className="btn btn-primary"
                                 onClick={handleAddExperience}
+                                style={{ marginLeft: '-6px', fontSize: '15px' }}
                               >
                                 Add Experience
                               </button>

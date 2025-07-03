@@ -8,6 +8,7 @@ const EmployeProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
@@ -245,7 +246,7 @@ const EmployeProfile = () => {
                               </div>
                             </div>
                             {/* Fixed size video container with max-width constraints */}
-                            <div className="w-full max-w-full h-64 bg-black relative overflow-hidden ">
+                            <div className="w-full max-w-full h-64 relative overflow-hidden ">
                               <video
                                 controls
                                 className="absolute top-0 left-0 w-full h-full object-contain"
