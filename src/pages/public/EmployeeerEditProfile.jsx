@@ -928,7 +928,7 @@ const EmployeeerEditProfile = () => {
                       </div>
                     </div>
 
-                    <div className="jobplugin__profile-box border border-dark shadow">
+                    {/* <div className="jobplugin__profile-box border border-dark shadow">
                       <div className="jobplugin__profile-box__head">
                         <div className="jobplugin__profile-box__heading">
                           <h2 className="h5">Address</h2>
@@ -1002,7 +1002,7 @@ const EmployeeerEditProfile = () => {
                           />
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </aside>
 
                   <div className="jobplugin__profile-content border border-dark shadow">
@@ -1146,6 +1146,98 @@ const EmployeeerEditProfile = () => {
 
                     <div className="jobplugin__profile-block">
                       <div className="jobplugin__profile-block__header">
+                        <h2 className="h4">Address</h2>
+                      </div>
+                      <div className="jobplugin__profile-block__body">
+                        <div className="row g-3">
+                          {/* Row 1 */}
+                          <div className="col-md-6">
+                            <div className="form-group">
+                              <label>Address Line 1</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                name="addressLine1"
+                                value={employeeData.addressLine1 || ''}
+                                onChange={handleChange}
+                                placeholder="Street address, P.O. box"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-md-6">
+                            <div className="form-group">
+                              <label>Address Line 2</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                name="addressLine2"
+                                value={employeeData.addressLine2 || ''}
+                                onChange={handleChange}
+                                placeholder="Apartment, suite, unit"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Row 2 */}
+                          <div className="col-md-6">
+                            <div className="form-group">
+                              <label>City</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                name="city"
+                                value={employeeData.city || ''}
+                                onChange={handleChange}
+                              />
+                            </div>
+                          </div>
+                          <div className="col-md-6">
+                            <div className="form-group">
+                              <label>State</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                name="state"
+                                value={employeeData.state || ''}
+                                onChange={handleChange}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Row 3 */}
+                          <div className="col-md-6">
+                            <div className="form-group">
+                              <label>PIN Code</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                name="pincode"
+                                value={employeeData.pincode || ''}
+                                onChange={handleChange}
+                                pattern="[0-9]{6}"
+                                title="6-digit PIN code"
+                              />
+                            </div>
+                          </div>
+                          <div className="col-md-6">
+                            <div className="form-group">
+                              <label>Preferred Location</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                name="preferredLocation"
+                                value={employeeData.preferredLocation || ''}
+                                onChange={handleChange}
+                                placeholder="Preferred work location"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="jobplugin__profile-block">
+                      <div className="jobplugin__profile-block__header">
                         <h2 className="h4">Education</h2>
                       </div>
                       <div className="jobplugin__profile-block__body">
@@ -1205,7 +1297,7 @@ const EmployeeerEditProfile = () => {
                                 onChange={(e) => setNewEducation({ ...newEducation, endDate: e.target.value })}
                               />
                             </div>
-                            <div className="col-12">
+                            <div className="col-12 mt-4">
                               <button
                                 type="button"
                                 className="btn btn-primary"
@@ -1312,7 +1404,7 @@ const EmployeeerEditProfile = () => {
                                 placeholder="Describe your responsibilities and achievements"
                               />
                             </div>
-                            <div className="col-12">
+                            <div className="col-12 mt-4">
                               <button
                                 type="button"
                                 className="btn btn-primary"
