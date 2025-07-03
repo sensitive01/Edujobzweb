@@ -209,12 +209,12 @@ const EmployeProfile = () => {
                     <div className="jobplugin__profile-box__body">
                       {/* Audio Profile Section */}
                       <div className="mb-6">
-                        <h3 className="text-lg font-medium mb-2">Audio Introduction</h3>
+                        <h5 className="text-lg font-medium mb-2">Audio Introduction</h5>
                         {employeeData.introductionAudio?.url ? (
                           <div className="bg-gray-100 rounded-lg p-4">
                             <div className="flex items-center mb-2">
                               <div className="flex-grow">
-                                <h4 className="font-medium">{employeeData.introductionAudio.name}</h4>
+                                <h6 className="font-medium">{employeeData.introductionAudio.name}</h6>
                                 <p className="text-sm text-gray-600">
                                   Duration: {formatDuration(employeeData.introductionAudio.duration)}
                                 </p>
@@ -234,18 +234,18 @@ const EmployeProfile = () => {
 
                       {/* Video Profile Section - Fixed Size */}
                       <div>
-                        <h3 className="text-lg font-medium mb-2">Video Profile</h3>
+                        <h5 className="text-lg font-medium mb-2">Video Profile</h5>
                         {employeeData.profileVideo?.url ? (
                           <div className="bg-gray-100 rounded-lg overflow-hidden">
                             <div className="p-4">
                               <div className="flex items-center mb-2">
                                 <div className="flex-grow">
-                                  <h4 className="font-medium">{employeeData.profileVideo.name}</h4>
+                                  <h6 className="font-medium">{employeeData.profileVideo.name}</h6>
                                 </div>
                               </div>
                             </div>
                             {/* Fixed size video container with max-width constraints */}
-                            <div className="w-full max-w-full h-64 bg-black relative overflow-hidden">
+                            <div className="w-full max-w-full h-64 bg-black relative overflow-hidden ">
                               <video
                                 controls
                                 className="absolute top-0 left-0 w-full h-full object-contain"

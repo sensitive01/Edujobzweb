@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FaArrowLeft, FaSave, FaUpload, FaTrash, FaEdit, FaLink, FaFilePdf, FaChevronDown } from 'react-icons/fa';
-import { getEmployeeDetails, updateEmployeeProfile, uploadEmployeeFile } from '../../api/services/projectServices';
+import { FaArrowLeft, FaSave, FaUpload, FaTrash, FaEdit, FaLink, FaFilePdf, FaChevronDown, FaPlay, FaStop } from 'react-icons/fa';
+import { getEmployeeDetails, updateEmployeeProfile } from '../../api/services/projectServices';
+import axios from 'axios';
 
 const EmployeeerEditProfile = () => {
   const { id } = useParams();
@@ -34,15 +35,20 @@ const EmployeeerEditProfile = () => {
     education: [],
     workExperience: [],
     resume: { url: '', name: '' },
-    coverLetterFile: { url: '', name: '' }
+    coverLetterFile: { url: '', name: '' },
+    profileVideo: { url: '', name: '', thumbnail: '' },
+    introductionAudio: { url: '', name: '', duration: 0 }
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [profilePicFile, setProfilePicFile] = useState(null);
   const [resumeFile, setResumeFile] = useState(null);
   const [coverLetterFile, setCoverLetterFile] = useState(null);
+  const [profileVideoFile, setProfileVideoFile] = useState(null);
+  const [introAudioFile, setIntroAudioFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ video: 0, audio: 0 });
   const [newSkill, setNewSkill] = useState('');
   const [newLanguage, setNewLanguage] = useState('');
   const [newGradeLevel, setNewGradeLevel] = useState('');
@@ -61,6 +67,11 @@ const EmployeeerEditProfile = () => {
     endDate: '',
     description: ''
   });
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const audioRef = useRef(null);
+  const videoRef = useRef(null);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,6 +92,19 @@ const EmployeeerEditProfile = () => {
 
     fetchData();
   }, [id, navigate]);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.src = '';
+      }
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -219,10 +243,10 @@ const EmployeeerEditProfile = () => {
         setError('Image size should be less than 2MB');
         return;
       }
-      
+
       setProfilePicFile(file);
       setIsFormDirty(true);
-      
+
       const reader = new FileReader();
       reader.onload = (event) => {
         setEmployeeData(prev => ({
@@ -243,7 +267,7 @@ const EmployeeerEditProfile = () => {
       }
       setResumeFile(file);
       setIsFormDirty(true);
-      
+
       setEmployeeData(prev => ({
         ...prev,
         resume: {
@@ -263,7 +287,7 @@ const EmployeeerEditProfile = () => {
       }
       setCoverLetterFile(file);
       setIsFormDirty(true);
-      
+
       setEmployeeData(prev => ({
         ...prev,
         coverLetterFile: {
@@ -271,6 +295,156 @@ const EmployeeerEditProfile = () => {
           name: file.name
         }
       }));
+    }
+  };
+
+  const handleProfileVideoChange = async (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (!file.type.match('video.*')) {
+        setError('Please select a video file');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        setError('Video size should be less than 10MB');
+        return;
+      }
+
+      setProfileVideoFile(file);
+      setIsFormDirty(true);
+
+      try {
+        const token = localStorage.getItem('authToken');
+        const formData = new FormData();
+        formData.append('file', file);
+
+        setUploading(true);
+        setUploadProgress(prev => ({ ...prev, video: 0 }));
+
+        const response = await axios.put(
+          `https://edujobzbackend.onrender.com/uploadprofilevideo/${id}`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': `Bearer ${token}`,
+              'fileType': 'profileVideo'
+            },
+            onUploadProgress: (progressEvent) => {
+              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setUploadProgress(prev => ({ ...prev, video: percentCompleted }));
+            }
+          }
+        );
+
+        setEmployeeData(prev => ({
+          ...prev,
+          profileVideo: {
+            name: file.name,
+            url: response.data.file.url,
+            thumbnail: response.data.file.thumbnail || ''
+          }
+        }));
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to upload video');
+      } finally {
+        setUploading(false);
+        setUploadProgress(prev => ({ ...prev, video: 0 }));
+      }
+    }
+  };
+
+  const handleIntroAudioChange = async (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (!file.type.match('audio.*')) {
+        setError('Please select an audio file');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        setError('Audio size should be less than 10MB');
+        return;
+      }
+
+      setIntroAudioFile(file);
+      setIsFormDirty(true);
+
+      try {
+        const token = localStorage.getItem('authToken');
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Get duration of audio file
+        const audio = new Audio();
+        audio.src = URL.createObjectURL(file);
+
+        audio.onloadedmetadata = async () => {
+          formData.append('duration', Math.round(audio.duration));
+
+          setUploading(true);
+          setUploadProgress(prev => ({ ...prev, audio: 0 }));
+
+          const response = await axios.put(
+            `https://edujobzbackend.onrender.com/uploadintroaudio/${id}`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Bearer ${token}`,
+                'fileType': 'audio'
+              },
+              onUploadProgress: (progressEvent) => {
+                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                setUploadProgress(prev => ({ ...prev, audio: percentCompleted }));
+              }
+            }
+          );
+
+          setEmployeeData(prev => ({
+            ...prev,
+            introductionAudio: {
+              name: file.name,
+              url: response.data.file.url,
+              duration: Math.round(audio.duration)
+            }
+          }));
+        };
+
+        audio.onerror = () => {
+          setError('Could not determine audio duration');
+        };
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to upload audio');
+      } finally {
+        setUploading(false);
+        setUploadProgress(prev => ({ ...prev, audio: 0 }));
+      }
+    }
+  };
+
+  const toggleAudioPlayback = () => {
+    if (audioRef.current) {
+      if (audioRef.current.paused) {
+        audioRef.current.play()
+          .then(() => setIsAudioPlaying(true))
+          .catch(e => setError('Failed to play audio: ' + e.message));
+      } else {
+        audioRef.current.pause();
+        setIsAudioPlaying(false);
+      }
+    }
+  };
+
+  const toggleVideoPlayback = () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play()
+          .then(() => setIsVideoPlaying(true))
+          .catch(e => setError('Failed to play video: ' + e.message));
+      } else {
+        videoRef.current.pause();
+        setIsVideoPlaying(false);
+      }
     }
   };
 
@@ -294,22 +468,52 @@ const EmployeeerEditProfile = () => {
       if (profilePicFile) {
         const profileFormData = new FormData();
         profileFormData.append('file', profilePicFile);
-        const updatedProfile = await uploadEmployeeFile(id, profileFormData, 'profile', token);
-        setEmployeeData(prev => ({ ...prev, ...updatedProfile }));
+        profileFormData.append('fileType', 'profileImage');
+
+        await axios.put(
+          `https://edujobzbackend.onrender.com/uploadprofilevideo/${id}`,
+          profileFormData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
       }
 
       if (resumeFile) {
         const resumeFormData = new FormData();
         resumeFormData.append('file', resumeFile);
-        const updatedResume = await uploadEmployeeFile(id, resumeFormData, 'resume', token);
-        setEmployeeData(prev => ({ ...prev, resume: updatedResume.resume }));
+        resumeFormData.append('fileType', 'resume');
+
+        await axios.put(
+          `https://edujobzbackend.onrender.com/uploadprofilevideo/${id}`,
+          resumeFormData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
       }
 
       if (coverLetterFile) {
         const coverFormData = new FormData();
         coverFormData.append('file', coverLetterFile);
-        const updatedCover = await uploadEmployeeFile(id, coverFormData, 'coverLetter', token);
-        setEmployeeData(prev => ({ ...prev, coverLetterFile: updatedCover.coverLetterFile }));
+        coverFormData.append('fileType', 'coverLetter');
+
+        await axios.put(
+          `https://edujobzbackend.onrender.com/uploadprofilevideo/${id}`,
+          coverFormData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
       }
 
       // Then update other details
@@ -353,10 +557,10 @@ const EmployeeerEditProfile = () => {
                       className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
                     >
                       <FaUpload />
-                      <input 
-                        type="file" 
-                        id="profilePicUpload" 
-                        className="d-none" 
+                      <input
+                        type="file"
+                        id="profilePicUpload"
+                        className="d-none"
                         onChange={handleProfilePicChange}
                         accept="image/*"
                       />
@@ -377,7 +581,7 @@ const EmployeeerEditProfile = () => {
                   </div>
                 </div>
                 <div className="jobplugin__profile-intro__right">
-                  <button 
+                  <button
                     onClick={() => navigate(`/employee/details/${id}`)}
                     className="jobplugin__button jobplugin__bg-white jobplugin__border-primary hover:jobplugin__bg-white small text-black"
                   >
@@ -506,7 +710,7 @@ const EmployeeerEditProfile = () => {
                             <small className="text-muted">Current: {employeeData.resume.name}</small>
                           )}
                         </div>
-                        <div className="form-group">
+                        <div className="form-group mb-3">
                           <label>Cover Letter (PDF)</label>
                           <div className="input-group">
                             <input
@@ -520,9 +724,121 @@ const EmployeeerEditProfile = () => {
                             <small className="text-muted">Current: {employeeData.coverLetterFile.name}</small>
                           )}
                         </div>
+
+                        {/* Profile Video Upload */}
+                        <div className="form-group mb-3">
+                          <label>Profile Video (Max 10MB)</label>
+                          <div className="input-group">
+                            <input
+                              type="file"
+                              className="form-control"
+                              onChange={handleProfileVideoChange}
+                              accept="video/*"
+                              disabled={uploading}
+                            />
+                          </div>
+                          {uploadProgress.video > 0 && uploadProgress.video < 100 && (
+                            <div className="progress mt-2">
+                              <div
+                                className="progress-bar"
+                                role="progressbar"
+                                style={{ width: `${uploadProgress.video}%` }}
+                                aria-valuenow={uploadProgress.video}
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                              >
+                                {uploadProgress.video}%
+                              </div>
+                            </div>
+                          )}
+                          {employeeData.profileVideo?.url && (
+                            <div className="mt-2">
+                              <small className="text-muted">Current: {employeeData.profileVideo.name}</small>
+                              <div className="video-preview mt-2 position-relative">
+                                <video
+                                  ref={videoRef}
+                                  src={employeeData.profileVideo.url}
+                                  controls={false}
+                                  className="w-100 rounded"
+                                  style={{ maxHeight: '200px', backgroundColor: '#f8f9fa' }}
+                                  onEnded={() => setIsVideoPlaying(false)}
+                                  onPause={() => setIsVideoPlaying(false)}
+                                />
+                                <button
+                                  className="position-absolute top-50 start-50 translate-middle rounded-circle"
+                                  style={{ width: '40px', height: '40px', border: 'none' }}
+                                  onClick={(e) => {
+                                    e.preventDefault(); // Prevent form submission
+                                    toggleVideoPlayback();
+                                  }}
+                                  disabled={uploading || !employeeData.profileVideo?.url}
+                                >
+                                  {isVideoPlaying ? <FaStop /> : <FaPlay />}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Introduction Audio Upload */}
+                        <div className="form-group">
+                          <label>Introduction Audio (Max 10MB)</label>
+                          <div className="input-group">
+                            <input
+                              type="file"
+                              className="form-control"
+                              onChange={handleIntroAudioChange}
+                              accept="audio/*"
+                              disabled={uploading}
+                            />
+                          </div>
+                          {uploadProgress.audio > 0 && uploadProgress.audio < 100 && (
+                            <div className="progress mt-2">
+                              <div
+                                className="progress-bar"
+                                role="progressbar"
+                                style={{ width: `${uploadProgress.audio}%` }}
+                                aria-valuenow={uploadProgress.audio}
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                              >
+                                {uploadProgress.audio}%
+                              </div>
+                            </div>
+                          )}
+                          {employeeData.introductionAudio?.url && (
+                            <div className="mt-2">
+                              <small className="text-muted">Current: {employeeData.introductionAudio.name}</small>
+                              <div className="audio-preview mt-2 d-flex align-items-center bg-light p-2 rounded">
+                                <button
+                                  style={{ width: '40px', height: '40px', border: 'none' }}
+                                  onClick={(e) => {
+                                    e.preventDefault(); // Prevent form submission
+                                    toggleAudioPlayback();
+                                  }}
+                                  disabled={uploading || !employeeData.introductionAudio?.url}
+                                >
+                                  {isAudioPlaying ? <FaStop /> : <FaPlay />}
+                                </button>
+                                <span className="text-muted">
+                                  Duration: {Math.floor(employeeData.introductionAudio.duration / 60)}:
+                                  {(employeeData.introductionAudio.duration % 60).toString().padStart(2, '0')}
+                                </span>
+                                <audio
+                                  ref={audioRef}
+                                  src={employeeData.introductionAudio.url}
+                                  onEnded={() => setIsAudioPlaying(false)}
+                                  onPause={() => setIsAudioPlaying(false)}
+                                  hidden
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
+                    {/* ... (keep all your remaining existing sections like Personal Details, Address, etc.) */}
                     <div className="jobplugin__profile-box border border-dark shadow">
                       <div className="jobplugin__profile-box__head">
                         <div className="jobplugin__profile-box__heading">
@@ -841,7 +1157,7 @@ const EmployeeerEditProfile = () => {
                                 type="text"
                                 className="form-control"
                                 value={newEducation.degree}
-                                onChange={(e) => setNewEducation({...newEducation, degree: e.target.value})}
+                                onChange={(e) => setNewEducation({ ...newEducation, degree: e.target.value })}
                                 placeholder="Degree/Certificate"
                               />
                             </div>
@@ -851,7 +1167,7 @@ const EmployeeerEditProfile = () => {
                                 type="text"
                                 className="form-control"
                                 value={newEducation.institution}
-                                onChange={(e) => setNewEducation({...newEducation, institution: e.target.value})}
+                                onChange={(e) => setNewEducation({ ...newEducation, institution: e.target.value })}
                                 placeholder="School/University"
                               />
                             </div>
@@ -861,7 +1177,7 @@ const EmployeeerEditProfile = () => {
                                 <select
                                   className="form-control"
                                   value={newEducation.type}
-                                  onChange={(e) => setNewEducation({...newEducation, type: e.target.value})}
+                                  onChange={(e) => setNewEducation({ ...newEducation, type: e.target.value })}
                                 >
                                   <option value="">Select Type</option>
                                   <option value="Full-time">Full-time</option>
@@ -877,7 +1193,7 @@ const EmployeeerEditProfile = () => {
                                 type="date"
                                 className="form-control"
                                 value={newEducation.startDate}
-                                onChange={(e) => setNewEducation({...newEducation, startDate: e.target.value})}
+                                onChange={(e) => setNewEducation({ ...newEducation, startDate: e.target.value })}
                               />
                             </div>
                             <div className="col-md-4">
@@ -886,7 +1202,7 @@ const EmployeeerEditProfile = () => {
                                 type="date"
                                 className="form-control"
                                 value={newEducation.endDate}
-                                onChange={(e) => setNewEducation({...newEducation, endDate: e.target.value})}
+                                onChange={(e) => setNewEducation({ ...newEducation, endDate: e.target.value })}
                               />
                             </div>
                             <div className="col-12">
@@ -936,7 +1252,7 @@ const EmployeeerEditProfile = () => {
                                 type="text"
                                 className="form-control"
                                 value={newExperience.position}
-                                onChange={(e) => setNewExperience({...newExperience, position: e.target.value})}
+                                onChange={(e) => setNewExperience({ ...newExperience, position: e.target.value })}
                                 placeholder="Job Title"
                               />
                             </div>
@@ -946,7 +1262,7 @@ const EmployeeerEditProfile = () => {
                                 type="text"
                                 className="form-control"
                                 value={newExperience.company}
-                                onChange={(e) => setNewExperience({...newExperience, company: e.target.value})}
+                                onChange={(e) => setNewExperience({ ...newExperience, company: e.target.value })}
                                 placeholder="Company Name"
                               />
                             </div>
@@ -956,7 +1272,7 @@ const EmployeeerEditProfile = () => {
                                 <select
                                   className="form-control"
                                   value={newExperience.employmentType}
-                                  onChange={(e) => setNewExperience({...newExperience, employmentType: e.target.value})}
+                                  onChange={(e) => setNewExperience({ ...newExperience, employmentType: e.target.value })}
                                 >
                                   <option value="">Select Type</option>
                                   <option value="Full-time">Full-time</option>
@@ -974,7 +1290,7 @@ const EmployeeerEditProfile = () => {
                                 type="date"
                                 className="form-control"
                                 value={newExperience.startDate}
-                                onChange={(e) => setNewExperience({...newExperience, startDate: e.target.value})}
+                                onChange={(e) => setNewExperience({ ...newExperience, startDate: e.target.value })}
                               />
                             </div>
                             <div className="col-md-4">
@@ -983,7 +1299,7 @@ const EmployeeerEditProfile = () => {
                                 type="date"
                                 className="form-control"
                                 value={newExperience.endDate}
-                                onChange={(e) => setNewExperience({...newExperience, endDate: e.target.value})}
+                                onChange={(e) => setNewExperience({ ...newExperience, endDate: e.target.value })}
                               />
                             </div>
                             <div className="col-12">
@@ -992,7 +1308,7 @@ const EmployeeerEditProfile = () => {
                                 className="form-control"
                                 rows="3"
                                 value={newExperience.description}
-                                onChange={(e) => setNewExperience({...newExperience, description: e.target.value})}
+                                onChange={(e) => setNewExperience({ ...newExperience, description: e.target.value })}
                                 placeholder="Describe your responsibilities and achievements"
                               />
                             </div>
