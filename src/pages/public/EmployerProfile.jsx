@@ -8,7 +8,7 @@ const EmployeProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  
+
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
@@ -209,49 +209,48 @@ const EmployeProfile = () => {
                     </div>
                     <div className="jobplugin__profile-box__body">
                       {/* Audio Profile Section */}
-                      <div className="mb-6">
-                        <h5 className="text-lg font-medium mb-2">Audio Introduction</h5>
+                      <div className="mb-4">
+                        <h6 className="fw-medium mb-3">Audio Introduction</h6>
                         {employeeData.introductionAudio?.url ? (
-                          <div className="bg-gray-100 rounded-lg p-4">
-                            <div className="flex items-center mb-2">
+                          <div>
+                            <div className="d-flex align-items-center mb-2">
                               <div className="flex-grow">
-                                <h6 className="font-medium">{employeeData.introductionAudio.name}</h6>
-                                <p className="text-sm text-gray-600">
+                                <p className="mb-0">{employeeData.introductionAudio.name}</p>
+                                <small className="text-muted">
                                   Duration: {formatDuration(employeeData.introductionAudio.duration)}
-                                </p>
+                                </small>
                               </div>
                             </div>
-                            <audio controls className="w-full mt-2">
+                            <audio controls className="w-100 mt-2">
                               <source src={employeeData.introductionAudio.url} type="audio/mpeg" />
                               Your browser does not support the audio element.
                             </audio>
                           </div>
                         ) : (
-                          <div className="bg-gray-100 rounded-lg p-4 text-center text-gray-500">
+                          <div className="bg-light rounded-lg p-3 text-center text-muted">
                             No audio introduction available
                           </div>
                         )}
                       </div>
 
-                      {/* Video Profile Section - Fixed Size */}
+                      {/* Video Profile Section - Improved */}
                       <div>
-                        <h5 className="text-lg font-medium mb-2">Video Profile</h5>
+                        <h6 className="fw-medium mb-3">Video Profile</h6>
                         {employeeData.profileVideo?.url ? (
-                          <div className="bg-gray-100 rounded-lg overflow-hidden">
-                            <div className="p-4">
-                              <div className="flex items-center mb-2">
+                          // <div className="bg-light rounded-lg overflow-hidden">
+                          <div className="rounded-lg overflow-hidden">
+                            <div className="p-3">
+                              <div className="d-flex align-items-center mb-2">
                                 <div className="flex-grow">
-                                  <h6 className="font-medium">{employeeData.profileVideo.name}</h6>
+                                  <p className="mb-0">{employeeData.profileVideo.name}</p>
                                 </div>
                               </div>
                             </div>
-                            {/* Fixed size video container with max-width constraints */}
-                            <div className="w-full max-w-full h-64 relative overflow-hidden ">
+                            <div className="ratio ratio-16x9">
                               <video
                                 controls
-                                className="absolute top-0 left-0 w-full h-full object-contain"
-                                poster={employeeData.profileVideo.thumbnail}
-                                style={{ maxHeight: '100%' }}
+                                className="w-100"
+                                poster={employeeData.profileVideo.thumbnail || employeeData.profileImage || 'images/img-profile.jpg'}
                               >
                                 <source src={employeeData.profileVideo.url} type="video/mp4" />
                                 Your browser does not support the video tag.
@@ -259,8 +258,16 @@ const EmployeProfile = () => {
                             </div>
                           </div>
                         ) : (
-                          <div className="bg-gray-100 rounded-lg p-4 text-center text-gray-500">
-                            No video profile available
+                          <div className="bg-light rounded-lg p-3 text-center text-muted">
+                            <div className="ratio ratio-16x9">
+                              <img
+                                src={employeeData.profileImage || 'images/img-profile.jpg'}
+                                alt="Profile"
+                                className="img-fluid"
+                                style={{ objectFit: 'cover' }}
+                              />
+                            </div>
+                            <p className="mt-2 mb-0">No video profile available</p>
                           </div>
                         )}
                       </div>

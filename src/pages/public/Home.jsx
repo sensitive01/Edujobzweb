@@ -12,6 +12,7 @@ const HomePage = () => {
   const [locations, setLocations] = useState(['All Locations', 'India', 'Remote']);
   const [jobTitles, setJobTitles] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [categoryCounts, setCategoryCounts] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -24,21 +25,30 @@ const HomePage = () => {
           throw new Error('Failed to fetch job data');
         }
         const data = await response.json();
-        
+
         // Extract unique locations
         const jobLocations = [...new Set(
-          data.flatMap(job => 
+          data.flatMap(job =>
             job.isRemote ? ['Remote'] : [job.location || 'India']
           )
         )].filter(Boolean);
-        
+
         // Extract unique job titles and categories
         const titles = [...new Set(data.map(job => job.jobTitle))].filter(Boolean);
         const cats = [...new Set(data.map(job => job.category))].filter(Boolean);
-        
+
+        // Calculate job counts per category
+        const counts = {};
+        data.forEach(job => {
+          if (job.category) {
+            counts[job.category] = (counts[job.category] || 0) + 1;
+          }
+        });
+
         setLocations(['All Locations', 'India', 'Remote', ...jobLocations]);
         setJobTitles(titles);
         setCategories(cats);
+        setCategoryCounts(counts);
         setError(null);
       } catch (err) {
         setError(err.message);
@@ -53,21 +63,124 @@ const HomePage = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    
+
     // Prepare search parameters
     const params = new URLSearchParams();
-    
+
     if (searchTerm.trim()) {
       params.append('keyword', searchTerm.trim());
     }
-    
+
     if (location && location !== 'All Locations') {
       params.append('location', location);
     }
-    
+
     // Navigate to job vacancies with search parameters
     navigate(`/job-vacancies?${params.toString()}`);
   };
+
+  const handleCategoryClick = (category) => {
+    // Navigate to job vacancies with category filter
+    navigate(`/job-vacancies?category=${encodeURIComponent(category)}`);
+  };
+
+  // Default categories with icons
+  const defaultCategories = [
+    {
+      title: "Teaching Jobs",
+      iconBlue: "/images/img_20.png",
+      iconWhite: "/images/img_20_white.png",
+      lucideIcon: null,
+      apiCategoryMatch: "Education" // Maps to "Education" in API
+    },
+    {
+      title: "Leadership and Administration",
+      iconBlue: "/images/leadership.png",
+      iconWhite: "/images/leadership1.png",
+      lucideIcon: null,
+      apiCategoryMatch: "Leadership" // No direct match in API
+    },
+    {
+      title: "Support and Student Welfare",
+      iconBlue: "/images/img_25.png",
+      iconWhite: "/images/img_25_white.png",
+      lucideIcon: null,
+      apiCategoryMatch: "Support" // No direct match in API
+    },
+    {
+      title: "Extracurricular Activities",
+      iconBlue: "/images/img_22.png",
+      iconWhite: "/images/img_22_white.png",
+      lucideIcon: null,
+      apiCategoryMatch: "Extracurricular" // No direct match in API
+    },
+    {
+      title: "Curriculum and Content Development",
+      iconBlue: "/images/img_23.png",
+      iconWhite: "/images/img_23_white.png",
+      lucideIcon: null,
+      apiCategoryMatch: "Curriculum" // No direct match in API
+    },
+    {
+      title: "EdTech and Digital Learning",
+      iconBlue: "/images/img_24.png",
+      iconWhite: "/images/img_24_white.png",
+      lucideIcon: null,
+      apiCategoryMatch: "IT" // Maps to "IT" in API
+    },
+    {
+      title: "Special Education and Inclusive Learning",
+      iconBlue: "/images/special.png",
+      iconWhite: "/images/special1.png",
+      lucideIcon: null,
+      apiCategoryMatch: "Special Education" // No direct match in API
+    },
+    {
+      title: "Non-Teaching Staffs",
+      iconBlue: null,
+      iconWhite: null,
+      lucideIcon: FaUsers,
+      apiCategoryMatch: "Non-Teaching" // No direct match in API
+    },
+    {
+      title: "Training and Development",
+      iconBlue: null,
+      iconWhite: null,
+      lucideIcon: FaSquarePen,
+      apiCategoryMatch: "Training" // No direct match in API
+    },
+    {
+      title: "Research and Policy Development",
+      iconBlue: null,
+      iconWhite: null,
+      lucideIcon: IoDocumentText,
+      apiCategoryMatch: "Research" // No direct match in API
+    },
+    {
+      title: "Other Specialized Roles",
+      iconBlue: null,
+      iconWhite: null,
+      lucideIcon: FaSuitcase,
+      apiCategoryMatch: "Marketing" // Maps to "Marketing" in API
+    },
+  ];
+
+  // Merge default categories with actual categories from API
+  const allCategories = defaultCategories.map(cat => {
+    // Find matching category from API data
+    const apiCategory = Object.keys(categoryCounts).find(c =>
+      c.toLowerCase() === (cat.apiCategoryMatch || cat.title).toLowerCase()
+    );
+
+    const count = apiCategory ? categoryCounts[apiCategory] : 0;
+
+    return {
+      ...cat,
+      jobs: count > 0 ? count.toString() : "0",
+      apiCategory: apiCategory || cat.title // Use the actual API category if found
+    };
+  });
+
 
   return (
     <div>
@@ -81,21 +194,21 @@ const HomePage = () => {
                 <p align="center" className="text-dark">
                   Discover <b className="text-primary">294,881+</b> Open Positions Within Our Network of <b className="text-primary">11,921</b> Educational Partners.
                 </p>
-                
+
                 {/* Search Form */}
-                <form 
-                  className="form-search bg-light-sky" 
+                <form
+                  className="form-search bg-light-sky"
                   onSubmit={handleSearch}
                   style={{ margin: '0px auto', borderRadius: '35px' }}
                 >
                   <div className="fields-holder bg-white text-black d-flex flex-wrap flex-md-nowrap">
                     <div className="form-group">
                       <i className="icon icon-briefcase3 text-secondary"></i>
-                      <input 
-                        className="form-control bg-white" 
-                        type="search" 
-                        placeholder="Job title, Keyword..."  
-                        style={{width: '300px',outline: 'none',boxShadow: 'none',color: '#333'}}
+                      <input
+                        className="form-control bg-white"
+                        type="search"
+                        placeholder="Job title, Keyword..."
+                        style={{ width: '300px', outline: 'none', boxShadow: 'none', color: '#333' }}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         disabled={loading}
@@ -112,8 +225,8 @@ const HomePage = () => {
                     </div>
                     <div className="form-group">
                       <i className="icon icon-map-pin text-secondary"></i>
-                      <select 
-                        className="select2 bg-white" 
+                      <select
+                        className="select2 bg-white"
                         name="state"
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
@@ -128,9 +241,9 @@ const HomePage = () => {
                       </select>
                     </div>
                   </div>
-                  <button 
-                    style={{ minWidth: '165px' }} 
-                    className="btn btn-blue btn-sm" 
+                  <button
+                    style={{ minWidth: '165px' }}
+                    className="btn btn-blue btn-sm"
                     type="submit"
                     disabled={loading}
                   >
@@ -166,23 +279,17 @@ const HomePage = () => {
               <h2><span className="text-outlined text-secondary">Browse by Category</span></h2>
               <b>Discover Career Advancement Within Our Network of Educational Professionals</b>
             </div>
-            
+
             <div className="row">
               {/* Category Items */}
-              {[
-                { title: "Teaching Jobs", jobs: "2", iconBlue: "/images/img_20.png", iconWhite: "/images/img_20_white.png" },
-                { title: "Leadership and Administration", jobs: "14", iconBlue: "/images/leadership.png", iconWhite: "/images/leadership1.png" },
-                { title: "Support and Student Welfare", jobs: "12", iconBlue: "/images/img_25.png", iconWhite: "/images/img_25_white.png" },
-                { title: "Extracurricular Activities", jobs: "06", iconBlue: "/images/img_22.png", iconWhite: "/images/img_22_white.png" },
-                { title: "Curriculum and Content Development", jobs: "16", iconBlue: "/images/img_23.png", iconWhite: "/images/img_23_white.png" },
-                { title: "EdTech and Digital Learning", jobs: "6", iconBlue: "/images/img_24.png", iconWhite: "/images/img_24_white.png" },
-                { title: "Special Education and Inclusive Learning", jobs: "2", iconBlue: "/images/special.png", iconWhite: "/images/special1.png" },
-                { title: "Non-Teaching Staffs", jobs: "14", lucideIcon: FaUsers },
-                { title: "Training and Development", jobs: "12", lucideIcon: FaSquarePen },
-                { title: "Research and Policy Development", jobs: "06", lucideIcon: IoDocumentText },
-                { title: "Other Specialized Roles", jobs: "06", lucideIcon: FaSuitcase },
-              ].map((category, index) => (
-                <div key={index} className={`col-6 col-lg-4 col-xl-3 ${index % 2 === 0 ? 'pe-5' : 'ps-5'} mb-30 mb-md-50`} align="center">
+              {allCategories.map((category, index) => (
+                <div
+                  key={index}
+                  className={`col-6 col-lg-4 col-xl-3 ${index % 2 === 0 ? 'pe-5' : 'ps-5'} mb-30 mb-md-50`}
+                  align="center"
+                  onClick={() => handleCategoryClick(category.apiCategory)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <div className="info_box">
                     <div className="wrap_info">
                       <div className="icon_wrap">
@@ -191,17 +298,12 @@ const HomePage = () => {
                             <category.lucideIcon className="blueImg" size={32} color="#3f71ef" />
                             <category.lucideIcon className="whiteImg" size={32} color="#ffffff" />
                           </>
-                        ) : category.icon ? (
-                          <>
-                            <i className={`blueImg fa fa-${category.icon} fa-2xl`}></i>
-                            <i className={`whiteImg fa fa-${category.icon} fa-2xl`}></i>
-                          </>
-                        ) : (
+                        ) : category.iconBlue ? (
                           <>
                             <img className="blueImg" src={category.iconBlue} alt="img" width={category.title === "Leadership and Administration" ? "70%" : ""} />
                             <img className="whiteImg" src={category.iconWhite} alt="img" width={category.title === "Leadership and Administration" ? "70%" : ""} />
                           </>
-                        )}
+                        ) : null}
                       </div>
                       <div className="text_wrap">
                         <strong className="title">{category.title}</strong>
@@ -212,7 +314,7 @@ const HomePage = () => {
                   </div>
                 </div>
               ))}
-              
+
               {/* Images between categories */}
               <div className="col-12 col-xl-3 mb-15 browse_categories_image">
                 <img src="/images/image.jpg" width="100%" style={{ borderRadius: '20px' }} alt="Education" />
@@ -223,6 +325,7 @@ const HomePage = () => {
             </div>
           </div>
         </section>
+
 
         {/* Jobs Waiting Section */}
         <section className="section section-theme-9 jobs_waiting bg-light-sky">
@@ -241,7 +344,7 @@ const HomePage = () => {
                 <Link to="/job-vacancies" className="btn btn-white btn-sm">
                   <i className="icon icon-search"></i> &nbsp; Search Job
                 </Link>
-                <Link to="/employee-registration" className="btn btn-secondary btn-sm">
+                <Link to="/job-vacancies" className="btn btn-secondary btn-sm">
                   <span className="btn-text"><i className="icon icon-users text-primary" style={{ fontSize: '13px' }}></i> &nbsp; Apply Job</span>
                 </Link>
               </div>
@@ -258,23 +361,23 @@ const HomePage = () => {
             </div>
             <div className="row">
               {[
-                { 
-                  step: "01", 
-                  title: "Sign Up/Register", 
+                {
+                  step: "01",
+                  title: "Sign Up/Register",
                   description: "Begin by creating a profile on our website. This step allows you to highlight your qualifications, experience, and skills to attract potential employers.",
-                  icon: "/images/img_14.svg" 
+                  icon: "/images/img_14.svg"
                 },
-                { 
-                  step: "02", 
-                  title: "Career Search", 
+                {
+                  step: "02",
+                  title: "Career Search",
                   description: "After setting up your profile, you can easily browse for job opportunities. Use filters like location, job title, or specific keywords to find the right match.",
-                  icon: "/images/img_15.svg" 
+                  icon: "/images/img_15.svg"
                 },
-                { 
-                  step: "03", 
-                  title: "Apply Now", 
+                {
+                  step: "03",
+                  title: "Apply Now",
                   description: "Once you find a job that interests you, simply apply directly through our platform, streamlining the process and saving you valuable time.",
-                  icon: "/images/img_16.svg" 
+                  icon: "/images/img_16.svg"
                 },
               ].map((step, index) => (
                 <div key={index} className="col-12 mb-30 mb-lg-0 col-lg-4 d-flex">
@@ -301,23 +404,23 @@ const HomePage = () => {
             </header>
             <div className="row mb-lg-60 mb-xl-90">
               {[
-                { 
-                  step: "4.1", 
-                  title: "Interview Scheduling", 
+                {
+                  step: "4.1",
+                  title: "Interview Scheduling",
                   description: "Employers can schedule interviews with selected candidates through the platform.",
-                  icon: "/images/line-icon06.png" 
+                  icon: "/images/line-icon06.png"
                 },
-                { 
-                  step: "4.2", 
-                  title: "Online Interviews", 
+                {
+                  step: "4.2",
+                  title: "Online Interviews",
                   description: "Conduct interviews seamlessly with video integrated conferencing tools.",
-                  icon: "/images/line-icon07.png" 
+                  icon: "/images/line-icon07.png"
                 },
-                { 
-                  step: "4.3", 
-                  title: "Offer Letter", 
+                {
+                  step: "4.3",
+                  title: "Offer Letter",
                   description: "Employer can send job offers directly to candidates via the platform, simplifying the hiring process.",
-                  icon: "/images/line-icon08.png" 
+                  icon: "/images/line-icon08.png"
                 },
               ].map((step, index) => (
                 <div key={index} className="col-4 col-md-4 text-center mb-30 mb-md-0">
@@ -364,20 +467,20 @@ const HomePage = () => {
               </header>
               <div className="client_testimonials_slider">
                 {[
-                  { 
-                    name: "Linda Svennsky", 
+                  {
+                    name: "Linda Svennsky",
                     role: "Great quality i am 100% Satisfied",
                     img: "/images/img_33.jpg",
                     quote: "Vestibulum orci felis, ullamcorper non conum non, ultrices ac nunc. Mauris non ligscipit, vulputate mi accumsan, dapi bus fe lam sed sapien dc nunc non,uiem non porta."
                   },
-                  { 
-                    name: "Roman Lorance", 
+                  {
+                    name: "Roman Lorance",
                     role: "Great quality i am 100% Satisfied",
                     img: "/images/img_34.jpg",
                     quote: "Vestibulum orci felis, ullamcorper non conum non, ultrices ac nunc. Mauris non ligscipit, vulputate mi accumsan, dapi bus fe lam sed sapien dc nunc non,uiem non porta."
                   },
-                  { 
-                    name: "Petar Walim", 
+                  {
+                    name: "Petar Walim",
                     role: "Great quality i am 100% Satisfied",
                     img: "/images/img_35.png",
                     quote: "Vestibulum orci felis, ullamcorper non conum non, ultrices ac nunc. Mauris non ligscipit, vulputate mi accumsan, dapi bus fe lam sed sapien dc nunc non,uiem non porta."

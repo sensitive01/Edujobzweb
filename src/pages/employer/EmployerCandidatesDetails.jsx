@@ -214,13 +214,13 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
     };
 
 
-// Add these constants/functions near your other utility functions
-const formatDuration = (seconds) => {
-  if (!seconds) return '00:00';
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-};
+    // Add these constants/functions near your other utility functions
+    const formatDuration = (seconds) => {
+        if (!seconds) return '00:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
     const renderProfileTab = () => {
         if (!candidateDetails) return null;
 
@@ -356,59 +356,72 @@ const formatDuration = (seconds) => {
                         <h5>Media Profile</h5>
                     </div>
                     <div className="card-body">
-                        {/* Audio Profile Section */}
-                        <div className="mb-4">
-                            <h6 className="fw-medium mb-3">Audio Introduction</h6>
-                            {candidateDetails.introductionAudio?.url ? (
-                                <div className="bg-light rounded-lg p-3">
-                                    <div className="d-flex align-items-center mb-2">
-                                        <div className="flex-grow">
-                                            <p className="mb-0">{candidateDetails.introductionAudio.name}</p>
-                                            <small className="text-muted">
-                                                Duration: {formatDuration(candidateDetails.introductionAudio.duration)}
-                                            </small>
+                        <div className="row">
+                            {/* Audio Profile Section - Now in first column */}
+                            <div className="col-md-6">
+                                <div className="mb-4">
+                                    <h6 className="fw-medium mb-3">Audio Introduction</h6>
+                                    {candidateDetails.introductionAudio?.url ? (
+                                        <div className="bg-light rounded-lg p-3">
+                                            <div className="d-flex align-items-center mb-2">
+                                                <div className="flex-grow">
+                                                    <p className="mb-0">{candidateDetails.introductionAudio.name}</p>
+                                                    <small className="text-muted">
+                                                        Duration: {formatDuration(candidateDetails.introductionAudio.duration)}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <audio controls className="w-100 mt-2">
+                                                <source src={candidateDetails.introductionAudio.url} type="audio/mpeg" />
+                                                Your browser does not support the audio element.
+                                            </audio>
                                         </div>
-                                    </div>
-                                    <audio controls className="w-100 mt-2">
-                                        <source src={candidateDetails.introductionAudio.url} type="audio/mpeg" />
-                                        Your browser does not support the audio element.
-                                    </audio>
+                                    ) : (
+                                        <div className="bg-light rounded-lg p-3 text-center text-muted">
+                                            No audio introduction available
+                                        </div>
+                                    )}
                                 </div>
-                            ) : (
-                                <div className="bg-light rounded-lg p-3 text-center text-muted">
-                                    No audio introduction available
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Video Profile Section */}
-                        <div>
-                            <h6 className="fw-medium mb-3">Video Profile</h6>
-                            {candidateDetails.profileVideo?.url ? (
-                                <div className="bg-light rounded-lg overflow-hidden">
-                                    <div className="p-3">
-                                        <div className="d-flex align-items-center mb-2">
-                                            <div className="flex-grow">
-                                                <p className="mb-0">{candidateDetails.profileVideo.name}</p>
+                            </div>
+                            {/* Video Profile Section - Now in second column */}
+                            <div className="col-md-6">
+                                <div>
+                                    <h6 className="fw-medium mb-3">Video Profile</h6>
+                                    {candidateDetails.profileVideo?.url ? (
+                                        <div className="bg-light rounded-lg overflow-hidden">
+                                            <div className="p-3">
+                                                <div className="d-flex align-items-center mb-2">
+                                                    <div className="flex-grow">
+                                                        <p className="mb-0">{candidateDetails.profileVideo.name}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="ratio ratio-16x9">
+                                                <video
+                                                    controls
+                                                    className="w-100"
+                                                    poster={candidateDetails.profileVideo.thumbnail || candidateDetails.profileImage || user01}
+                                                >
+                                                    <source src={candidateDetails.profileVideo.url} type="video/mp4" />
+                                                    Your browser does not support the video tag.
+                                                </video>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className="ratio ratio-16x9">
-                                        <video
-                                            controls
-                                            className="w-100"
-                                            poster={candidateDetails.profileVideo.thumbnail}
-                                        >
-                                            <source src={candidateDetails.profileVideo.url} type="video/mp4" />
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    </div>
+                                    ) : (
+                                        <div className="bg-light rounded-lg p-3 text-center text-muted">
+                                            <div className="ratio ratio-16x9">
+                                                <img
+                                                    src={candidateDetails.profileImage || user01}
+                                                    alt="Profile"
+                                                    className="img-fluid"
+                                                    style={{ objectFit: 'cover' }}
+                                                />
+                                            </div>
+                                            <p className="mt-2 mb-0">No video profile available</p>
+                                        </div>
+                                    )}
                                 </div>
-                            ) : (
-                                <div className="bg-light rounded-lg p-3 text-center text-muted">
-                                    No video profile available
-                                </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                 </div>

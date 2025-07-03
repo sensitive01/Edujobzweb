@@ -39,6 +39,7 @@ const EmployeeerEditProfile = () => {
     profileVideo: { url: '', name: '', thumbnail: '' },
     introductionAudio: { url: '', name: '', duration: 0 }
   });
+  const [initialData, setInitialData] = useState(null); // To track initial form state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [profilePicFile, setProfilePicFile] = useState(null);
@@ -46,8 +47,13 @@ const EmployeeerEditProfile = () => {
   const [coverLetterFile, setCoverLetterFile] = useState(null);
   const [profileVideoFile, setProfileVideoFile] = useState(null);
   const [introAudioFile, setIntroAudioFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [isFormDirty, setIsFormDirty] = useState(false);
+  const [uploading, setUploading] = useState({
+    profileImage: false,
+    resume: false,
+    coverLetter: false,
+    video: false,
+    audio: false
+  });
   const [uploadProgress, setUploadProgress] = useState({ video: 0, audio: 0 });
   const [newSkill, setNewSkill] = useState('');
   const [newLanguage, setNewLanguage] = useState('');
@@ -71,6 +77,9 @@ const EmployeeerEditProfile = () => {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const audioRef = useRef(null);
   const videoRef = useRef(null);
+  
+  // Check if form data has changed compared to initial data
+  const isFormDirty = initialData && JSON.stringify(employeeData) !== JSON.stringify(initialData);
 
   // Input styles converted to inline styles
   const inputStyle = {
@@ -100,7 +109,7 @@ const EmployeeerEditProfile = () => {
         }
         const data = await getEmployeeDetails(id, token);
 
-        setEmployeeData({
+        const formattedData = {
           ...data,
           resume: data.resume ? { ...data.resume } : { url: '', name: '' },
           coverLetterFile: data.coverLetterFile ? { ...data.coverLetterFile } : { url: '', name: '' },
@@ -111,7 +120,10 @@ const EmployeeerEditProfile = () => {
           gradeLevels: data.gradeLevels || [],
           education: data.education || [],
           workExperience: data.workExperience || []
-        });
+        };
+
+        setEmployeeData(formattedData);
+        setInitialData(formattedData); // Set initial data for dirty checking
         setLoading(false);
       } catch (err) {
         setError(err.message || 'Failed to fetch employee data');
@@ -141,7 +153,6 @@ const EmployeeerEditProfile = () => {
       ...prev,
       [name]: value
     }));
-    setIsFormDirty(true);
   };
 
   const handleArrayChange = (e, arrayName) => {
@@ -150,7 +161,6 @@ const EmployeeerEditProfile = () => {
       ...prev,
       [arrayName]: value.split(',').map(item => item.trim())
     }));
-    setIsFormDirty(true);
   };
 
   const handleAddSkill = () => {
@@ -160,7 +170,6 @@ const EmployeeerEditProfile = () => {
         skills: [...prev.skills, newSkill]
       }));
       setNewSkill('');
-      setIsFormDirty(true);
     }
   };
 
@@ -169,7 +178,6 @@ const EmployeeerEditProfile = () => {
       ...prev,
       skills: prev.skills.filter(skill => skill !== skillToRemove)
     }));
-    setIsFormDirty(true);
   };
 
   const handleAddLanguage = () => {
@@ -179,7 +187,6 @@ const EmployeeerEditProfile = () => {
         languages: [...prev.languages, newLanguage]
       }));
       setNewLanguage('');
-      setIsFormDirty(true);
     }
   };
 
@@ -188,7 +195,6 @@ const EmployeeerEditProfile = () => {
       ...prev,
       languages: prev.languages.filter(language => language !== languageToRemove)
     }));
-    setIsFormDirty(true);
   };
 
   const handleAddGradeLevel = () => {
@@ -198,7 +204,6 @@ const EmployeeerEditProfile = () => {
         gradeLevels: [...prev.gradeLevels, newGradeLevel]
       }));
       setNewGradeLevel('');
-      setIsFormDirty(true);
     }
   };
 
@@ -207,7 +212,6 @@ const EmployeeerEditProfile = () => {
       ...prev,
       gradeLevels: prev.gradeLevels.filter(grade => grade !== gradeToRemove)
     }));
-    setIsFormDirty(true);
   };
 
   const handleAddEducation = () => {
@@ -223,7 +227,6 @@ const EmployeeerEditProfile = () => {
         startDate: '',
         endDate: ''
       });
-      setIsFormDirty(true);
     }
   };
 
@@ -232,7 +235,6 @@ const EmployeeerEditProfile = () => {
       ...prev,
       education: prev.education.filter((_, index) => index !== indexToRemove)
     }));
-    setIsFormDirty(true);
   };
 
   const handleAddExperience = () => {
@@ -249,7 +251,6 @@ const EmployeeerEditProfile = () => {
         endDate: '',
         description: ''
       });
-      setIsFormDirty(true);
     }
   };
 
@@ -258,7 +259,6 @@ const EmployeeerEditProfile = () => {
       ...prev,
       workExperience: prev.workExperience.filter((_, index) => index !== indexToRemove)
     }));
-    setIsFormDirty(true);
   };
 
   const handleProfilePicChange = async (e) => {
@@ -274,7 +274,6 @@ const EmployeeerEditProfile = () => {
       }
 
       setProfilePicFile(file);
-      setIsFormDirty(true);
 
       try {
         const token = localStorage.getItem('authToken');
@@ -286,7 +285,7 @@ const EmployeeerEditProfile = () => {
         const formData = new FormData();
         formData.append('file', file);
 
-        setUploading(true);
+        setUploading(prev => ({ ...prev, profileImage: true }));
 
         const response = await axios.put(
           `https://edujobzbackend.onrender.com/uploadfile/${id}?fileType=profileImage`,
@@ -310,7 +309,7 @@ const EmployeeerEditProfile = () => {
         console.error('Error uploading profile image:', err);
         setError(err.response?.data?.message || 'Failed to upload image');
       } finally {
-        setUploading(false);
+        setUploading(prev => ({ ...prev, profileImage: false }));
       }
 
       // Preview the image while it's uploading
@@ -325,7 +324,7 @@ const EmployeeerEditProfile = () => {
     }
   };
 
-  const handleResumeChange = (e) => {
+  const handleResumeChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (!file.type.match('application/pdf')) {
@@ -333,19 +332,42 @@ const EmployeeerEditProfile = () => {
         return;
       }
       setResumeFile(file);
-      setIsFormDirty(true);
 
-      setEmployeeData(prev => ({
-        ...prev,
-        resume: {
-          ...prev.resume,
-          name: file.name
-        }
-      }));
+      try {
+        const token = localStorage.getItem('authToken');
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('fileType', 'resume');
+
+        setUploading(prev => ({ ...prev, resume: true }));
+
+        await axios.put(
+          `https://edujobzbackend.onrender.com/uploadfile/${id}`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+
+        setEmployeeData(prev => ({
+          ...prev,
+          resume: {
+            name: file.name,
+            url: prev.resume.url // URL will be updated on refresh
+          }
+        }));
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to upload resume');
+      } finally {
+        setUploading(prev => ({ ...prev, resume: false }));
+      }
     }
   };
 
-  const handleCoverLetterChange = (e) => {
+  const handleCoverLetterChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (!file.type.match('application/pdf')) {
@@ -353,21 +375,42 @@ const EmployeeerEditProfile = () => {
         return;
       }
       setCoverLetterFile(file);
-      setIsFormDirty(true);
 
-      setEmployeeData(prev => ({
-        ...prev,
-        coverLetterFile: {
-          ...prev.coverLetterFile,
-          name: file.name
-        }
-      }));
+      try {
+        const token = localStorage.getItem('authToken');
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('fileType', 'coverLetter');
+
+        setUploading(prev => ({ ...prev, coverLetter: true }));
+
+        await axios.put(
+          `https://edujobzbackend.onrender.com/uploadfile/${id}`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+
+        setEmployeeData(prev => ({
+          ...prev,
+          coverLetterFile: {
+            name: file.name,
+            url: prev.coverLetterFile.url // URL will be updated on refresh
+          }
+        }));
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to upload cover letter');
+      } finally {
+        setUploading(prev => ({ ...prev, coverLetter: false }));
+      }
     }
   };
 
   const handleProfileVideoChange = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (!file.type.match('video.*')) {
@@ -380,14 +423,13 @@ const EmployeeerEditProfile = () => {
       }
 
       setProfileVideoFile(file);
-      setIsFormDirty(true);
 
       try {
         const token = localStorage.getItem('authToken');
         const formData = new FormData();
         formData.append('file', file);
 
-        setUploading(true);
+        setUploading(prev => ({ ...prev, video: true }));
         setUploadProgress(prev => ({ ...prev, video: 0 }));
 
         const response = await axios.put(
@@ -417,23 +459,13 @@ const EmployeeerEditProfile = () => {
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to upload video');
       } finally {
-        setUploading(false);
+        setUploading(prev => ({ ...prev, video: false }));
         setUploadProgress(prev => ({ ...prev, video: 0 }));
       }
     }
   };
 
   const handleIntroAudioChange = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (e.target.form) {
-      e.target.form.onsubmit = (event) => {
-        event.preventDefault();
-        return false;
-      };
-    }
-
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (!file.type.match('audio.*')) {
@@ -446,7 +478,6 @@ const EmployeeerEditProfile = () => {
       }
 
       setIntroAudioFile(file);
-      setIsFormDirty(true);
 
       try {
         const token = localStorage.getItem('authToken');
@@ -466,7 +497,7 @@ const EmployeeerEditProfile = () => {
           URL.revokeObjectURL(audio.src);
         };
 
-        setUploading(true);
+        setUploading(prev => ({ ...prev, audio: true }));
         setUploadProgress(prev => ({ ...prev, audio: 0 }));
 
         const response = await axios.put(
@@ -484,7 +515,6 @@ const EmployeeerEditProfile = () => {
             }
           }
         );
-        console.log("response--->", response)
 
         setEmployeeData(prev => ({
           ...prev,
@@ -496,11 +526,10 @@ const EmployeeerEditProfile = () => {
         }));
 
         e.target.value = '';
-
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to upload audio');
       } finally {
-        setUploading(false);
+        setUploading(prev => ({ ...prev, audio: false }));
         setUploadProgress(prev => ({ ...prev, audio: 0 }));
       }
     }
@@ -540,7 +569,7 @@ const EmployeeerEditProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isFormDirty) {
-      setError('No changes detected');
+      setError('No changes detected in form fields');
       return;
     }
 
@@ -551,65 +580,11 @@ const EmployeeerEditProfile = () => {
         return;
       }
 
-      setUploading(true);
-
-      if (profilePicFile) {
-        const profileFormData = new FormData();
-        profileFormData.append('file', profilePicFile);
-        profileFormData.append('fileType', 'profileImage');
-
-        await axios.put(
-          `https://edujobzbackend.onrender.com/uploadprofilevideo/${id}`,
-          profileFormData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
-      }
-
-      if (resumeFile) {
-        const resumeFormData = new FormData();
-        resumeFormData.append('file', resumeFile);
-        resumeFormData.append('fileType', 'resume');
-
-        await axios.put(
-          `https://edujobzbackend.onrender.com/uploadprofilevideo/${id}`,
-          resumeFormData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
-      }
-
-      if (coverLetterFile) {
-        const coverFormData = new FormData();
-        coverFormData.append('file', coverLetterFile);
-        coverFormData.append('fileType', 'coverLetter');
-
-        await axios.put(
-          `https://edujobzbackend.onrender.com/uploadprofilevideo/${id}`,
-          coverFormData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
-      }
-
+      // Only submit form data, not files (files are handled separately)
       await updateEmployeeProfile(id, employeeData, token);
       navigate('/employee-profile', { state: { success: 'Profile updated successfully' } });
     } catch (err) {
       setError(err.message || 'Failed to update profile');
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -643,7 +618,7 @@ const EmployeeerEditProfile = () => {
                       htmlFor="profilePicUpload"
                       className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
                     >
-                      {uploading ? (
+                      {uploading.profileImage ? (
                         <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                       ) : (
                         <FaUpload />
@@ -654,7 +629,7 @@ const EmployeeerEditProfile = () => {
                         className="d-none"
                         onChange={handleProfilePicChange}
                         accept="image/*"
-                        disabled={uploading}
+                        disabled={uploading.profileImage}
                       />
                     </label>
                   </div>
@@ -674,7 +649,7 @@ const EmployeeerEditProfile = () => {
                 </div>
                 <div className="jobplugin__profile-intro__right">
                   <button
-                    onClick={() => navigate(`/employee/details/${id}`)}
+                    onClick={() => navigate(`/employee-profile`)}
                     className="jobplugin__button jobplugin__bg-white jobplugin__border-primary hover:jobplugin__bg-white small text-black"
                   >
                     <FaArrowLeft /> &nbsp; Back to Profile
@@ -682,19 +657,10 @@ const EmployeeerEditProfile = () => {
                   <button
                     type="submit"
                     form="profileForm"
-                    disabled={uploading || !isFormDirty}
+                    disabled={!isFormDirty}
                     className="jobplugin__button border-dark shadow bg-primary hover:jobplugin__bg-secondary small"
                   >
-                    {uploading ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <FaSave /> &nbsp; Save Changes
-                      </>
-                    )}
+                    <FaSave /> &nbsp; Save Changes
                   </button>
                 </div>
               </div>
@@ -802,8 +768,14 @@ const EmployeeerEditProfile = () => {
                               className="form-control"
                               onChange={handleResumeChange}
                               accept="application/pdf"
+                              disabled={uploading.resume}
                               style={inputStyle}
                             />
+                            {uploading.resume && (
+                              <span className="input-group-text">
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                              </span>
+                            )}
                           </div>
                           {employeeData.resume?.name && (
                             <small className="text-muted">Current: {employeeData.resume.name}</small>
@@ -817,8 +789,14 @@ const EmployeeerEditProfile = () => {
                               className="form-control"
                               onChange={handleCoverLetterChange}
                               accept="application/pdf"
+                              disabled={uploading.coverLetter}
                               style={inputStyle}
                             />
+                            {uploading.coverLetter && (
+                              <span className="input-group-text">
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                              </span>
+                            )}
                           </div>
                           {employeeData.coverLetterFile?.name && (
                             <small className="text-muted">Current: {employeeData.coverLetterFile.name}</small>
@@ -833,10 +811,14 @@ const EmployeeerEditProfile = () => {
                               className="form-control"
                               onChange={handleProfileVideoChange}
                               accept="video/*"
-                              disabled={uploading}
-                              onClick={(e) => e.stopPropagation()}
+                              disabled={uploading.video}
                               style={inputStyle}
                             />
+                            {uploading.video && (
+                              <span className="input-group-text">
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                              </span>
+                            )}
                           </div>
                           {uploadProgress.video > 0 && uploadProgress.video < 100 && (
                             <div className="progress mt-2">
@@ -872,7 +854,7 @@ const EmployeeerEditProfile = () => {
                                     e.preventDefault();
                                     toggleVideoPlayback();
                                   }}
-                                  disabled={uploading || !employeeData.profileVideo?.url}
+                                  disabled={!employeeData.profileVideo?.url}
                                 >
                                   {isVideoPlaying ? <FaStop /> : <FaPlay />}
                                 </button>
@@ -889,10 +871,14 @@ const EmployeeerEditProfile = () => {
                               className="form-control"
                               onChange={handleIntroAudioChange}
                               accept="audio/*"
-                              disabled={uploading}
-                              onClick={(e) => e.stopPropagation()}
+                              disabled={uploading.audio}
                               style={inputStyle}
                             />
+                            {uploading.audio && (
+                              <span className="input-group-text">
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                              </span>
+                            )}
                           </div>
                           {uploadProgress.audio > 0 && uploadProgress.audio < 100 && (
                             <div className="progress mt-2">
@@ -919,7 +905,7 @@ const EmployeeerEditProfile = () => {
                                     e.stopPropagation();
                                     toggleAudioPlayback();
                                   }}
-                                  disabled={uploading || !employeeData.introductionAudio?.url}
+                                  disabled={!employeeData.introductionAudio?.url}
                                 >
                                   {isAudioPlaying ? <FaStop /> : <FaPlay />}
                                 </button>
