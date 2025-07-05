@@ -77,7 +77,7 @@ const EmployeeerEditProfile = () => {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const audioRef = useRef(null);
   const videoRef = useRef(null);
-  
+
   // Check if form data has changed compared to initial data
   const isFormDirty = initialData && JSON.stringify(employeeData) !== JSON.stringify(initialData);
 
@@ -111,6 +111,7 @@ const EmployeeerEditProfile = () => {
 
         const formattedData = {
           ...data,
+          profileImage: data.userProfilePic || '',
           resume: data.resume ? { ...data.resume } : { url: '', name: '' },
           coverLetterFile: data.coverLetterFile ? { ...data.coverLetterFile } : { url: '', name: '' },
           profileVideo: data.profileVideo ? { ...data.profileVideo } : { url: '', name: '', thumbnail: '' },
@@ -123,7 +124,7 @@ const EmployeeerEditProfile = () => {
         };
 
         setEmployeeData(formattedData);
-        setInitialData(formattedData); // Set initial data for dirty checking
+        setInitialData(formattedData);
         setLoading(false);
       } catch (err) {
         setError(err.message || 'Failed to fetch employee data');
@@ -133,7 +134,6 @@ const EmployeeerEditProfile = () => {
 
     fetchData();
   }, [id, navigate]);
-
   useEffect(() => {
     return () => {
       if (audioRef.current) {
@@ -261,6 +261,7 @@ const EmployeeerEditProfile = () => {
     }));
   };
 
+  // Profile Image Upload Handler
   const handleProfilePicChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -298,7 +299,7 @@ const EmployeeerEditProfile = () => {
           }
         );
 
-        // Update the profile image in state with the new URL
+        // Update the profile image in state
         setEmployeeData(prev => ({
           ...prev,
           profileImage: response.data.file.url,
@@ -312,7 +313,7 @@ const EmployeeerEditProfile = () => {
         setUploading(prev => ({ ...prev, profileImage: false }));
       }
 
-      // Preview the image while it's uploading
+      // Preview the image
       const reader = new FileReader();
       reader.onload = (event) => {
         setEmployeeData(prev => ({
@@ -324,6 +325,7 @@ const EmployeeerEditProfile = () => {
     }
   };
 
+  // Resume Upload Handler
   const handleResumeChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -337,12 +339,11 @@ const EmployeeerEditProfile = () => {
         const token = localStorage.getItem('authToken');
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('fileType', 'resume');
 
         setUploading(prev => ({ ...prev, resume: true }));
 
-        await axios.put(
-          `https://edujobzbackend.onrender.com/uploadfile/${id}`,
+        const response = await axios.put(
+          `https://edujobzbackend.onrender.com/uploadfile/${id}?fileType=resume`,
           formData,
           {
             headers: {
@@ -355,8 +356,8 @@ const EmployeeerEditProfile = () => {
         setEmployeeData(prev => ({
           ...prev,
           resume: {
-            name: file.name,
-            url: prev.resume.url // URL will be updated on refresh
+            name: response.data.file.name,
+            url: response.data.file.url
           }
         }));
       } catch (err) {
@@ -367,6 +368,7 @@ const EmployeeerEditProfile = () => {
     }
   };
 
+  // Cover Letter Upload Handler
   const handleCoverLetterChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -380,12 +382,11 @@ const EmployeeerEditProfile = () => {
         const token = localStorage.getItem('authToken');
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('fileType', 'coverLetter');
 
         setUploading(prev => ({ ...prev, coverLetter: true }));
 
-        await axios.put(
-          `https://edujobzbackend.onrender.com/uploadfile/${id}`,
+        const response = await axios.put(
+          `https://edujobzbackend.onrender.com/uploadfile/${id}?fileType=coverLetter`,
           formData,
           {
             headers: {
@@ -398,8 +399,8 @@ const EmployeeerEditProfile = () => {
         setEmployeeData(prev => ({
           ...prev,
           coverLetterFile: {
-            name: file.name,
-            url: prev.coverLetterFile.url // URL will be updated on refresh
+            name: response.data.file.name,
+            url: response.data.file.url
           }
         }));
       } catch (err) {
@@ -409,7 +410,6 @@ const EmployeeerEditProfile = () => {
       }
     }
   };
-
   const handleProfileVideoChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
