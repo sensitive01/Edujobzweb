@@ -65,6 +65,30 @@ import EmployeerMessage from './pages/employer/EmployeerMessage';
 import EmployeerPlans from './pages/employer/Plans/EmployeerPlans';
 import EmployeerPlansGrid from './pages/employer/Plans/EmployeerPlansGrid';
 import FAQs from './pages/employer/Faqs/FAQs';
+import AdminLoginPage from './pages/admin/login/login';
+import AdminRegister from './pages/admin/register/register';
+import EmployerAdminLoginPage from './pages/employeradmin/Login/login';
+import EmployerAdminRegister from './pages/employeradmin/Register/register';
+import EmployerAdminForgotPassword from './pages/employeradmin/forgotpassword/EmployerAdminForgotPassword';
+import EmployerAdminChangePassword from './pages/employeradmin/forgotpassword/EmployerAdminChangePassword';
+import EmployerAdminVerifyOTP from './pages/employeradmin/forgotpassword/EmployerAdminVerifyOTP';
+import EmployeerAdminAllAppliedCandidates from './pages/employeradmin/candidate/EmployeerAdminAllAppliedCandidates';
+import EmployeerAdminAppliedCandidates from './pages/employeradmin/candidate/EmployeerAdminAppliedCandidates';
+import EmployeerAdminJobIdShortlistedCandidates from './pages/employeradmin/candidate/EmployeerAdminJobIdShortlistedCandidates';
+import EmployeerAdminSavedCandidates from './pages/employeradmin/candidate/EmployeerAdminSavedCandidates';
+import EmployeerAdminShortlisedCandidates from './pages/employeradmin/candidate/EmployeerAdminShortlisedCandidates';
+import EmployerAdminCandidates from './pages/employeradmin/candidate/EmployerAdminCandidates';
+import EmployeerAdminCandidatesSearch from './pages/employeradmin/candidate/EmployeerAdminCandidatesSearch';
+import EmployerAdminobDetailsPage from './pages/employeradmin/job/EmployerAdminobDetailsPage';
+import EmployeerAdminPostJob from './pages/employeradmin/job/EmployeerAdminPostJob';
+import EmployeerAdminProfileView from './pages/employeradmin/job/EmployeerAdminProfileView';
+import EmployeerAdminMessage from './pages/employeradmin/message/EmployeerAdminMessage';
+import EmployeerAdminPlansGrid from './pages/employeradmin/plan/EmployeerAdminPlansGrid';
+import EmployeerAdminPlans from './pages/employeradmin/plan/EmployeerAdminPlans';
+import EmployerAdminCalendarEvents from './pages/employeradmin/events/EmployerAdminCalendarEvents';
+import EmployerAdminFAQs from './pages/employeradmin/Faqs/EmployerAdminFAQs';
+import EmployerAdminSupportChatList from './pages/employeradmin/support/EmployerAdminSupportChatList';
+import EmployerAdminEnrollment from './pages/employeradmin/events/EmployerAdminEnrollment';
 
 function App() {
   return (
@@ -99,8 +123,41 @@ function App() {
           <Route path='/employer/support' element={<EmployerSupportChatList />} />
           <Route path='/employer/messages' element={<EmployeerMessage />} />
           <Route path='/employer/plans' element={<EmployeerPlans />} />
-           <Route path='/employer/plans-grid' element={<EmployeerPlansGrid />} />
-                 <Route path='/employer/FAQs' element={<FAQs />} />
+          <Route path='/employer/plans-grid' element={<EmployeerPlansGrid />} />
+          <Route path='/employer/FAQs' element={<FAQs />} />
+
+          {/* Admin routes */}
+
+          <Route path='/admin/login' element={<AdminLoginPage />} />
+          <Route path='/admin/register' element={<AdminRegister />} />
+
+          {/* Employer-Admin routes */}
+
+          <Route path='/employer-admin/login' element={<EmployerAdminLoginPage />} />
+          <Route path='/employer-admin/register' element={<EmployerAdminRegister />} />
+          <Route path='/employer-admin/forgot-password' element={<EmployerAdminForgotPassword />} />
+          <Route path='/employer-admin/reset-password' element={<EmployerAdminChangePassword />} />
+          <Route path='/employer-admin/verify-otp' element={<EmployerAdminVerifyOTP />} />
+
+          <Route path='/employer-admin/new-candidate' element={<EmployerAdminCandidates />} />
+          <Route path='/employer-admin/shortlisted-candidates' element={<EmployeerAdminShortlisedCandidates />} />
+          <Route path='/employer-admin/applied-candidates' element={<EmployeerAdminAllAppliedCandidates />} />
+          <Route path='/employer-admin/applied-candidates/:id' element={<EmployeerAdminAppliedCandidates />} />
+          <Route path='/employer-admin/saved-candidates' element={<EmployeerAdminSavedCandidates />} />
+          <Route path='/employer-admin/shortlisted-candidate-byjob/:id' element={<EmployeerAdminJobIdShortlistedCandidates />} />
+          <Route path='/employer-admin/search' element={<EmployeerAdminCandidatesSearch />} />
+
+          <Route path='/employer-admin/post-jobs' element={<EmployeerAdminPostJob />} />
+          <Route path='/employer-admin/view-job/:id' element={<EmployerAdminobDetailsPage />} />
+          <Route path='/employer-admin/profile' element={<EmployeerAdminProfileView />} />
+          <Route path='/employer-admin/messages' element={<EmployeerAdminMessage />} />
+          <Route path='/employer-admin/plans' element={<EmployeerAdminPlans />} />
+          <Route path='/employer-admin/plans-grid' element={<EmployeerAdminPlansGrid />} />
+          <Route path='/employer-admin/calendar-events' element={<EmployerAdminCalendarEvents />} />
+          <Route path='/employer-admin/enrollment' element={<EmployerAdminEnrollment />} />
+          <Route path='/employer-admin/FAQs' element={<EmployerAdminFAQs />} />
+          <Route path='/employer-admin/support' element={<EmployerAdminSupportChatList />} />
+
         </Route>
 
         {/* All other routes with Layout */}

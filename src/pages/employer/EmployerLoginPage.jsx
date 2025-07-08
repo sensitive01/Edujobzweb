@@ -221,7 +221,7 @@ const EmployerLoginPage = () => {
                               </Link>
                             </h6>
                           </div>
-                          {/* <div className="login-or">
+                          <div className="login-or">
                             <span className="span-or">Or</span>
                           </div>
                           <div className="mt-2">
@@ -264,7 +264,7 @@ const EmployerLoginPage = () => {
                                 </button>
                               </div>
                             </div>
-                          </div> */}
+                          </div>
                         </div>
                         <div className="mt-5 pb-4 text-center">
                           <p className="mb-0 text-gray-9">Copyright &copy; 2025 - EduJobz</p>

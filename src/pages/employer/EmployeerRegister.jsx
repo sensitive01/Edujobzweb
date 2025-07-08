@@ -366,7 +366,7 @@ const EmployeeRegister = () => {
                                   <Link to="/employer/login" className="hover-a">Sign In</Link>
                                 </h6>
                               </div>
-                              {/* <div className="login-or">
+                              <div className="login-or">
                                 <span className="span-or">Or</span>
                               </div>
                               <div className="mt-2">
@@ -408,7 +408,7 @@ const EmployeeRegister = () => {
                                     </button>
                                   </div>
                                 </div>
-                              </div> */}
+                              </div>
                             </>
                           )}
                         </div>
