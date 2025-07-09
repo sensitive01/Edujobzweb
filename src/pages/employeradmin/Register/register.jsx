@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 // Import images
@@ -11,17 +11,22 @@ import authBg from '../../../assets/employer-admin/assets/img/bg/authentication-
 import facebookLogo from '../../../assets/employer-admin/assets/img/icons/facebook-logo.svg';
 import googleLogo from '../../../assets/employer-admin/assets/img/icons/google-logo.svg';
 import appleLogo from '../../../assets/employer-admin/assets/img/icons/apple-logo.svg';
+import { registerEmployerAdmin } from '../../../api/services/projectServices';
 
 const EmployerAdminRegister = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    employeradminUsername: '',
+    employeradminEmail: '',
+    employeradminMobile: '',
+    employeradminPassword: '',
+    employerconfirmPassword: '',
     agreeTerms: false
   });
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -39,9 +44,60 @@ const EmployerAdminRegister = () => {
     setConfirmPasswordVisible(!confirmPasswordVisible);
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    if (!formData.employeradminUsername || !formData.employeradminEmail ||
+      !formData.employeradminPassword || !formData.employerconfirmPassword) {
+      setError('All fields are required');
+      return false;
+    }
+
+    if (formData.employeradminPassword !== formData.employerconfirmPassword) {
+      setError('Passwords do not match');
+      return false;
+    }
+
+    if (!formData.agreeTerms) {
+      setError('You must agree to the Terms & Privacy');
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.employeradminEmail)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
+    setError('');
+
+    if (!validateForm()) return;
+
+    try {
+      setLoading(true);
+
+      const adminData = {
+        employeradminUsername: formData.employeradminUsername,
+        employeradminEmail: formData.employeradminEmail,
+        employeradminMobile: formData.employeradminMobile,
+        employeradminPassword: formData.employeradminPassword,
+        employerconfirmPassword: formData.employerconfirmPassword
+      };
+
+      await registerEmployerAdmin(adminData);
+
+      navigate('/employer-admin/login', {
+        state: { registrationSuccess: true }
+      });
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -88,15 +144,23 @@ const EmployerAdminRegister = () => {
                             <h2 className="mb-2">Sign Up</h2>
                             <p className="mb-0">Please enter your details to sign up</p>
                           </div>
+
+                          {error && (
+                            <div className="alert alert-danger mb-3" role="alert">
+                              {error}
+                            </div>
+                          )}
+
                           <div className="mb-3">
                             <label className="form-label">Name</label>
                             <div className="input-group">
                               <input
                                 type="text"
-                                name="name"
-                                value={formData.name}
+                                name="employeradminUsername"
+                                value={formData.employeradminUsername}
                                 onChange={handleChange}
                                 className="form-control border-end-0"
+                                required
                               />
                               <span className="input-group-text border-start-0">
                                 <i className="ti ti-user"></i>
@@ -108,13 +172,29 @@ const EmployerAdminRegister = () => {
                             <div className="input-group">
                               <input
                                 type="email"
-                                name="email"
-                                value={formData.email}
+                                name="employeradminEmail"
+                                value={formData.employeradminEmail}
+                                onChange={handleChange}
+                                className="form-control border-end-0"
+                                required
+                              />
+                              <span className="input-group-text border-start-0">
+                                <i className="ti ti-mail"></i>
+                              </span>
+                            </div>
+                          </div>
+                          <div className="mb-3">
+                            <label className="form-label">Mobile Number</label>
+                            <div className="input-group">
+                              <input
+                                type="tel"
+                                name="employeradminMobile"
+                                value={formData.employeradminMobile}
                                 onChange={handleChange}
                                 className="form-control border-end-0"
                               />
                               <span className="input-group-text border-start-0">
-                                <i className="ti ti-mail"></i>
+                                <i className="ti ti-phone"></i>
                               </span>
                             </div>
                           </div>
@@ -123,11 +203,12 @@ const EmployerAdminRegister = () => {
                             <div className="pass-group" style={{ position: 'relative' }}>
                               <input
                                 type={passwordVisible ? "text" : "password"}
-                                name="password"
-                                value={formData.password}
+                                name="employeradminPassword"
+                                value={formData.employeradminPassword}
                                 onChange={handleChange}
                                 className="form-control"
                                 style={{ paddingRight: '40px' }}
+                                required
                               />
                               <button
                                 type="button"
@@ -153,11 +234,12 @@ const EmployerAdminRegister = () => {
                             <div className="pass-group" style={{ position: 'relative' }}>
                               <input
                                 type={confirmPasswordVisible ? "text" : "password"}
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
+                                name="employerconfirmPassword"
+                                value={formData.employerconfirmPassword}
                                 onChange={handleChange}
                                 className="form-control"
                                 style={{ paddingRight: '40px' }}
+                                required
                               />
                               <button
                                 type="button"
@@ -188,6 +270,7 @@ const EmployerAdminRegister = () => {
                                   name="agreeTerms"
                                   checked={formData.agreeTerms}
                                   onChange={handleChange}
+                                  required
                                 />
                                 <label htmlFor="agreeTerms" className="form-check-label text-dark mt-0">
                                   Agree to <span className="text-primary">Terms & Privacy</span>
@@ -196,11 +279,17 @@ const EmployerAdminRegister = () => {
                             </div>
                           </div>
                           <div className="mb-3">
-                            <button 
-                              type="submit" 
+                            <button
+                              type="submit"
                               className="btn btn-primary w-100"
+                              disabled={loading}
                             >
-                              Sign Up
+                              {loading ? (
+                                <>
+                                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                  Processing...
+                                </>
+                              ) : 'Sign Up'}
                             </button>
                           </div>
                           <div className="text-center">

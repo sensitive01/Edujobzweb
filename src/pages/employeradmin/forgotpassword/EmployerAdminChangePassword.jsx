@@ -1,24 +1,25 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
-
-// Import images (use the same ones from login page)
-import logo from '../../../assets/employer-admin//assets/img/logo.svg';
-import bg1 from '../../../assets/employer-admin//assets/img/bg/bg-01.webp';
-import bg2 from '../../../assets/employer-admin//assets/img/bg/bg-02.png';
-import bg3 from '../../../assets/employer-admin//assets/img/bg/bg-03.webp';
-import authBg from '../../../assets/employer-admin//assets/img/bg/authentication-bg-01.webp';
-import { changeEmployerPassword } from '../../../api/services/projectServices';
+// Import images
+import logo from '../../../assets/employer-admin/assets/img/logo.svg';
+import bg1 from '../../../assets/employer-admin/assets/img/bg/bg-01.webp';
+import bg2 from '../../../assets/employer-admin/assets/img/bg/bg-02.png';
+import bg3 from '../../../assets/employer-admin/assets/img/bg/bg-03.webp';
+import authBg from '../../../assets/employer-admin/assets/img/bg/authentication-bg-01.webp';
+import { ChangePasswordEmployerAdmin } from '../../../api/services/projectServices';
 
 const EmployerAdminChangePassword = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   
   // Form state
   const [formData, setFormData] = useState({
-    userMobile: '',
+    email: location.state?.email || '',
     password: '',
     confirmPassword: ''
   });
@@ -26,6 +27,13 @@ const EmployerAdminChangePassword = () => {
   const [errors, setErrors] = useState({});
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+
+  useEffect(() => {
+    if (!location.state?.email) {
+      // Redirect if no email is provided (should come from OTP verification)
+      navigate('/employer-admin/forgot-password');
+    }
+  }, [location.state, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,10 +54,21 @@ const EmployerAdminChangePassword = () => {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.userMobile) newErrors.userMobile = 'Mobile number is required';
-    if (!formData.password) newErrors.password = 'Password is required';
-    if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
-    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    }
+    
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -65,21 +84,28 @@ const EmployerAdminChangePassword = () => {
     setSuccess(null);
     
     try {
-      const response = await changeEmployerPassword({
-        userMobile: formData.userMobile,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword
-      });
+      const response = await ChangePasswordEmployerAdmin(
+        formData.email,
+        formData.password,
+        formData.confirmPassword
+      );
       
-      setSuccess('Password changed successfully!');
-      // Optionally redirect after success
+      setSuccess('Password changed successfully! Redirecting to login...');
+      
+      // Redirect to login after 2 seconds
       setTimeout(() => {
         navigate('/employer-admin/login');
       }, 2000);
       
     } catch (err) {
       console.error('Password change error:', err);
-      setError(err.message || 'Failed to change password. Please try again.');
+      if (err.message.includes("not found")) {
+        setError('Admin not found with the provided email');
+      } else if (err.message.includes("match")) {
+        setError('Passwords do not match');
+      } else {
+        setError(err.message || 'Failed to change password. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -134,8 +160,8 @@ const EmployerAdminChangePassword = () => {
                         </div>
                         <div>
                           <div className="text-center mb-3">
-                            <h2 className="mb-2">Change Password</h2>
-                            <p className="mb-0">Please enter your details to change password</p>
+                            <h2 className="mb-2">Reset Password</h2>
+                            <p className="mb-0">Create a new password for your account</p>
                           </div>
 
                           {error && (
@@ -151,79 +177,106 @@ const EmployerAdminChangePassword = () => {
                           )}
 
                           <div className="mb-3">
-                            <label className="form-label">Mobile Number</label>
+                            <label className="form-label">Email Address</label>
                             <div className="input-group">
                               <input
-                                type="text"
-                                name="userMobile"
-                                value={formData.userMobile}
+                                type="email"
+                                name="email"
+                                value={formData.email}
                                 onChange={handleChange}
-                                className={`form-control border-end-0 ${errors.userMobile ? 'is-invalid' : ''}`}
-                                placeholder="Enter your registered mobile number"
+                                className={`form-control border-end-0 ${errors.email ? 'is-invalid' : ''}`}
+                                placeholder="Enter your email"
+                                readOnly={!!location.state?.email} // Make readonly if passed from state
                               />
                               <span className="input-group-text border-start-0">
-                                <i className="ti ti-phone"></i>
+                                <i className="ti ti-mail"></i>
                               </span>
-                              {errors.userMobile && <div className="invalid-feedback">{errors.userMobile}</div>}
+                              {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                             </div>
                           </div>
+
                           <div className="mb-3">
                             <label className="form-label">New Password</label>
-                            <div className="pass-group">
+                            <div className="pass-group" style={{ position: 'relative' }}>
                               <input
                                 type={passwordVisible ? "text" : "password"}
                                 name="password"
                                 value={formData.password}
                                 onChange={handleChange}
-                                className={`pass-input form-control ${errors.password ? 'is-invalid' : ''}`}
-                                placeholder="Enter new password (any length)"
+                                className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                                placeholder="Enter new password (min 8 characters)"
+                                style={{ paddingRight: '40px' }}
                               />
-                              <span
-                                className={`ti toggle-password ${passwordVisible ? 'ti-eye' : 'ti-eye-off'}`}
+                              <button
+                                type="button"
                                 onClick={togglePasswordVisibility}
-                                style={{ cursor: 'pointer' }}
-                              ></span>
+                                style={{
+                                  position: 'absolute',
+                                  right: '10px',
+                                  top: '50%',
+                                  transform: 'translateY(-50%)',
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  color: '#6c757d',
+                                  padding: '5px'
+                                }}
+                              >
+                                {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+                              </button>
                               {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                             </div>
                           </div>
                           <div className="mb-3">
                             <label className="form-label">Confirm Password</label>
-                            <div className="pass-group">
+                            <div className="pass-group" style={{ position: 'relative' }}>
                               <input
                                 type={confirmPasswordVisible ? "text" : "password"}
                                 name="confirmPassword"
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
-                                className={`pass-input form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
+                                className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
                                 placeholder="Confirm new password"
+                                style={{ paddingRight: '40px' }}
                               />
-                              <span
-                                className={`ti toggle-password ${confirmPasswordVisible ? 'ti-eye' : 'ti-eye-off'}`}
+                              <button
+                                type="button"
                                 onClick={toggleConfirmPasswordVisibility}
-                                style={{ cursor: 'pointer' }}
-                              ></span>
+                                style={{
+                                  position: 'absolute',
+                                  right: '10px',
+                                  top: '50%',
+                                  transform: 'translateY(-50%)',
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  color: '#6c757d',
+                                  padding: '5px'
+                                }}
+                              >
+                                {confirmPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                              </button>
                               {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
                             </div>
                           </div>
                           <div className="mb-3">
                             <button
                               type="submit"
-                              className="btn btn-primary w-100"
+                              className="btn btn-primary w-100 py-3"
                               disabled={isLoading}
                             >
                               {isLoading ? (
                                 <>
                                   <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                  Changing Password...
+                                  Updating Password...
                                 </>
-                              ) : 'Change Password'}
+                              ) : 'Reset Password'}
                             </button>
                           </div>
                           <div className="text-center">
                             <h6 className="fw-normal text-dark mb-0">
                               Remember your password?{' '}
                               <Link to="/employer-admin/login" className="hover-a">
-                                {' '}
                                 Sign In
                               </Link>
                             </h6>

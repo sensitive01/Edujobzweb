@@ -195,3 +195,76 @@ export const registerForEvent = async (eventId, registrationData) => {
     throw error.response?.data?.message || error.message;
   }
 };
+
+export const registerEmployerAdmin = async(adminData) => {
+  try{
+ const response = await projectServices.post('/employeradmin/employeradminsignup', adminData);
+ return response.data;
+  } catch (err) {
+throw err.response?.data || err.message;
+  }
+};
+
+export const loginEmployerAdmin = async (credentials) => {
+  try {
+    const response = await projectServices.post('/employeradmin/employerloginAdmin', {
+      employeradminEmail: credentials.email,
+      employeradminPassword: credentials.password,
+    });
+    
+    return {
+      token: response.data.token,
+      admin: response.data.admin
+    };
+
+  } catch (err) {
+    throw err.response?.data || err.message;
+  }
+};
+
+export const ForgotPasswordEmployerAdmin = async(employeradminEmail) => {
+  try {
+    const response = await projectServices.post('/employeradmin/employeradminforgotpassword',{
+      employeradminEmail
+    });
+    return response.data;
+  } catch (err) {
+    throw err.response?.data || err.message;
+  }
+}
+
+export const VerifyOtpEmployerAdmin = async(email, otp) => {
+  try{
+    const response = await projectServices.post('/employeradmin/employeradminverifyotp',{
+      employeradminEmail: email,
+      otp
+    });
+    return response.data;
+  } catch (err) {
+    throw err.response?.data || err.message;
+  }
+};
+
+export const ResendEmployerAdminOTP  = async(employeradminEmail) => {
+  try {
+    const response = await projectServices.post('/employeradmin/employeradminforgotpassword',{
+      employeradminEmail
+    });
+    return response.data;
+  } catch (err) {
+    throw err.response?.data || err.message;
+  }
+}
+
+export const ChangePasswordEmployerAdmin = async(email, password, confirmPassword) => {
+  try{
+    const response = await projectServices.post('/employeradmin/employeradminchangepassword', {
+      employeradminEmail: email,
+      password,
+      confirmPassword
+    });
+    return response.data;
+  } catch (err) {
+    throw err.response?.data || err.message;
+  }
+}

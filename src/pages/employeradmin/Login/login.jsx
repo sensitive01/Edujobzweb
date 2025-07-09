@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+
 // Import images
 import logo from '../../../assets/employer-admin/assets/img/logo.svg';
 import bg1 from '../../../assets/employer-admin/assets/img/bg/bg-01.webp';
@@ -10,6 +11,7 @@ import authBg from '../../../assets/employer-admin/assets/img/bg/authentication-
 import googleLogo from '../../../assets/employer-admin/assets/img/icons/google-logo.svg';
 import appleLogo from '../../../assets/employer-admin/assets/img/icons/apple-logo.svg';
 import linkedinLogo from '../../../assets/employer-admin/assets/img/icons/linkedin.svg';
+import { loginEmployerAdmin } from '../../../api/services/projectServices';
 
 const EmployerAdminLoginPage = () => {
     const navigate = useNavigate();
@@ -58,15 +60,27 @@ const EmployerAdminLoginPage = () => {
         setError(null);
 
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const response = await loginEmployerAdmin({
+                email: formData.email,
+                password: formData.password
+            });
 
-            // On successful login
-            localStorage.setItem('employerToken', 'sample-token');
+            localStorage.setItem('EmployerAdminToken', response.token);
+            const adminData = {
+                _id: response.admin._id,
+                email: response.admin.employeradminEmail,
+                username: response.admin.employeradminUsername,
+            };
+
+            if (rememberMe) {
+                localStorage.setItem('EmployerAdminData', JSON.stringify(adminData));
+            } else {
+                localStorage.setItem('EmployerAdminData', JSON.stringify(adminData));
+            }
             navigate('/employer-admin/new-candidate');
-
         } catch (err) {
-            setError('Login failed. Please try again.');
+            console.error('Login error:', err);
+            setError(err.message || 'Login failed. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -136,7 +150,7 @@ const EmployerAdminLoginPage = () => {
                                                                 value={formData.email}
                                                                 onChange={handleChange}
                                                                 className={`form-control border-end-0 ${errors.email ? 'is-invalid' : ''}`}
-                                                            
+                                                                placeholder="Enter your email"
                                                             />
                                                             <span className="input-group-text border-start-0">
                                                                 <i className="ti ti-mail"></i>
@@ -153,7 +167,7 @@ const EmployerAdminLoginPage = () => {
                                                                 value={formData.password}
                                                                 onChange={handleChange}
                                                                 className={`pass-input form-control ${errors.password ? 'is-invalid' : ''}`}
-                                                               
+                                                                placeholder="Enter your password"
                                                             />
                                                             <span
                                                                 className={`ti toggle-password ${passwordVisible ? 'ti-eye' : 'ti-eye-off'}`}

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
 
 // Import images
-import logo from '../../../assets/employer-admin//assets/img/logo.svg';
-import bg1 from '../../../assets/employer-admin//assets/img/bg/bg-01.webp';
-import bg2 from '../../../assets/employer-admin//assets/img/bg/bg-02.png';
-import bg3 from '../../../assets/employer-admin//assets/img/bg/bg-03.webp';
-import authBg from '../../../assets/employer-admin//assets/img/bg/authentication-bg-01.webp';
+import logo from '../../../assets/employer-admin/assets/img/logo.svg';
+import bg1 from '../../../assets/employer-admin/assets/img/bg/bg-01.webp';
+import bg2 from '../../../assets/employer-admin/assets/img/bg/bg-02.png';
+import bg3 from '../../../assets/employer-admin/assets/img/bg/bg-03.webp';
+import authBg from '../../../assets/employer-admin/assets/img/bg/authentication-bg-01.webp';
+import { ResendEmployerAdminOTP, VerifyOtpEmployerAdmin } from '../../../api/services/projectServices';
 
 const EmployerAdminVerifyOTP = () => {
   const navigate = useNavigate();
@@ -15,23 +15,19 @@ const EmployerAdminVerifyOTP = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [otp, setOtp] = useState(['', '', '', '']);
-  const [timer, setTimer] = useState(60);
-  const [mobile, setMobile] = useState('');
+  const [timer, setTimer] = useState(300); // 5 minutes in seconds
   const [email, setEmail] = useState('');
   const inputRefs = useRef([]);
 
   // Initialize with location state
   useEffect(() => {
-    if (location.state?.mobile) {
-      setMobile(location.state.mobile);
-      // Mask the mobile number for display
-      const maskedMobile = location.state.mobile.replace(/(\d{3})\d{4}(\d{3})/, '$1****$2');
-      setMobile(maskedMobile);
-    }
     if (location.state?.email) {
       setEmail(location.state.email);
+    } else {
+      // Redirect if no email is provided
+      navigate('/employer-admin/forgot-password');
     }
-  }, [location.state]);
+  }, [location.state, navigate]);
 
   // Timer countdown
   useEffect(() => {
@@ -99,28 +95,27 @@ const EmployerAdminVerifyOTP = () => {
     setError(null);
 
     try {
-      const response = await axios.post(
-        'https://edujobzbackend.onrender.com/employer/employerverify-otp',
-        { otp: otpToVerify }
-      );
+      const response = await VerifyOtpEmployerAdmin(email, otpToVerify);
 
-      if (response.data.success) {
+      if (response.success) {
         // OTP verified successfully
-        navigate('/employer/reset-password', { 
+        navigate('/employer-admin/reset-password', { 
           state: { 
-            mobile: location.state?.mobile,
-            email: location.state?.email 
+            email: email,
+            token: response.token // If your backend returns a token
           } 
         });
       } else {
-        setError(response.data.message || 'Invalid OTP');
+        setError(response.message || 'Invalid OTP');
       }
     } catch (err) {
       console.error('OTP verification error:', err);
-      if (err.response) {
-        setError(err.response.data.message || 'OTP verification failed');
+      if (err.message.includes("expired")) {
+        setError('OTP has expired. Please request a new one.');
+      } else if (err.message.includes("Invalid")) {
+        setError('Invalid OTP. Please try again.');
       } else {
-        setError('Network error. Please try again.');
+        setError(err.message || 'OTP verification failed');
       }
     } finally {
       setIsLoading(false);
@@ -134,29 +129,20 @@ const EmployerAdminVerifyOTP = () => {
     setError(null);
 
     try {
-      // Use the resend OTP endpoint instead of forgot password
-      const response = await axios.post(
-        'https://edujobzbackend.onrender.com/employer/employerresend-otp',
-        { userMobile: location.state?.mobile }
-      );
+      const response = await ResendEmployerAdminOTP(email);
 
-      if (response.data.message === "OTP sent successfully") {
-        setTimer(60); // Reset timer
+      if (response.message === "OTP sent successfully") {
+        setTimer(300); // Reset timer to 5 minutes
         setOtp(['', '', '', '']); // Clear previous OTP
         if (inputRefs.current[0]) {
           inputRefs.current[0].focus(); // Focus on first input
         }
-        setError(null);
       } else {
-        setError(response.data.message || 'Failed to resend OTP');
+        setError(response.message || 'Failed to resend OTP');
       }
     } catch (err) {
       console.error('Resend OTP error:', err);
-      if (err.response) {
-        setError(err.response.data.message || 'Failed to resend OTP');
-      } else {
-        setError('Network error. Please try again.');
-      }
+      setError(err.message || 'Failed to resend OTP. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -166,6 +152,15 @@ const EmployerAdminVerifyOTP = () => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const maskEmail = (email) => {
+    if (!email) return '';
+    const [name, domain] = email.split('@');
+    const maskedName = name.length > 3 
+      ? `${name.substring(0, 3)}${'*'.repeat(name.length - 3)}` 
+      : '*'.repeat(name.length);
+    return `${maskedName}@${domain}`;
   };
 
   return (
@@ -213,12 +208,9 @@ const EmployerAdminVerifyOTP = () => {
                         </div>
                         <div>
                           <div className="text-center mb-3">
-                            <h2 className="mb-2">2 Step Verification</h2>
+                            <h2 className="mb-2">OTP Verification</h2>
                             <p className="mb-0">
-                              Please enter the OTP received to confirm your account ownership. 
-                              A code has been sent to {email ? 
-                                `******${email.split('@')[0].slice(-3)}@${email.split('@')[1]}` : 
-                                mobile}
+                              Please enter the 4-digit OTP sent to {maskEmail(email)}
                             </p>
                           </div>
 
@@ -229,12 +221,18 @@ const EmployerAdminVerifyOTP = () => {
                           )}
 
                           <div className="text-center otp-input">
-                            <div className="d-flex align-items-center mb-3">
+                            <div className="d-flex justify-content-center mb-3">
                               {[0, 1, 2, 3].map((index) => (
                                 <input
                                   key={index}
                                   type="text"
-                                  className="rounded w-100 py-sm-3 py-2 text-center fs-26 fw-bold me-3"
+                                  className="form-control mx-2 text-center"
+                                  style={{
+                                    width: '60px',
+                                    height: '60px',
+                                    fontSize: '1.5rem',
+                                    fontWeight: 'bold'
+                                  }}
                                   id={`digit-${index + 1}`}
                                   name={`digit-${index + 1}`}
                                   value={otp[index]}
@@ -248,32 +246,27 @@ const EmployerAdminVerifyOTP = () => {
                                 />
                               ))}
                             </div>
-                            <div>
-                              <div className="badge bg-danger-transparent mb-3">
-                                <p className="d-flex align-items-center">
-                                  <i className="ti ti-clock me-1"></i>
-                                  {formatTime(timer)}
-                                </p>
-                              </div>
-                              <div className="mb-3 d-flex justify-content-center">
-                                <p className="text-gray-9">
-                                  Didn't get the OTP?{' '}
+                            <div className="mb-4">
+                              <p className="text-muted">
+                                {timer > 0 ? (
+                                  `Resend OTP in ${formatTime(timer)}`
+                                ) : (
                                   <button
                                     type="button"
-                                    className={`text-primary ${timer > 0 ? 'text-muted' : ''}`}
+                                    className="btn btn-link p-0"
                                     onClick={handleResendOTP}
-                                    disabled={timer > 0 || isLoading}
+                                    disabled={isLoading}
                                   >
                                     Resend OTP
                                   </button>
-                                </p>
-                              </div>
+                                )}
+                              </p>
                             </div>
                           </div>
                           <div className="mb-3">
                             <button
                               type="submit"
-                              className="btn btn-primary w-100"
+                              className="btn btn-primary w-100 py-3"
                               disabled={isLoading || otp.join('').length !== 4}
                             >
                               {isLoading ? (
@@ -281,7 +274,7 @@ const EmployerAdminVerifyOTP = () => {
                                   <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                                   Verifying...
                                 </>
-                              ) : 'Verify & Proceed'}
+                              ) : 'Verify OTP'}
                             </button>
                           </div>
                         </div>

@@ -1,6 +1,6 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 // Import images
 import logo from '../../../assets/employer-admin/assets/img/logo.svg';
@@ -8,6 +8,7 @@ import bg1 from '../../../assets/employer-admin/assets/img/bg/bg-01.webp';
 import bg2 from '../../../assets/employer-admin/assets/img/bg/bg-02.png';
 import bg3 from '../../../assets/employer-admin/assets/img/bg/bg-03.webp';
 import authBg from '../../../assets/employer-admin/assets/img/bg/authentication-bg-04.svg';
+import { ForgotPasswordEmployerAdmin } from '../../../api/services/projectServices';
 
 const EmployerAdminForgotPassword = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const EmployerAdminForgotPassword = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [formData, setFormData] = useState({
-    userMobile: ''
+    employeradminEmail: ''
   });
   const [errors, setErrors] = useState({});
 
@@ -37,10 +38,10 @@ const EmployerAdminForgotPassword = () => {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.userMobile) {
-      newErrors.userMobile = 'Mobile number is required';
-    } else if (!/^\d{10}$/.test(formData.userMobile)) {
-      newErrors.userMobile = 'Please enter a valid 10-digit mobile number';
+    if (!formData.employeradminEmail) {
+      newErrors.employeradminEmail = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.employeradminEmail)) {
+      newErrors.employeradminEmail = 'Please enter a valid email address';
     }
     
     setErrors(newErrors);
@@ -57,30 +58,26 @@ const EmployerAdminForgotPassword = () => {
     setSuccess(null);
     
     try {
-      const response = await axios.post(
-        'https://edujobzbackend.onrender.com/employer/employerforgotpassword',
-        {
-          userMobile: formData.userMobile
-        }
-      );
+      const response = await ForgotPasswordEmployerAdmin(formData.employeradminEmail);
       
-      if (response.data.message === "OTP sent successfully") {
-        setSuccess('OTP has been sent to your mobile number');
-        // Navigate to OTP verification page with the mobile number
-        navigate('/employer/verify-otp', { state: { mobile: formData.userMobile, otp: response.data.otp } });
+      if (response.message === "OTP sent successfully") {
+        setSuccess('OTP has been sent to your email address');
+        // Navigate to OTP verification page with the email
+        navigate('/employer-admin/verify-otp', { 
+          state: { 
+            email: formData.employeradminEmail,
+            otp: response.otp // Only for development, remove in production
+          } 
+        });
       } else {
-        setError(response.data.message || 'Failed to send OTP');
+        setError(response.message || 'Failed to send OTP');
       }
     } catch (err) {
       console.error('Forgot password error:', err);
-      if (err.response) {
-        if (err.response.status === 404) {
-          setError('User not found with the provided mobile number');
-        } else {
-          setError(err.response.data.message || 'Failed to send OTP');
-        }
+      if (err.message.includes("not found")) {
+        setError('Admin not found with the provided email');
       } else {
-        setError('Network error. Please try again.');
+        setError(err.message || 'Failed to send OTP. Please try again.');
       }
     } finally {
       setIsLoading(false);
@@ -129,7 +126,7 @@ const EmployerAdminForgotPassword = () => {
                         <div>
                           <div className="text-center mb-3">
                             <h2 className="mb-2">Forgot Password?</h2>
-                            <p className="mb-0">If you forgot your password, we'll send an OTP to your mobile number to reset your password.</p>
+                            <p className="mb-0">Enter your email address to receive a password reset OTP</p>
                           </div>
 
                           {error && (
@@ -145,21 +142,20 @@ const EmployerAdminForgotPassword = () => {
                           )}
 
                           <div className="mb-3">
-                            <label className="form-label">Mobile Number</label>
+                            <label className="form-label">Email Address</label>
                             <div className="input-group">
                               <input
-                                type="text"
-                                name="userMobile"
-                                value={formData.userMobile}
+                                type="email"
+                                name="employeradminEmail"
+                                value={formData.employeradminEmail}
                                 onChange={handleChange}
-                                className={`form-control border-end-0 ${errors.userMobile ? 'is-invalid' : ''}`}
-                                placeholder="Enter your registered mobile number"
-                                maxLength="10"
+                                className={`form-control border-end-0 ${errors.employeradminEmail ? 'is-invalid' : ''}`}
+                                placeholder="Enter your registered email"
                               />
                               <span className="input-group-text border-start-0">
-                                <i className="ti ti-phone"></i>
+                                <i className="ti ti-mail"></i>
                               </span>
-                              {errors.userMobile && <div className="invalid-feedback">{errors.userMobile}</div>}
+                              {errors.employeradminEmail && <div className="invalid-feedback">{errors.employeradminEmail}</div>}
                             </div>
                           </div>
                           <div className="mb-3">
