@@ -11,26 +11,29 @@ const EmployerAdminHeader = () => {
     const [notificationDropdown, setNotificationDropdown] = useState(false);
     const [profileDropdown, setProfileDropdown] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [profilePic, setProfilePic] = useState(null);
+    const [profileData, setProfileData] = useState({
+        employeradminUsername: '',
+        employeradminEmail: '',
+        employeradminProfilePic: ''
+    });
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     const notificationRef = useRef(null);
     const profileRef = useRef(null);
     const mobileMenuRef = useRef(null);
-
     useEffect(() => {
         const fetchEmployerProfile = async () => {
             try {
-                const token = localStorage.getItem('employerToken');
-                const employerData = JSON.parse(localStorage.getItem('employerData'));
+                const token = localStorage.getItem('EmployerAdminToken');
+                const adminData = JSON.parse(localStorage.getItem('EmployerAdminData'));
 
-                if (!token || !employerData) {
+                if (!token || !adminData) {
                     return;
                 }
 
                 const response = await fetch(
-                    `https://edujobzbackend.onrender.com/employer-admin/fetchemployer/${employerData._id}`,
+                    `https://edujobzbackend.onrender.com/employeradmin/fetchprofile/${adminData._id}`,
                     {
                         headers: {
                             'Authorization': `Bearer ${token}`
@@ -43,7 +46,7 @@ const EmployerAdminHeader = () => {
                 }
 
                 const data = await response.json();
-                setProfilePic(data.userProfilePic);
+                setProfileData(data.admin);
             } catch (err) {
                 console.error('Error fetching employer profile:', err);
             } finally {
@@ -74,12 +77,15 @@ const EmployerAdminHeader = () => {
         };
     }, []);
 
+
     const handleLogout = () => {
         // Clear all employer-related data from localStorage
         localStorage.removeItem('authToken');
         localStorage.removeItem('userData');
         localStorage.removeItem('employerToken');
         localStorage.removeItem('employerData');
+        localStorage.removeItem('EmployerAdminToken');
+        localStorage.removeItem('EmployerAdminData');
 
 
         // Close any open dropdowns/menus
@@ -473,9 +479,9 @@ const EmployerAdminHeader = () => {
                                 }}
                             >
                                 <div className="avatar avatar-sm">
-                                    {profilePic ? (
+                                    {profileData.employeradminProfilePic ? (
                                         <img
-                                            src={profilePic}
+                                            src={profileData.employeradminProfilePic}
                                             alt="Profile"
                                             className="avatar-initial rounded-circle"
                                             style={{
@@ -485,7 +491,9 @@ const EmployerAdminHeader = () => {
                                             }}
                                         />
                                     ) : (
-                                        <span className="avatar-initial rounded-circle bg-primary">A</span>
+                                        <span className="avatar-initial rounded-circle bg-primary">
+                                            {profileData.employeradminUsername ? profileData.employeradminUsername.charAt(0).toUpperCase() : 'A'}
+                                        </span>
                                     )}
                                 </div>
                             </button>
@@ -505,9 +513,9 @@ const EmployerAdminHeader = () => {
                                         <div className="card-header">
                                             <div className="d-flex align-items-center">
                                                 <span className="avatar avatar-lg me-2">
-                                                    {profilePic ? (
+                                                    {profileData.employeradminProfilePic ? (
                                                         <img
-                                                            src={profilePic}
+                                                            src={profileData.employeradminProfilePic}
                                                             alt="Profile"
                                                             className="avatar-initial rounded-circle"
                                                             style={{
@@ -517,12 +525,20 @@ const EmployerAdminHeader = () => {
                                                             }}
                                                         />
                                                     ) : (
-                                                        <span className="avatar-initial rounded-circle bg-primary">A</span>
+                                                        <span className="avatar-initial rounded-circle bg-primary">
+                                                            {profileData.employeradminUsername ? profileData.employeradminUsername.charAt(0).toUpperCase() : 'A'}
+                                                        </span>
                                                     )}
                                                 </span>
                                                 <div>
-                                                    <h5 className="mb-0 text-primary">EduJobz</h5>
-                                                    <p className="fs-12 fw-medium mb-0"><a href="/employer-admin/profile">School</a></p>
+                                                    <h5 className="mb-0 text-primary">
+                                                        {profileData.employeradminUsername || 'EduJobz'}
+                                                    </h5>
+                                                    <p className="fs-12 fw-medium mb-0">
+                                                        <a href="/employer-admin/profile">
+                                                            {profileData.employeradminEmail || 'School'}
+                                                        </a>
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>

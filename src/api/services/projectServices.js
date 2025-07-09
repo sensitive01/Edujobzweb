@@ -268,3 +268,16 @@ export const ChangePasswordEmployerAdmin = async(email, password, confirmPasswor
     throw err.response?.data || err.message;
   }
 }
+
+export const fetchEmployerAdminProfile = async (id) => {
+  try {
+    const response = await projectServices.get(`/employeradmin/fetchprofile/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('EmployerAdminToken')}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};

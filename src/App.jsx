@@ -138,6 +138,7 @@ function App() {
           <Route path='/employer-admin/forgot-password' element={<EmployerAdminForgotPassword />} />
           <Route path='/employer-admin/reset-password' element={<EmployerAdminChangePassword />} />
           <Route path='/employer-admin/verify-otp' element={<EmployerAdminVerifyOTP />} />
+          <Route path='/employer-admin/profile' element={<EmployeerAdminProfileView />} />
 
           <Route path='/employer-admin/new-candidate' element={<EmployerAdminCandidates />} />
           <Route path='/employer-admin/shortlisted-candidates' element={<EmployeerAdminShortlisedCandidates />} />
@@ -149,7 +150,6 @@ function App() {
 
           <Route path='/employer-admin/post-jobs' element={<EmployeerAdminPostJob />} />
           <Route path='/employer-admin/view-job/:id' element={<EmployerAdminobDetailsPage />} />
-          <Route path='/employer-admin/profile' element={<EmployeerAdminProfileView />} />
           <Route path='/employer-admin/messages' element={<EmployeerAdminMessage />} />
           <Route path='/employer-admin/plans' element={<EmployeerAdminPlans />} />
           <Route path='/employer-admin/plans-grid' element={<EmployeerAdminPlansGrid />} />
