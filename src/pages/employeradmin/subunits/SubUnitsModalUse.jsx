@@ -45,10 +45,16 @@ import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
 import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
 import AddUnitModal from './Modals/AddUnitModal';
 import EditUnitModal from './Modals/EditUnitModal';
+import DeleteConfirmationModal from './Modals/DeleteConfirmationModal';
+import UnitDetailModal from './Modals/UnitDetailModal';
+import UpgradePackageModal from './Modals/UpgradePackageModal';
 
 const SubUnitsModalUse = () => {
   const [showAddUnitModal, setShowAddUnitModal] = useState(false);
   const [showEditUnitModal, setShowEditUnitModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [showUnitDetail, setShowUnitDetail] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const units = [
     {
       id: 1,
@@ -135,7 +141,7 @@ const SubUnitsModalUse = () => {
   return (
     <>
       <EmployerAdminHeader />
-      <div className="content">
+      <div className="content m-2">
         {/* Breadcrumb */}
         <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
           <div className="my-auto">
@@ -144,13 +150,13 @@ const SubUnitsModalUse = () => {
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
             <div className="me-2">
               <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
-                <a href="units.php" className="btn btn-icon btn-sm me-1">
+                <a href="#" className="btn btn-icon btn-sm me-1">
                   <i className="ti ti-search"></i>
                 </a>
-                <a href="units.php" className="btn btn-icon btn-sm me-1">
+                <a href="#" className="btn btn-icon btn-sm me-1">
                   <i className="ti ti-list-tree"></i>
                 </a>
-                <a href="units-grid.php" className="btn btn-icon btn-sm active bg-primary text-white">
+                <a href="#" className="btn btn-icon btn-sm active bg-primary text-white">
                   <i className="ti ti-layout-grid"></i>
                 </a>
               </div>
@@ -183,7 +189,7 @@ const SubUnitsModalUse = () => {
               </button>
             </div>
             <div className="dropdown">
-              <a href="javascript:void(0);" className="dropdown-toggle btn btn-sm btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+              <a href="javascript:void(0);" className="dropdown-toggle btn btn-sm btn-white d-inline-flex align-items-center " data-bs-toggle="dropdown"  style={{fontSize: '15px', paddingTop:'8px', paddingBottom: '8px'}}>
                 Sort By : Last 7 Days
               </a>
               <ul className="dropdown-menu dropdown-menu-end p-3">
@@ -228,12 +234,12 @@ const SubUnitsModalUse = () => {
                       </button>
                       <ul className="dropdown-menu dropdown-menu-end p-3">
                         <li>
-                          <a className="dropdown-item rounded-1" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#company_detail">
+                          <a className="dropdown-item rounded-1" onClick={() => setShowUnitDetail(true)}>
                             <i className="ti ti-eye me-1"></i>View Details
                           </a>
                         </li>
                         <li>
-                          <a className="dropdown-item rounded-1" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#upgrade_info">
+                          <a className="dropdown-item rounded-1"  onClick={() => setShowUpgradeModal(true)}>
                             <i className="ti ti-arrow-up me-1"></i>Upgrade
                           </a>
                         </li>
@@ -243,7 +249,7 @@ const SubUnitsModalUse = () => {
                           </a>
                         </li>
                         <li>
-                          <a className="dropdown-item rounded-1" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#delete_modal">
+                          <a className="dropdown-item rounded-1" onClick={() => setItemToDelete(true)}>
                             <i className="ti ti-trash text-danger text-danger me-1"></i>Delete
                           </a>
                         </li>
@@ -320,9 +326,21 @@ const SubUnitsModalUse = () => {
           show={showAddUnitModal}
           onClose={() => setShowAddUnitModal(false)}
         />
+        <UnitDetailModal
+          show={showUnitDetail}
+          onClose={() => setShowUnitDetail(false)}
+        />
+        <UpgradePackageModal
+          show={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+        />
         <EditUnitModal
           show={showEditUnitModal}
           onClose={() => setShowEditUnitModal(false)}
+        />
+        <DeleteConfirmationModal
+          show={itemToDelete}
+          onClose={() => setItemToDelete(false)}
         />
       </div>
       <EmployerAdminFooter />

@@ -1,4 +1,13 @@
+
 import React, { useState } from 'react';
+import AddPositionsModal from './AddPositionsModal';
+import AddAccessModal from './AddAccessModal';
+import EditAccessModal from './EditAccessModal';
+import AccessModal from './AccessModal';
+import EditStageModal from './EditStageModal';
+import AddStageModal from './AddStageModal ';
+import AddUserModal from './AddUserModal';
+
 
 const EditUnitModal = ({ show, onClose }) => {
     const [activeTab, setActiveTab] = useState('basic-info');
@@ -8,7 +17,9 @@ const EditUnitModal = ({ show, onClose }) => {
     const [showEditAccessModal, setShowEditAccessModal] = useState(false);
     const [showStageModal, setShowStageModal] = useState(false);
     const [showEditStageModal, setShowEditStageModal] = useState(false);
+    const [showAddUserModal, setShowAddUserModal] = useState(false);
 
+   
     const [formData, setFormData] = useState({
         name: 'Example Unit',
         email: 'darlee@example.com',
@@ -40,7 +51,6 @@ const EditUnitModal = ({ show, onClose }) => {
         visibility: 'private',
         status: ''
     });
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -62,7 +72,7 @@ const EditUnitModal = ({ show, onClose }) => {
     return (
         <>
             {/* Main Edit Unit Modal */}
-            <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+           <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
                 <div className="modal-dialog modal-dialog-centered modal-lg">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -349,7 +359,11 @@ const EditUnitModal = ({ show, onClose }) => {
                                                 <div className="mb-3">
                                                     <div className="d-flex justify-content-between align-items-center mb-2">
                                                         <label className="col-form-label p-0">User <span className="text-danger">*</span></label>
-                                                        <button type="button" className="add-new text-primary">
+                                                        <button
+                                                            type="button"
+                                                            className="add-new text-primary"
+                                                            onClick={() => setShowAddUserModal(true)}
+                                                        >
                                                             <i className="ti ti-plus text-primary me-1"></i>Add New
                                                         </button>
                                                     </div>
@@ -671,750 +685,65 @@ const EditUnitModal = ({ show, onClose }) => {
                 </div>
             </div>
 
-            {/* Add Positions Modal */}
-            {showPositionsModal && (
-                <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                    <div className="modal-dialog modal-dialog-centered modal-lg">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h4 className="modal-title">Add New Positions</h4>
-                                <button
-                                    type="button"
-                                    className="btn-close custom-btn-close"
-                                    onClick={() => setShowPositionsModal(false)}
-                                    aria-label="Close"
-                                >
-                                    <i className="ti ti-x"></i>
-                                </button>
-                            </div>
-                            <form>
-                                <div className="modal-body pb-0">
-                                    <div className="row">
-                                        <div className="col-md-12">
-                                            <div className="mb-3">
-                                                <label className="form-label">Position Name <span className="text-danger"> *</span></label>
-                                                <select className="form-select">
-                                                    <option>Select</option>
-                                                    <option>PGT Teacher</option>
-                                                    <option>Maintenance</option>
-                                                    <option>Admin Staff</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="mb-3">
-                                                <div className="d-flex justify-content-between align-items-center">
-                                                    <label className="form-label">Access <span className="text-danger"> *</span></label>
-                                                    <button
-                                                        type="button"
-                                                        className="add-new text-primary"
-                                                        onClick={() => {
-                                                            setShowPositionsModal(false);
-                                                            setShowAddAccessModal(true);
-                                                        }}
-                                                    >
-                                                        <i className="ti ti-plus text-primary me-1"></i>Add New
-                                                    </button>
-                                                </div>
-                                                <select className="form-select">
-                                                    <option>Select</option>
-                                                    <option>Recruitment</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="mb-3">
-                                                <label className="form-label">Status <span className="text-danger"> *</span></label>
-                                                <select className="form-select">
-                                                    <option>Select</option>
-                                                    <option>Open</option>
-                                                    <option>Won</option>
-                                                    <option>Lost</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="mb-3">
-                                                <label className="form-label">Position Value  <span className="text-danger"> *</span></label>
-                                                <input type="text" className="form-control" />
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="mb-3">
-                                                <label className="form-label">Currency<span className="text-danger"> *</span></label>
-                                                <select className="form-select">
-                                                    <option>Select</option>
-                                                    <option>Dollar</option>
-                                                    <option>Euro</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="mb-3">
-                                                <label className="form-label">Period <span className="text-danger"> *</span></label>
-                                                <select className="form-select">
-                                                    <option>Select</option>
-                                                    <option>Days</option>
-                                                    <option>Months</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="mb-3">
-                                                <label className="form-label">Period Value  <span className="text-danger"> *</span></label>
-                                                <input type="text" className="form-control" />
-                                            </div>
-                                        </div>
-                                        <div className="col-md-12">
-                                            <div className="mb-3">
-                                                <label className="form-label">Job Reporting to<span className="text-danger"> *</span></label>
-                                                <input className="form-control" placeholder="Add new" type="text" name="Label" defaultValue="Vaughan Lewis" />
-                                            </div>
-                                        </div>
-                                        <div className="col-md-12">
-                                            <div className="mb-3">
-                                                <label className="form-label">Skills<span className="text-danger"> *</span></label>
-                                                <input className="form-control" placeholder="Add new" type="text" name="Label" defaultValue="Office Management App,Clinic Management,Educational Platform" />
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="mb-3">
-                                                <label className="form-label">Due Date <span className="text-danger"> *</span> </label>
-                                                <div className="input-icon-end position-relative">
-                                                    <input type="text" className="form-control datetimepicker" placeholder="dd/mm/yyyy" />
-                                                    <span className="input-icon-addon">
-                                                        <i className="ti ti-calendar text-gray-7"></i>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="mb-3">
-                                                <label className="form-label">Expected Closing  Date <span className="text-danger"> *</span> </label>
-                                                <div className="input-icon-end position-relative">
-                                                    <input type="text" className="form-control datetimepicker" placeholder="dd/mm/yyyy" />
-                                                    <span className="input-icon-addon">
-                                                        <i className="ti ti-calendar text-gray-7"></i>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-12">
-                                            <div className="mb-3">
-                                                <label className="form-label">Assignee <span className="text-danger"> *</span></label>
-                                                <input className="form-control" placeholder="Add new" type="text" name="Label" defaultValue="Vaughan Lewis" />
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="mb-3">
-                                                <label className="form-label">Tags  <span className="text-danger"> *</span></label>
-                                                <input className="form-control" placeholder="Add new" type="text" name="Label" defaultValue="Collab" />
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="mb-3">
-                                                <label className="form-label">Followup Date   <span className="text-danger"> *</span></label>
-                                                <div className="input-icon-end position-relative">
-                                                    <input type="text" className="form-control datetimepicker" placeholder="dd/mm/yyyy" />
-                                                    <span className="input-icon-addon">
-                                                        <i className="ti ti-calendar text-gray-7"></i>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="mb-3">
-                                                <label className="form-label">Source  <span className="text-danger"> *</span></label>
-                                                <select className="form-select">
-                                                    <option>Select</option>
-                                                    <option>Phone Calls</option>
-                                                    <option>Social Media</option>
-                                                    <option>Refferal Sites</option>
-                                                    <option>Web Analytics</option>
-                                                    <option>Previous Purchase</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="mb-3">
-                                                <label className="form-label">Priority   <span className="text-danger"> *</span></label>
-                                                <select className="form-select">
-                                                    <option>Select</option>
-                                                    <option>High</option>
-                                                    <option>Low</option>
-                                                    <option>Medium</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-12">
-                                            <div className="mb-3">
-                                                <label className="form-label">Description    <span className="text-danger"> *</span></label>
-                                                <textarea className="form-control"></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="modal-footer">
-                                    <button type="button" className="btn btn-light me-2" onClick={() => setShowPositionsModal(false)}>Cancel</button>
-                                    <button type="submit" className="btn btn-primary">Add Position</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Child Modals */}
+            <AddPositionsModal 
+                show={showPositionsModal} 
+                onClose={() => setShowPositionsModal(false)}
+                onAddAccess={() => {
+                    setShowPositionsModal(false);
+                    setShowAddAccessModal(true);
+                }}
+            />
 
-            {/* Add Access Modal */}
-            {showAddAccessModal && (
-                <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                    <div className="modal-dialog modal-dialog-centered modal-lg">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h4 className="modal-title">Add New Access</h4>
-                                <button
-                                    type="button"
-                                    className="btn-close custom-btn-close"
-                                    onClick={() => setShowAddAccessModal(false)}
-                                    aria-label="Close"
-                                >
-                                    <i className="ti ti-x"></i>
-                                </button>
-                            </div>
-                            <form>
-                                <div class="modal-body pb-0">
-                                    <div class="row"></div>
-                                    <div className="col-md-12">
-                                        <div class="mb-3">
-                                            <label className="form-label">Access Name <span class="text-danger"> *</span></label>
-                                            <input type="text" className="form-control" />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-12">
-                                        <div className="input-block mb-3">
-                                            <div className="d-flex justify-content-between align-items-center">
-                                                <label className="form-label">Access Stages <span className="text-danger"> *</span></label>
-                                                <button
-                                                    type="button"
-                                                    className="add-new text-primary"
-                                                    onClick={() => {
-                                                        setShowAddAccessModal(false);
-                                                        setShowStageModal(true);
-                                                    }}
-                                                >
-                                                    <i className="ti ti-plus text-primary me-1"></i>Add New
-                                                </button>
-                                            </div>
-                                            <div className="p-3 border border-gray br-5 mb-2">
-                                                <div className="d-flex align-items-center justify-content-between">
-                                                    <div className="d-flex align-items-center">
-                                                        <span className="me-2"><i className="ti ti-grip-vertical"></i></span>
-                                                        <h6 className="fs-14 fw-normal">Inpipline</h6>
-                                                    </div>
-                                                    <div className="d-flex align-items-center">
-                                                        <button
-                                                            type="button"
-                                                            className="text-default me-2"
-                                                            onClick={() => {
-                                                                setShowAddAccessModal(false);
-                                                                setShowEditStageModal(true);
-                                                            }}
-                                                        >
-                                                            <i className="ti ti-edit"></i>
-                                                        </button>
-                                                        <button type="button" className="text-default">
-                                                            <i className="ti ti-trash text-danger"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="p-3 border border-gray br-5 mb-2">
-                                                <div className="d-flex align-items-center justify-content-between">
-                                                    <div className="d-flex align-items-center">
-                                                        <span className="me-2"><i className="ti ti-grip-vertical"></i></span>
-                                                        <h6 className="fs-14 fw-normal">Follow Up</h6>
-                                                    </div>
-                                                    <div className="d-flex align-items-center">
-                                                        <button
-                                                            type="button"
-                                                            className="text-default me-2"
-                                                            onClick={() => {
-                                                                setShowAddAccessModal(false);
-                                                                setShowEditStageModal(true);
-                                                            }}
-                                                        >
-                                                            <i className="ti ti-edit"></i>
-                                                        </button>
-                                                        <button type="button" className="text-default">
-                                                            <i className="ti ti-trash text-danger"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="p-3 border border-gray br-5">
-                                                <div className="d-flex align-items-center justify-content-between">
-                                                    <div className="d-flex align-items-center">
-                                                        <span className="me-2"><i className="ti ti-grip-vertical"></i></span>
-                                                        <h6 className="fs-14 fw-normal">Schedule Service</h6>
-                                                    </div>
-                                                    <div className="d-flex align-items-center">
-                                                        <button
-                                                            type="button"
-                                                            className="text-default me-2"
-                                                            onClick={() => {
-                                                                setShowAddAccessModal(false);
-                                                                setShowEditStageModal(true);
-                                                            }}
-                                                        >
-                                                            <i className="ti ti-edit"></i>
-                                                        </button>
-                                                        <button type="button" className="text-default">
-                                                            <i className="ti ti-trash text-danger"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-12">
-                                        <div className="mb-3">
-                                            <label className="form-label">Access</label>
-                                            <div className="d-flex access-item nav">
-                                                <div className="d-flex align-items-center">
-                                                    <div className="radio-btn d-flex align-items-center" data-bs-toggle="tab" data-bs-target="#all">
-                                                        <input type="radio" className="status-radio me-2" id="all" name="status" defaultChecked />
-                                                        <label htmlFor="all">All</label>
-                                                    </div>
-                                                    <div className="radio-btn d-flex align-items-center" data-bs-toggle="tab" data-bs-target="#select-person">
-                                                        <input type="radio" className="status-radio me-2" id="select" name="status" />
-                                                        <label htmlFor="select">Select Person</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="tab-content">
-                                                <div className="tab-pane fade" id="select-person">
-                                                    <div className="access-wrapper">
-                                                        <div className="p-3 border border-gray br-5 mb-2">
-                                                            <div className="d-flex align-items-center justify-content-between">
-                                                                <div className="d-flex align-items-center file-name-icon">
-                                                                    <a href="#" className="avatar avatar-md border avatar-rounded">
-                                                                        <img src="assets/img/profiles/avatar-20.jpg" className="img-fluid" alt="img" />
-                                                                    </a>
-                                                                    <div className="ms-2">
-                                                                        <h6 className="fw-medium"><a href="#">Sharon Roy</a></h6>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="d-flex align-items-center">
-                                                                    <a href="#" className="text-danger">Remove</a>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="p-3 border border-gray br-5 mb-2">
-                                                            <div className="d-flex align-items-center justify-content-between">
-                                                                <div className="d-flex align-items-center file-name-icon">
-                                                                    <a href="#" className="avatar avatar-md border avatar-rounded">
-                                                                        <img src="assets/img/profiles/avatar-21.jpg" className="img-fluid" alt="img" />
-                                                                    </a>
-                                                                    <div className="ms-2">
-                                                                        <h6 className="fw-medium"><a href="#">Sharon Roy</a></h6>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="d-flex align-items-center">
-                                                                    <a href="#" className="text-danger">Remove</a>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="modal-footer">
-                                    <button type="button" className="btn btn-light me-2" onClick={() => setShowAddAccessModal(false)}>Cancel</button>
-                                    <button type="submit" className="btn btn-primary">Add Access</button>
-                                </div>
-                            </form>
-                        </div >
-                    </div >
-                </div >
-            )}
+            <AddAccessModal
+                show={showAddAccessModal}
+                onClose={() => setShowAddAccessModal(false)}
+                onAddStage={() => {
+                    setShowAddAccessModal(false);
+                    setShowStageModal(true);
+                }}
+                onEditStage={() => {
+                    setShowAddAccessModal(false);
+                    setShowEditStageModal(true);
+                }}
+            />
 
-            {/* Edit Access Modal */}
-            {
-                showEditAccessModal && (
-                    <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                        <div className="modal-dialog modal-dialog-centered modal-lg">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h4 className="modal-title">Edit Access</h4>
-                                    <button
-                                        type="button"
-                                        className="btn-close custom-btn-close"
-                                        onClick={() => setShowEditAccessModal(false)}
-                                        aria-label="Close"
-                                    >
-                                        <i className="ti ti-x"></i>
-                                    </button>
-                                </div>
-                                <form>
-                                    <div className="modal-body pb-0">
-                                        <div className="row">
-                                            <div className="col-md-12">
-                                                <div className="mb-3">
-                                                    <label className="form-label">Access Name <span className="text-danger"> *</span></label>
-                                                    <input type="text" className="form-control" defaultValue="Marketing" />
-                                                </div>
-                                            </div>
-                                            <div className="col-md-12">
-                                                <div className="input-block mb-3">
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <label className="form-label">Access Stages <span className="text-danger"> *</span></label>
-                                                        <button
-                                                            type="button"
-                                                            className="add-new text-primary"
-                                                            onClick={() => {
-                                                                setShowEditAccessModal(false);
-                                                                setShowStageModal(true);
-                                                            }}
-                                                        >
-                                                            <i className="ti ti-plus text-primary me-1"></i>Add New
-                                                        </button>
-                                                    </div>
-                                                    <div className="p-3 border border-gray br-5 mb-2">
-                                                        <div className="d-flex align-items-center justify-content-between">
-                                                            <div className="d-flex align-items-center">
-                                                             <span className="me-2"><i className="ti ti-grip-vertical"></i></span>
-                                                                <h6 className="fs-14 fw-normal">Inpipline</h6>
-                                                            </div>
-                                                            <div className="d-flex align-items-center">
-                                                                <button
-                                                                    type="button"
-                                                                    className="text-default me-2"
-                                                                    onClick={() => {
-                                                                        setShowEditAccessModal(false);
-                                                                        setShowEditStageModal(true);
-                                                                    }}
-                                                                >
-                                                                    <i className="ti ti-edit"></i>
-                                                                </button>
-                                                                <button type="button" className="text-default">
-                                                                    <i className="ti ti-trash text-danger"></i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="p-3 border border-gray br-5 mb-2">
-                                                        <div className="d-flex align-items-center justify-content-between">
-                                                            <div className="d-flex align-items-center">
-                                                                <span className="me-2"><i className="ti ti-grip-vertical"></i></span>
-                                                                <h6 className="fs-14 fw-normal">Follow Up</h6>
-                                                            </div>
-                                                            <div className="d-flex align-items-center">
-                                                                <button
-                                                                    type="button"
-                                                                    className="text-default me-2"
-                                                                    onClick={() => {
-                                                                        setShowEditAccessModal(false);
-                                                                        setShowEditStageModal(true);
-                                                                    }}
-                                                                >
-                                                                    <i className="ti ti-edit"></i>
-                                                                </button>
-                                                                <button type="button" className="text-default">
-                                                                    <i className="ti ti-trash text-danger"></i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="p-3 border border-gray br-5">
-                                                        <div className="d-flex align-items-center justify-content-between">
-                                                            <div className="d-flex align-items-center">
-                                                                <span className="me-2"><i className="ti ti-grip-vertical"></i></span>
-                                                                <h6 className="fs-14 fw-normal">Schedule Service</h6>
-                                                            </div>
-                                                            <div className="d-flex align-items-center">
-                                                                <button
-                                                                    type="button"
-                                                                    className="text-default me-2"
-                                                                    onClick={() => {
-                                                                        setShowEditAccessModal(false);
-                                                                        setShowEditStageModal(true);
-                                                                    }}
-                                                                >
-                                                                    <i className="ti ti-edit"></i>
-                                                                </button>
-                                                                <button type="button" className="text-default">
-                                                                    <i className="ti ti-trash text-danger"></i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="col-md-12">
-                                                <div className="mb-3">
-                                                    <label className="form-label">Access</label>
-                                                    <div className="d-flex access-item nav">
-                                                        <div className="d-flex align-items-center">
-                                                            <div className="radio-btn d-flex align-items-center" data-bs-toggle="tab" data-bs-target="#all2">
-                                                                <input type="radio" className="status-radio me-2" id="all2" name="status" defaultChecked />
-                                                                <label htmlFor="all2">All</label>
-                                                            </div>
-                                                            <div className="radio-btn d-flex align-items-center" data-bs-toggle="tab" data-bs-target="#select-person2">
-                                                                <input type="radio" className="status-radio me-2" id="select2" name="status" />
-                                                                <label htmlFor="select2">Select Person</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="tab-content">
-                                                        <div className="tab-pane fade" id="select-person2">
-                                                            <div className="access-wrapper">
-                                                                <div className="p-3 border border-gray br-5 mb-2">
-                                                                    <div className="d-flex align-items-center justify-content-between">
-                                                                        <div className="d-flex align-items-center file-name-icon">
-                                                                            <a href="#" className="avatar avatar-md border avatar-rounded">
-                                                                                <img src="assets/img/profiles/avatar-20.jpg" className="img-fluid" alt="img" />
-                                                                            </a>
-                                                                            <div className="ms-2">
-                                                                                <h6 className="fw-medium"><a href="#">Sharon Roy</a></h6>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="d-flex align-items-center">
-                                                                            <a href="#" className="text-danger">Remove</a>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="p-3 border border-gray br-5 mb-2">
-                                                                    <div className="d-flex align-items-center justify-content-between">
-                                                                        <div className="d-flex align-items-center file-name-icon">
-                                                                            <a href="#" className="avatar avatar-md border avatar-rounded">
-                                                                                <img src="assets/img/profiles/avatar-21.jpg" className="img-fluid" alt="img" />
-                                                                            </a>
-                                                                            <div className="ms-2">
-                                                                                <h6 className="fw-medium"><a href="#">Sharon Roy</a></h6>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="d-flex align-items-center">
-                                                                            <a href="#" className="text-danger">Remove</a>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button type="button" className="btn btn-light me-2" onClick={() => setShowEditAccessModal(false)}>Cancel</button>
-                                        <button type="submit" className="btn btn-primary">Add Access</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
+            <EditAccessModal
+                show={showEditAccessModal}
+                onClose={() => setShowEditAccessModal(false)}
+                onAddStage={() => {
+                    setShowEditAccessModal(false);
+                    setShowStageModal(true);
+                }}
+                onEditStage={() => {
+                    setShowEditAccessModal(false);
+                    setShowEditStageModal(true);
+                }}
+            />
 
-            {/* Access Access Modal */}
-            {
-                showAccessModal && (
-                    <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                        <div className="modal-dialog modal-dialog-centered modal-md">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h4 className="modal-title">Access Access</h4>
-                                    <button
-                                        type="button"
-                                        className="btn-close custom-btn-close"
-                                        onClick={() => setShowAccessModal(false)}
-                                        aria-label="Close"
-                                    >
-                                        <i className="ti ti-x"></i>
-                                    </button>
-                                </div>
-                                <form>
-                                    <div className="modal-body pb-0">
-                                        <div className="row">
-                                            <div className="col-md-12">
-                                                <div className="mb-3">
-                                                    <div className="input-icon-end position-relative">
-                                                        <input type="text" className="form-control" placeholder="Search" />
-                                                        <span className="input-icon-addon">
-                                                            <i className="ti ti-search text-gray-7"></i>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="col-md-12">
-                                                <div className="mb-3">
-                                                    <div className="p-2 border br-5">
-                                                        <div className="pipeline-access-items">
-                                                            <div className="d-flex align-items-center p-2">
-                                                                <div className="form-check form-check-md me-2">
-                                                                    <input className="form-check-input" type="checkbox" />
-                                                                </div>
-                                                                <div className="d-flex align-items-center file-name-icon">
-                                                                    <a href="#" className="avatar avatar-md border avatar-rounded">
-                                                                        <img src="assets/img/profiles/avatar-19.jpg" className="img-fluid" alt="img" />
-                                                                    </a>
-                                                                    <div className="ms-2">
-                                                                        <h6 className="fw-medium fs-12"><a href="#">Darlee Robertson</a></h6>
-                                                                        <span className="fs-10 fw-normal">Darlee Robertson</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="d-flex align-items-center p-2">
-                                                                <div className="form-check form-check-md me-2">
-                                                                    <input className="form-check-input" type="checkbox" />
-                                                                </div>
-                                                                <div className="d-flex align-items-center file-name-icon">
-                                                                    <a href="#" className="avatar avatar-md border avatar-rounded">
-                                                                        <img src="assets/img/profiles/avatar-20.jpg" className="img-fluid" alt="img" />
-                                                                    </a>
-                                                                    <div className="ms-2">
-                                                                        <h6 className="fw-medium fs-12"><a href="#">Sharon Roy</a></h6>
-                                                                        <span className="fs-10 fw-normal">Installer</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="d-flex align-items-center p-2">
-                                                                <div className="form-check form-check-md me-2">
-                                                                    <input className="form-check-input" type="checkbox" />
-                                                                </div>
-                                                                <div className="d-flex align-items-center file-name-icon">
-                                                                    <a href="#" className="avatar avatar-md border avatar-rounded">
-                                                                        <img src="assets/img/profiles/avatar-21.jpg" className="img-fluid" alt="img" />
-                                                                    </a>
-                                                                    <div className="ms-2">
-                                                                        <h6 className="fw-medium fs-12"><a href="#">Vaughan Lewis</a></h6>
-                                                                        <span className="fs-10 fw-normal">Senior Manager</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="d-flex align-items-center p-2">
-                                                                <div className="form-check form-check-md me-2">
-                                                                    <input className="form-check-input" type="checkbox" />
-                                                                </div>
-                                                                <div className="d-flex align-items-center file-name-icon">
-                                                                    <a href="#" className="avatar avatar-md border avatar-rounded">
-                                                                        <img src="assets/img/users/user-33.jpg" className="img-fluid" alt="img" />
-                                                                    </a>
-                                                                    <div className="ms-2">
-                                                                        <h6 className="fw-medium fs-12"><a href="#">Jessica Louise</a></h6>
-                                                                        <span className="fs-10 fw-normal">Test Engineer</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="d-flex align-items-center p-2">
-                                                                <div className="form-check form-check-md me-2">
-                                                                    <input className="form-check-input" type="checkbox" />
-                                                                </div>
-                                                                <div className="d-flex align-items-center file-name-icon">
-                                                                    <a href="#" className="avatar avatar-md border avatar-rounded">
-                                                                        <img src="assets/img/users/user-34.jpg" className="img-fluid" alt="img" />
-                                                                    </a>
-                                                                    <div className="ms-2">
-                                                                        <h6 className="fw-medium fs-12"><a href="#">Test Engineer</a></h6>
-                                                                        <span className="fs-10 fw-normal">UI /UX Designer</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button type="button" className="btn btn-light me-2" onClick={() => setShowAccessModal(false)}>Cancel</button>
-                                        <button type="submit" className="btn btn-primary">Confirm</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
+            <AccessModal
+                show={showAccessModal}
+                onClose={() => setShowAccessModal(false)}
+            />
 
-            {/* Add New Stage Modal */}
-            {
-                showStageModal && (
-                    <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                        <div className="modal-dialog modal-dialog-centered modal-md">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h4 className="modal-title">Add New Stage</h4>
-                                    <button
-                                        type="button"
-                                        className="btn-close custom-btn-close"
-                                        onClick={() => setShowStageModal(false)}
-                                        aria-label="Close"
-                                    >
-                                        <i className="ti ti-x"></i>
-                                    </button>
-                                </div>
-                                <form>
-                                    <div className="modal-body pb-0">
-                                        <div className="row">
-                                            <div className="col-md-12">
-                                                <div className="mb-3">
-                                                    <label className="form-label">Stage Name <span className="text-danger"> *</span></label>
-                                                    <input type="text" className="form-control" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button type="button" className="btn btn-light me-2" onClick={() => setShowStageModal(false)}>Cancel</button>
-                                        <button type="submit" className="btn btn-primary">Add Stage</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
+            <AddStageModal
+                show={showStageModal}
+                onClose={() => setShowStageModal(false)}
+            />
 
-            {/* Edit Stage Modal */}
-            {
-                showEditStageModal && (
-                    <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                        <div className="modal-dialog modal-dialog-centered modal-md">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h4 className="modal-title">Edit Stage</h4>
-                                    <button
-                                        type="button"
-                                        className="btn-close custom-btn-close"
-                                        onClick={() => setShowEditStageModal(false)}
-                                        aria-label="Close"
-                                    >
-                                        <i className="ti ti-x"></i>
-                                    </button>
-                                </div>
-                                <form>
-                                    <div className="modal-body pb-0">
-                                        <div className="row">
-                                            <div className="col-md-12">
-                                                <div className="mb-3">
-                                                    <label className="form-label">Edit Name <span className="text-danger"> *</span></label>
-                                                    <input type="text" className="form-control" defaultValue="Inpipeline" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button type="button" className="btn btn-light me-2" onClick={() => setShowEditStageModal(false)}>Cancel</button>
-                                        <button type="submit" className="btn btn-primary">Save Changes</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
+            <EditStageModal
+                show={showEditStageModal}
+                onClose={() => setShowEditStageModal(false)}
+            />
+
+            <AddUserModal
+                show={showAddUserModal}
+                onClose={() => setShowAddUserModal(false)}
+                onAddPositions={() => {
+                    setShowAddUserModal(false);
+                    setShowPositionsModal(true);
+                }}
+            />
         </>
     );
 };
