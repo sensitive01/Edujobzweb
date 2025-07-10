@@ -140,7 +140,7 @@ function App() {
           <Route path='/employer-admin/reset-password' element={<EmployerAdminChangePassword />} />
           <Route path='/employer-admin/verify-otp' element={<EmployerAdminVerifyOTP />} />
           <Route path='/employer-admin/profile' element={<EmployeerAdminProfileView />} />
-          {/* <Route path='/employer-admin/units-grid' element={<SubUnitsModalUse />} /> */}
+          <Route path='/employer-admin/units-grid' element={<SubUnitsModalUse />} />
 
           <Route path='/employer-admin/new-candidate' element={<EmployerAdminCandidates />} />
           <Route path='/employer-admin/shortlisted-candidates' element={<EmployeerAdminShortlisedCandidates />} />

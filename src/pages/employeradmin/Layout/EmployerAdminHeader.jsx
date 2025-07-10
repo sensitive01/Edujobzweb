@@ -172,10 +172,10 @@ const EmployerAdminHeader = () => {
                     {/* Desktop Navigation */}
                     <nav className='d-none d-lg-flex align-items-center'>
                         <div className='d-flex align-items-center'>
-                            {/* <Link to="/employer-admin/units-grid" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                            <Link to="/employer-admin/units-grid" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                                 <LayoutGrid className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">Sub Units</span>
-                            </Link> */}
+                            </Link>
                             <div className='position-relative me-2'>
                                 <div
                                     className='d-flex align-items-center fw-medium px-3 py-2 rounded dropdown'
