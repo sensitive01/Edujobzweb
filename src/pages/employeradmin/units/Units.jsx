@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     ChevronDown,
     LayoutGrid,
@@ -24,6 +24,9 @@ import company07 from '../../../assets/employer-admin/assets/img/company/company
 import company08 from '../../../assets/employer-admin/assets/img/company/company-08.svg';
 import company09 from '../../../assets/employer-admin/assets/img/company/company-09.svg';
 import company10 from '../../../assets/employer-admin/assets/img/company/company-10.svg';
+import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
+import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
+import UnitAddSchoolModal from './Modals/UnitAddSchoolModal';
 
 const UnitsPage = () => {
     const [selectedDateRange, setSelectedDateRange] = useState('');
@@ -36,6 +39,7 @@ const UnitsPage = () => {
     const [showStatusDropdown, setShowStatusDropdown] = useState(false);
     const [showSortDropdown, setShowSortDropdown] = useState(false);
     const [showExportDropdown, setShowExportDropdown] = useState(false);
+     const [showAddSchooltModal, setShowAddSchoolModal] = useState(false);
 
     const schools = [
         {
@@ -153,9 +157,31 @@ const UnitsPage = () => {
                 : [...prev, id]
         );
     };
-
+    const useOutsideClick = (ref, callback) => {
+        useEffect(() => {
+            const handleClickOutside = (event) => {
+                if (ref.current && !ref.current.contains(event.target)) {
+                    callback();
+                }
+            };
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => {
+                document.removeEventListener('mousedown', handleClickOutside);
+            }
+        }, [ref, callback]);
+    }
+    const planDropdownRef = useRef(null);
+    const sortDropdownRef = useRef(null);
+    const exportDropdownRef = useRef(null);
+    const statusDropdownRef = useRef(null);
+    useOutsideClick(planDropdownRef, () => setShowPlanDropdown(false));
+    useOutsideClick(sortDropdownRef, () => setShowSortDropdown(false));
+    useOutsideClick(exportDropdownRef, () => setShowExportDropdown(false));
+    useOutsideClick(statusDropdownRef, () => setShowStatusDropdown(false));
     return (
-        <div className="content">
+        <>
+       <EmployerAdminHeader/>
+        <div className="content m-2">
             {/* Breadcrumb */}
             <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
                 <div className="my-auto">
@@ -179,7 +205,7 @@ const UnitsPage = () => {
                     </div>
 
                     {/* Plan Dropdown */}
-                    <div className="dropdown me-2">
+                    <div className="dropdown me-2" ref={planDropdownRef}>
                         <button
                             className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
                             onClick={() => setShowPlanDropdown(!showPlanDropdown)}
@@ -227,27 +253,113 @@ const UnitsPage = () => {
                     </div>
 
                     {/* Status Dropdown */}
-                    <div className="dropdown me-2">
-                        <button className="dropdown-toggle btn btn-white d-inline-flex align-items-center">
+                    <div className="dropdown me-2" ref={statusDropdownRef}>
+                        <button
+                            className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                            onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                        >
                             {selectedStatus}
                         </button>
-                        <ul className="dropdown-menu dropdown-menu-end p-3">
-                            <li><button className="dropdown-item rounded-1" onClick={() => setSelectedStatus('Active')}>Active</button></li>
-                            <li><button className="dropdown-item rounded-1" onClick={() => setSelectedStatus('Inactive')}>Inactive</button></li>
+                        <ul
+                            className={`dropdown-menu dropdown-menu-end p-3 ${showStatusDropdown ? 'show' : ''}`}
+                            style={{ display: showStatusDropdown ? 'block' : 'none' }}
+                        >
+                            <li>
+                                <button
+                                    className="dropdown-item rounded-1"
+                                    onClick={() => {
+                                        setSelectedStatus('Active');
+                                        setShowStatusDropdown(false);
+                                    }}
+                                >
+                                    Active
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    className="dropdown-item rounded-1"
+                                    onClick={() => {
+                                        setSelectedStatus('Inactive');
+                                        setShowStatusDropdown(false);
+                                    }}
+                                >
+                                    Inactive
+                                </button>
+                            </li>
                         </ul>
                     </div>
 
                     {/* Sort By Dropdown */}
-                    <div className="dropdown me-2">
-                        <button className="dropdown-toggle btn btn-white d-inline-flex align-items-center">
+
+                    <div className="dropdown me-2" ref={sortDropdownRef}>
+                        <button
+                            className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                            onClick={() => {
+                                setShowSortDropdown(!showSortDropdown);
+                                setShowExportDropdown(false); // Close other dropdowns
+                            }}
+                        >
                             Sort By: {sortBy}
                         </button>
-                        <ul className="dropdown-menu dropdown-menu-end p-3">
-                            <li><button className="dropdown-item rounded-1" onClick={() => setSortBy('Recently Added')}>Recently Added</button></li>
-                            <li><button className="dropdown-item rounded-1" onClick={() => setSortBy('Ascending')}>Ascending</button></li>
-                            <li><button className="dropdown-item rounded-1" onClick={() => setSortBy('Desending')}>Desending</button></li>
-                            <li><button className="dropdown-item rounded-1" onClick={() => setSortBy('Last Month')}>Last Month</button></li>
-                            <li><button className="dropdown-item rounded-1" onClick={() => setSortBy('Last 7 Days')}>Last 7 Days</button></li>
+                        <ul
+                            className={`dropdown-menu dropdown-menu-end p-3 ${showSortDropdown ? 'show' : ''}`}
+                            style={{ display: showSortDropdown ? 'block' : 'none' }}
+                        >
+                            <li>
+                                <button
+                                    className="dropdown-item rounded-1"
+                                    onClick={() => {
+                                        setSortBy('Recently Added');
+                                        setShowSortDropdown(false);
+                                    }}
+                                >
+                                    Recently Added
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    className="dropdown-item rounded-1"
+                                    onClick={() => {
+                                        setSortBy('Ascending');
+                                        setShowSortDropdown(false);
+                                    }}
+                                >
+                                    Ascending
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    className="dropdown-item rounded-1"
+                                    onClick={() => {
+                                        setSortBy('Descending');
+                                        setShowSortDropdown(false);
+                                    }}
+                                >
+                                    Descending
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    className="dropdown-item rounded-1"
+                                    onClick={() => {
+                                        setSortBy('Last Month');
+                                        setShowSortDropdown(false);
+                                    }}
+                                >
+                                    Last Month
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    className="dropdown-item rounded-1"
+                                    onClick={() => {
+                                        setSortBy('Last 7 Days');
+                                        setShowSortDropdown(false);
+                                    }}
+                                >
+                                    Last 7 Days
+                                </button>
+                            </li>
                         </ul>
                     </div>
 
@@ -262,29 +374,48 @@ const UnitsPage = () => {
                     </div>
 
                     {/* Export Dropdown */}
-                    <div className="me-2">
-                        <div className="dropdown">
-                            <button className="dropdown-toggle btn btn-white d-inline-flex align-items-center">
-                                <Download size={16} className="me-1" />
-                                Export
-                            </button>
-                            <ul className="dropdown-menu dropdown-menu-end p-3">
-                                <li>
-                                    <button className="dropdown-item rounded-1">
-                                        <FileText size={16} className="me-1" />
-                                        Export as PDF
-                                    </button>
-                                </li>
-                                <li>
-                                    <button className="dropdown-item rounded-1">
-                                        <FileText size={16} className="me-1" />
-                                        Export as Excel
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
+                    <div className="dropdown me-2" ref={exportDropdownRef}>
+                        <button
+                            className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                            onClick={() => {
+                                setShowExportDropdown(!showExportDropdown);
+                                setShowSortDropdown(false); // Close other dropdowns
+                            }}
+                        >
+                            <Download size={16} className="me-1" />
+                            Export
+                        </button>
+                        <ul
+                            className={`dropdown-menu dropdown-menu-end p-3 ${showExportDropdown ? 'show' : ''}`}
+                            style={{ display: showExportDropdown ? 'block' : 'none' }}
+                        >
+                            <li>
+                                <button
+                                    className="dropdown-item rounded-1 d-flex align-items-center"
+                                    onClick={() => {
+                                        // Handle PDF export logic here
+                                        setShowExportDropdown(false);
+                                    }}
+                                >
+                                    <FileText size={16} className="me-1" />
+                                    Export as PDF
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    className="dropdown-item rounded-1 d-flex align-items-center"
+                                    onClick={() => {
+                                        // Handle Excel export logic here
+                                        setShowExportDropdown(false);
+                                    }}
+                                >
+                                    <FileText size={16} className="me-1" />
+                                    Export as Excel
+                                </button>
+                            </li>
+                        </ul>
                     </div>
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#add_company" class="btn btn-primary d-flex align-items-center"><i class="ti ti-circle-plus me-2"></i>Add School</a>
+                    <a  onClick={() => setShowAddSchoolModal(true)} class="btn btn-primary d-flex align-items-center"><i class="ti ti-circle-plus me-2"></i>Add School</a>
                 </div>
             </div>
 
@@ -424,24 +555,18 @@ const UnitsPage = () => {
                                         </td>
                                         <td>{school.date}</td>
                                         <td>
-                                            <span className={`badge ${school.status === 'Active' ? 'badge-success' : 'badge-danger'} d-inline-flex align-items-center badge-xs`}>
-                                                <Circle size={12} className="me-1" fill="currentColor" />
-                                                {school.status}
-                                            </span>
-                                        </td>
+											<span className={`badge ${school.status === 'Active' ? 'badge-success' : 'badge-danger'} d-inline-flex align-items-center badge-xs`}>
+												<i class="ti ti-point-filled me-1"></i>
+                                                 {school.status}
+											</span>
+										</td>
                                         <td>
-                                            <div className="action-icon d-inline-flex">
-                                                <a href="#" className="me-2">
-                                                    <Eye size={16} />
-                                                </a>
-                                                <a href="#" className="me-2">
-                                                    <Edit2 size={16} />
-                                                </a>
-                                                <a href="#">
-                                                    <Trash2 size={16} className="text-danger" />
-                                                </a>
-                                            </div>
-                                        </td>
+											<div class="action-icon d-inline-flex">
+												<a href="#" class="me-2"><i class="ti ti-eye"></i></a>
+												<a href="#" class="me-2"><i class="ti ti-edit"></i></a>
+												<a href="javascript:void(0);"><i class="ti ti-trash text-danger"></i></a>
+											</div>
+										</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -450,6 +575,12 @@ const UnitsPage = () => {
                 </div>
             </div>
         </div>
+            <UnitAddSchoolModal
+          show={showAddSchooltModal}
+          onClose={() => setShowAddSchoolModal(false)}
+        />
+          <EmployerAdminFooter/>
+        </>
     );
 };
 
