@@ -29,6 +29,7 @@ import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
 import UnitAddSchoolModal from './Modals/UnitAddSchoolModal';
 import UnitEditSchoolModal from './Modals/UnitEditSchoolModal';
 import UnitSchoolDetailModal from './Modals/UnitSchoolDetailModal';
+import UnitUpgradeModal from './Modals/UnitUpgradeModal';
 
 const UnitsPage = () => {
     const [selectedDateRange, setSelectedDateRange] = useState('');
@@ -44,6 +45,7 @@ const UnitsPage = () => {
     const [showAddSchooltModal, setShowAddSchoolModal] = useState(false);
     const [showEditSchoolModal, setShowEditSchoolModal] = useState(false);
     const [showDetailsSchoolModal, setShowDetailsSchoolModal] = useState(false);
+    const [showUpgradeSchoolModal, setShowUpgradeSchoolModal] = useState(false);
 
     const schools = [
         {
@@ -554,7 +556,7 @@ const UnitsPage = () => {
                                             <td>
                                                 <div className="d-flex align-items-center justify-content-between">
                                                     <p className="mb-0 me-2">{school.plan}</p>
-                                                    <a href="#" className="badge badge-purple badge-xs">Upgrade</a>
+                                                    <a onClick={() => setShowUpgradeSchoolModal(true)} className="badge badge-purple badge-xs">Upgrade</a>
                                                 </div>
                                             </td>
                                             <td>{school.date}</td>
@@ -590,6 +592,9 @@ const UnitsPage = () => {
             <UnitSchoolDetailModal
             show={showDetailsSchoolModal}
             onClose={() => setShowDetailsSchoolModal (false)}/>
+            <UnitUpgradeModal
+            show={showUpgradeSchoolModal}
+            onClose={() => setShowUpgradeSchoolModal(false)}/>
             <EmployerAdminFooter />
         </>
     );

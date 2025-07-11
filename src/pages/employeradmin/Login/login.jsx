@@ -29,6 +29,7 @@ const EmployerAdminLoginPage = () => {
     const [rememberMe, setRememberMe] = useState(false);
 
     const handleChange = (e) => {
+        console.log(e.target.value)
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,

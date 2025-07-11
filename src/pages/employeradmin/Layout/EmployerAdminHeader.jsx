@@ -812,7 +812,7 @@ const EmployerAdminHeader = () => {
                     height: 100%;
                 }
                 .bg-primary {
-                    background-color: #3b82f6 !important;
+                    background-color: #f9ab00 !important;
                 }
                 
                 /* Mobile Menu Styles */

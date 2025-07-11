@@ -91,6 +91,7 @@ import EmployerAdminSupportChatList from './pages/employeradmin/support/Employer
 import EmployerAdminEnrollment from './pages/employeradmin/events/EmployerAdminEnrollment';
 import SubUnitsModalUse from './pages/employeradmin/subunits/SubUnitsModalUse';
 import Units from './pages/employeradmin/units/Units';
+import SchoolDetails from './pages/employeradmin/subunits/SchoolDetails';
 
 function App() {
   return (
@@ -144,6 +145,7 @@ function App() {
 
 
           <Route path='/employer-admin/units-grid' element={<SubUnitsModalUse />} />
+          <Route path='/employer-admin/school-details' element={<SchoolDetails />} />
           <Route path='/employer-admin/units' element={<Units />} />
 
 

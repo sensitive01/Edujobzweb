@@ -224,7 +224,7 @@ const SubUnitsModalUse = () => {
                       <input className="form-check-input" type="checkbox" />
                     </div>
                     <div>
-                      <a href="school-details.php" className="avatar avatar-xl avatar-rounded online border rounded-circle">
+                      <a href="/employer-admin/school-details" className="avatar avatar-xl avatar-rounded online border rounded-circle">
                         <img src={unit.image} className="img-fluid h-auto w-auto" alt="img" />
                       </a>
                     </div>
@@ -258,7 +258,7 @@ const SubUnitsModalUse = () => {
                   </div>
                   <div className="text-center mb-3">
                     <h6 className="mb-1">
-                      <a href="school-details.php">{unit.name}</a>
+                      <a href="/employer-admin/school-details">{unit.name}</a>
                     </h6>
                     <div className="avatar-list-stacked avatar-group-sm">
                       {unit.members.slice(0, 5).map((member, index) => (
