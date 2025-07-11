@@ -150,13 +150,13 @@ const SubUnitsModalUse = () => {
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
             <div className="me-2">
               <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
-                <a href="#" className="btn btn-icon btn-sm me-1">
+                <a href="/employer-admin/units" className="btn btn-icon btn-sm me-1">
                   <i className="ti ti-search"></i>
                 </a>
-                <a href="#" className="btn btn-icon btn-sm me-1">
+                <a href="/employer-admin/units" className="btn btn-icon btn-sm me-1">
                   <i className="ti ti-list-tree"></i>
                 </a>
-                <a href="#" className="btn btn-icon btn-sm active bg-primary text-white">
+                <a href="/employer-admin/units-grid" className="btn btn-icon btn-sm active bg-primary text-white">
                   <i className="ti ti-layout-grid"></i>
                 </a>
               </div>
