@@ -89,7 +89,7 @@ const EmployeerAdminProfileView = () => {
 
         <ul className="nav nav-tabs nav-tabs-solid bg-transparent border-bottom mb-3">
           <li className="nav-item">
-            <a className="nav-link active" href="school-profile.php">
+            <a className="nav-link active" href="/employer-admin/school-profile">
               <i className="ti ti-settings me-2"></i>Profile Details
             </a>
           </li>
@@ -115,7 +115,7 @@ const EmployeerAdminProfileView = () => {
               <div className="card-body">
                 <div className="d-flex flex-column list-group settings-list">
                   <a
-                    href="school-profile.php"
+                    href="/employer-admin/school-profile"
                     className="d-inline-flex align-items-center rounded active py-2 px-3"
                   >
                     <i className="ti ti-arrow-badge-right me-2"></i> Profile Settings
@@ -144,7 +144,7 @@ const EmployeerAdminProfileView = () => {
                     <i className="ti ti-user me-2 text-primary"></i> Profile Information
                   </h4>
                 </div>
-                <form action="/employer-admin/profile">
+                <form action="/employer-admin/school-profile">
                   <div className="border-bottom mb-3">
                     <div className="row">
                       <div className="col-md-12">

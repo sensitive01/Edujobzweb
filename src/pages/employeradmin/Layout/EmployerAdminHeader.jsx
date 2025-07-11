@@ -539,7 +539,7 @@ const EmployerAdminHeader = () => {
                                                         {profileData.employeradminUsername || 'EduJobz'}
                                                     </h5>
                                                     <p className="fs-12 fw-medium mb-0">
-                                                        <a href="/employer-admin/profile">
+                                                        <a href="/employer-admin/school-profile">
                                                             {profileData.employeradminEmail || 'School'}
                                                         </a>
                                                     </p>
@@ -549,7 +549,7 @@ const EmployerAdminHeader = () => {
                                         <div className="card-body">
                                             <Link
                                                 className="dropdown-item d-inline-flex align-items-center p-0 py-2 text-decoration-none"
-                                                to="/employer-admin/profile"
+                                                to="/employer-admin/school-profile"
                                                 onClick={() => setProfileDropdown(false)}
                                             >
                                                 <span className="me-1 text-primary">↑</span>My Account

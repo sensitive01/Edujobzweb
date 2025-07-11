@@ -77,7 +77,7 @@ const EmployerAdminLoginPage = () => {
             } else {
                 localStorage.setItem('EmployerAdminData', JSON.stringify(adminData));
             }
-            navigate('/employer-admin/profile');
+            navigate('/employer-admin/school-profile');
         } catch (err) {
             console.error('Login error:', err);
             setError(err.message || 'Login failed. Please try again.');
