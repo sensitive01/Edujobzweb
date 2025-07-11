@@ -27,6 +27,8 @@ import company10 from '../../../assets/employer-admin/assets/img/company/company
 import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
 import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
 import UnitAddSchoolModal from './Modals/UnitAddSchoolModal';
+import UnitEditSchoolModal from './Modals/UnitEditSchoolModal';
+import UnitSchoolDetailModal from './Modals/UnitSchoolDetailModal';
 
 const UnitsPage = () => {
     const [selectedDateRange, setSelectedDateRange] = useState('');
@@ -39,7 +41,9 @@ const UnitsPage = () => {
     const [showStatusDropdown, setShowStatusDropdown] = useState(false);
     const [showSortDropdown, setShowSortDropdown] = useState(false);
     const [showExportDropdown, setShowExportDropdown] = useState(false);
-     const [showAddSchooltModal, setShowAddSchoolModal] = useState(false);
+    const [showAddSchooltModal, setShowAddSchoolModal] = useState(false);
+    const [showEditSchoolModal, setShowEditSchoolModal] = useState(false);
+    const [showDetailsSchoolModal, setShowDetailsSchoolModal] = useState(false);
 
     const schools = [
         {
@@ -180,406 +184,413 @@ const UnitsPage = () => {
     useOutsideClick(statusDropdownRef, () => setShowStatusDropdown(false));
     return (
         <>
-       <EmployerAdminHeader/>
-        <div className="content m-2">
-            {/* Breadcrumb */}
-            <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
-                <div className="my-auto">
-                    <h2>Units</h2>
-                </div>
-                <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
-                    {/* Date Range Picker */}
-                    <div className="me-2">
-                        <div className="input-icon-end position-relative">
-                            <input
-                                type="text"
-                                className="form-control date-range bookingrange"
-                                placeholder="dd/mm/yyyy - dd/mm/yyyy"
-                                value={selectedDateRange}
-                                onChange={(e) => setSelectedDateRange(e.target.value)}
-                            />
-                            <span className="input-icon-addon">
-                                <ChevronDown size={16} />
-                            </span>
-                        </div>
+            <EmployerAdminHeader />
+            <div className="content m-2">
+                {/* Breadcrumb */}
+                <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+                    <div className="my-auto">
+                        <h2>Units</h2>
                     </div>
-
-                    {/* Plan Dropdown */}
-                    <div className="dropdown me-2" ref={planDropdownRef}>
-                        <button
-                            className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                            onClick={() => setShowPlanDropdown(!showPlanDropdown)}
-                        >
-                            {selectedPlan}
-                        </button>
-                        <ul
-                            className={`dropdown-menu dropdown-menu-end p-3 ${showPlanDropdown ? 'show' : ''}`}
-                            style={{ display: showPlanDropdown ? 'block' : 'none' }}
-                        >
-                            <li>
-                                <button
-                                    className="dropdown-item rounded-1"
-                                    onClick={() => {
-                                        setSelectedPlan('Advanced');
-                                        setShowPlanDropdown(false);
-                                    }}
-                                >
-                                    Advanced
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    className="dropdown-item rounded-1"
-                                    onClick={() => {
-                                        setSelectedPlan('Basic');
-                                        setShowPlanDropdown(false);
-                                    }}
-                                >
-                                    Basic
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    className="dropdown-item rounded-1"
-                                    onClick={() => {
-                                        setSelectedPlan('Enterprise');
-                                        setShowPlanDropdown(false);
-                                    }}
-                                >
-                                    Enterprise
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Status Dropdown */}
-                    <div className="dropdown me-2" ref={statusDropdownRef}>
-                        <button
-                            className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                            onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                        >
-                            {selectedStatus}
-                        </button>
-                        <ul
-                            className={`dropdown-menu dropdown-menu-end p-3 ${showStatusDropdown ? 'show' : ''}`}
-                            style={{ display: showStatusDropdown ? 'block' : 'none' }}
-                        >
-                            <li>
-                                <button
-                                    className="dropdown-item rounded-1"
-                                    onClick={() => {
-                                        setSelectedStatus('Active');
-                                        setShowStatusDropdown(false);
-                                    }}
-                                >
-                                    Active
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    className="dropdown-item rounded-1"
-                                    onClick={() => {
-                                        setSelectedStatus('Inactive');
-                                        setShowStatusDropdown(false);
-                                    }}
-                                >
-                                    Inactive
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Sort By Dropdown */}
-
-                    <div className="dropdown me-2" ref={sortDropdownRef}>
-                        <button
-                            className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                            onClick={() => {
-                                setShowSortDropdown(!showSortDropdown);
-                                setShowExportDropdown(false); // Close other dropdowns
-                            }}
-                        >
-                            Sort By: {sortBy}
-                        </button>
-                        <ul
-                            className={`dropdown-menu dropdown-menu-end p-3 ${showSortDropdown ? 'show' : ''}`}
-                            style={{ display: showSortDropdown ? 'block' : 'none' }}
-                        >
-                            <li>
-                                <button
-                                    className="dropdown-item rounded-1"
-                                    onClick={() => {
-                                        setSortBy('Recently Added');
-                                        setShowSortDropdown(false);
-                                    }}
-                                >
-                                    Recently Added
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    className="dropdown-item rounded-1"
-                                    onClick={() => {
-                                        setSortBy('Ascending');
-                                        setShowSortDropdown(false);
-                                    }}
-                                >
-                                    Ascending
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    className="dropdown-item rounded-1"
-                                    onClick={() => {
-                                        setSortBy('Descending');
-                                        setShowSortDropdown(false);
-                                    }}
-                                >
-                                    Descending
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    className="dropdown-item rounded-1"
-                                    onClick={() => {
-                                        setSortBy('Last Month');
-                                        setShowSortDropdown(false);
-                                    }}
-                                >
-                                    Last Month
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    className="dropdown-item rounded-1"
-                                    onClick={() => {
-                                        setSortBy('Last 7 Days');
-                                        setShowSortDropdown(false);
-                                    }}
-                                >
-                                    Last 7 Days
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* View Toggle */}
-                    <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
-                        <a href="units" className="btn btn-icon btn-sm active bg-primary text-white">
-                            <ListTree size={16} />
-                        </a>
-                        <a href="units-grid" className="btn btn-icon btn-sm me-1">
-                            <LayoutGrid size={16} />
-                        </a>
-                    </div>
-
-                    {/* Export Dropdown */}
-                    <div className="dropdown me-2" ref={exportDropdownRef}>
-                        <button
-                            className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                            onClick={() => {
-                                setShowExportDropdown(!showExportDropdown);
-                                setShowSortDropdown(false); // Close other dropdowns
-                            }}
-                        >
-                            <Download size={16} className="me-1" />
-                            Export
-                        </button>
-                        <ul
-                            className={`dropdown-menu dropdown-menu-end p-3 ${showExportDropdown ? 'show' : ''}`}
-                            style={{ display: showExportDropdown ? 'block' : 'none' }}
-                        >
-                            <li>
-                                <button
-                                    className="dropdown-item rounded-1 d-flex align-items-center"
-                                    onClick={() => {
-                                        // Handle PDF export logic here
-                                        setShowExportDropdown(false);
-                                    }}
-                                >
-                                    <FileText size={16} className="me-1" />
-                                    Export as PDF
-                                </button>
-                            </li>
-                            <li>
-                                <button
-                                    className="dropdown-item rounded-1 d-flex align-items-center"
-                                    onClick={() => {
-                                        // Handle Excel export logic here
-                                        setShowExportDropdown(false);
-                                    }}
-                                >
-                                    <FileText size={16} className="me-1" />
-                                    Export as Excel
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                    <a  onClick={() => setShowAddSchoolModal(true)} class="btn btn-primary d-flex align-items-center"><i class="ti ti-circle-plus me-2"></i>Add School</a>
-                </div>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="row">
-                {/* Total Schools */}
-                <div className="col-lg-3 col-md-6 d-flex">
-                    <div className="card flex-fill">
-                        <div className="card-body d-flex align-items-center justify-content-between">
-                            <div className="d-flex align-items-center overflow-hidden">
-                                <span className="avatar avatar-lg bg-primary flex-shrink-0">
-                                    <i className="ti ti-building fs-16"></i>
+                    <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
+                        {/* Date Range Picker */}
+                        <div className="me-2">
+                            <div className="input-icon-end position-relative">
+                                <input
+                                    type="text"
+                                    className="form-control date-range bookingrange"
+                                    placeholder="dd/mm/yyyy - dd/mm/yyyy"
+                                    value={selectedDateRange}
+                                    onChange={(e) => setSelectedDateRange(e.target.value)}
+                                />
+                                <span className="input-icon-addon">
+                                    <ChevronDown size={16} />
                                 </span>
-                                <div className="ms-2 overflow-hidden">
-                                    <p className="fs-12 fw-medium mb-1 text-truncate">Total Schools</p>
-                                    <h4>950</h4>
-                                </div>
                             </div>
-                            <div id="total-chart"></div>
+                        </div>
+
+                        {/* Plan Dropdown */}
+                        <div className="dropdown me-2" ref={planDropdownRef}>
+                            <button
+                                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                                onClick={() => setShowPlanDropdown(!showPlanDropdown)}
+                            >
+                                {selectedPlan}
+                            </button>
+                            <ul
+                                className={`dropdown-menu dropdown-menu-end p-3 ${showPlanDropdown ? 'show' : ''}`}
+                                style={{ display: showPlanDropdown ? 'block' : 'none' }}
+                            >
+                                <li>
+                                    <button
+                                        className="dropdown-item rounded-1"
+                                        onClick={() => {
+                                            setSelectedPlan('Advanced');
+                                            setShowPlanDropdown(false);
+                                        }}
+                                    >
+                                        Advanced
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                        className="dropdown-item rounded-1"
+                                        onClick={() => {
+                                            setSelectedPlan('Basic');
+                                            setShowPlanDropdown(false);
+                                        }}
+                                    >
+                                        Basic
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                        className="dropdown-item rounded-1"
+                                        onClick={() => {
+                                            setSelectedPlan('Enterprise');
+                                            setShowPlanDropdown(false);
+                                        }}
+                                    >
+                                        Enterprise
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Status Dropdown */}
+                        <div className="dropdown me-2" ref={statusDropdownRef}>
+                            <button
+                                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                                onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+                            >
+                                {selectedStatus}
+                            </button>
+                            <ul
+                                className={`dropdown-menu dropdown-menu-end p-3 ${showStatusDropdown ? 'show' : ''}`}
+                                style={{ display: showStatusDropdown ? 'block' : 'none' }}
+                            >
+                                <li>
+                                    <button
+                                        className="dropdown-item rounded-1"
+                                        onClick={() => {
+                                            setSelectedStatus('Active');
+                                            setShowStatusDropdown(false);
+                                        }}
+                                    >
+                                        Active
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                        className="dropdown-item rounded-1"
+                                        onClick={() => {
+                                            setSelectedStatus('Inactive');
+                                            setShowStatusDropdown(false);
+                                        }}
+                                    >
+                                        Inactive
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Sort By Dropdown */}
+
+                        <div className="dropdown me-2" ref={sortDropdownRef}>
+                            <button
+                                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                                onClick={() => {
+                                    setShowSortDropdown(!showSortDropdown);
+                                    setShowExportDropdown(false); // Close other dropdowns
+                                }}
+                            >
+                                Sort By: {sortBy}
+                            </button>
+                            <ul
+                                className={`dropdown-menu dropdown-menu-end p-3 ${showSortDropdown ? 'show' : ''}`}
+                                style={{ display: showSortDropdown ? 'block' : 'none' }}
+                            >
+                                <li>
+                                    <button
+                                        className="dropdown-item rounded-1"
+                                        onClick={() => {
+                                            setSortBy('Recently Added');
+                                            setShowSortDropdown(false);
+                                        }}
+                                    >
+                                        Recently Added
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                        className="dropdown-item rounded-1"
+                                        onClick={() => {
+                                            setSortBy('Ascending');
+                                            setShowSortDropdown(false);
+                                        }}
+                                    >
+                                        Ascending
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                        className="dropdown-item rounded-1"
+                                        onClick={() => {
+                                            setSortBy('Descending');
+                                            setShowSortDropdown(false);
+                                        }}
+                                    >
+                                        Descending
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                        className="dropdown-item rounded-1"
+                                        onClick={() => {
+                                            setSortBy('Last Month');
+                                            setShowSortDropdown(false);
+                                        }}
+                                    >
+                                        Last Month
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                        className="dropdown-item rounded-1"
+                                        onClick={() => {
+                                            setSortBy('Last 7 Days');
+                                            setShowSortDropdown(false);
+                                        }}
+                                    >
+                                        Last 7 Days
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* View Toggle */}
+                        <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
+                            <a href="units" className="btn btn-icon btn-sm active bg-primary text-white">
+                                <ListTree size={16} />
+                            </a>
+                            <a href="units-grid" className="btn btn-icon btn-sm me-1">
+                                <LayoutGrid size={16} />
+                            </a>
+                        </div>
+
+                        {/* Export Dropdown */}
+                        <div className="dropdown me-2" ref={exportDropdownRef}>
+                            <button
+                                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                                onClick={() => {
+                                    setShowExportDropdown(!showExportDropdown);
+                                    setShowSortDropdown(false); // Close other dropdowns
+                                }}
+                            >
+                                <Download size={16} className="me-1" />
+                                Export
+                            </button>
+                            <ul
+                                className={`dropdown-menu dropdown-menu-end p-3 ${showExportDropdown ? 'show' : ''}`}
+                                style={{ display: showExportDropdown ? 'block' : 'none' }}
+                            >
+                                <li>
+                                    <button
+                                        className="dropdown-item rounded-1 d-flex align-items-center"
+                                        onClick={() => {
+                                            // Handle PDF export logic here
+                                            setShowExportDropdown(false);
+                                        }}
+                                    >
+                                        <FileText size={16} className="me-1" />
+                                        Export as PDF
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                        className="dropdown-item rounded-1 d-flex align-items-center"
+                                        onClick={() => {
+                                            // Handle Excel export logic here
+                                            setShowExportDropdown(false);
+                                        }}
+                                    >
+                                        <FileText size={16} className="me-1" />
+                                        Export as Excel
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        <a onClick={() => setShowAddSchoolModal(true)} class="btn btn-primary d-flex align-items-center"><i class="ti ti-circle-plus me-2"></i>Add School</a>
+                    </div>
+                </div>
+
+                {/* Stats Cards */}
+                <div className="row">
+                    {/* Total Schools */}
+                    <div className="col-lg-3 col-md-6 d-flex">
+                        <div className="card flex-fill">
+                            <div className="card-body d-flex align-items-center justify-content-between">
+                                <div className="d-flex align-items-center overflow-hidden">
+                                    <span className="avatar avatar-lg bg-primary flex-shrink-0">
+                                        <i className="ti ti-building fs-16"></i>
+                                    </span>
+                                    <div className="ms-2 overflow-hidden">
+                                        <p className="fs-12 fw-medium mb-1 text-truncate">Total Schools</p>
+                                        <h4>950</h4>
+                                    </div>
+                                </div>
+                                <div id="total-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Active Schools */}
+                    <div className="col-lg-3 col-md-6 d-flex">
+                        <div className="card flex-fill">
+                            <div className="card-body d-flex align-items-center justify-content-between">
+                                <div className="d-flex align-items-center overflow-hidden">
+                                    <span className="avatar avatar-lg bg-success flex-shrink-0">
+                                        <i className="ti ti-building fs-16"></i>
+                                    </span>
+                                    <div className="ms-2 overflow-hidden">
+                                        <p className="fs-12 fw-medium mb-1 text-truncate">Active Schools</p>
+                                        <h4>920</h4>
+                                    </div>
+                                </div>
+                                <div id="active-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Inactive Schools */}
+                    <div className="col-lg-3 col-md-6 d-flex">
+                        <div className="card flex-fill">
+                            <div className="card-body d-flex align-items-center justify-content-between">
+                                <div className="d-flex align-items-center overflow-hidden">
+                                    <span className="avatar avatar-lg bg-danger flex-shrink-0">
+                                        <i className="ti ti-building fs-16"></i>
+                                    </span>
+                                    <div className="ms-2 overflow-hidden">
+                                        <p className="fs-12 fw-medium mb-1 text-truncate">Inactive Schools</p>
+                                        <h4>30</h4>
+                                    </div>
+                                </div>
+                                <div id="inactive-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* School Location */}
+                    <div className="col-lg-3 col-md-6 d-flex">
+                        <div className="card flex-fill">
+                            <div className="card-body d-flex align-items-center justify-content-between">
+                                <div className="d-flex align-items-center overflow-hidden">
+                                    <span className="avatar avatar-lg bg-skyblue flex-shrink-0">
+                                        <i className="ti ti-map-pin-check fs-16"></i>
+                                    </span>
+                                    <div className="ms-2 overflow-hidden">
+                                        <p className="fs-12 fw-medium mb-1 text-truncate">School Location</p>
+                                        <h4>180</h4>
+                                    </div>
+                                </div>
+                                <div id="location-chart"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Active Schools */}
-                <div className="col-lg-3 col-md-6 d-flex">
-                    <div className="card flex-fill">
-                        <div className="card-body d-flex align-items-center justify-content-between">
-                            <div className="d-flex align-items-center overflow-hidden">
-                                <span className="avatar avatar-lg bg-success flex-shrink-0">
-                                    <i className="ti ti-building fs-16"></i>
-                                </span>
-                                <div className="ms-2 overflow-hidden">
-                                    <p className="fs-12 fw-medium mb-1 text-truncate">Active Schools</p>
-                                    <h4>920</h4>
-                                </div>
-                            </div>
-                            <div id="active-chart"></div>
-                        </div>
-                    </div>
-                </div>
-                {/* Inactive Schools */}
-                <div className="col-lg-3 col-md-6 d-flex">
-                    <div className="card flex-fill">
-                        <div className="card-body d-flex align-items-center justify-content-between">
-                            <div className="d-flex align-items-center overflow-hidden">
-                                <span className="avatar avatar-lg bg-danger flex-shrink-0">
-                                    <i className="ti ti-building fs-16"></i>
-                                </span>
-                                <div className="ms-2 overflow-hidden">
-                                    <p className="fs-12 fw-medium mb-1 text-truncate">Inactive Schools</p>
-                                    <h4>30</h4>
-                                </div>
-                            </div>
-                            <div id="inactive-chart"></div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* School Location */}
-                <div className="col-lg-3 col-md-6 d-flex">
-                    <div className="card flex-fill">
-                        <div className="card-body d-flex align-items-center justify-content-between">
-                            <div className="d-flex align-items-center overflow-hidden">
-                                <span className="avatar avatar-lg bg-skyblue flex-shrink-0">
-                                    <i className="ti ti-map-pin-check fs-16"></i>
-                                </span>
-                                <div className="ms-2 overflow-hidden">
-                                    <p className="fs-12 fw-medium mb-1 text-truncate">School Location</p>
-                                    <h4>180</h4>
-                                </div>
-                            </div>
-                            <div id="location-chart"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Schools Table */}
-            <div className="card">
-                <div className="card-body p-0">
-                    <div className="custom-datatable-filter table-responsive">
-                        <table className="table datatable">
-                            <thead className="thead-light">
-                                <tr>
-                                    <th className="no-sort">
-                                        <div className="form-check form-check-md">
-                                            <input
-                                                className="form-check-input"
-                                                type="checkbox"
-                                                id="select-all"
-                                                checked={selectedAll}
-                                                onChange={handleSelectAll}
-                                            />
-                                        </div>
-                                    </th>
-                                    <th>School Name</th>
-                                    <th>Email</th>
-                                    <th>Account URL</th>
-                                    <th>Plan</th>
-                                    <th>Created Date</th>
-                                    <th>Status</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {schools.map((school) => (
-                                    <tr key={school.id}>
-                                        <td>
+                {/* Schools Table */}
+                <div className="card">
+                    <div className="card-body p-0">
+                        <div className="custom-datatable-filter table-responsive">
+                            <table className="table datatable">
+                                <thead className="thead-light">
+                                    <tr>
+                                        <th className="no-sort">
                                             <div className="form-check form-check-md">
                                                 <input
                                                     className="form-check-input"
                                                     type="checkbox"
-                                                    checked={selectedRows.includes(school.id)}
-                                                    onChange={() => handleRowSelect(school.id)}
+                                                    id="select-all"
+                                                    checked={selectedAll}
+                                                    onChange={handleSelectAll}
                                                 />
                                             </div>
-                                        </td>
-                                        <td>
-                                            <div className="d-flex align-items-center file-name-icon">
-                                                <a href="#" className="avatar avatar-md border rounded-circle">
-                                                    <img src={school.image} className="img-fluid" alt={school.name} />
-                                                </a>
-                                                <div className="ms-2">
-                                                    <h6 className="fw-medium">
-                                                        <a href="#">{school.name}</a>
-                                                    </h6>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td><a href={`mailto:${school.email}`}>{school.email}</a></td>
-                                        <td>{school.url}</td>
-                                        <td>
-                                            <div className="d-flex align-items-center justify-content-between">
-                                                <p className="mb-0 me-2">{school.plan}</p>
-                                                <a href="#" className="badge badge-purple badge-xs">Upgrade</a>
-                                            </div>
-                                        </td>
-                                        <td>{school.date}</td>
-                                        <td>
-											<span className={`badge ${school.status === 'Active' ? 'badge-success' : 'badge-danger'} d-inline-flex align-items-center badge-xs`}>
-												<i class="ti ti-point-filled me-1"></i>
-                                                 {school.status}
-											</span>
-										</td>
-                                        <td>
-											<div class="action-icon d-inline-flex">
-												<a href="#" class="me-2"><i class="ti ti-eye"></i></a>
-												<a href="#" class="me-2"><i class="ti ti-edit"></i></a>
-												<a href="javascript:void(0);"><i class="ti ti-trash text-danger"></i></a>
-											</div>
-										</td>
+                                        </th>
+                                        <th>School Name</th>
+                                        <th>Email</th>
+                                        <th>Account URL</th>
+                                        <th>Plan</th>
+                                        <th>Created Date</th>
+                                        <th>Status</th>
+                                        <th></th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {schools.map((school) => (
+                                        <tr key={school.id}>
+                                            <td>
+                                                <div className="form-check form-check-md">
+                                                    <input
+                                                        className="form-check-input"
+                                                        type="checkbox"
+                                                        checked={selectedRows.includes(school.id)}
+                                                        onChange={() => handleRowSelect(school.id)}
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="d-flex align-items-center file-name-icon">
+                                                    <a href="#" className="avatar avatar-md border rounded-circle">
+                                                        <img src={school.image} className="img-fluid" alt={school.name} />
+                                                    </a>
+                                                    <div className="ms-2">
+                                                        <h6 className="fw-medium">
+                                                            <a href="#">{school.name}</a>
+                                                        </h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><a href={`mailto:${school.email}`}>{school.email}</a></td>
+                                            <td>{school.url}</td>
+                                            <td>
+                                                <div className="d-flex align-items-center justify-content-between">
+                                                    <p className="mb-0 me-2">{school.plan}</p>
+                                                    <a href="#" className="badge badge-purple badge-xs">Upgrade</a>
+                                                </div>
+                                            </td>
+                                            <td>{school.date}</td>
+                                            <td>
+                                                <span className={`badge ${school.status === 'Active' ? 'badge-success' : 'badge-danger'} d-inline-flex align-items-center badge-xs`}>
+                                                    <i class="ti ti-point-filled me-1"></i>
+                                                    {school.status}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="action-icon d-inline-flex">
+                                                    <a onClick={() => setShowDetailsSchoolModal(true)} class="me-2"><i class="ti ti-eye"></i></a>
+                                                    <a onClick={() => setShowEditSchoolModal(true)} class="me-2"><i class="ti ti-edit"></i></a>
+                                                    <a href="javascript:void(0);"><i class="ti ti-trash text-danger"></i></a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
             <UnitAddSchoolModal
-          show={showAddSchooltModal}
-          onClose={() => setShowAddSchoolModal(false)}
-        />
-          <EmployerAdminFooter/>
+                show={showAddSchooltModal}
+                onClose={() => setShowAddSchoolModal(false)}
+            />
+            <UnitEditSchoolModal
+                show={showEditSchoolModal}
+                onClose={() => setShowEditSchoolModal(false)}
+            />
+            <UnitSchoolDetailModal
+            show={showDetailsSchoolModal}
+            onClose={() => setShowDetailsSchoolModal (false)}/>
+            <EmployerAdminFooter />
         </>
     );
 };
