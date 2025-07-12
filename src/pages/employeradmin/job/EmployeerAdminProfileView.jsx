@@ -121,13 +121,13 @@ const EmployeerAdminProfileView = () => {
                     <i className="ti ti-arrow-badge-right me-2"></i> Profile Settings
                   </a>
                   <a
-                    href="security-settings.php"
+                    href="/employer-admin/security-settings"
                     className="d-inline-flex align-items-center rounded py-2 px-3"
                   >
                     Security Settings
                   </a>
                   <a
-                    href="connected-apps.html"
+                    href="#"
                     className="d-inline-flex align-items-center rounded py-2 px-3"
                   >
                     Additional Menu

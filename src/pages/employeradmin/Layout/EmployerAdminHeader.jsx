@@ -329,7 +329,7 @@ const EmployerAdminHeader = () => {
                                     </div>
                                 )}
                             </div>
-                            <Link to="/employer-admin/calendar-events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                            <Link to="/employer-admin/timetable" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                                 <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">TimeTable</span>
                             </Link>
@@ -709,7 +709,7 @@ const EmployerAdminHeader = () => {
                                 )}
                             </div>
                             <Link
-                                to="/employer-admin/calendar-events"
+                                to="/employer-admin/timetable"
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
                             >

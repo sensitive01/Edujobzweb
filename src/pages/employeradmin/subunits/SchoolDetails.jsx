@@ -24,10 +24,10 @@ const SchoolDetails = () => {
             <a className="nav-link active" href="/employer-admin/school-details"><i className="ti ti-world-cog me-2"></i>School Information</a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="plan-and-subscription.php"><i className="ti ti-device-ipad-horizontal-cog me-2"></i>Plan & Subscription</a>
+            <a className="nav-link" href="/employer-admin/plan-and-subscription"><i className="ti ti-device-ipad-horizontal-cog me-2"></i>Plan & Subscription</a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="hired-candidates.php"><i className="ti ti-server-cog me-2"></i>Hired Candidates</a>
+            <a className="nav-link" href="/employer-admin/hired-candidates"><i className="ti ti-server-cog me-2"></i>Hired Candidates</a>
           </li>
         </ul>
         

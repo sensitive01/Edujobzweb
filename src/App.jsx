@@ -92,6 +92,15 @@ import EmployerAdminEnrollment from './pages/employeradmin/events/EmployerAdminE
 import SubUnitsModalUse from './pages/employeradmin/subunits/SubUnitsModalUse';
 import Units from './pages/employeradmin/units/Units';
 import SchoolDetails from './pages/employeradmin/subunits/SchoolDetails';
+import PlanSubscription from './pages/employeradmin/subunits/PlanSubscription';
+import SecuritySettings from './pages/employeradmin/subunits/SecuritySettings';
+import HiredCandidates from './pages/employeradmin/subunits/HiredCandidates';
+import TimeTable from './pages/employeradmin/timetable/TimeTable';
+import LeavesManagement from './pages/employeradmin/leaves/LeavesManagement';
+import Users from './pages/employeradmin/users/Users';
+import Transactions from './pages/employeradmin/transactions/Transactions';
+import Blog from './pages/employeradmin/blog/Blog';
+import Expenses from './pages/employeradmin/expense/Expense';
 
 function App() {
   return (
@@ -141,11 +150,14 @@ function App() {
           <Route path='/employer-admin/forgot-password' element={<EmployerAdminForgotPassword />} />
           <Route path='/employer-admin/reset-password' element={<EmployerAdminChangePassword />} />
           <Route path='/employer-admin/verify-otp' element={<EmployerAdminVerifyOTP />} />
-          <Route path='/employer-admin/school-profile' element={<EmployeerAdminProfileView />} />
 
 
           <Route path='/employer-admin/units-grid' element={<SubUnitsModalUse />} />
+          <Route path='/employer-admin/school-profile' element={<EmployeerAdminProfileView />} />
+          <Route path='/employer-admin/security-settings' element={<SecuritySettings />} />
           <Route path='/employer-admin/school-details' element={<SchoolDetails />} />
+          <Route path='/employer-admin/plan-and-subscription' element={<PlanSubscription />} />
+          <Route path='/employer-admin/hired-candidates' element={<HiredCandidates />} />
           <Route path='/employer-admin/units' element={<Units />} />
 
 
@@ -164,8 +176,14 @@ function App() {
           <Route path='/employer-admin/plans-grid' element={<EmployeerAdminPlansGrid />} />
           <Route path='/employer-admin/calendar-events' element={<EmployerAdminCalendarEvents />} />
           <Route path='/employer-admin/enrollment' element={<EmployerAdminEnrollment />} />
+          <Route path='/employer-admin/timetable' element={<TimeTable />} />
           <Route path='/employer-admin/FAQs' element={<EmployerAdminFAQs />} />
           <Route path='/employer-admin/support' element={<EmployerAdminSupportChatList />} />
+          <Route path='/employer-admin/leaves' element={<LeavesManagement />} />
+          <Route path='/employer-admin/users' element={<Users />} />
+          <Route path='/employer-admin/transactions' element={<Transactions />} />
+          <Route path='/employer-admin/blogs' element={<Blog />} />
+          <Route path='/employer-admin/expenses' element={<Expenses />} />
 
         </Route>
 
