@@ -9,7 +9,8 @@ const Inbox = () => {
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [messagesLoading, setMessagesLoading] = useState(false);
     const [error, setError] = useState(null);
     const [openMenuId, setOpenMenuId] = useState(null);
     const [conversationDetails, setConversationDetails] = useState({});
@@ -59,10 +60,8 @@ const Inbox = () => {
 
         const fetchConversations = async () => {
             try {
-                setLoading(true);
                 const userData = JSON.parse(localStorage.getItem('userData'));
                 if (!userData || !userData._id) {
-                    setConversations([]);
                     setLoading(false);
                     return;
                 }
@@ -82,12 +81,12 @@ const Inbox = () => {
                         try {
                             // Fetch employer details from employer profile API
                             const employerProfile = await fetchEmployerProfile(conversation.employerId);
-                            
+
                             // Also fetch job details for job title
                             const jobDetailsResponse = await axios.get(
                                 `https://edujobzbackend.onrender.com/employer/fetchjob/${conversation.employerId}`
                             );
-                            
+
                             if (jobDetailsResponse.data && jobDetailsResponse.data.length > 0) {
                                 const job = jobDetailsResponse.data.find(j => j._id === conversation.jobId);
                                 if (job) {
@@ -104,8 +103,6 @@ const Inbox = () => {
                         }
                     }
                     setConversationDetails(details);
-                } else {
-                    setConversations([]);
                 }
             } catch (err) {
                 console.error('Error fetching conversations:', err);
@@ -123,7 +120,7 @@ const Inbox = () => {
 
         const fetchMessagesAndDetails = async () => {
             try {
-                setLoading(true);
+                setMessagesLoading(true);
                 // Fetch messages
                 const messagesResponse = await axios.get('https://edujobzbackend.onrender.com/employer/view', {
                     params: {
@@ -136,12 +133,12 @@ const Inbox = () => {
                 // If we don't already have the profile details for this conversation, fetch them
                 if (!conversationDetails[selectedConversation._id]) {
                     const employerProfile = await fetchEmployerProfile(selectedConversation.employerId);
-                    
+
                     // Also fetch job details
                     const jobDetailsResponse = await axios.get(
                         `https://edujobzbackend.onrender.com/employer/fetchjob/${selectedConversation.employerId}`
                     );
-                    
+
                     if (jobDetailsResponse.data && jobDetailsResponse.data.length > 0) {
                         const job = jobDetailsResponse.data.find(j => j._id === selectedConversation.jobId);
                         if (job) {
@@ -168,7 +165,7 @@ const Inbox = () => {
                 console.error('Error fetching data:', err);
                 setError(err.response?.data?.message || err.message || 'Failed to fetch data');
             } finally {
-                setLoading(false);
+                setMessagesLoading(false);
             }
         };
 
@@ -255,13 +252,13 @@ const Inbox = () => {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const recorder = new MediaRecorder(stream);
             setMediaRecorder(recorder);
-            
+
             recorder.ondataavailable = (e) => {
                 if (e.data.size > 0) {
                     setAudioChunks(prev => [...prev, e.data]);
                 }
             };
-            
+
             recorder.start(1000); // Collect data every 1 second
             setIsRecording(true);
         } catch (err) {
@@ -332,14 +329,6 @@ const Inbox = () => {
         return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
     };
 
-    if (loading) {
-        return <div className="jobplugin__container">Loading conversations...</div>;
-    }
-
-    if (error) {
-        return <div className="jobplugin__container">Error: {error}</div>;
-    }
-
     return (
         <>
             <div className="subvisual-block subvisual-theme-1 bg-secondary d-flex pt-60 pt-md-90 text-white"></div>
@@ -358,7 +347,7 @@ const Inbox = () => {
                             </a>
                             <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
 
-                            <div className="jobplugin__container">
+                            <div className="jobplugin__container" style={{ width: '100%' }}>
                                 <h2 className="h5 text-secondary mb-20"> &nbsp; <FaComments /> Chat History</h2>
                                 <div className="jobplugin__messenger border border-grey mt-0 p-10">
                                     <aside className="jobplugin__messenger-aside">
@@ -370,7 +359,11 @@ const Inbox = () => {
                                         </div>
                                         <div className="jobplugin__messenger-aside__scroller">
                                             <ul className="jobplugin__messenger-users">
-                                                {conversations.length > 0 ? (
+                                                {loading ? (
+                                                    <li className="text-center p-20">Loading conversations...</li>
+                                                ) : error ? (
+                                                    <li className="text-center p-20">Error: {error}</li>
+                                                ) : conversations.length > 0 ? (
                                                     conversations.map((conversation) => (
                                                         <li
                                                             key={conversation._id}
@@ -458,213 +451,215 @@ const Inbox = () => {
                                     </aside>
 
                                     <div className="jobplugin__messenger-content">
-                                        {selectedConversation ? (
-                                            <div className="jobplugin__messenger-dialog">
-                                                <header className="jobplugin__messenger-header">
-                                                    <div className="jobplugin__messenger-header__left">
-                                                        <strong className="jobplugin__messenger-header__title text-secondary">
-                                                            {conversationDetails[selectedConversation._id]?.employerName || 'Employer'}
-                                                        </strong>
-                                                        <span className="jobplugin__messenger-header__subtitle">
-                                                            {conversationDetails[selectedConversation._id]?.jobTitle || 'Job'}
-                                                        </span>
-                                                        <span className="jobplugin__messenger-header__type">
-                                                            {conversationDetails[selectedConversation._id]?.employerType || 'Employer'}
-                                                        </span>
-                                                    </div>
-                                                    <div className="jobplugin__messenger-header__right">
-                                                        <ul className="jobplugin__messenger-header__buttons">
-                                                            <li>
-                                                                <button type="button" className="bg-light-sky brorder border-grey text-secondary">
-                                                                    <FaEnvelope />
-                                                                </button>
-                                                            </li>
-                                                            <li>
-                                                                <button type="button" className="bg-light-sky brorder border-grey text-secondary">
-                                                                    <FaPhone />
-                                                                </button>
-                                                            </li>
-                                                            <li>
-                                                                <button type="button" className="bg-light-sky brorder border-grey text-secondary">
-                                                                    <FaVideo />
-                                                                </button>
-                                                            </li>
-                                                            <li className="jobplugin__messenger-header__buttons-close">
-                                                                <button type="button" className="jobplugin__messenger-dialog__close">
-                                                                    <FaTimes />
-                                                                </button>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </header>
+                                        <div className="jobplugin__messenger-dialog">
+                                            {selectedConversation ? (
+                                                <>
+                                                    <header className="jobplugin__messenger-header">
+                                                        <div className="jobplugin__messenger-header__left">
+                                                            <strong className="jobplugin__messenger-header__title text-secondary">
+                                                                {conversationDetails[selectedConversation._id]?.employerName || 'Employer'}
+                                                            </strong>
+                                                            <span className="jobplugin__messenger-header__subtitle">
+                                                                {conversationDetails[selectedConversation._id]?.jobTitle || 'Job'}
+                                                            </span>
+                                                            <span className="jobplugin__messenger-header__type">
+                                                                {conversationDetails[selectedConversation._id]?.employerType || 'Employer'}
+                                                            </span>
+                                                        </div>
+                                                        <div className="jobplugin__messenger-header__right">
+                                                            <ul className="jobplugin__messenger-header__buttons">
+                                                                <li>
+                                                                    <button type="button" className="bg-light-sky brorder border-grey text-secondary">
+                                                                        <FaEnvelope />
+                                                                    </button>
+                                                                </li>
+                                                                <li>
+                                                                    <button type="button" className="bg-light-sky brorder border-grey text-secondary">
+                                                                        <FaPhone />
+                                                                    </button>
+                                                                </li>
+                                                                <li>
+                                                                    <button type="button" className="bg-light-sky brorder border-grey text-secondary">
+                                                                        <FaVideo />
+                                                                    </button>
+                                                                </li>
+                                                                <li className="jobplugin__messenger-header__buttons-close">
+                                                                    <button type="button" className="jobplugin__messenger-dialog__close">
+                                                                        <FaTimes />
+                                                                    </button>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </header>
 
-                                                <div className="jobplugin__messenger-dialog__content">
-                                                    <div className="jobplugin__messenger-dialog__scroller">
-                                                        {messages.length > 0 ? (
-                                                            messages.map((message, index) => (
-                                                                <div key={index} className={`jobplugin__messenger-message ${message.sender === 'employer' ? '' : 'reverse'}`}>
-                                                                    <div className="jobplugin__messenger-message__head">
-                                                                        <div className="jobplugin__messenger-message__avatar">
-                                                                            {message.sender === 'employer' ? (
-                                                                                <img
-                                                                                    src={conversationDetails[selectedConversation._id]?.employerProfilePic || 'images/img10.jpg'}
-                                                                                    alt="Employer"
-                                                                                    style={{
-                                                                                        width: '40px',
-                                                                                        height: '40px',
-                                                                                        borderRadius: '50%',
-                                                                                        objectFit: 'cover'
-                                                                                    }}
-                                                                                />
-                                                                            ) : (
-                                                                                <img
-                                                                                    src={employeeProfilePic || 'images/img11.jpg'}
-                                                                                    alt="Employee"
-                                                                                    style={{
-                                                                                        width: '40px',
-                                                                                        height: '40px',
-                                                                                        borderRadius: '50%',
-                                                                                        objectFit: 'cover'
-                                                                                    }}
-                                                                                />
-                                                                            )}
+                                                    <div className="jobplugin__messenger-dialog__content">
+                                                        <div className="jobplugin__messenger-dialog__scroller">
+                                                            {messagesLoading ? (
+                                                                <div className="text-center p-20">Loading messages...</div>
+                                                            ) : messages.length > 0 ? (
+                                                                messages.map((message, index) => (
+                                                                    <div key={index} className={`jobplugin__messenger-message ${message.sender === 'employer' ? '' : 'reverse'}`}>
+                                                                        <div className="jobplugin__messenger-message__head">
+                                                                            <div className="jobplugin__messenger-message__avatar">
+                                                                                {message.sender === 'employer' ? (
+                                                                                    <img
+                                                                                        src={conversationDetails[selectedConversation._id]?.employerProfilePic || 'images/img10.jpg'}
+                                                                                        alt="Employer"
+                                                                                        style={{
+                                                                                            width: '40px',
+                                                                                            height: '40px',
+                                                                                            borderRadius: '50%',
+                                                                                            objectFit: 'cover'
+                                                                                        }}
+                                                                                    />
+                                                                                ) : (
+                                                                                    <img
+                                                                                        src={employeeProfilePic || 'images/img11.jpg'}
+                                                                                        alt="Employee"
+                                                                                        style={{
+                                                                                            width: '40px',
+                                                                                            height: '40px',
+                                                                                            borderRadius: '50%',
+                                                                                            objectFit: 'cover'
+                                                                                        }}
+                                                                                    />
+                                                                                )}
+                                                                            </div>
+                                                                            <div className="jobplugin__messenger-message__time">
+                                                                                {formatTime(message.createdAt)}
+                                                                            </div>
                                                                         </div>
-                                                                        <div className="jobplugin__messenger-message__time">
-                                                                            {formatTime(message.createdAt)}
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="jobplugin__messenger-message__item">
-                                                                        <div className="jobplugin__messenger-message__wrap">
-                                                                            <div className="jobplugin__messenger-message__content">
-                                                                                <div className="jobplugin__messenger-message__body">
-                                                                                    <div className="jobplugin__messenger-message__text">
-                                                                                        {message.message}
-                                                                                        {message.mediaType === 'image' && (
-                                                                                            <div className="message-image-container">
-                                                                                                <img 
-                                                                                                    src={message.mediaUrl} 
-                                                                                                    alt="Chat image" 
-                                                                                                    style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px', borderRadius: '8px' }}
-                                                                                                />
-                                                                                            </div>
-                                                                                        )}
-                                                                                        {message.mediaType === 'audio' && (
-                                                                                            <div className="message-audio-container" style={{ marginTop: '10px' }}>
-                                                                                                <audio 
-                                                                                                    controls 
-                                                                                                    src={message.mediaUrl}
-                                                                                                    style={{ width: '250px' }}
-                                                                                                />
-                                                                                            </div>
-                                                                                        )}
+                                                                        <div className="jobplugin__messenger-message__item">
+                                                                            <div className="jobplugin__messenger-message__wrap">
+                                                                                <div className="jobplugin__messenger-message__content">
+                                                                                    <div className="jobplugin__messenger-message__body">
+                                                                                        <div className="jobplugin__messenger-message__text">
+                                                                                            {message.message}
+                                                                                            {message.mediaType === 'image' && (
+                                                                                                <div className="message-image-container">
+                                                                                                    <img
+                                                                                                        src={message.mediaUrl}
+                                                                                                        alt="Chat image"
+                                                                                                        style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px', borderRadius: '8px' }}
+                                                                                                    />
+                                                                                                </div>
+                                                                                            )}
+                                                                                            {message.mediaType === 'audio' && (
+                                                                                                <div className="message-audio-container" style={{ marginTop: '10px' }}>
+                                                                                                    <audio
+                                                                                                        controls
+                                                                                                        src={message.mediaUrl}
+                                                                                                        style={{ width: '250px' }}
+                                                                                                    />
+                                                                                                </div>
+                                                                                            )}
+                                                                                        </div>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                            ))
-                                                        ) : (
-                                                            <div className="text-center p-20">No messages in this conversation</div>
-                                                        )}
-                                                        <div className="jobplugin__messenger-dialog__scroller-bottom"></div>
+                                                                ))
+                                                            ) : (
+                                                                <div className="text-center p-20">No messages in this conversation</div>
+                                                            )}
+                                                            <div className="jobplugin__messenger-dialog__scroller-bottom"></div>
+                                                        </div>
                                                     </div>
-                                                </div>
 
-                                                <footer className="jobplugin__messenger-footer">
-                                                    <div className="jobplugin__messenger-form">
-                                                        <ul className="jobplugin__messenger-tags">
-                                                            {['Yes', 'No', 'That\'s it', 'Cool stuff', 'Show More', 'Try Different'].map((tag, index) => (
-                                                                <li key={index}><a href="#">{tag}</a></li>
-                                                            ))}
-                                                        </ul>
-                                                        <form className="jobplugin__messenger-form__holder" onSubmit={handleSendMessage}>
-                                                            <textarea
-                                                                rows="1"
-                                                                className="form-control"
-                                                                placeholder="Type your message..."
-                                                                value={newMessage}
-                                                                onChange={(e) => setNewMessage(e.target.value)}
-                                                            ></textarea>
-                                                            <div className="jobplugin__messenger-form__buttons">
-                                                                <input 
-                                                                    type="file" 
-                                                                    ref={fileInputRef} 
-                                                                    onChange={handleFileChange}
-                                                                    accept="image/*"
-                                                                    style={{ display: 'none' }}
-                                                                    id="file-upload"
-                                                                />
-                                                                <label 
-                                                                    htmlFor="file-upload" 
-                                                                    className="jobplugin__button btn-attachment"
-                                                                    style={{ cursor: 'pointer', marginRight: '10px' }}
-                                                                >
-                                                                    <FaPaperclip /> Attach Image
-                                                                </label>
-                                                                <button 
-                                                                    type="button" 
-                                                                    className={`jobplugin__button ${isRecording ? 'recording-active' : ''}`}
-                                                                    onClick={toggleRecording}
-                                                                    style={{ marginRight: '10px', backgroundColor: isRecording ? '#ff4444' : '' }}
-                                                                >
-                                                                    <FaMicrophone /> {isRecording ? 'Stop' : 'Record'}
-                                                                </button>
-                                                                {audioChunks.length > 0 && (
-                                                                    <>
-                                                                        <button 
-                                                                            type="button" 
-                                                                            className="jobplugin__button"
-                                                                            onClick={playAudio}
-                                                                            style={{ marginRight: '10px' }}
-                                                                        >
-                                                                            Play
-                                                                        </button>
-                                                                        <button 
-                                                                            type="button" 
-                                                                            className="jobplugin__button"
-                                                                            onClick={clearRecording}
-                                                                            style={{ marginRight: '10px' }}
-                                                                        >
-                                                                            Clear
-                                                                        </button>
-                                                                    </>
-                                                                )}
-                                                                <button className="jobplugin__button jobplugin__bg-primary hover:jobplugin__bg-secondary" type="submit">Send</button>
-                                                            </div>
-                                                            <audio ref={audioRef} style={{ display: 'none' }} />
-                                                            {fileInputRef.current?.files?.[0] && (
-                                                                <div style={{ marginTop: '10px' }}>
-                                                                    Selected file: {fileInputRef.current.files[0].name}
-                                                                    <button 
-                                                                        type="button" 
-                                                                        onClick={() => {
-                                                                            if (fileInputRef.current) {
-                                                                                fileInputRef.current.value = '';
-                                                                            }
-                                                                        }}
-                                                                        style={{ marginLeft: '10px', background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}
+                                                    <footer className="jobplugin__messenger-footer">
+                                                        <div className="jobplugin__messenger-form">
+                                                            <ul className="jobplugin__messenger-tags">
+                                                                {['Yes', 'No', 'That\'s it', 'Cool stuff', 'Show More', 'Try Different'].map((tag, index) => (
+                                                                    <li key={index}><a href="#">{tag}</a></li>
+                                                                ))}
+                                                            </ul>
+                                                            <form className="jobplugin__messenger-form__holder" onSubmit={handleSendMessage}>
+                                                                <textarea
+                                                                    rows="1"
+                                                                    className="form-control"
+                                                                    placeholder="Type your message..."
+                                                                    value={newMessage}
+                                                                    onChange={(e) => setNewMessage(e.target.value)}
+                                                                ></textarea>
+                                                                <div className="jobplugin__messenger-form__buttons">
+                                                                    <input
+                                                                        type="file"
+                                                                        ref={fileInputRef}
+                                                                        onChange={handleFileChange}
+                                                                        accept="image/*"
+                                                                        style={{ display: 'none' }}
+                                                                        id="file-upload"
+                                                                    />
+                                                                    <label
+                                                                        htmlFor="file-upload"
+                                                                        className="jobplugin__button btn-attachment"
+                                                                        style={{ cursor: 'pointer', marginRight: '10px' }}
                                                                     >
-                                                                        ×
+                                                                        <FaPaperclip /> Add Attachment
+                                                                    </label>
+                                                                    <button
+                                                                        type="button"
+                                                                        className={`jobplugin__button ${isRecording ? 'recording-active' : ''}`}
+                                                                        onClick={toggleRecording}
+                                                                        style={{ marginRight: '10px', backgroundColor: isRecording ? '#ff4444' : '' }}
+                                                                    >
+                                                                        <FaMicrophone /> {isRecording ? 'Stop' : 'Record'}
                                                                     </button>
+                                                                    {audioChunks.length > 0 && (
+                                                                        <>
+                                                                            <button
+                                                                                type="button"
+                                                                                className="jobplugin__button"
+                                                                                onClick={playAudio}
+                                                                                style={{ marginRight: '10px' }}
+                                                                            >
+                                                                                Play
+                                                                            </button>
+                                                                            <button
+                                                                                type="button"
+                                                                                className="jobplugin__button"
+                                                                                onClick={clearRecording}
+                                                                                style={{ marginRight: '10px' }}
+                                                                            >
+                                                                                Clear
+                                                                            </button>
+                                                                        </>
+                                                                    )}
+                                                                    <button className="jobplugin__button jobplugin__bg-primary hover:jobplugin__bg-secondary" type="submit">Send</button>
                                                                 </div>
-                                                            )}
-                                                            {audioChunks.length > 0 && (
-                                                                <div style={{ marginTop: '10px' }}>
-                                                                    Audio recorded ({Math.round(audioChunks.reduce((acc, chunk) => acc + chunk.size, 0) / 1024)} KB)
-                                                                </div>
-                                                            )}
-                                                        </form>
-                                                    </div>
-                                                </footer>
-                                            </div>
-                                        ) : (
-                                            <div className="jobplugin__messenger-dialog">
+                                                                <audio ref={audioRef} style={{ display: 'none' }} />
+                                                                {fileInputRef.current?.files?.[0] && (
+                                                                    <div style={{ marginTop: '10px' }}>
+                                                                        Selected file: {fileInputRef.current.files[0].name}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                if (fileInputRef.current) {
+                                                                                    fileInputRef.current.value = '';
+                                                                                }
+                                                                            }}
+                                                                            style={{ marginLeft: '10px', background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}
+                                                                        >
+                                                                            ×
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                                {audioChunks.length > 0 && (
+                                                                    <div style={{ marginTop: '10px' }}>
+                                                                        Audio recorded ({Math.round(audioChunks.reduce((acc, chunk) => acc + chunk.size, 0) / 1024)} KB)
+                                                                    </div>
+                                                                )}
+                                                            </form>
+                                                        </div>
+                                                    </footer>
+                                                </>
+                                            ) : (
                                                 <div className="text-center p-20">
                                                     {conversations.length === 0 ? 'No conversations available' : 'Select a conversation to view messages'}
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -755,7 +750,7 @@ const Inbox = () => {
                     width: 100%;
                     padding: 5px 15px;
                     text-align: left;
-                                    background: none;
+                    background: none;
                     border: none;
                     color: #333;
                     cursor: pointer;

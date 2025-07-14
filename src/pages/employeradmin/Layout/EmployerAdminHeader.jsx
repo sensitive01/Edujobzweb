@@ -369,7 +369,7 @@ const EmployerAdminHeader = () => {
 
                             {/* Ads Button */}
                             <Link
-                                to="#"
+                                to="/employer-admin/subscribers"
                                 className="btn fw-medium me-2 text-decoration-none"
                                 style={{
                                     backgroundColor: '#063970',
@@ -738,7 +738,7 @@ const EmployerAdminHeader = () => {
                                     Support (5)
                                 </Link>
                                 <Link
-                                    to="/employer-admin/ads"
+                                    to="/employer-admin/subscribers"
                                     className="btn btn-sm text-decoration-none flex-grow-1"
                                     style={{
                                         backgroundColor: '#063970',

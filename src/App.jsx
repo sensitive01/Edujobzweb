@@ -101,6 +101,9 @@ import Users from './pages/employeradmin/users/Users';
 import Transactions from './pages/employeradmin/transactions/Transactions';
 import Blog from './pages/employeradmin/blog/Blog';
 import Expenses from './pages/employeradmin/expense/Expense';
+import Subscribers from './pages/employeradmin/subscribers/Subscribers';
+import Referrals from './pages/employeradmin/referrals/Referrals';
+import Notification from './pages/employeradmin/notifications/Notifications';
 
 function App() {
   return (
@@ -184,6 +187,9 @@ function App() {
           <Route path='/employer-admin/transactions' element={<Transactions />} />
           <Route path='/employer-admin/blogs' element={<Blog />} />
           <Route path='/employer-admin/expenses' element={<Expenses />} />
+          <Route path='/employer-admin/subscribers' element={<Subscribers />} />
+          <Route path='/employer-admin/referrals' element={<Referrals />} />
+          <Route path='/employer-admin/notifications' element={<Notification />} />
 
         </Route>
 

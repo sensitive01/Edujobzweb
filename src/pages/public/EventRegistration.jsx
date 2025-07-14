@@ -187,23 +187,6 @@ const handleSubmit = async (e) => {
                             <div className="d-flex justify-content-between align-items-center mb-4">
                                 <h1 className="text-secondary h3">Registration Form</h1>
                             </div>
-
-                            {/* Event Info */}
-                            <div className="event-info mb-4 p-3 bg-light rounded">
-                                <div className="d-flex align-items-center mb-2">
-                                    <Calendar className="text-primary me-2" size={18} />
-                                    <span>{event.eventDate}</span>
-                                </div>
-                                <div className="d-flex align-items-center mb-2">
-                                    <Clock className="text-primary me-2" size={18} />
-                                    <span>{event.startTime} - {event.endTime}</span>
-                                </div>
-                                <div className="d-flex align-items-center">
-                                    <MapPin className="text-primary me-2" size={18} />
-                                    <span>{event.isVirtual ? 'Virtual Event' : event.venue}</span>
-                                </div>
-                            </div>
-
                             {/* Error message */}
                             {error && (
                                 <div className="alert alert-danger">
