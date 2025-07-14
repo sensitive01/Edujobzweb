@@ -28,7 +28,7 @@ const EmployerCalendarEvents = () => {
     const externalEventsRef = useRef(null);
 
     const eventCategories = [
-        { title: "Team Events", className: "bg-transparent-success", iconColor: "text-success" },
+        { title: "Team Reminder", className: "bg-transparent-success", iconColor: "text-success" },
         { title: "Work", className: "bg-transparent-warning", iconColor: "text-warning" },
         { title: "External", className: "bg-transparent-danger", iconColor: "text-danger" },
         { title: "Projects", className: "bg-transparent-skyblue", iconColor: "text-skyblue" },
@@ -243,7 +243,7 @@ const EmployerCalendarEvents = () => {
                     <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
                         <div className="my-auto mb-2">
                             <h2 className="mb-1">
-                                &nbsp; <CalendarIcon className="text-primary" /> Calendar Events
+                                &nbsp; <CalendarIcon className="text-primary" /> Reminder
                             </h2>
                         </div>
                         <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
@@ -290,7 +290,7 @@ const EmployerCalendarEvents = () => {
                                     className="btn btn-primary d-flex align-items-center"
                                     onClick={() => setShowAddEventModal(true)}
                                 >
-                                    <PlusCircle className="me-2" /> Create Event
+                                    <PlusCircle className="me-2" /> Create Reminder
                                 </button>
                             </div>
                         </div>
@@ -346,7 +346,7 @@ const EmployerCalendarEvents = () => {
 
                                     <div className="border-bottom pb-2 mb-4">
                                         <h5 className="mb-2">
-                                            Upcoming Event<span className="badge badge-success rounded-pill ms-2">{upcomingEvents.length}</span>
+                                            Upcoming Reminder<span className="badge badge-success rounded-pill ms-2">{upcomingEvents.length}</span>
                                         </h5>
                                         {upcomingEvents.map((event, index) => (
                                             <div key={index} className={`border-start ${event.borderColor} border-3 mb-3`}>
@@ -413,13 +413,13 @@ const EmployerCalendarEvents = () => {
                     </div>
                 </div>
 
-                {/* Add New Event Modal */}
+                {/* Add New Reminder Modal */}
                 {showAddEventModal && (
                     <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
                         <div className="modal-dialog modal-dialog-centered">
                             <div className="modal-content">
                                 <div className="modal-header">
-                                    <h4 className="modal-title">Add New Event</h4>
+                                    <h4 className="modal-title">Add New Reminder</h4>
                                     <button
                                         type="button"
                                         className="btn-close custom-btn-close"
@@ -438,7 +438,7 @@ const EmployerCalendarEvents = () => {
                                         <div className="row">
                                             <div className="col-12">
                                                 <div className="mb-3">
-                                                    <label className="form-label">Event Name</label>
+                                                    <label className="form-label">Reminder Name</label>
                                                     <input 
                                                         type="text" 
                                                         className="form-control" 
@@ -451,7 +451,7 @@ const EmployerCalendarEvents = () => {
                                             </div>
                                             <div className="col-12">
                                                 <div className="mb-3">
-                                                    <label className="form-label">Event Date</label>
+                                                    <label className="form-label">Reminder Date</label>
                                                     <input
                                                         type="date"
                                                         className="form-control"
@@ -509,7 +509,7 @@ const EmployerCalendarEvents = () => {
                                             </div>
                                             <div className="col-12">
                                                 <div className="mb-3">
-                                                    <label className="form-label">Event Location</label>
+                                                    <label className="form-label">Reminder Location</label>
                                                     <input 
                                                         type="text" 
                                                         className="form-control" 
@@ -540,7 +540,7 @@ const EmployerCalendarEvents = () => {
                                             Cancel
                                         </button>
                                         <button type="submit" className="btn btn-primary" disabled={isCreatingEvent}>
-                                            {isCreatingEvent ? 'Creating...' : 'Add Event'}
+                                            {isCreatingEvent ? 'Creating...' : 'Add Reminder'}
                                         </button>
                                     </div>
                                 </form>

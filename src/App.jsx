@@ -104,6 +104,8 @@ import Expenses from './pages/employeradmin/expense/Expense';
 import Subscribers from './pages/employeradmin/subscribers/Subscribers';
 import Referrals from './pages/employeradmin/referrals/Referrals';
 import Notification from './pages/employeradmin/notifications/Notifications';
+import CandidatesList from './pages/employer/CandidateList';
+import Dashboard from './pages/employer/dashboard/Dashboard';
 
 function App() {
   return (
@@ -115,6 +117,7 @@ function App() {
 
         <Route element={<EmployerLayout />}>
           <Route path='/employer/new-candidate' element={<EmployerCandidates />} />
+          <Route path='/employer/candidate-list' element={<CandidatesList />} />
           <Route path='/employer/shortlisted-candidates' element={<EmployeerShortlisedCandidates />} />
           <Route path='/employer/applied-candidates' element={<EmployeerAllAppliedCandidates />} />
           <Route path='/employer/applied-candidates/:id' element={<EmployeerAppliedCandidates />} />
@@ -140,6 +143,7 @@ function App() {
           <Route path='/employer/plans' element={<EmployeerPlans />} />
           <Route path='/employer/plans-grid' element={<EmployeerPlansGrid />} />
           <Route path='/employer/FAQs' element={<FAQs />} />
+          <Route path='/employer/dashboard' element={<Dashboard />} />
 
           {/* Admin routes */}
 

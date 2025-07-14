@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, MessageSquare, Star, Calendar, HelpCircle, Maximize2, Bell, Plus, LayoutDashboard, Users, Briefcase, Menu, X } from 'lucide-react';
+import { ChevronDown, MessageSquare, Star, Calendar, HelpCircle, Maximize2, Bell, Plus, LayoutDashboard, Users, Briefcase, Menu, X, Grid } from 'lucide-react';
 import user19 from '../../assets/employer/assets/img/logo - dark.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiLogOut } from 'react-icons/fi';
@@ -96,7 +96,7 @@ const EmployerHeader = () => {
     ];
 
     const jobsOptions = [
-        { name: 'Post Jobs', path: '/employer/post-jobs' },
+        // { name: 'Post Jobs', path: '/employer/post-jobs' },
         { name: 'List Jobs', path: '/employer/post-jobs' },
         { name: 'Applied Candidates', path: '/employer/applied-candidates ' },
         { name: 'Shortlisted Candidates', path: '/employer/shortlisted-candidates' },
@@ -165,6 +165,10 @@ const EmployerHeader = () => {
                     {/* Desktop Navigation */}
                     <nav className='d-none d-lg-flex align-items-center'>
                         <div className='d-flex align-items-center'>
+                            <Link to="/employer/dashboard" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                                <Grid className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                <span className="text-dark">dashboard</span>
+                            </Link>
                             <div className='position-relative me-2'>
                                 <div
                                     className='d-flex align-items-center fw-medium px-3 py-2 rounded dropdown'
@@ -517,6 +521,14 @@ const EmployerHeader = () => {
                         {/* Mobile Navigation Links */}
                         <div className="mb-3">
                             {/* Candidates Section */}
+                             <Link
+                                to="/employer/dashboard"
+                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                                onClick={closeMobileMenu}
+                            >
+                                <Grid className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                <span className="text-dark">dashboard</span>
+                            </Link>
                             <div className="mb-2">
                                 <div
                                     className="d-flex align-items-center justify-content-between fw-medium px-3 py-2 rounded mobile-dropdown-header"

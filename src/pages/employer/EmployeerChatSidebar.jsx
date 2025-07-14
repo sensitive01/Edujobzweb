@@ -24,6 +24,11 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
   const [statusNotes, setStatusNotes] = useState('');
   const [currentApplication, setCurrentApplication] = useState(null);
   const [employerProfile, setEmployerProfile] = useState(null);
+  const [interviewType, setInterviewType] = useState('');
+const [interviewDate, setInterviewDate] = useState('');
+const [interviewTime, setInterviewTime] = useState('');
+const [onlineLink, setOnlineLink] = useState('');
+const [venue, setVenue] = useState('');
 
   const dropdownRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -225,96 +230,223 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
     }
   };
 
+  // const handleUpdateStatus = async () => {
+  //   if (!selectedStatus) {
+  //     setError('Please select a status');
+  //     return;
+  //   }
+
+  //   try {
+  //     const token = localStorage.getItem('employerToken');
+  //     const response = await axios.put(
+  //       `https://edujobzbackend.onrender.com/employer/update-status/${candidate._id}/${candidate.applicantId}`,
+  //       {
+  //         status: selectedStatus,
+  //         notes: statusNotes,
+  //         jobId: candidate.jobId || 'general'
+  //       },
+  //       {
+  //         headers: {
+  //           'Authorization': `Bearer ${token}`
+  //         }
+  //       }
+  //     );
+
+  //     if (response.data.success) {
+  //       // Send automatic status update message
+  //       await sendStatusUpdateMessage(selectedStatus);
+
+  //       setShowStatusModal(false);
+  //       setSelectedStatus('');
+  //       setStatusNotes('');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error updating status:', error);
+  //     setError('Failed to update status. Please try again.');
+  //   }
+  // };
+
   const handleUpdateStatus = async () => {
-    if (!selectedStatus) {
-      setError('Please select a status');
+  if (!selectedStatus) {
+    setError('Please select a status');
+    return;
+  }
+
+  if (selectedStatus === "Interview Scheduled") {
+    if (!interviewType || !interviewDate || !interviewTime) {
+      setError('Please fill all interview details');
       return;
     }
-
-    try {
-      const token = localStorage.getItem('employerToken');
-      const response = await axios.put(
-        `https://edujobzbackend.onrender.com/employer/update-status/${candidate._id}/${candidate.applicantId}`,
-        {
-          status: selectedStatus,
-          notes: statusNotes,
-          jobId: candidate.jobId || 'general'
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-
-      if (response.data.success) {
-        // Send automatic status update message
-        await sendStatusUpdateMessage(selectedStatus);
-
-        setShowStatusModal(false);
-        setSelectedStatus('');
-        setStatusNotes('');
-      }
-    } catch (error) {
-      console.error('Error updating status:', error);
-      setError('Failed to update status. Please try again.');
+    if (interviewType === "online" && !onlineLink) {
+      setError('Please provide online meeting link');
+      return;
     }
-  };
+    if (interviewType === "offline" && !venue) {
+      setError('Please provide venue details');
+      return;
+    }
+  }
+
+  try {
+    const token = localStorage.getItem('employerToken');
+    const response = await axios.put(
+      `https://edujobzbackend.onrender.com/employer/update-status/${candidate._id}/${candidate.applicantId}`,
+      {
+        status: selectedStatus,
+        notes: statusNotes,
+        jobId: candidate.jobId || 'general',
+        ...(selectedStatus === "Interview Scheduled" && {
+          interviewDetails: {
+            type: interviewType,
+            date: interviewDate,
+            time: interviewTime,
+            ...(interviewType === "online" && { link: onlineLink }),
+            ...(interviewType === "offline" && { venue: venue })
+          }
+        })
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+
+    if (response.data.success) {
+      // Send automatic status update message with interview details if applicable
+      await sendStatusUpdateMessage(selectedStatus);
+
+      // Reset form
+      setShowStatusModal(false);
+      setSelectedStatus('');
+      setStatusNotes('');
+      setInterviewType('');
+      setInterviewDate('');
+      setInterviewTime('');
+      setOnlineLink('');
+      setVenue('');
+    }
+  } catch (error) {
+    console.error('Error updating status:', error);
+    setError('Failed to update status. Please try again.');
+  }
+};
+  // const sendStatusUpdateMessage = async (status) => {
+  //   let statusMessage = '';
+  //   switch (status) {
+  //     case 'Selected':
+  //       statusMessage = 'Your profile status has been updated to "Selected"';
+  //       break;
+  //     case 'Rejected':
+  //       statusMessage = 'Your profile status has been updated to "Rejected"';
+  //       break;
+  //     case 'Hold':
+  //       statusMessage = 'Your profile status has been updated to "Hold"';
+  //       break;
+  //     case 'Interview Scheduled':
+  //       statusMessage = 'Your interview has been scheduled';
+  //       break;
+  //     default:
+  //       statusMessage = `Your profile status has been updated to "${status}"`;
+  //   }
+
+  //   try {
+  //     const token = localStorage.getItem('employerToken');
+  //     const formData = new FormData();
+  //     formData.append('employeeId', candidate.applicantId);
+  //     formData.append('employerId', employerData._id);
+  //     formData.append('jobId', candidate.jobId || 'general');
+  //     formData.append('message', statusMessage);
+  //     formData.append('sender', 'employer');
+  //     formData.append('employerName', employerData.companyName);
+  //     formData.append('employerImage', employerData.profilePicture);
+  //     formData.append('employeeName', candidate.firstName || candidate.name);
+  //     formData.append('employeeImage', candidate.avatar);
+
+  //     const newMsg = {
+  //       id: Date.now(),
+  //       sender: 'You',
+  //       avatar: employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg',
+  //       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  //       content: statusMessage,
+  //       isMe: true
+  //     };
+
+  //     setMessages(prev => [...prev, newMsg]);
+
+  //     await axios.post('https://edujobzbackend.onrender.com/employer/sendchats', formData, {
+  //       headers: {
+  //         'Authorization': `Bearer ${token}`,
+  //         'Content-Type': 'multipart/form-data'
+  //       }
+  //     });
+  //   } catch (error) {
+  //     console.error('Error sending status update message:', error);
+  //   }
+  // };
 
   const sendStatusUpdateMessage = async (status) => {
-    let statusMessage = '';
-    switch (status) {
-      case 'Selected':
-        statusMessage = 'Your profile status has been updated to "Selected"';
-        break;
-      case 'Rejected':
-        statusMessage = 'Your profile status has been updated to "Rejected"';
-        break;
-      case 'Hold':
-        statusMessage = 'Your profile status has been updated to "Hold"';
-        break;
-      case 'Interview Scheduled':
-        statusMessage = 'Your interview has been scheduled';
-        break;
-      default:
-        statusMessage = `Your profile status has been updated to "${status}"`;
-    }
+  let statusMessage = '';
+  
+  switch (status) {
+    case 'Selected':
+      statusMessage = 'Your profile status has been updated to "Selected"';
+      break;
+    case 'Rejected':
+      statusMessage = 'Your profile status has been updated to "Rejected"';
+      break;
+    case 'Hold':
+      statusMessage = 'Your profile status has been updated to "Hold"';
+      break;
+    case 'Interview Scheduled':
+      statusMessage = `Your interview has been scheduled\n`;
+      statusMessage += `Type: ${interviewType === 'online' ? 'Online' : 'In-Person'}\n`;
+      statusMessage += `Date: ${new Date(interviewDate).toLocaleDateString()}\n`;
+      statusMessage += `Time: ${interviewTime}\n`;
+      if (interviewType === 'online') {
+        statusMessage += `Link: ${onlineLink}`;
+      } else {
+        statusMessage += `Venue: ${venue}`;
+      }
+      break;
+    default:
+      statusMessage = `Your profile status has been updated to "${status}"`;
+  }
 
-    try {
-      const token = localStorage.getItem('employerToken');
-      const formData = new FormData();
-      formData.append('employeeId', candidate.applicantId);
-      formData.append('employerId', employerData._id);
-      formData.append('jobId', candidate.jobId || 'general');
-      formData.append('message', statusMessage);
-      formData.append('sender', 'employer');
-      formData.append('employerName', employerData.companyName);
-      formData.append('employerImage', employerData.profilePicture);
-      formData.append('employeeName', candidate.firstName || candidate.name);
-      formData.append('employeeImage', candidate.avatar);
+  try {
+    const token = localStorage.getItem('employerToken');
+    const formData = new FormData();
+    formData.append('employeeId', candidate.applicantId);
+    formData.append('employerId', employerData._id);
+    formData.append('jobId', candidate.jobId || 'general');
+    formData.append('message', statusMessage);
+    formData.append('sender', 'employer');
+    formData.append('employerName', employerData.companyName);
+    formData.append('employerImage', employerData.profilePicture);
+    formData.append('employeeName', candidate.firstName || candidate.name);
+    formData.append('employeeImage', candidate.avatar);
 
-      const newMsg = {
-        id: Date.now(),
-        sender: 'You',
-        avatar: employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg',
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        content: statusMessage,
-        isMe: true
-      };
+    const newMsg = {
+      id: Date.now(),
+      sender: 'You',
+      avatar: employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      content: statusMessage,
+      isMe: true
+    };
 
-      setMessages(prev => [...prev, newMsg]);
+    setMessages(prev => [...prev, newMsg]);
 
-      await axios.post('https://edujobzbackend.onrender.com/employer/sendchats', formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-    } catch (error) {
-      console.error('Error sending status update message:', error);
-    }
-  };
-
+    await axios.post('https://edujobzbackend.onrender.com/employer/sendchats', formData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  } catch (error) {
+    console.error('Error sending status update message:', error);
+  }
+};
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -502,7 +634,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
   return (
     <div className="chat-sidebar open" style={sidebarStyles}>
       {/* Status Update Modal */}
-      <Modal show={showStatusModal} onHide={() => setShowStatusModal(false)}>
+      {/* <Modal show={showStatusModal} onHide={() => setShowStatusModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Update Candidate Status</Modal.Title>
         </Modal.Header>
@@ -542,7 +674,111 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
             Update Status
           </Button>
         </Modal.Footer>
-      </Modal>
+      </Modal> */}
+
+      {/* Status Update Modal */}
+<Modal show={showStatusModal} onHide={() => setShowStatusModal(false)}>
+  <Modal.Header closeButton>
+    <Modal.Title>Update Candidate Status</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <Form>
+      <Form.Group className="mb-3">
+        <Form.Label>Status</Form.Label>
+        <Form.Control
+          as="select"
+          value={selectedStatus}
+          onChange={(e) => setSelectedStatus(e.target.value)}
+        >
+          <option value="">Select Status</option>
+          <option value="Selected">Mark as Selected</option>
+          <option value="Rejected">Mark as Rejected</option>
+          <option value="Hold">Mark as Hold</option>
+          <option value="Interview Scheduled">Schedule Interview</option>
+        </Form.Control>
+      </Form.Group>
+
+      {selectedStatus === "Interview Scheduled" && (
+        <>
+          <Form.Group className="mb-3">
+            <Form.Label>Interview Type</Form.Label>
+            <Form.Control
+              as="select"
+              value={interviewType}
+              onChange={(e) => setInterviewType(e.target.value)}
+            >
+              <option value="">Select Interview Type</option>
+              <option value="online">Online</option>
+              <option value="offline">Offline</option>
+            </Form.Control>
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Interview Date</Form.Label>
+            <Form.Control
+              type="date"
+              value={interviewDate}
+              onChange={(e) => setInterviewDate(e.target.value)}
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Interview Time</Form.Label>
+            <Form.Control
+              type="time"
+              value={interviewTime}
+              onChange={(e) => setInterviewTime(e.target.value)}
+            />
+          </Form.Group>
+
+          {interviewType === "online" && (
+            <Form.Group className="mb-3">
+              <Form.Label>Online Meeting Link</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter meeting link (Zoom, Google Meet, etc.)"
+                value={onlineLink}
+                onChange={(e) => setOnlineLink(e.target.value)}
+              />
+            </Form.Group>
+          )}
+
+          {interviewType === "offline" && (
+            <Form.Group className="mb-3">
+              <Form.Label>Venue</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="Enter venue address"
+                value={venue}
+                onChange={(e) => setVenue(e.target.value)}
+              />
+            </Form.Group>
+          )}
+        </>
+      )}
+
+      <Form.Group className="mb-3">
+        <Form.Label>Notes</Form.Label>
+        <Form.Control
+          as="textarea"
+          rows={3}
+          value={statusNotes}
+          onChange={(e) => setStatusNotes(e.target.value)}
+          placeholder="Enter notes about this status change..."
+        />
+      </Form.Group>
+    </Form>
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowStatusModal(false)}>
+      Cancel
+    </Button>
+    <Button variant="primary" onClick={handleUpdateStatus}>
+      Update Status
+    </Button>
+  </Modal.Footer>
+</Modal>
 
       {/* Chat Header */}
       <div className="chat-header" style={headerStyles}>

@@ -40,7 +40,7 @@ const JobAlert = () => {
                     <div className="jobplugin__settings-card">
                       <header className="jobplugin__settings-card__head">
                         <h3 className="h6">Matching Jobs</h3>
-                        <a href="add-job-alerts.php" className="jobplugin__button jobplugin__bg-white jobplugin__border-primary small hover:jobplugin__bg-white">Add a Job Alert</a>
+                        <a href="/add-job-alerts" className="jobplugin__button jobplugin__bg-white jobplugin__border-primary small hover:jobplugin__bg-white"  style={{ color: 'black' }}>Add a Job Alert</a>
                       </header>
                       <div className="jobplugin__settings-card__body">
                         <ul className="jobplugin__settings-card__infolist">

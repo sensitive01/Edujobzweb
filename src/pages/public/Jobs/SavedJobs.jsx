@@ -213,7 +213,7 @@ const SavedJobs = () => {
                       When you find jobs you're interested in, click the <FaBookmark className="mx-1 text-primary" /> icon to save them here for easy access later.
                     </p>
                     <div className="d-flex justify-content-center gap-3">
-                      <Link to="job-vacancies" className="btn btn-primary">
+                      <Link to="/job-vacancies" className="btn btn-primary">
                         <FaSearch className="me-2" />
                         Browse Jobs
                       </Link>

@@ -17,7 +17,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
@@ -179,11 +179,13 @@ const Header = () => {
                     <FaUsers /> &nbsp; Candidates
                   </a>
                   <ul className="dropdown-menu" aria-labelledby="candidatesDropdown">
-                    <li>
-                      <Link className="dropdown-item" to="/employee-registration" onClick={handleLinkClick}>
-                        Login / Signup
-                      </Link>
-                    </li>
+                    {!isLoggedIn && (
+                      <li>
+                        <Link className="dropdown-item" to="/employee-registration" onClick={handleLinkClick}>
+                          Login / Signup
+                        </Link>
+                      </li>
+                    )}
                     <li>
                       <Link className="dropdown-item" to="/dashboard" onClick={handleLinkClick}>
                         Dashboard
@@ -283,7 +285,7 @@ const Header = () => {
 
       {/* Mobile Navigation Overlay */}
       {isMenuOpen && (
-        <div 
+        <div
           className="mobile-nav-overlay d-lg-none"
           style={{
             position: 'fixed',
@@ -300,7 +302,7 @@ const Header = () => {
       )}
 
       {/* Mobile Navigation Menu */}
-      <div 
+      <div
         className={`mobile-nav-menu d-lg-none ${isMenuOpen ? 'open' : ''}`}
         style={{
           position: 'fixed',
@@ -402,7 +404,7 @@ const Header = () => {
               </div>
               {openDropdown === 'employer' ? <FaChevronUp /> : <FaChevronDown />}
             </button>
-            
+
             {openDropdown === 'employer' && (
               <div style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
                 <Link
@@ -503,9 +505,10 @@ const Header = () => {
               </div>
               {openDropdown === 'candidates' ? <FaChevronUp /> : <FaChevronDown />}
             </button>
-            
+
             {openDropdown === 'candidates' && (
               <div style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
+                  {!isLoggedIn && (
                 <Link
                   to="/employee-registration"
                   onClick={handleLinkClick}
@@ -523,6 +526,7 @@ const Header = () => {
                 >
                   Login / Signup
                 </Link>
+                )}
                 <Link
                   to="/dashboard"
                   onClick={handleLinkClick}
@@ -586,7 +590,7 @@ const Header = () => {
               </div>
               {openDropdown === 'about' ? <FaChevronUp /> : <FaChevronDown />}
             </button>
-            
+
             {openDropdown === 'about' && (
               <div style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
                 <Link

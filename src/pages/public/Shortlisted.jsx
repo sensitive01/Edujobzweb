@@ -195,7 +195,7 @@ const ShortlistedJobs = () => {
                       When your job applications progress beyond the initial stage, they will appear here.
                     </p>
                     <div className="d-flex justify-content-center gap-3">
-                      <Link to="job-vacancies" className="btn btn-primary">
+                      <Link to="/job-vacancies" className="btn btn-primary">
                         <FaSearch className="me-2" />
                         Browse Jobs
                       </Link>

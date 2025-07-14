@@ -7,6 +7,8 @@ import EmployerFooter from './EmployerFooter';
 import EmployerHeader from './EmployerHeader';
 import { useNavigate } from 'react-router-dom';
 import EmployeerChatSidebar from './EmployeerChatSidebar';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Candidates = () => {
   const [showCandidateModal, setShowCandidateModal] = useState(false);
@@ -337,11 +339,6 @@ const Candidates = () => {
 
   const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
     try {
-      console.log("Updating favorite status with:", {
-        applicationId,
-        employid,
-        currentStatus
-      });
       const token = localStorage.getItem('employerToken');
       if (!token) {
         navigate('/employer/login');
@@ -368,7 +365,28 @@ const Candidates = () => {
         throw new Error(data.message || 'Failed to update favorite status');
       }
 
-      // Update state only after successful API call
+      // Show toast notification based on the new status
+      if (!currentStatus) {
+        toast.success('Candidate Saved to your list', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      } else {
+        toast.info('Candidate Removed from Saved List', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
+
+      // Update state
       setCandidates(prev => prev.map(candidate => {
         if (candidate._id === applicationId) {
           return {
@@ -391,7 +409,14 @@ const Candidates = () => {
 
     } catch (error) {
       console.error('Error updating favorite status:', error);
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
   const filterCandidates = () => {
@@ -842,7 +867,7 @@ const Candidates = () => {
 
             {/* View Toggle */}
             <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
-              <button className="btn btn-icon btn-sm me-1">
+              <button className="btn btn-icon btn-sm me-1" onClick={() => navigate("/employer/candidate-list")}>
                 <i className="ti ti-list-tree"></i>
               </button>
               <button className="btn btn-icon btn-sm active bg-secondary text-white" onClick={() => navigate("/employer/new-candidate")} >
@@ -860,8 +885,10 @@ const Candidates = () => {
               </button>
               <ul
                 className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'export' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'export' ? 'block' : 'none',
-                  marginLeft: '-65px', }}
+                style={{
+                  display: activeDropdown === 'export' ? 'block' : 'none',
+                  marginLeft: '-65px',
+                }}
               >
                 {exportOptions.map((option) => (
                   <li key={option.label}>
@@ -1317,6 +1344,17 @@ const Candidates = () => {
           candidate={selectedCandidateForChat}
         />
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <EmployerFooter />
     </>
   );

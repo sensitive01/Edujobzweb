@@ -7,6 +7,8 @@ import EmployerFooter from './EmployerFooter';
 import EmployerHeader from './EmployerHeader';
 import EmployeerChatSidebar from './EmployeerChatSidebar';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EmployeerAllAppliedCandidates = () => {
   const [showCandidateModal, setShowCandidateModal] = useState(false);
@@ -336,49 +338,89 @@ const EmployeerAllAppliedCandidates = () => {
     filterCandidates();
   }, [filters, candidates, selectedSort, dateRange]);
 
-
+  
   const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
-    try {
-      const token = localStorage.getItem('employerToken');
-      if (!token) {
-        navigate('/employer/login');
-        return;
-      }
-
-      const response = await fetch(
-        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            favourite: !currentStatus
-          })
+      try {
+        const token = localStorage.getItem('employerToken');
+        if (!token) {
+          navigate('/employer/login');
+          return;
         }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to update favorite status');
+  
+        const response = await fetch(
+          `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              favourite: !currentStatus
+            })
+          }
+        );
+  
+        const data = await response.json();
+  
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || 'Failed to update favorite status');
+        }
+  
+        // Show toast notification based on the new status
+        if (!currentStatus) {
+          toast.success('Candidate Saved to your list', {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+        } else {
+          toast.info('Candidate Removed from Saved List', {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+        }
+  
+        // Update state
+        setCandidates(prev => prev.map(candidate => {
+          if (candidate._id === applicationId) {
+            return {
+              ...candidate,
+              favourite: !currentStatus
+            };
+          }
+          return candidate;
+        }));
+  
+        setFilteredCandidates(prev => prev.map(candidate => {
+          if (candidate._id === applicationId) {
+            return {
+              ...candidate,
+              favourite: !currentStatus
+            };
+          }
+          return candidate;
+        }));
+  
+      } catch (error) {
+        console.error('Error updating favorite status:', error);
+        toast.error(`Error: ${error.message}`, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
-
-      // Update state
-      setCandidates(prev => prev.map(candidate =>
-        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
-      ));
-
-      setFilteredCandidates(prev => prev.map(candidate =>
-        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
-      ));
-
-    } catch (error) {
-      console.error('Error updating favorite status:', error);
-      alert(`Error: ${error.message}`);
-    }
-  };
+    };
   const filterCandidates = () => {
     let result = [...candidates];
 
@@ -1300,6 +1342,17 @@ const EmployeerAllAppliedCandidates = () => {
           candidate={selectedCandidateForChat}
         />
       )}
+         <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
       <EmployerFooter />
     </>
   );

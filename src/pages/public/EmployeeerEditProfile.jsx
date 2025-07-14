@@ -261,70 +261,77 @@ const EmployeeerEditProfile = () => {
     }));
   };
 
-  // Profile Image Upload Handler
   const handleProfilePicChange = async (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (!file.type.match('image.*')) {
-        setError('Please select an image file');
+  if (e.target.files && e.target.files[0]) {
+    const file = e.target.files[0];
+    
+    // Client-side validation
+    if (!file.type.match('image.*')) {
+      setError('Please select an image file (JPEG, PNG)');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) { // Match backend limit (10MB)
+      setError('Image size should be less than 10MB');
+      return;
+    }
+
+    // Show preview while uploading
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setEmployeeData(prev => ({
+        ...prev,
+        profileImage: event.target.result
+      }));
+    };
+    reader.readAsDataURL(file);
+
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        navigate('/login');
         return;
       }
-      if (file.size > 2 * 1024 * 1024) {
-        setError('Image size should be less than 2MB');
-        return;
-      }
 
-      setProfilePicFile(file);
+      const formData = new FormData();
+      formData.append('file', file);
 
-      try {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-          navigate('/login');
-          return;
-        }
+      setUploading(prev => ({ ...prev, profileImage: true }));
+      setError(null);
 
-        const formData = new FormData();
-        formData.append('file', file);
-
-        setUploading(prev => ({ ...prev, profileImage: true }));
-
-        const response = await axios.put(
-          `https://edujobzbackend.onrender.com/uploadfile/${id}?fileType=profileImage`,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              'Authorization': `Bearer ${token}`
-            }
+      // Make sure this matches your backend route exactly
+      const response = await axios.put(
+        `https://edujobzbackend.onrender.com/uploadfile/${id}`,
+        formData,
+        {
+          params: {
+            fileType: 'profileImage'
+          },
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
           }
-        );
+        }
+      );
 
-        // Update the profile image in state
+      if (response.data && response.data.file && response.data.file.url) {
         setEmployeeData(prev => ({
           ...prev,
           profileImage: response.data.file.url,
           userProfilePic: response.data.file.url
         }));
-
-      } catch (err) {
-        console.error('Error uploading profile image:', err);
-        setError(err.response?.data?.message || 'Failed to upload image');
-      } finally {
-        setUploading(prev => ({ ...prev, profileImage: false }));
+      } else {
+        throw new Error('Invalid response from server');
       }
-
-      // Preview the image
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setEmployeeData(prev => ({
-          ...prev,
-          profileImage: event.target.result
-        }));
-      };
-      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError(err.response?.data?.message || 
+               err.message || 
+               'Failed to upload image. Please try again.');
+    } finally {
+      setUploading(prev => ({ ...prev, profileImage: false }));
     }
-  };
-
+  }
+};
   // Resume Upload Handler
   const handleResumeChange = async (e) => {
     if (e.target.files && e.target.files[0]) {

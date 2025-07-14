@@ -9,6 +9,8 @@ import EmployerHeader from './EmployerHeader';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import EmployeerChatSidebar from './EmployeerChatSidebar';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EmployeerJobIdShortlistedCandidates = () => {
   const { id: jobId } = useParams();
@@ -458,7 +460,26 @@ const EmployeerJobIdShortlistedCandidates = () => {
       if (!response.ok || !data.success) {
         throw new Error(data.message || 'Failed to update favorite status');
       }
-
+      // Show toast notification based on the new status
+      if (!currentStatus) {
+        toast.success('Candidate Saved to your list', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      } else {
+        toast.info('Candidate Removed from Saved List', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
       setCandidates(prev => prev.map(candidate =>
         candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
       ));
@@ -933,7 +954,7 @@ const EmployeerJobIdShortlistedCandidates = () => {
               </button>
               <ul
                 className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'export' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'export' ? 'block' : 'none',marginLeft: '-65px', }}
+                style={{ display: activeDropdown === 'export' ? 'block' : 'none', marginLeft: '-65px', }}
               >
                 {exportOptions.map((option) => (
                   <li key={option.label}>
@@ -1390,6 +1411,17 @@ const EmployeerJobIdShortlistedCandidates = () => {
           candidate={selectedCandidateForChat}
         />
       )}
+       <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
       <EmployerFooter />
     </>
   );

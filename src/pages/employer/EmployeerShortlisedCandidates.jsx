@@ -7,6 +7,8 @@ import EmployerFooter from './EmployerFooter';
 import EmployerHeader from './EmployerHeader';
 import EmployeerChatSidebar from './EmployeerChatSidebar';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EmployeerShortlisedCandidates = () => {
   const [showCandidateModal, setShowCandidateModal] = useState(false);
@@ -335,8 +337,7 @@ const EmployeerShortlisedCandidates = () => {
     filterCandidates();
   }, [filters, candidates, selectedSort, dateRange]);
 
-
-  const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
+ const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
     try {
       const token = localStorage.getItem('employerToken');
       if (!token) {
@@ -364,18 +365,58 @@ const EmployeerShortlisedCandidates = () => {
         throw new Error(data.message || 'Failed to update favorite status');
       }
 
-      // Update state
-      setCandidates(prev => prev.map(candidate =>
-        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
-      ));
+      // Show toast notification based on the new status
+      if (!currentStatus) {
+        toast.success('Candidate Saved to your list', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      } else {
+        toast.info('Candidate Removed from Saved List', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
 
-      setFilteredCandidates(prev => prev.map(candidate =>
-        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
-      ));
+      // Update state
+      setCandidates(prev => prev.map(candidate => {
+        if (candidate._id === applicationId) {
+          return {
+            ...candidate,
+            favourite: !currentStatus
+          };
+        }
+        return candidate;
+      }));
+
+      setFilteredCandidates(prev => prev.map(candidate => {
+        if (candidate._id === applicationId) {
+          return {
+            ...candidate,
+            favourite: !currentStatus
+          };
+        }
+        return candidate;
+      }));
 
     } catch (error) {
       console.error('Error updating favorite status:', error);
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.message}`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
@@ -1344,6 +1385,17 @@ const EmployeerShortlisedCandidates = () => {
           candidate={selectedCandidateForChat}
         />
       )}
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
       <EmployerFooter />
     </>
   );

@@ -979,8 +979,8 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                     width: '800px'
                 }}>
                 <div className="offcanvas-body p-0">
-                    <div className="candidate-details-page">
-                        <div className="offcanvas-header border-bottom">
+                    <div className="candidate-details-page px-3">
+                        <div className="offcanvas-header border-bottom mb-3  ">
                             <h4 className="d-flex align-items-center">
                                 Candidate Details
                                 <span className="badge bg-primary-transparent fw-medium ms-2">
@@ -1092,7 +1092,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                                 </li>
                             </ul>
                         </div>
-                        <div className="tab-content px-3" id="myTabContent" style={{ paddingBottom: '20px' }}>
+                        <div className="tab-content " id="myTabContent" style={{ paddingBottom: '20px' }}>
                             <div className={`tab-pane fade ${activeTab === 'profile' ? 'show active' : ''}`}>
                                 {activeTab === 'profile' && renderProfileTab()}
                             </div>
