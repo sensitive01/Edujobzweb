@@ -93,62 +93,6 @@ const EmployerEventDetails = () => {
     }));
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     // Convert date back to dd/mm/yyyy format for API
-  //     const [year, month, day] = formData.eventDate.split('-');
-  //     const formattedDate = `${day}/${month}/${year}`;
-
-  //     const updatedEventData = {
-  //       title: formData.title,
-  //       category: formData.category,
-  //       description: formData.description,
-  //       eventDate: formattedDate,
-  //       startTime: formData.startTime,
-  //       endTime: formData.endTime,
-  //       venue: formData.venue,
-  //       coordinator: formData.coordinator,
-  //       status: formData.status
-  //     };
-
-  //     const response = await fetch(`https://edujobzbackend.onrender.com/employer/updateevent/${eventId}`, {
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(updatedEventData)
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error('Failed to update event');
-  //     }
-
-  //     const updatedEvent = await response.json();
-  //     setEvent(updatedEvent);
-  //     setShowEditModal(false);
-
-  //     // Update the form data with the new values
-  //     const [newDay, newMonth, newYear] = updatedEvent.eventDate.split('/');
-  //     const newFormattedDate = `${newYear}-${newMonth}-${newDay}`;
-
-  //     setFormData(prev => ({
-  //       ...prev,
-  //       title: updatedEvent.title,
-  //       category: updatedEvent.category,
-  //       description: updatedEvent.description,
-  //       eventDate: newFormattedDate,
-  //       startTime: updatedEvent.startTime,
-  //       endTime: updatedEvent.endTime,
-  //       venue: updatedEvent.venue,
-  //       status: updatedEvent.status,
-  //       coordinator: updatedEvent.coordinator
-  //     }));
-  //   } catch (err) {
-  //     setError(err.message);
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -367,12 +311,6 @@ const EmployerEventDetails = () => {
                               </ul>
                             </div>
                           )}
-                          <div className="d-flex align-items-center mt-3">
-                            <button className="d-inline-flex align-items-center text-primary fw-medium me-3">
-                              <ArrowUpRight className="me-1" size={16} />
-                              View All Participants
-                            </button>
-                          </div>
                         </div>
                       </div>
                     </div>

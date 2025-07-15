@@ -24,7 +24,7 @@ const EmployeerEvents = () => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [toast, setToast] = useState({ show: false, message: '', type: '' });
-
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
   // New event form state
   const [newEvent, setNewEvent] = useState({
     title: '',
@@ -35,6 +35,7 @@ const EmployeerEvents = () => {
     endTime: '',
     venue: '',
     coordinator: '',
+    entryfee: '0',
     bannerImage: null
   });
   const [fileInputKey, setFileInputKey] = useState(Date.now());
@@ -118,177 +119,102 @@ const EmployeerEvents = () => {
     }));
   };
 
-  // const handleCreateEvent = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const employerData = JSON.parse(localStorage.getItem('employerData'));
-  //     if (!employerData || !employerData._id) {
-  //       throw new Error('Organizer ID not found in localStorage');
-  //     }
-
-  //     const formData = new FormData();
-  //     formData.append('title', newEvent.title);
-  //     formData.append('description', newEvent.description);
-  //     formData.append('category', newEvent.category);
-  //     formData.append('eventDate', newEvent.eventDate);
-  //     formData.append('startTime', newEvent.startTime);
-  //     formData.append('endTime', newEvent.endTime);
-  //     formData.append('venue', newEvent.venue);
-  //     formData.append('coordinator', newEvent.coordinator);
-  //     if (newEvent.bannerImage) {
-  //       formData.append('bannerImage', newEvent.bannerImage);
-  //     }
-
-  //     const response = await fetch(`https://edujobzbackend.onrender.com/employer/${employerData._id}/events`, {
-  //       method: 'POST',
-  //       body: formData,
-  //     });
-
-  //     if (!response.ok) {
-  //       const errorData = await response.json();
-  //       throw new Error(errorData.message || 'Failed to create event');
-  //     }
-
-  //     const createdEvent = await response.json();
-  //     console.log("Created Event Response:", createdEvent); // Log the response
-
-  //     // Process and add the new event to state
-  //     const eventDate = new Date(createdEvent.eventDate);
-  //     const today = new Date();
-  //     let status = 'Upcoming';
-
-  //     if (eventDate < today) {
-  //       status = 'Completed';
-  //     } else if (eventDate.toDateString() === today.toDateString()) {
-  //       status = 'Current';
-  //     }
-
-  //     setEvents(prevEvents => [
-  //       ...prevEvents,
-  //       {
-  //         ...createdEvent,
-  //         status,
-  //         type: createdEvent.category || 'Workshop',
-  //         registrations: createdEvent.registrations || [], // Ensure registrations exists
-  //         totalRegistrations: createdEvent.totalRegistrations || 0, // Ensure totalRegistrations exists
-  //       }
-  //     ]);
-
-  //     // Reset form and close modal
-  //     setNewEvent({
-  //       title: '',
-  //       description: '',
-  //       category: '',
-  //       eventDate: '',
-  //       startTime: '',
-  //       endTime: '',
-  //       venue: '',
-  //       coordinator: '',
-  //       bannerImage: null,
-  //     });
-  //     setFileInputKey(Date.now());
-  //     setShowAddEventModal(false);
-  //     setToast({ show: true, message: 'Event created successfully', type: 'success' });
-  //   } catch (err) {
-  //     console.error('Error creating event:', err);
-  //     setToast({ show: true, message: err.message, type: 'error' });
-  //   }
-  // };
-
   const handleCreateEvent = async (e) => {
-  e.preventDefault();
-  try {
-    const employerData = JSON.parse(localStorage.getItem('employerData'));
-    if (!employerData || !employerData._id) {
-      throw new Error('Organizer ID not found in localStorage');
-    }
-
-    // 1. Create FormData object
-    const formData = new FormData();
-    
-    // 2. Append all text fields
-    formData.append('title', newEvent.title);
-    formData.append('description', newEvent.description);
-    formData.append('category', newEvent.category);
-    formData.append('eventDate', newEvent.eventDate);
-    formData.append('startTime', newEvent.startTime);
-    formData.append('endTime', newEvent.endTime);
-    formData.append('venue', newEvent.venue);
-    formData.append('coordinator', newEvent.coordinator);
-    
-    // 3. Append default values for required backend fields
-    formData.append('totalattendes', '100'); // Default value
-    formData.append('entryfee', '0'); // Default value
-    formData.append('eventendDate', newEvent.eventDate); // Same as start date
-    
-    // 4. Critical: Append the file with the correct field name
-    if (newEvent.bannerImage) {
-      formData.append('file', newEvent.bannerImage); // Must be 'file' to match multer
-      formData.append('fileType', 'eventimage'); // Tell backend which storage to use
-    }
-
-    // 5. Log FormData contents for debugging
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
-    // 6. Make the request WITHOUT setting Content-Type header
-    const response = await fetch(`https://edujobzbackend.onrender.com/employer/${employerData._id}/events`, {
-      method: 'POST',
-      body: formData, // FormData will set the correct headers automatically
-      // Don't set Content-Type header - the browser will set it with boundary
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to create event');
-    }
-
-    const createdEvent = await response.json();
-    console.log("Created Event Response:", createdEvent);
-
-    // Process and add the new event to state
-    const eventDate = new Date(createdEvent.eventDate);
-    const today = new Date();
-    let status = 'Upcoming';
-
-    if (eventDate < today) {
-      status = 'Completed';
-    } else if (eventDate.toDateString() === today.toDateString()) {
-      status = 'Current';
-    }
-
-    setEvents(prevEvents => [
-      ...prevEvents,
-      {
-        ...createdEvent,
-        status,
-        type: createdEvent.category || 'Workshop',
-        registrations: createdEvent.registrations || [],
-        totalRegistrations: createdEvent.totalRegistrations || 0,
+    e.preventDefault();
+    try {
+      const employerData = JSON.parse(localStorage.getItem('employerData'));
+      if (!employerData || !employerData._id) {
+        throw new Error('Organizer ID not found in localStorage');
       }
-    ]);
 
-    // Reset form and close modal
-    setNewEvent({
-      title: '',
-      description: '',
-      category: '',
-      eventDate: '',
-      startTime: '',
-      endTime: '',
-      venue: '',
-      coordinator: '',
-      bannerImage: null,
-    });
-    setFileInputKey(Date.now());
-    setShowAddEventModal(false);
-    setToast({ show: true, message: 'Event created successfully', type: 'success' });
-  } catch (err) {
-    console.error('Error creating event:', err);
-    setToast({ show: true, message: err.message || 'Failed to create event', type: 'error' });
-  }
-};
+      // 1. Create FormData object
+      const formData = new FormData();
+
+      // 2. Append all text fields
+      formData.append('title', newEvent.title);
+      formData.append('description', newEvent.description);
+      formData.append('category', newEvent.category);
+      formData.append('eventDate', newEvent.eventDate);
+      formData.append('startTime', newEvent.startTime);
+      formData.append('endTime', newEvent.endTime);
+      formData.append('venue', newEvent.venue);
+      formData.append('coordinator', newEvent.coordinator);
+
+      // 3. Append default values for required backend fields
+      formData.append('totalattendes', '100'); // Default value
+      formData.append('entryfee', '0'); // Default value
+      formData.append('eventendDate', newEvent.eventDate); // Same as start date
+
+      // 4. Critical: Append the file with the correct field name
+      if (newEvent.bannerImage) {
+        formData.append('file', newEvent.bannerImage); // Must be 'file' to match multer
+        formData.append('fileType', 'eventimage'); // Tell backend which storage to use
+      }
+
+      // 5. Log FormData contents for debugging
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      // 6. Make the request WITHOUT setting Content-Type header
+      const response = await fetch(`https://edujobzbackend.onrender.com/employer/${employerData._id}/events?fileType=eventimage`, {
+        method: 'POST',
+        body: formData, // FormData will set the correct headers automatically
+        // Don't set Content-Type header - the browser will set it with boundary
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create event');
+      }
+
+      const createdEvent = await response.json();
+      console.log("Created Event Response:", createdEvent);
+
+      // Process and add the new event to state
+      const eventDate = new Date(createdEvent.eventDate);
+      const today = new Date();
+      let status = 'Upcoming';
+
+      if (eventDate < today) {
+        status = 'Completed';
+      } else if (eventDate.toDateString() === today.toDateString()) {
+        status = 'Current';
+      }
+
+      setEvents(prevEvents => [
+        ...prevEvents,
+        {
+          ...createdEvent,
+          status,
+          type: createdEvent.category || 'Workshop',
+          registrations: createdEvent.registrations || [],
+          totalRegistrations: createdEvent.totalRegistrations || 0,
+        }
+      ]);
+
+      // Reset form and close modal
+      setNewEvent({
+        title: '',
+        description: '',
+        category: '',
+        eventDate: '',
+        startTime: '',
+        endTime: '',
+        venue: '',
+        coordinator: '',
+        bannerImage: null,
+      });
+      setFileInputKey(Date.now());
+      setShowAddEventModal(false);
+      setToast({ show: true, message: 'Event created successfully', type: 'success' });
+    } catch (err) {
+      console.error('Error creating event:', err);
+      setToast({ show: true, message: err.message || 'Failed to create event', type: 'error' });
+    }
+  };
+
+
   const handleViewEvent = (event) => {
     setSelectedEvent(event);
   };
@@ -316,13 +242,106 @@ const EmployeerEvents = () => {
       setEvents(events.filter(event => event._id !== eventToDelete));
       setShowDeleteModal(false);
       setEventToDelete(null);
-      setToast({ show: true, message: 'Event deleted successfully', type: 'success' });
+      setToast({ show: true, message: 'Event deleted successfully', type: 'danger' });
     } catch (err) {
       setToast({ show: true, message: err.message, type: 'error' });
       setError(err.message);
     }
   };
+  const exportToExcel = () => {
+    // Prepare data
+    const headers = ['Title', 'Type', 'Date', 'Venue', 'Status', 'Registrations'];
+    const data = filteredEvents.map(event => [
+      event.title,
+      event.type,
+      new Date(event.eventDate).toLocaleDateString(),
+      event.venue,
+      event.status,
+      event.registrations?.length || 0
+    ]);
 
+    // Convert to CSV
+    let csvContent = "data:text/csv;charset=utf-8,"
+      + headers.join(",") + "\n"
+      + data.map(row => row.join(",")).join("\n");
+
+    // Create download link
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "events.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  const exportToPDF = () => {
+    // Create a printable HTML table
+    const printContent = `
+    <h2>Events Report</h2>
+    <table border="1" style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Type</th>
+          <th>Date</th>
+          <th>Venue</th>
+          <th>Status</th>
+          <th>Registrations</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filteredEvents.map(event => `
+          <tr>
+            <td>${event.title}</td>
+            <td>${event.type}</td>
+            <td>${new Date(event.eventDate).toLocaleDateString()}</td>
+            <td>${event.venue}</td>
+            <td>${event.status}</td>
+            <td>${event.registrations?.length || 0}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+    // Open print dialog
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+    <html>
+      <head>
+        <title>Events Report</title>
+        <style>
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+          @media print {
+            @page { size: landscape; }
+          }
+        </style>
+      </head>
+      <body>
+        ${printContent}
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+              window.close();
+            }, 100);
+          }
+        </script>
+      </body>
+    </html>
+  `);
+    printWindow.document.close();
+  };
+  useEffect(() => {
+    if (toast.show) {
+      const timer = setTimeout(() => {
+        setToast({ show: false, message: '', type: '' });
+      }, 1000); // 1000ms = 1 second
+
+      return () => clearTimeout(timer); // Cleanup on unmount
+    }
+  }, [toast.show]);
   if (loading) return <div>Loading events...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -351,6 +370,30 @@ const EmployeerEvents = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
+              </div>
+              <div className="dropdown me-2">
+                <button
+                  className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowExportDropdown(!showExportDropdown);
+                  }}
+                >
+                  <i className="ti ti-file-export me-2"></i>
+                  Export
+                </button>
+                <ul className={`dropdown-menu dropdown-menu-end p-3 ${showExportDropdown ? 'show' : ''}`}>
+                  <li>
+                    <button className="dropdown-item rounded-1" onClick={exportToExcel}>
+                      <i className="ti ti-file-type-xls me-1"></i>Export as Excel
+                    </button>
+                  </li>
+                  <li>
+                    <button className="dropdown-item rounded-1" onClick={exportToPDF}>
+                      <i className="ti ti-file-type-pdf me-1"></i>Export as PDF
+                    </button>
+                  </li>
+                </ul>
               </div>
               <button
                 className="btn btn-primary d-flex align-items-center justify-content-center"
@@ -697,20 +740,20 @@ const EmployeerEvents = () => {
                       <div className="col-md-6">
                         <div className="mb-3">
                           <label className="form-label">Banner Image</label>
-                       <input
-  type="file"
-  className="form-control"
-  accept="image/*"
-  key={fileInputKey}
-  onChange={(e) => {
-    if (e.target.files && e.target.files[0]) {
-      setNewEvent(prev => ({
-        ...prev,
-        bannerImage: e.target.files[0] // Store the File object directly
-      }));
-    }
-  }}
-/>
+                          <input
+                            type="file"
+                            className="form-control"
+                            accept="image/*"
+                            key={fileInputKey}
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                setNewEvent(prev => ({
+                                  ...prev,
+                                  bannerImage: e.target.files[0] // Store the File object directly
+                                }));
+                              }
+                            }}
+                          />
                         </div>
                       </div>
                       <div className="col-12">
@@ -765,6 +808,19 @@ const EmployeerEvents = () => {
                               <Calendar className="text-primary" />
                             </span>
                           </div>
+                        </div>
+                      </div>
+                      <div className="col-md-12">
+                        <div className="mb-3">
+                          <label className="form-label">Entry Fee (₹)</label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            name="entryfee"
+                            value={newEvent.entryfee || ''}
+                            onChange={handleInputChange}
+                            placeholder="0 for free"
+                          />
                         </div>
                       </div>
                       <div className="col-12">
@@ -839,8 +895,14 @@ const EmployeerEvents = () => {
 
         {/* Toast Notification */}
         {toast.show && (
-          <div className={`toast show position-fixed top-0 end-0 m-3 ${toast.type === 'success' ? 'bg-success' : 'bg-danger'}`}
-            style={{ zIndex: 9999 }}>
+          <div
+            className={`toast show position-fixed top-0 end-0 m-3 ${toast.type === 'success' ? 'bg-success' : 'bg-danger'}`}
+            style={{
+              zIndex: 9999,
+              transition: 'opacity 0.5s ease-out',
+              opacity: toast.show ? 1 : 0
+            }}
+          >
             <div className="toast-body text-white d-flex align-items-center">
               {toast.type === 'success' ? (
                 <CheckCircle className="me-2" />

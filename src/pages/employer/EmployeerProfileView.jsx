@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Modal } from 'bootstrap'; // Import Bootstrap's Modal
 import EmployerHeader from './EmployerHeader';
 import EmployerFooter from './EmployerFooter';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EmployeerProfileView = () => {
     const [schoolData, setSchoolData] = useState(null);
@@ -13,6 +15,7 @@ const EmployeerProfileView = () => {
     const [profilePic, setProfilePic] = useState(null);
     const [profilePicPreview, setProfilePicPreview] = useState('');
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [uploadError, setUploadError] = useState(null);
     const modalRef = useRef(null);
     const navigate = useNavigate();
 
@@ -77,6 +80,21 @@ const EmployeerProfileView = () => {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Validate file type and size
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            const maxSize = 2 * 1024 * 1024; // 2MB
+
+            if (!validTypes.includes(file.type)) {
+                setUploadError('Please select a valid image file (JPEG, PNG, GIF)');
+                return;
+            }
+
+            if (file.size > maxSize) {
+                setUploadError('File size should be less than 2MB');
+                return;
+            }
+
+            setUploadError(null);
             setProfilePic(file);
             // Create a preview URL for the image
             const reader = new FileReader();
@@ -94,17 +112,16 @@ const EmployeerProfileView = () => {
         const employerData = JSON.parse(localStorage.getItem('employerData'));
 
         const formData = new FormData();
-        formData.append('file', profilePic); // The actual file
-        formData.append('fileType', 'profile'); // Explicitly set fileType
+        formData.append('file', profilePic);
+        formData.append('fileType', 'profileImage'); // Changed from 'profile' to 'profileImage'
 
         try {
             const response = await fetch(
-                `https://edujobzbackend.onrender.com/employer/uploadprofilepic/${employerData._id}`,
+                `https://edujobzbackend.onrender.com/employer/uploadprofilepic/${employerData._id}?fileType=profileImage`,
                 {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`
-                        // Don't set Content-Type - let browser set it with boundary
                     },
                     body: formData
                 }
@@ -118,24 +135,16 @@ const EmployeerProfileView = () => {
             const data = await response.json();
             return data.file.url;
         } catch (err) {
-            console.error('Upload error details:', {
-                error: err.message,
-                request: {
-                    url: `https://edujobzbackend.onrender.com/employer/uploadprofilepic/${employerData._id}`,
-                    method: 'PUT',
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: formData
-                }
-            });
-            throw new Error(`Upload failed: ${err.message}`);
+            console.error('Upload error:', err);
+            setUploadError(err.message);
+            throw err;
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setUploadError(null);
 
         try {
             const token = localStorage.getItem('employerToken');
@@ -145,26 +154,24 @@ const EmployeerProfileView = () => {
             let newProfilePicUrl = schoolData.userProfilePic;
             if (profilePic) {
                 try {
-                    console.log('Starting profile picture upload...');
                     newProfilePicUrl = await uploadProfilePicture();
-                    console.log('Upload successful, new URL:', newProfilePicUrl);
+                    // Update the preview with the new URL from server
+                    setProfilePicPreview(newProfilePicUrl);
                 } catch (uploadError) {
-                    console.error('Profile picture upload failed:', {
-                        error: uploadError.message,
-                        stack: uploadError.stack,
-                        fileInfo: {
-                            name: profilePic.name,
-                            size: profilePic.size,
-                            type: profilePic.type
-                        }
+                    console.error('Profile picture upload failed:', uploadError);
+                    toast.error(`Profile picture update failed: ${uploadError.message}`, {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
                     });
-                    // Continue with other updates even if profile pic fails
-                    alert('Profile picture update failed, but other changes will be saved. Error: ' + uploadError.message);
                 }
             }
 
             // Update other profile data
-            console.log('Updating profile data...');
             const updateResponse = await fetch(
                 `https://edujobzbackend.onrender.com/employer/updateemployer/${employerData._id}`,
                 {
@@ -188,18 +195,39 @@ const EmployeerProfileView = () => {
             const updatedData = await updateResponse.json();
             setSchoolData(updatedData);
 
+            // Update local storage if needed
+            if (newProfilePicUrl) {
+                const updatedEmployerData = {
+                    ...employerData,
+                    userProfilePic: newProfilePicUrl
+                };
+                localStorage.setItem('employerData', JSON.stringify(updatedEmployerData));
+            }
+
             // Close modal
             const modal = Modal.getInstance(modalRef.current);
             modal.hide();
 
-            alert('Profile updated successfully!');
-        } catch (err) {
-            console.error('Profile update error:', {
-                error: err.message,
-                stack: err.stack,
-                timestamp: new Date().toISOString()
+            toast.success('Profile updated successfully!', {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
             });
-            alert(`Error: ${err.message}`);
+        } catch (err) {
+            console.error('Profile update error:', err);
+            toast.error(`Error: ${err.message}`, {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
         } finally {
             setIsSubmitting(false);
         }
@@ -230,6 +258,7 @@ const EmployeerProfileView = () => {
     return (
         <>
             <EmployerHeader />
+            <ToastContainer position="top-right" autoClose={3000} />
             <div className="content">
                 <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
                     <div className="my-auto mb-2">
@@ -253,7 +282,6 @@ const EmployeerProfileView = () => {
                                 <i className="ti ti-circle-plus me-2"></i>Bank & Statutory
                             </button>
                         </div>
-
                     </div>
                 </div>
 
@@ -266,7 +294,16 @@ const EmployeerProfileView = () => {
                                     height: "100px",
                                     overflow: "hidden",
                                 }}>
-                                    <img src={schoolData.userProfilePic || "assets/img/users/user-13.jpg"} className="w-auto h-auto" alt="Img" />
+                                    <img
+                                        src={profilePicPreview || "assets/img/users/user-13.jpg"}
+                                        className="w-auto h-auto"
+                                        alt="Profile"
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover'
+                                        }}
+                                    />
                                 </span>
                                 <div className="text-center px-3 pb-3 border-bottom">
                                     <div className="mb-3">
@@ -426,6 +463,11 @@ const EmployeerProfileView = () => {
                                             <div className="text-center">
                                                 <p className="mb-1">Click on the camera icon to change profile picture</p>
                                                 <small className="text-muted">Allowed JPG, GIF or PNG. Max size 2MB</small>
+                                                {uploadError && (
+                                                    <div className="alert alert-danger mt-2 py-1">
+                                                        {uploadError}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
