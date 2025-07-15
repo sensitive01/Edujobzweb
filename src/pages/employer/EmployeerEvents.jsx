@@ -24,7 +24,7 @@ const EmployeerEvents = () => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [toast, setToast] = useState({ show: false, message: '', type: '' });
-  const [showExportDropdown, setShowExportDropdown] = useState(false);
+const [showExportDropdown, setShowExportDropdown] = useState(false);
   // New event form state
   const [newEvent, setNewEvent] = useState({
     title: '',

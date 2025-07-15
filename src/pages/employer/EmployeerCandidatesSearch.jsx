@@ -5,8 +5,9 @@ import EmployerHeader from './EmployerHeader';
 import EmployerFooter from './EmployerFooter';
 import user13 from '../../assets/employer/assets/img/users/user-13.jpg';
 import EmployerCandidatesDetails from './EmployerCandidatesDetails';
-import EmployeerChatSidebar from './EmployeerChatSidebar';
+// import EmployeerChatSidebar from './EmployeerChatSidebar';
 import { FaArrowCircleUp } from 'react-icons/fa';
+import SearchChat from './searchchat/SearchChat';
 
 const EmployeerCandidatesSearch = () => {
   const [sortBy, setSortBy] = useState('Sort By : Last 7 Days');
@@ -954,7 +955,7 @@ const EmployeerCandidatesSearch = () => {
                           />
                           <label htmlFor="female" className="d-block rounded fs-12">Female</label>
                         </div>
-                        <div className="theme-width m-1">
+                        {/* <div className="theme-width m-1">
                           <input
                             type="radio"
                             id="any"
@@ -963,8 +964,8 @@ const EmployeerCandidatesSearch = () => {
                             checked={!filters.gender}
                             onChange={handleRadioChange}
                           />
-                          <label htmlFor="any" className="d-block rounded fs-12">Any</label>
-                        </div>
+                          <label htmlFor="any" className="d-block rounded fs-12">Others</label>
+                        </div> */}
                       </div>
                     </div>
                   </div>
@@ -1307,7 +1308,7 @@ const EmployeerCandidatesSearch = () => {
         />
       )}
       {selectedCandidateForChat && (
-        <EmployeerChatSidebar
+        <SearchChat
           isOpen={showChatSidebar}
           onClose={() => setShowChatSidebar(false)}
           candidate={selectedCandidateForChat}

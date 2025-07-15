@@ -166,10 +166,10 @@ const EmployerHeader = () => {
                     <nav className='d-none d-lg-flex align-items-center'>
                         <div className='d-flex align-items-center'>
                             <Link to="/employer/dashboard" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
-                                <Grid className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                <i class="ti ti-layout-grid-remove text-primary me-1"></i>
                                 <span className="text-dark">dashboard</span>
                             </Link>
-                            <div className='position-relative me-2'>
+                            <div className='position-relative me-1'>
                                 <div
                                     className='d-flex align-items-center fw-medium px-3 py-2 rounded dropdown'
                                     onClick={() => {
@@ -178,7 +178,7 @@ const EmployerHeader = () => {
                                     }}
                                     style={{ cursor: 'pointer' }}
                                 >
-                                    <Users className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                    <i class="ti ti-user-circle text-primary me-1"></i>
                                     <span className="text-dark">Candidates</span>
                                     <ChevronDown className='ms-1' size={16} />
                                 </div>
@@ -215,7 +215,7 @@ const EmployerHeader = () => {
                                     </div>
                                 )}
                             </div>
-                            <div className='position-relative me-2'>
+                            <div className='position-relative me-1'>
                                 <div className='d-flex align-items-center fw-medium px-3 py-2 rounded dropdown'
                                     onClick={() => {
                                         setJobsDropdown(!jobsDropdown);
@@ -223,7 +223,7 @@ const EmployerHeader = () => {
                                     }}
                                     style={{ cursor: 'pointer' }}
                                 >
-                                    <Briefcase className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                  <i class="ti ti-smart-home text-primary me-1"></i>
                                     <span className="text-dark">Jobs</span>
                                     <ChevronDown className='me-2' size={16} />
                                 </div>
@@ -258,24 +258,24 @@ const EmployerHeader = () => {
                                     </div>
                                 )}
                             </div>
-                            <Link to="/employer/messages" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
-                                <MessageSquare className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                            <Link to="/employer/messages" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none'>
+                               <i class="ti ti-brand-hipchat text-primary me-1"></i>
                                 <span className="text-dark">Messages</span>
                             </Link>
-                            <Link to="/employer/plans-grid" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
-                                <Star className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                            <Link to="/employer/plans-grid" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none'>
+                              <i class="ti ti-star text-primary me-1"></i>
                                 <span className="text-dark">Upgrade Plan</span>
                             </Link>
-                            <Link to="/employer/events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
-                                <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                            <Link to="/employer/events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none'>
+                                <i class="ti ti-home text-primary me-1"></i>
                                 <span className="text-dark">Events</span>
                             </Link>
-                            <Link to="/employer/calendar-events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
-                                <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                            <Link to="/employer/calendar-events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none'>
+                               <i class="ti ti-dashboard text-primary me-1"></i>
                                 <span className="text-dark">Reminder</span>
                             </Link>
-                            <Link to="/employer/FAQs" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
-                                <HelpCircle className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                            <Link to="/employer/FAQs" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none'>
+                               <i class="ti ti-info-circle text-primary me-1"></i>
                                 <span className="text-dark">FAQ</span>
                             </Link>
                         </div>
@@ -521,12 +521,12 @@ const EmployerHeader = () => {
                         {/* Mobile Navigation Links */}
                         <div className="mb-3">
                             {/* Candidates Section */}
-                             <Link
+                            <Link
                                 to="/employer/dashboard"
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
                             >
-                                <Grid className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                              <i class="ti ti-layout-grid-remove text-primary me-1"></i>
                                 <span className="text-dark">dashboard</span>
                             </Link>
                             <div className="mb-2">
@@ -536,7 +536,7 @@ const EmployerHeader = () => {
                                     style={{ cursor: 'pointer', backgroundColor: candidatesDropdown ? '#f8f9fa' : 'transparent' }}
                                 >
                                     <div className="d-flex align-items-center">
-                                        <Users className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                        <i class="ti ti-user-circle text-primary me-1"></i>
                                         <span className="text-dark">Candidates</span>
                                     </div>
                                     <ChevronDown
@@ -569,7 +569,7 @@ const EmployerHeader = () => {
                                     style={{ cursor: 'pointer', backgroundColor: jobsDropdown ? '#f8f9fa' : 'transparent' }}
                                 >
                                     <div className="d-flex align-items-center">
-                                        <Briefcase className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                        <i class="ti ti-smart-home text-primary me-1"></i>
                                         <span className="text-dark">Jobs</span>
                                     </div>
                                     <ChevronDown
@@ -600,7 +600,7 @@ const EmployerHeader = () => {
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
                             >
-                                <MessageSquare className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                <i class="ti ti-brand-hipchat text-primary me-1"></i>
                                 <span className="text-dark">Messages</span>
                             </Link>
                             <Link
@@ -608,7 +608,7 @@ const EmployerHeader = () => {
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
                             >
-                                <Star className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                <i class="ti ti-star text-primary me-1"></i>
                                 <span className="text-dark">Upgrade Plan</span>
                             </Link>
                             <Link
@@ -616,7 +616,7 @@ const EmployerHeader = () => {
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
                             >
-                                <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                <i class="ti ti-home text-primary me-1"></i>
                                 <span className="text-dark">Events</span>
                             </Link>
                             <Link
@@ -624,7 +624,7 @@ const EmployerHeader = () => {
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
                             >
-                                <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                               <i class="ti ti-dashboard text-primary me-1"></i>
                                 <span className="text-dark">Reminder</span>
                             </Link>
                             <Link
@@ -632,7 +632,7 @@ const EmployerHeader = () => {
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
                             >
-                                <HelpCircle className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                               <i class="ti ti-info-circle text-primary me-1"></i>
                                 <span className="text-dark">FAQ</span>
                             </Link>
                         </div>
