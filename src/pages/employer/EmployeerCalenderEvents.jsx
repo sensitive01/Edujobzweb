@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar as CalendarIcon, ChevronDown, FileOutput, PlusCircle, ChevronsUp, SquarePlus, X, AlertTriangle, ArrowRight, Clock, MapPin } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronDown, FileOutput, PlusCircle, ChevronsUp, SquarePlus, X, AlertTriangle, ArrowRight, Clock, MapPin, Edit2, Trash2 } from 'lucide-react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -12,6 +12,7 @@ const API_BASE_URL = 'https://edujobzbackend.onrender.com';
 const EmployerCalendarEvents = () => {
     const [showAddEventModal, setShowAddEventModal] = useState(false);
     const [showEventModal, setShowEventModal] = useState(false);
+    const [showEditEventModal, setShowEditEventModal] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [events, setEvents] = useState([]);
     const [upcomingEvents, setUpcomingEvents] = useState([]);
@@ -20,9 +21,21 @@ const EmployerCalendarEvents = () => {
         start: '',
         end: '',
         location: '',
-        description: ''
+        description: '',
+        color: '#6C63FF'
+    });
+    const [editEvent, setEditEvent] = useState({
+        id: '',
+        title: '',
+        start: '',
+        end: '',
+        location: '',
+        description: '',
+        color: '#6C63FF'
     });
     const [isCreatingEvent, setIsCreatingEvent] = useState(false);
+    const [isUpdatingEvent, setIsUpdatingEvent] = useState(false);
+    const [isDeletingEvent, setIsDeletingEvent] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const calendarRef = useRef(null);
     const externalEventsRef = useRef(null);
@@ -35,7 +48,12 @@ const EmployerCalendarEvents = () => {
         { title: "Applications", className: "bg-transparent-purple", iconColor: "text-purple" },
         { title: "Design", className: "bg-transparent-info", iconColor: "text-info" }
     ];
-
+    const [toast, setToast] = useState({
+        show: false,
+        message: '',
+        type: 'success',
+        operation: ''
+    });
     const fetchEvents = async () => {
         try {
             const employerData = JSON.parse(localStorage.getItem('employerData'));
@@ -44,23 +62,27 @@ const EmployerCalendarEvents = () => {
             }
 
             const response = await fetch(`${API_BASE_URL}/employer/geteveent?employerId=${employerData._id}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch events');
+            }
+
             const data = await response.json();
 
             if (data.success) {
                 const formattedEvents = data.data.map(event => ({
-                    id: event.id,
+                    id: event._id || event.id,  // Handle both _id and id cases
                     title: event.title,
                     start: event.start,
                     end: event.end,
                     color: event.color,
-                    allDay: event.allDay,
                     extendedProps: {
                         description: event.description,
-                        location: event.location
+                        location: event.location,  // Make sure location is included here
+                        employerId: event.employerId
                     }
                 }));
                 setEvents(formattedEvents);
-                
+
                 // Set upcoming events (next 5 events)
                 const now = new Date();
                 const upcoming = formattedEvents
@@ -68,15 +90,24 @@ const EmployerCalendarEvents = () => {
                     .sort((a, b) => new Date(a.start) - new Date(b.start))
                     .slice(0, 5)
                     .map(event => ({
+                        id: event.id,
                         title: event.title,
-                        date: new Date(event.start).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
+                        date: new Date(event.start).toLocaleDateString('en-US', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }),
+                        location: event.extendedProps.location,  // Include location in upcoming events
                         borderColor: getRandomBorderColor()
                     }));
-                
+
                 setUpcomingEvents(upcoming);
             }
         } catch (error) {
             console.error('Error fetching events:', error);
+            setErrorMessage(error.message);
         }
     };
 
@@ -94,9 +125,60 @@ const EmployerCalendarEvents = () => {
                 },
                 body: JSON.stringify(eventData)
             });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to create event');
+            }
+
             return await response.json();
         } catch (error) {
             console.error('Error creating event:', error);
+            throw error;
+        }
+    };
+
+    const updateEvent = async (eventId, eventData) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/employer/updatecalenderevent/${eventId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(eventData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to update event');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error updating event:', error);
+            throw error;
+        }
+    };
+
+    const deleteEvent = async (eventId) => {
+        try {
+            const employerData = JSON.parse(localStorage.getItem('employerData'));
+            if (!employerData || !employerData._id) {
+                throw new Error('Employer ID not found in localStorage');
+            }
+
+            const response = await fetch(`${API_BASE_URL}/employer/deletecalendarevent/${eventId}?employerId=${employerData._id}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to delete event');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error deleting event:', error);
             throw error;
         }
     };
@@ -106,7 +188,7 @@ const EmployerCalendarEvents = () => {
 
         if (externalEventsRef.current) {
             const externalEventElements = Array.from(externalEventsRef.current.children);
-            
+
             externalEventElements.forEach(eventEl => {
                 eventEl.draggable = true;
                 eventEl.addEventListener('dragstart', (ev) => {
@@ -120,7 +202,7 @@ const EmployerCalendarEvents = () => {
             if (externalEventsRef.current) {
                 const externalEventElements = Array.from(externalEventsRef.current.children);
                 externalEventElements.forEach(eventEl => {
-                    eventEl.removeEventListener('dragstart', () => {});
+                    eventEl.removeEventListener('dragstart', () => { });
                 });
             }
         };
@@ -128,9 +210,11 @@ const EmployerCalendarEvents = () => {
 
     const handleEventClick = (info) => {
         setSelectedEvent({
+            id: info.event.id,
             title: info.event.title,
             start: info.event.start,
             end: info.event.end,
+            color: info.event.backgroundColor,
             extendedProps: info.event.extendedProps
         });
         setShowEventModal(true);
@@ -153,79 +237,252 @@ const EmployerCalendarEvents = () => {
         });
     };
 
+    const handleEditInputChange = (e) => {
+        const { name, value } = e.target;
+        setEditEvent({
+            ...editEvent,
+            [name]: value
+        });
+    };
+
     const handleAddEvent = async (e) => {
         e.preventDefault();
-        if (newEvent.title && !isCreatingEvent) {
-            setIsCreatingEvent(true);
-            setErrorMessage('');
-            
-            try {
-                const employerData = JSON.parse(localStorage.getItem('employerData'));
-                if (!employerData || !employerData._id) {
-                    throw new Error('Employer ID not found in localStorage');
-                }
+        if (!newEvent.title || isCreatingEvent) {
+            return;
+        }
 
-                if (!newEvent.start || !newEvent.end) {
-                    throw new Error('Please select both start and end times');
-                }
+        setIsCreatingEvent(true);
+        setErrorMessage('');
 
-                const startDate = new Date(newEvent.start);
-                const endDate = new Date(newEvent.end);
-                if (startDate >= endDate) {
-                    throw new Error('End time must be after start time');
-                }
+        try {
+            const employerData = JSON.parse(localStorage.getItem('employerData'));
+            if (!employerData || !employerData._id) {
+                throw new Error('Employer ID not found in localStorage');
+            }
 
-                const eventData = {
-                    employerId: employerData._id,
-                    title: newEvent.title,
-                    description: newEvent.description,
-                    location: newEvent.location,
-                    start: newEvent.start,
-                    end: newEvent.end,
-                    color: '#6C63FF',
-                    allDay: false
+            if (!newEvent.start || !newEvent.end) {
+                throw new Error('Please select both start and end times');
+            }
+
+            const startDate = new Date(newEvent.start);
+            const endDate = new Date(newEvent.end);
+            if (startDate >= endDate) {
+                throw new Error('End time must be after start time');
+            }
+
+            const eventData = {
+                employerId: employerData._id,
+                title: newEvent.title,
+                description: newEvent.description,
+                location: newEvent.location,
+                start: newEvent.start,
+                end: newEvent.end,
+                color: newEvent.color
+            };
+
+            const response = await createEvent(eventData);
+
+            if (response.success) {
+                setToast({
+                    show: true,
+                    message: 'Event created successfully!',
+                    type: 'success',
+                    operation: 'add'
+                });
+                setTimeout(() => setToast(prev => ({ ...prev, show: false })), 2000);
+
+                const eventToAdd = {
+                    id: response.data.id,
+                    title: response.data.title,
+                    start: response.data.start,
+                    end: response.data.end,
+                    color: response.data.color,
+                    extendedProps: {
+                        description: response.data.description,
+                        location: response.data.location,
+                        employerId: response.data.employerId
+                    }
                 };
 
-                const response = await createEvent(eventData);
+                setEvents([...events, eventToAdd]);
+                setShowAddEventModal(false);
+                setNewEvent({
+                    title: '',
+                    start: '',
+                    end: '',
+                    location: '',
+                    description: '',
+                    color: '#6C63FF'
+                });
 
-                if (response.success) {
-                    const eventToAdd = {
-                        id: response.data.id,
-                        title: response.data.title,
-                        start: response.data.start,
-                        end: response.data.end,
-                        color: response.data.color,
-                        allDay: response.data.allDay,
-                        extendedProps: {
-                            description: response.data.description,
-                            location: response.data.location
-                        }
-                    };
-                    
-                    setEvents([...events, eventToAdd]);
-                    setShowAddEventModal(false);
-                    setNewEvent({
-                        title: '',
-                        start: '',
-                        end: '',
-                        location: '',
-                        description: ''
-                    });
-                    // Refresh upcoming events
-                    fetchEvents();
-                }
-            } catch (error) {
-                setErrorMessage(error.message || 'Failed to create event');
-            } finally {
-                setIsCreatingEvent(false);
+                await fetchEvents();
             }
+        } catch (error) {
+            setToast({
+                show: true,
+                message: error.message || 'Failed to create event',
+                type: 'error'
+            });
+            setTimeout(() => setToast(prev => ({ ...prev, show: false })), 2000);
+            setErrorMessage(error.message || 'Failed to create event');
+        } finally {
+            setIsCreatingEvent(false);
         }
     };
 
-    const getTimeFromISO = (isoString) => {
-        if (!isoString || !isoString.includes('T')) return '';
-        const timePart = isoString.split('T')[1];
-        return timePart.substring(0, 5);
+    const handleEditEvent = () => {
+        if (!selectedEvent) return;
+
+        setEditEvent({
+            id: selectedEvent.id,
+            title: selectedEvent.title,
+            start: selectedEvent.start ? new Date(selectedEvent.start).toISOString().slice(0, 16) : '',
+            end: selectedEvent.end ? new Date(selectedEvent.end).toISOString().slice(0, 16) : '',
+            location: selectedEvent.extendedProps?.location || '',
+            description: selectedEvent.extendedProps?.description || '',
+            color: selectedEvent.color || '#6C63FF'
+        });
+
+        setShowEventModal(false);
+        setShowEditEventModal(true);
+    };
+
+    const handleUpdateEvent = async (e) => {
+        e.preventDefault();
+        if (!editEvent.title || isUpdatingEvent) {
+            return;
+        }
+
+        setIsUpdatingEvent(true);
+        setErrorMessage('');
+
+        try {
+            const employerData = JSON.parse(localStorage.getItem('employerData'));
+            if (!employerData || !employerData._id) {
+                throw new Error('Employer ID not found in localStorage');
+            }
+
+            if (!editEvent.start || !editEvent.end) {
+                throw new Error('Please select both start and end times');
+            }
+
+            const startDate = new Date(editEvent.start);
+            const endDate = new Date(editEvent.end);
+            if (startDate >= endDate) {
+                throw new Error('End time must be after start time');
+            }
+
+            const eventData = {
+                employerId: employerData._id,
+                title: editEvent.title,
+                description: editEvent.description,
+                location: editEvent.location,
+                start: editEvent.start,
+                end: editEvent.end,
+                color: editEvent.color
+            };
+
+            const response = await updateEvent(editEvent.id, eventData);
+
+            if (response.success) {
+                setToast({
+                    show: true,
+                    message: 'Event updated successfully!',
+                    type: 'warning',
+                    operation: 'update'
+                });
+                setTimeout(() => setToast(prev => ({ ...prev, show: false })), 2000);
+
+                const updatedEvents = events.map(event => {
+                    if (event.id === editEvent.id) {
+                        return {
+                            ...event,
+                            title: editEvent.title,
+                            start: editEvent.start,
+                            end: editEvent.end,
+                            color: editEvent.color,
+                            extendedProps: {
+                                ...event.extendedProps,
+                                description: editEvent.description,
+                                location: editEvent.location
+                            }
+                        };
+                    }
+                    return event;
+                });
+
+                setEvents(updatedEvents);
+                setShowEditEventModal(false);
+                await fetchEvents();
+            }
+        } catch (error) {
+            setToast({
+                show: true,
+                message: error.message || 'Failed to update event',
+                type: 'error'
+            });
+            setTimeout(() => setToast(prev => ({ ...prev, show: false })), 2000);
+            setErrorMessage(error.message || 'Failed to update event');
+        } finally {
+            setIsUpdatingEvent(false);
+        }
+    };
+
+    const handleDeleteEvent = async () => {
+        if (!selectedEvent || isDeletingEvent) return;
+
+        if (!window.confirm('Are you sure you want to delete this event?')) {
+            return;
+        }
+
+        setIsDeletingEvent(true);
+        setErrorMessage('');
+
+        try {
+            const employerData = JSON.parse(localStorage.getItem('employerData'));
+            if (!employerData || !employerData._id) {
+                throw new Error('Employer ID not found in localStorage');
+            }
+
+            const response = await deleteEvent(selectedEvent.id);
+
+            if (response.success) {
+                setToast({
+                    show: true,
+                    message: 'Event deleted successfully!',
+                    type: 'error',
+                    operation: 'delete'
+                });
+                setTimeout(() => setToast(prev => ({ ...prev, show: false })), 2000);
+
+                const filteredEvents = events.filter(event => event.id !== selectedEvent.id);
+                setEvents(filteredEvents);
+                setShowEventModal(false);
+                await fetchEvents();
+            }
+        } catch (error) {
+            setToast({
+                show: true,
+                message: error.message || 'Failed to delete event',
+                type: 'error'
+            });
+            setTimeout(() => setToast(prev => ({ ...prev, show: false })), 2000);
+            setErrorMessage(error.message || 'Failed to delete event');
+        } finally {
+            setIsDeletingEvent(false);
+        }
+    };
+
+    const formatDateTime = (dateStr) => {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        return date.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     };
 
     const formatDateForMiniCalendar = (date) => {
@@ -240,6 +497,22 @@ const EmployerCalendarEvents = () => {
             <EmployerHeader />
             <div>
                 <div className="content">
+                    {toast.show && (
+                        <div className={`toast show position-fixed top-0 end-0 m-3 ${toast.operation === 'add' ? 'bg-success' :
+                            toast.operation === 'update' ? 'bg-warning' :
+                                'bg-danger'
+                            }`}
+                            style={{ zIndex: 9999, minWidth: '250px', transition: 'all 0.5s ease' }}>
+                            <div className="toast-body text-white d-flex justify-content-between">
+                                <span>{toast.message}</span>
+                                <button
+                                    type="button"
+                                    className="btn-close btn-close-white"
+                                    onClick={() => setToast({ ...toast, show: false })}
+                                ></button>
+                            </div>
+                        </div>
+                    )}
                     <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
                         <div className="my-auto mb-2">
                             <h2 className="mb-1">
@@ -352,10 +625,16 @@ const EmployerCalendarEvents = () => {
                                             <div key={index} className={`border-start ${event.borderColor} border-3 mb-3`}>
                                                 <div className="ps-3">
                                                     <h6 className="fw-medium mb-1">{event.title}</h6>
-                                                    <p className="fs-12">
+                                                    <p className="fs-12 mb-1">
                                                         <CalendarIcon className="text-info me-2" />
                                                         {event.date}
                                                     </p>
+                                                    {event.location && (
+                                                        <p className="fs-12">
+                                                            <MapPin className="text-info me-2" />
+                                                            {event.location}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
                                         ))}
@@ -438,10 +717,10 @@ const EmployerCalendarEvents = () => {
                                         <div className="row">
                                             <div className="col-12">
                                                 <div className="mb-3">
-                                                    <label className="form-label">Reminder Name</label>
-                                                    <input 
-                                                        type="text" 
-                                                        className="form-control" 
+                                                    <label className="form-label">Reminder Name*</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
                                                         name="title"
                                                         value={newEvent.title}
                                                         onChange={handleInputChange}
@@ -449,20 +728,17 @@ const EmployerCalendarEvents = () => {
                                                     />
                                                 </div>
                                             </div>
-                                            <div className="col-12">
+                                            <div className="col-md-6">
                                                 <div className="mb-3">
-                                                    <label className="form-label">Reminder Date</label>
+                                                    <label className="form-label">Start Date*</label>
                                                     <input
-                                                        type="date"
+                                                        type="datetime-local"
                                                         className="form-control"
-                                                        value={newEvent.start ? newEvent.start.split('T')[0] : ''}
+                                                        value={newEvent.start}
                                                         onChange={(e) => {
-                                                            const date = e.target.value;
-                                                            const time = getTimeFromISO(newEvent.start);
                                                             setNewEvent({
                                                                 ...newEvent,
-                                                                start: date && time ? `${date}T${time}:00` : date,
-                                                                end: newEvent.end ? `${date}T${getTimeFromISO(newEvent.end)}:00` : ''
+                                                                start: e.target.value
                                                             });
                                                         }}
                                                         required
@@ -471,36 +747,15 @@ const EmployerCalendarEvents = () => {
                                             </div>
                                             <div className="col-md-6">
                                                 <div className="mb-3">
-                                                    <label className="form-label">Start Time</label>
+                                                    <label className="form-label">End Date*</label>
                                                     <input
-                                                        type="time"
+                                                        type="datetime-local"
                                                         className="form-control"
-                                                        value={getTimeFromISO(newEvent.start)}
+                                                        value={newEvent.end}
                                                         onChange={(e) => {
-                                                            const time = e.target.value;
-                                                            const date = newEvent.start ? newEvent.start.split('T')[0] : '';
                                                             setNewEvent({
                                                                 ...newEvent,
-                                                                start: date && time ? `${date}T${time}:00` : ''
-                                                            });
-                                                        }}
-                                                        required
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="col-md-6">
-                                                <div className="mb-3">
-                                                    <label className="form-label">End Time</label>
-                                                    <input
-                                                        type="time"
-                                                        className="form-control"
-                                                        value={getTimeFromISO(newEvent.end)}
-                                                        onChange={(e) => {
-                                                            const time = e.target.value;
-                                                            const date = newEvent.end ? newEvent.end.split('T')[0] : newEvent.start ? newEvent.start.split('T')[0] : '';
-                                                            setNewEvent({
-                                                                ...newEvent,
-                                                                end: date && time ? `${date}T${time}:00` : ''
+                                                                end: e.target.value
                                                             });
                                                         }}
                                                         required
@@ -510,19 +765,34 @@ const EmployerCalendarEvents = () => {
                                             <div className="col-12">
                                                 <div className="mb-3">
                                                     <label className="form-label">Reminder Location</label>
-                                                    <input 
-                                                        type="text" 
-                                                        className="form-control" 
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
                                                         name="location"
                                                         value={newEvent.location}
                                                         onChange={handleInputChange}
                                                     />
                                                 </div>
+                                                <div className="mb-3">
+                                                    <label className="form-label">Color</label>
+                                                    <select
+                                                        className="form-select"
+                                                        name="color"
+                                                        value={newEvent.color}
+                                                        onChange={handleInputChange}
+                                                    >
+                                                        <option value="#6C63FF">Purple</option>
+                                                        <option value="#4CAF50">Green</option>
+                                                        <option value="#2196F3">Blue</option>
+                                                        <option value="#FF9800">Orange</option>
+                                                        <option value="#F44336">Red</option>
+                                                    </select>
+                                                </div>
                                                 <div className="mb-0">
                                                     <label className="form-label">Descriptions</label>
-                                                    <textarea 
-                                                        className="form-control" 
-                                                        rows="3" 
+                                                    <textarea
+                                                        className="form-control"
+                                                        rows="3"
                                                         name="description"
                                                         value={newEvent.description}
                                                         onChange={handleInputChange}
@@ -569,21 +839,161 @@ const EmployerCalendarEvents = () => {
                                 <div className="modal-body">
                                     <p className="d-flex align-items-center fw-medium text-black mb-3">
                                         <CalendarIcon className="text-default me-2" />
-                                        {selectedEvent.start?.toLocaleDateString()} {selectedEvent.end && `to ${selectedEvent.end.toLocaleDateString()}`}
+                                        {formatDateTime(selectedEvent.start)} {selectedEvent.end && `to ${formatDateTime(selectedEvent.end)}`}
                                     </p>
-                                    <p className="d-flex align-items-center fw-medium text-black mb-3">
-                                        <Clock className="text-default me-2" />
-                                        {selectedEvent.start?.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} {selectedEvent.end && `to ${selectedEvent.end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`}
-                                    </p>
-                                    <p className="d-flex align-items-center fw-medium text-black mb-3">
-                                        <MapPin className="text-default me-2" />
-                                        {selectedEvent.extendedProps?.location || 'No location specified'}
-                                    </p>
-                                    <p className="d-flex align-items-center fw-medium text-black mb-0">
-                                        <CalendarIcon className="text-default me-2" />
-                                        {selectedEvent.extendedProps?.description || 'No description provided'}
-                                    </p>
+                                    {selectedEvent.extendedProps?.location && (
+                                        <p className="d-flex align-items-center fw-medium text-black mb-3">
+                                            <MapPin className="text-default me-2" />
+                                            {selectedEvent.extendedProps.location}
+                                        </p>
+                                    )}
+                                    {selectedEvent.extendedProps?.description && (
+                                        <div className="mb-3">
+                                            <h6 className="fw-medium mb-2">Description:</h6>
+                                            <p className="text-muted">
+                                                {selectedEvent.extendedProps.description}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
+                                <div className="modal-footer">
+                                    <button
+                                        type="button"
+                                        className="btn btn-danger me-2"
+                                        onClick={handleDeleteEvent}
+                                        disabled={isDeletingEvent}
+                                    >
+                                        <Trash2 className="me-1" size={16} />
+                                        {isDeletingEvent ? 'Deleting...' : 'Delete'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                        onClick={handleEditEvent}
+                                    >
+                                        <Edit2 className="me-1" size={16} />
+                                        Edit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Edit Event Modal */}
+                {showEditEventModal && (
+                    <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                        <div className="modal-dialog modal-dialog-centered">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h4 className="modal-title">Edit Reminder</h4>
+                                    <button
+                                        type="button"
+                                        className="btn-close custom-btn-close"
+                                        onClick={() => setShowEditEventModal(false)}
+                                    >
+                                        <X />
+                                    </button>
+                                </div>
+                                <form onSubmit={handleUpdateEvent}>
+                                    <div className="modal-body">
+                                        {errorMessage && (
+                                            <div className="alert alert-danger mb-3">
+                                                {errorMessage}
+                                            </div>
+                                        )}
+                                        <div className="row">
+                                            <div className="col-12">
+                                                <div className="mb-3">
+                                                    <label className="form-label">Reminder Name*</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        name="title"
+                                                        value={editEvent.title}
+                                                        onChange={handleEditInputChange}
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="mb-3">
+                                                    <label className="form-label">Start Date*</label>
+                                                    <input
+                                                        type="datetime-local"
+                                                        className="form-control"
+                                                        name="start"
+                                                        value={editEvent.start}
+                                                        onChange={handleEditInputChange}
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6">
+                                                <div className="mb-3">
+                                                    <label className="form-label">End Date*</label>
+                                                    <input
+                                                        type="datetime-local"
+                                                        className="form-control"
+                                                        name="end"
+                                                        value={editEvent.end}
+                                                        onChange={handleEditInputChange}
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="col-12">
+                                                <div className="mb-3">
+                                                    <label className="form-label">Reminder Location</label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-control"
+                                                        name="location"
+                                                        value={editEvent.location}
+                                                        onChange={handleEditInputChange}
+                                                    />
+                                                </div>
+                                                <div className="mb-3">
+                                                    <label className="form-label">Color</label>
+                                                    <select
+                                                        className="form-select"
+                                                        name="color"
+                                                        value={editEvent.color}
+                                                        onChange={handleEditInputChange}
+                                                    >
+                                                        <option value="#6C63FF">Purple</option>
+                                                        <option value="#4CAF50">Green</option>
+                                                        <option value="#2196F3">Blue</option>
+                                                        <option value="#FF9800">Orange</option>
+                                                        <option value="#F44336">Red</option>
+                                                    </select>
+                                                </div>
+                                                <div className="mb-0">
+                                                    <label className="form-label">Descriptions</label>
+                                                    <textarea
+                                                        className="form-control"
+                                                        rows="3"
+                                                        name="description"
+                                                        value={editEvent.description}
+                                                        onChange={handleEditInputChange}
+                                                    ></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button
+                                            type="button"
+                                            className="btn btn-light me-2"
+                                            onClick={() => setShowEditEventModal(false)}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button type="submit" className="btn btn-primary" disabled={isUpdatingEvent}>
+                                            {isUpdatingEvent ? 'Updating...' : 'Update Reminder'}
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>

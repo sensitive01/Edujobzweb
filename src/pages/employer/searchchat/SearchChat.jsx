@@ -255,7 +255,121 @@ const SearchChat = ({ isOpen, onClose, candidate }) => {
             setError('Failed to send message. Please try again.');
         }
     };
-const handleUpdateStatus = async () => {
+    
+    // const handleUpdateStatus = async () => {
+    //     if (!selectedStatus) {
+    //         setError('Please select a status');
+    //         return;
+    //     }
+
+    //     if (!selectedJobTitle) {
+    //         setError('Please select a job title');
+    //         return;
+    //     }
+
+    //     // Find the selected job from the jobs list
+    //     const selectedJob = jobs.find(job => job.jobTitle === selectedJobTitle);
+    //     if (!selectedJob) {
+    //         setError('Selected job not found');
+    //         return;
+    //     }
+
+    //     console.log('Selected Job:', selectedJob); // Log the selected job
+    //     console.log('Selected Status:', selectedStatus); // Log the selected status
+
+    //     if (selectedStatus === "Interview Scheduled") {
+    //         if (!interviewType || !interviewDate || !interviewTime) {
+    //             setError('Please fill all interview details');
+    //             return;
+    //         }
+    //         if (interviewType === "online" && !onlineLink) {
+    //             setError('Please provide online meeting link');
+    //             return;
+    //         }
+    //         if (interviewType === "offline" && !venue) {
+    //             setError('Please provide venue details');
+    //             return;
+    //         }
+    //     }
+
+    //     try {
+    //         const token = localStorage.getItem('employerToken');
+    //         const url = `https://edujobzbackend.onrender.com/employer/updatefavorite/${selectedJob._id}/${candidate.applicantId}`;
+
+    //         console.log('API URL:', url); // Log the API URL
+
+    //         const requestBody = {
+    //             status: selectedStatus,
+    //             notes: statusNotes,
+    //             jobId: selectedJob._id,
+    //             jobTitle: selectedJobTitle,
+    //             ...(selectedStatus === "Interview Scheduled" && {
+    //                 interviewDetails: {
+    //                     type: interviewType,
+    //                     date: interviewDate,
+    //                     time: interviewTime,
+    //                     ...(interviewType === "online" && { link: onlineLink }),
+    //                     ...(interviewType === "offline" && { venue: venue }),
+    //                     jobTitle: selectedJobTitle
+    //                 }
+    //             })
+    //         };
+
+    //         console.log('Request Body:', requestBody); // Log the request body
+
+    //         const response = await axios.put(
+    //             url,
+    //             requestBody,
+    //             {
+    //                 headers: {
+    //                     'Authorization': `Bearer ${token}`
+    //                 }
+    //             }
+    //         );
+
+    //         console.log('API Response:', response); // Log the full response
+    //         console.log('Response Data:', response.data); // Log the response data
+
+    //         if (response.data.success) {
+    //             console.log('Status update successful'); // Success log
+    //             // Send automatic status update message with interview details if applicable
+    //             await sendStatusUpdateMessage(selectedStatus);
+
+    //             // Reset form
+    //             setShowStatusModal(false);
+    //             setSelectedStatus('');
+    //             setStatusNotes('');
+    //             setInterviewType('');
+    //             setInterviewDate('');
+    //             setInterviewTime('');
+    //             setOnlineLink('');
+    //             setVenue('');
+    //         } else {
+    //             console.log('Status update failed:', response.data.message); // Failure log
+    //         }
+    //     } catch (error) {
+    //         console.error('Error updating status:', error);
+    //         console.log('Error response:', error.response); // Log error response if available
+
+    //         if (error.response) {
+    //             // The request was made and the server responded with a status code
+    //             console.log('Error data:', error.response.data);
+    //             console.log('Error status:', error.response.status);
+    //             console.log('Error headers:', error.response.headers);
+    //         } else if (error.request) {
+    //             // The request was made but no response was received
+    //             console.log('Error request:', error.request);
+    //         } else {
+    //             // Something happened in setting up the request that triggered an Error
+    //             console.log('Error message:', error.message);
+    //         }
+
+    //         setError('Failed to update status. Please try again.');
+    //     }
+    // };
+
+
+    const handleUpdateStatus = async () => {
     if (!selectedStatus) {
         setError('Please select a status');
         return;
@@ -272,9 +386,6 @@ const handleUpdateStatus = async () => {
         setError('Selected job not found');
         return;
     }
-
-    console.log('Selected Job:', selectedJob); // Log the selected job
-    console.log('Selected Status:', selectedStatus); // Log the selected status
 
     if (selectedStatus === "Interview Scheduled") {
         if (!interviewType || !interviewDate || !interviewTime) {
@@ -293,10 +404,45 @@ const handleUpdateStatus = async () => {
 
     try {
         const token = localStorage.getItem('employerToken');
+        
+        // First, check if the candidate has already applied for this job
+        const isApplied = selectedJob.applications?.some(app => app.applicantId === candidate.applicantId);
+        
+        if (!isApplied) {
+            // If not applied, first apply the candidate to the job
+            try {
+                const applyResponse = await axios.post(
+                    `https://edujobzbackend.onrender.com/${selectedJob._id}/apply`,
+                    {
+                        firstName: candidate.firstName || candidate.name,
+                        email: candidate.email,
+                        phone: candidate.phone,
+                        experience: candidate.experience || '',
+                        jobrole: candidate.jobrole || '',
+                        currentcity: candidate.currentcity || '',
+                        profileurl: candidate.profileurl || '',
+                        resume: candidate.resume || null,
+                        applicantId: candidate.applicantId
+                    },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    }
+                );
+
+                if (!applyResponse.data.success) {
+                    throw new Error('Failed to apply candidate to job');
+                }
+            } catch (applyError) {
+                console.error('Error applying candidate:', applyError);
+                throw new Error(`Failed to apply candidate: ${applyError.response?.data?.message || applyError.message}`);
+            }
+        }
+
+        // Now update the status
         const url = `https://edujobzbackend.onrender.com/employer/updatefavorite/${selectedJob._id}/${candidate.applicantId}`;
-        
-        console.log('API URL:', url); // Log the API URL
-        
+
         const requestBody = {
             status: selectedStatus,
             notes: statusNotes,
@@ -314,8 +460,6 @@ const handleUpdateStatus = async () => {
             })
         };
 
-        console.log('Request Body:', requestBody); // Log the request body
-
         const response = await axios.put(
             url,
             requestBody,
@@ -326,11 +470,7 @@ const handleUpdateStatus = async () => {
             }
         );
 
-        console.log('API Response:', response); // Log the full response
-        console.log('Response Data:', response.data); // Log the response data
-
         if (response.data.success) {
-            console.log('Status update successful'); // Success log
             // Send automatic status update message with interview details if applicable
             await sendStatusUpdateMessage(selectedStatus);
 
@@ -344,29 +484,13 @@ const handleUpdateStatus = async () => {
             setOnlineLink('');
             setVenue('');
         } else {
-            console.log('Status update failed:', response.data.message); // Failure log
+            throw new Error(response.data.message || 'Status update failed');
         }
     } catch (error) {
-        console.error('Error updating status:', error);
-        console.log('Error response:', error.response); // Log error response if available
-        
-        if (error.response) {
-            // The request was made and the server responded with a status code
-            console.log('Error data:', error.response.data);
-            console.log('Error status:', error.response.status);
-            console.log('Error headers:', error.response.headers);
-        } else if (error.request) {
-            // The request was made but no response was received
-            console.log('Error request:', error.request);
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log('Error message:', error.message);
-        }
-        
-        setError('Failed to update status. Please try again.');
+        console.error('Error in handleUpdateStatus:', error);
+        setError(error.message || 'Failed to update status. Please try again.');
     }
 };
-
     const sendStatusUpdateMessage = async (status) => {
         let statusMessage = `[Status Update] Job: ${selectedJobTitle}\n`;
 

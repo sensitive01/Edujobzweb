@@ -5,7 +5,7 @@ import EmployerHeader from './EmployerHeader';
 import EmployerFooter from './EmployerFooter';
 import user13 from '../../assets/employer/assets/img/users/user-13.jpg';
 import EmployerCandidatesDetails from './EmployerCandidatesDetails';
-// import EmployeerChatSidebar from './EmployeerChatSidebar';
+import EmployeerChatSidebar from './EmployeerChatSidebar';
 import { FaArrowCircleUp } from 'react-icons/fa';
 import SearchChat from './searchchat/SearchChat';
 
@@ -1308,7 +1308,7 @@ const EmployeerCandidatesSearch = () => {
         />
       )}
       {selectedCandidateForChat && (
-        <SearchChat
+        <EmployeerChatSidebar
           isOpen={showChatSidebar}
           onClose={() => setShowChatSidebar(false)}
           candidate={selectedCandidateForChat}
