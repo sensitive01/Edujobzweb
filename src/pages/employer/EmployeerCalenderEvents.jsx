@@ -38,6 +38,7 @@ const EmployerCalendarEvents = () => {
     const [isDeletingEvent, setIsDeletingEvent] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const calendarRef = useRef(null);
+    const miniCalendarRef = useRef(null);
     const externalEventsRef = useRef(null);
 
     const eventCategories = [
@@ -54,6 +55,7 @@ const EmployerCalendarEvents = () => {
         type: 'success',
         operation: ''
     });
+
     const fetchEvents = async () => {
         try {
             const employerData = JSON.parse(localStorage.getItem('employerData'));
@@ -70,14 +72,14 @@ const EmployerCalendarEvents = () => {
 
             if (data.success) {
                 const formattedEvents = data.data.map(event => ({
-                    id: event._id || event.id,  // Handle both _id and id cases
+                    id: event._id || event.id,
                     title: event.title,
                     start: event.start,
                     end: event.end,
                     color: event.color,
                     extendedProps: {
                         description: event.description,
-                        location: event.location,  // Make sure location is included here
+                        location: event.location,
                         employerId: event.employerId
                     }
                 }));
@@ -99,7 +101,7 @@ const EmployerCalendarEvents = () => {
                             hour: '2-digit',
                             minute: '2-digit'
                         }),
-                        location: event.extendedProps.location,  // Include location in upcoming events
+                        location: event.extendedProps.location,
                         borderColor: getRandomBorderColor()
                     }));
 
@@ -227,6 +229,14 @@ const EmployerCalendarEvents = () => {
             end: selectInfo.endStr
         });
         setShowAddEventModal(true);
+    };
+
+    const handleMiniCalendarDateClick = (arg) => {
+        // When a date is clicked on the mini calendar, navigate the main calendar to that date
+        if (calendarRef.current) {
+            const calendarApi = calendarRef.current.getApi();
+            calendarApi.gotoDate(arg.date);
+        }
     };
 
     const handleInputChange = (e) => {
@@ -576,7 +586,8 @@ const EmployerCalendarEvents = () => {
                                     <div className="border-bottom pb-2 mb-4">
                                         <div id="mini-calendar" style={{ minHeight: '300px' }}>
                                             <FullCalendar
-                                                plugins={[dayGridPlugin]}
+                                                ref={miniCalendarRef}
+                                                plugins={[dayGridPlugin, interactionPlugin]}
                                                 initialView="dayGridMonth"
                                                 headerToolbar={{
                                                     left: 'prev',
@@ -587,6 +598,9 @@ const EmployerCalendarEvents = () => {
                                                 contentHeight="auto"
                                                 fixedWeekCount={false}
                                                 initialDate={todayStr}
+                                                dateClick={handleMiniCalendarDateClick}
+                                                events={events}
+                                                eventClick={handleEventClick}
                                             />
                                         </div>
                                     </div>

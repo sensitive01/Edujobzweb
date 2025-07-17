@@ -172,8 +172,12 @@ const EmployerAdminHeader = () => {
                     {/* Desktop Navigation */}
                     <nav className='d-none d-lg-flex align-items-center'>
                         <div className='d-flex align-items-center'>
+                            <Link to="/employer-admin/dashboard" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">dashboard</span>
+                            </Link>
                             <Link to="/employer-admin/units-grid" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
-                                <LayoutGrid className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
                                 <span className="text-dark">Sub Units</span>
                             </Link>
                             <div className='position-relative me-2'>
@@ -589,6 +593,22 @@ const EmployerAdminHeader = () => {
                     >
                         {/* Mobile Navigation Links */}
                         <div className="mb-3">
+                               <Link
+                                to="/employer-admin/dashboard"
+                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                                onClick={closeMobileMenu}
+                            >
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">Dashboard</span>
+                            </Link>
+                               <Link
+                                to="/employer-admin/units-grid"
+                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                                onClick={closeMobileMenu}
+                            >
+                           <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">Sub Units</span>
+                            </Link>
                             {/* Candidates Section */}
                             <div className="mb-2">
                                 <div

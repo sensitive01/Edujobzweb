@@ -35,20 +35,6 @@ const Dashboard = () => {
                                 </p>
                             </div>
                         </div>
-                        <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
-                            <div className="ms-2 head-icons">
-                                <a
-                                    href="javascript:void(0);"
-                                    className=""
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    data-bs-original-title="Collapse"
-                                    id="collapse-header"
-                                >
-                                    <i className="ti ti-chevrons-up"></i>
-                                </a>
-                            </div>
-                        </div>
                         <div className="d-flex align-items-center flex-wrap mb-1">
                             <a
                               onClick={() => setShowUserModal(true)}

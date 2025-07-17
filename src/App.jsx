@@ -106,6 +106,7 @@ import Referrals from './pages/employeradmin/referrals/Referrals';
 import Notification from './pages/employeradmin/notifications/Notifications';
 import CandidatesList from './pages/employer/CandidateList';
 import Dashboard from './pages/employer/dashboard/Dashboard';
+import EmployerAdminDashboard from './pages/employeradmin/dashboard/EmployerAdminDashboard';
 
 function App() {
   return (
@@ -194,6 +195,7 @@ function App() {
           <Route path='/employer-admin/subscribers' element={<Subscribers />} />
           <Route path='/employer-admin/referrals' element={<Referrals />} />
           <Route path='/employer-admin/notifications' element={<Notification />} />
+          <Route path='/employer-admin/dashboard' element={<EmployerAdminDashboard />} />
 
         </Route>
 
