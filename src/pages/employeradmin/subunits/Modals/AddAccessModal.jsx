@@ -51,6 +51,7 @@ const AddAccessModal = ({ show, onClose, onAddStage, onEditStage }) => {
                                                 type="button"
                                                 className="add-new text-primary"
                                                 onClick={onAddStage}
+                                                  style={{border:'none', backgroundColor: 'white'}}
                                             >
                                                 <i className="ti ti-plus text-primary me-1"></i>Add New
                                             </button>
@@ -66,6 +67,7 @@ const AddAccessModal = ({ show, onClose, onAddStage, onEditStage }) => {
                                                         type="button"
                                                         className="text-default me-2"
                                                         onClick={() => onEditStage('Inpipline')}
+                                                          style={{border:'none', backgroundColor: 'white'}}
                                                     >
                                                         <i className="ti ti-edit"></i>
                                                     </button>
@@ -73,6 +75,7 @@ const AddAccessModal = ({ show, onClose, onAddStage, onEditStage }) => {
                                                         type="button"
                                                         className="text-default"
                                                         onClick={() => handleDeleteClick('Inpipline')}
+                                                          style={{border:'none', backgroundColor: 'white'}}
                                                     >
                                                         <i className="ti ti-trash text-danger"></i>
                                                     </button>
@@ -90,6 +93,7 @@ const AddAccessModal = ({ show, onClose, onAddStage, onEditStage }) => {
                                                         type="button"
                                                         className="text-default me-2"
                                                         onClick={() => onEditStage('Follow Up')}
+                                                          style={{border:'none', backgroundColor: 'white'}}
                                                     >
                                                         <i className="ti ti-edit"></i>
                                                     </button>
@@ -97,6 +101,7 @@ const AddAccessModal = ({ show, onClose, onAddStage, onEditStage }) => {
                                                         type="button"
                                                         className="text-default"
                                                         onClick={() => handleDeleteClick('Follow Up')}
+                                                          style={{border:'none', backgroundColor: 'white'}}
                                                     >
                                                         <i className="ti ti-trash text-danger"></i>
                                                     </button>
@@ -114,6 +119,7 @@ const AddAccessModal = ({ show, onClose, onAddStage, onEditStage }) => {
                                                         type="button"
                                                         className="text-default me-2"
                                                         onClick={() => onEditStage('Schedule Service')}
+                                                          style={{border:'none', backgroundColor: 'white'}}
                                                     >
                                                         <i className="ti ti-edit"></i>
                                                     </button>
@@ -121,6 +127,7 @@ const AddAccessModal = ({ show, onClose, onAddStage, onEditStage }) => {
                                                         type="button"
                                                         className="text-default"
                                                         onClick={() => handleDeleteClick('Schedule Service')}
+                                                          style={{border:'none', backgroundColor: 'white'}}
                                                     >
                                                         <i className="ti ti-trash text-danger"></i>
                                                     </button>

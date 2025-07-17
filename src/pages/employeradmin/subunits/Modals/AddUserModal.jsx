@@ -247,6 +247,7 @@ const AddUserModal = ({ show, onClose, onAddPositions }) => {
                                                                 onAddPositions();
                                                             }
                                                         }}
+                                                          style={{border:'none', backgroundColor: 'white'}}
                                                     >
                                                         <i className="ti ti-plus text-primary me-1"></i>Add New
                                                     </button>

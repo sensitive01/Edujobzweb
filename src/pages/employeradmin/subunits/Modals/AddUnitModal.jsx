@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import AddPositionsModal from './AddPositionsModal';
 import AddAccessModal from './AddAccessModal';
 import EditAccessModal from './EditAccessModal';
@@ -6,8 +7,12 @@ import AccessModal from './AccessModal';
 import EditStageModal from './EditStageModal';
 import AddStageModal from './AddStageModal ';
 import AddUserModal from './AddUserModal';
+import { toast,ToastContainer  } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 const AddUnitModal = ({ show, onClose }) => {
+    const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('basic-info');
   const [showPositionsModal, setShowPositionsModal] = useState(false);
   const [showAccessModal, setShowAccessModal] = useState(false);
@@ -16,36 +21,31 @@ const AddUnitModal = ({ show, onClose }) => {
   const [showStageModal, setShowStageModal] = useState(false);
   const [showEditStageModal, setShowEditStageModal] = useState(false);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Get organization ID from localStorage
+const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+const organizationid = employerAdminData._id || '';
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    phone2: '',
-    fax: '',
-    website: '',
-    rating: '',
-    owner: '',
-    tags: '',
-    positions: '',
-    industry: '',
-    source: '',
-    currency: '',
-    language: '',
-    about: '',
-    users: [],
+    schoolName: '',
+    firstName: '',
+    lastName: '',
     address: '',
-    country: '',
-    state: '',
+    organizationid: organizationid,
     city: '',
-    zipcode: '',
-    facebook: '',
-    twitter: '',
-    linkedin: '',
-    skype: '',
-    whatsapp: '',
-    instagram: '',
-    visibility: 'private',
-    status: ''
+    state: '',
+    pincode: '',
+    institutionName: '',
+    board: '',
+    institutionType: '',
+    website: '',
+    userEmail: '',
+    userMobile: '',
+    userPassword: '',
+    userProfilePic: '',
+    employerType: ''
   });
 
   const handleChange = (e) => {
@@ -56,12 +56,56 @@ const AddUnitModal = ({ show, onClose }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission here
-    console.log(formData);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true);
+  setError(null);
+
+  try {
+    const token = localStorage.getItem('EmployerAdminToken');
+    const response = await axios.post('https://edujobzbackend.onrender.com/employeradmin/createemployer', formData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log('Employer created successfully:', response.data);
+    toast.success('Profile created successfully!');
+    
+    // Reset form data to initial state after successful submission
+    setFormData({
+      schoolName: '',
+      firstName: '',
+      lastName: '',
+      address: '',
+      organizationid: organizationid,
+      city: '',
+      state: '',
+      pincode: '',
+      institutionName: '',
+      board: '',
+      institutionType: '',
+      website: '',
+      userEmail: '',
+      userMobile: '',
+      userPassword: '',
+      userProfilePic: '',
+      employerType: '',
+    });
+    
+    // Optionally close the modal if you want
     onClose();
-  };
+     navigate('/employer-admin/units-grid');
+    
+  } catch (err) {
+    console.error('Error creating employer:', err);
+    setError(err.response?.data?.message || 'Failed to create employer. Please try again.');
+    toast.error('Failed to create profile. Please try again.');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   if (!show) {
     return null;
@@ -105,26 +149,14 @@ const AddUnitModal = ({ show, onClose }) => {
                       Address
                     </button>
                   </li>
-                  <li className="nav-item" role="presentation">
-                    <button
-                      className={`nav-link ${activeTab === 'social-profile' ? 'active' : ''}`}
-                      onClick={() => setActiveTab('social-profile')}
-                      type="button"
-                    >
-                      Social Profiles
-                    </button>
-                  </li>
-                  <li className="nav-item" role="presentation">
-                    <button
-                      className={`nav-link ${activeTab === 'access' ? 'active' : ''}`}
-                      onClick={() => setActiveTab('access')}
-                      type="button"
-                    >
-                      Access
-                    </button>
-                  </li>
                 </ul>
               </div>
+
+              {error && (
+                <div className="alert alert-danger mx-3 mt-3">
+                  {error}
+                </div>
+              )}
 
               <div className="tab-content" id="myTabContent">
                 {/* Basic Info Tab */}
@@ -133,9 +165,18 @@ const AddUnitModal = ({ show, onClose }) => {
                     <div className="row">
                       <div className="col-md-12">
                         <div className="d-flex align-items-center flex-wrap row-gap-3 bg-light w-100 rounded p-3 mb-4">
-                          <div className="d-flex align-items-center justify-content-center avatar avatar-xxl rounded-circle border border-dashed me-2 flex-shrink-0 text-dark frames">
-                            <i className="ti ti-photo text-gray-2 fs-16"></i>
-                          </div>
+                          {formData.userProfilePic ? (
+                            <img
+                              src={formData.userProfilePic}
+                              alt="Profile Preview"
+                              className="avatar avatar-xxl rounded-circle border border-dashed me-2 flex-shrink-0"
+                              style={{ objectFit: 'cover' }}
+                            />
+                          ) : (
+                            <div className="d-flex align-items-center justify-content-center avatar avatar-xxl rounded-circle border border-dashed me-2 flex-shrink-0 text-dark frames">
+                              <i className="ti ti-photo text-gray-2 fs-16"></i>
+                            </div>
+                          )}
                           <div className="profile-upload">
                             <div className="mb-2">
                               <h6 className="mb-1">Upload Profile Image</h6>
@@ -144,24 +185,111 @@ const AddUnitModal = ({ show, onClose }) => {
                             <div className="profile-uploader d-flex align-items-center">
                               <div className="drag-upload-btn btn btn-sm btn-primary me-2">
                                 Upload
-                                <input type="file" className="form-control image-sign" multiple />
+                                <input
+                                  type="file"
+                                  className="form-control image-sign"
+                                  onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                      setFormData(prev => ({
+                                        ...prev,
+                                        userProfilePic: URL.createObjectURL(e.target.files[0])
+                                      }));
+                                    }
+                                  }}
+                                />
                               </div>
-                              <button type="button" className="btn btn-light btn-sm">Cancel</button>
+                              <button
+                                type="button"
+                                className="btn btn-light btn-sm"
+                                onClick={() => setFormData(prev => ({ ...prev, userProfilePic: '' }))}
+                              >
+                                Cancel
+                              </button>
                             </div>
                           </div>
                         </div>
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Unit Name <span className="text-danger">*</span></label>
+                          <label className="form-label">School Name <span className="text-danger">*</span></label>
                           <input
                             type="text"
                             className="form-control"
-                            name="name"
-                            value={formData.name}
+                            name="schoolName"
+                            value={formData.schoolName}
                             onChange={handleChange}
                             required
                           />
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">First Name <span className="text-danger">*</span></label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="firstName"
+                            value={formData.firstName}
+                            onChange={handleChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Last Name <span className="text-danger">*</span></label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="lastName"
+                            value={formData.lastName}
+                            onChange={handleChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Institution Name <span className="text-danger">*</span></label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="institutionName"
+                            value={formData.institutionName}
+                            onChange={handleChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Board <span className="text-danger">*</span></label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="board"
+                            value={formData.board}
+                            onChange={handleChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Institution Type <span className="text-danger">*</span></label>
+                          <select
+                            className="form-select"
+                            name="institutionType"
+                            value={formData.institutionType}
+                            onChange={handleChange}
+                            required
+                          >
+                            <option value="">Select</option>
+                            <option value="School">School</option>
+                            <option value="College">College</option>
+                            <option value="University">University</option>
+                            <option value="Coaching">Coaching</option>
+                          </select>
                         </div>
                       </div>
                       <div className="col-md-6">
@@ -170,20 +298,20 @@ const AddUnitModal = ({ show, onClose }) => {
                           <input
                             type="email"
                             className="form-control"
-                            name="email"
-                            value={formData.email}
+                            name="userEmail"
+                            value={formData.userEmail}
                             onChange={handleChange}
                           />
                         </div>
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Phone Number <span className="text-danger">*</span></label>
+                          <label className="form-label">Mobile Number <span className="text-danger">*</span></label>
                           <input
                             type="tel"
                             className="form-control"
-                            name="phone"
-                            value={formData.phone}
+                            name="userMobile"
+                            value={formData.userMobile}
                             onChange={handleChange}
                             required
                           />
@@ -191,25 +319,14 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Phone Number 2</label>
+                          <label className="form-label">Password <span className="text-danger">*</span></label>
                           <input
-                            type="tel"
+                            type="password"
                             className="form-control"
-                            name="phone2"
-                            value={formData.phone2}
+                            name="userPassword"
+                            value={formData.userPassword}
                             onChange={handleChange}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Fax</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="fax"
-                            value={formData.fax}
-                            onChange={handleChange}
+                            required
                           />
                         </div>
                       </div>
@@ -227,196 +344,52 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Ratings <span className="text-danger"> *</span></label>
-                          <div className="input-icon-end position-relative">
-                            <input
-                              type="number"
-                              className="form-control"
-                              name="rating"
-                              value={formData.rating}
-                              onChange={handleChange}
-                              min="0"
-                              max="5"
-                              step="0.1"
-                              required
-                            />
-                            <span className="input-icon-addon">
-                              <i className="ti ti-star text-gray-6"></i>
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Owner <span className="text-danger">*</span></label>
+                          <label className="form-label">Employer Type <span className="text-danger">*</span></label>
                           <select
                             className="form-select"
-                            name="owner"
-                            value={formData.owner}
+                            name="employerType"
+                            value={formData.employerType}
                             onChange={handleChange}
                             required
                           >
                             <option value="">Select</option>
-                            <option>Hendry Milner</option>
-                            <option>Guilory Berggren</option>
-                            <option>Jami Carlile</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Teacher">Teacher</option>
+                            <option value="Staff">Staff</option>
                           </select>
                         </div>
                       </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Tags <span className="text-danger">*</span></label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="tags"
-                            value={formData.tags}
-                            onChange={handleChange}
-                            required
-                          />
-                        </div>
+                      <div className="col-md-6 d-flex justify-content-between align-items-center mb-2">
+                        <label className="col-form-label p-0">Positions <span className="text-danger">*</span></label>
+                        <button
+                          type="button"
+                          className="add-new text-primary"
+                          onClick={() => setShowPositionsModal(true)}
+                          style={{ border: 'none', backgroundColor: 'white' }}
+                        >
+                          <i className="ti ti-plus text-primary me-1"></i>Add New
+                        </button>
                       </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <div className="d-flex justify-content-between align-items-center mb-2">
-                            <label className="col-form-label p-0">Positions <span className="text-danger">*</span></label>
-                            <button
-                              type="button"
-                              className="add-new text-primary"
-                              onClick={() => setShowPositionsModal(true)}
-                            >
-                              <i className="ti ti-plus text-primary me-1"></i>Add New
-                            </button>
-                          </div>
-                          <select
-                            className="form-select"
-                            name="positions"
-                            value={formData.positions}
-                            onChange={handleChange}
-                            required
-                          >
-                            <option value="">Select</option>
-                            <option>Collins</option>
-                            <option>Konopelski</option>
-                            <option>Adams</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Industry <span className="text-danger">*</span></label>
-                          <select
-                            className="form-select"
-                            name="industry"
-                            value={formData.industry}
-                            onChange={handleChange}
-                            required
-                          >
-                            <option value="">Select</option>
-                            <option>Retail Industry</option>
-                            <option>Banking</option>
-                            <option>Hotels</option>
-                            <option>Financial Services</option>
-                            <option>Insurance</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Source <span className="text-danger">*</span></label>
-                          <select
-                            className="form-select"
-                            name="source"
-                            value={formData.source}
-                            onChange={handleChange}
-                            required
-                          >
-                            <option value="">Select</option>
-                            <option>Phone Calls</option>
-                            <option>Social Media</option>
-                            <option>Refferal Sites</option>
-                            <option>Web Analytics</option>
-                            <option>Previous Purchase</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Currency <span className="text-danger">*</span></label>
-                          <select
-                            className="form-select"
-                            name="currency"
-                            value={formData.currency}
-                            onChange={handleChange}
-                            required
-                          >
-                            <option value="">Select</option>
-                            <option>USD</option>
-                            <option>Euro</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Language <span className="text-danger">*</span></label>
-                          <select
-                            className="form-select"
-                            name="language"
-                            value={formData.language}
-                            onChange={handleChange}
-                            required
-                          >
-                            <option value="">Select</option>
-                            <option>English</option>
-                            <option>Arabic</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className="col-md-12">
-                        <div className="mb-3">
-                          <label className="form-label">About <span className="text-danger">*</span></label>
-                          <textarea
-                            className="form-control"
-                            name="about"
-                            value={formData.about}
-                            onChange={handleChange}
-                            required
-                          ></textarea>
-                        </div>
-                      </div>
-                      <div className="col-md-12">
-                        <div className="mb-3">
-                          <div className="d-flex justify-content-between align-items-center mb-2">
-                            <label className="col-form-label p-0">User <span className="text-danger">*</span></label>
-                            <button
-                              type="button"
-                              className="add-new text-primary"
-                              onClick={() => setShowAddUserModal(true)}
-                            >
-                              <i className="ti ti-plus text-primary me-1"></i>Add New
-                            </button>
-                          </div>
-                          <select
-                            className="form-select"
-                            name="users"
-                            value={formData.users}
-                            onChange={handleChange}
-                            multiple
-                            required
-                          >
-                            <option>Darlee Robertson</option>
-                            <option>Sharon Roy</option>
-                            <option>Vaughan</option>
-                            <option>Jessica</option>
-                            <option>Carol Thomas</option>
-                          </select>
-                        </div>
+                      <div className="col-md-12 d-flex justify-content-between align-items-center mb-2">
+                        <label className="col-form-label p-0">User <span className="text-danger">*</span></label>
+                        <button
+                          type="button"
+                          className="add-new text-primary"
+                          onClick={() => setShowAddUserModal(true)}
+                          style={{ border: 'none', backgroundColor: 'white' }}
+                        >
+                          <i className="ti ti-plus text-primary me-1"></i>Add New
+                        </button>
                       </div>
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-light me-2" onClick={onClose}>Cancel</button>
-                    <button type="submit" className="btn btn-primary">Save</button>
+                    <button type="button" className="btn btn-light me-2" onClick={onClose} disabled={isSubmitting}>
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                      {isSubmitting ? 'Saving...' : 'Save'}
+                    </button>
                   </div>
                 </div>
 
@@ -439,7 +412,7 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Country <span className="text-danger"> *</span></label>
+                          <label className="form-label">Country <span className="text-danger">*</span></label>
                           <select
                             className="form-select"
                             name="country"
@@ -448,57 +421,47 @@ const AddUnitModal = ({ show, onClose }) => {
                             required
                           >
                             <option value="">Select</option>
-                            <option>USA</option>
-                            <option>Canada</option>
-                            <option>Germany</option>
-                            <option>France</option>
+                            <option value="USA">USA</option>
+                            <option value="India">India</option>
+                            <option value="UK">UK</option>
+                            <option value="Canada">Canada</option>
                           </select>
                         </div>
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">State <span className="text-danger"> *</span></label>
-                          <select
-                            className="form-select"
+                          <label className="form-label">State <span className="text-danger">*</span></label>
+                          <input
+                            type="text"
+                            className="form-control"
                             name="state"
                             value={formData.state}
                             onChange={handleChange}
                             required
-                          >
-                            <option value="">Select</option>
-                            <option>California</option>
-                            <option>New York</option>
-                            <option>Texas</option>
-                            <option>Florida</option>
-                          </select>
+                          />
                         </div>
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">City <span className="text-danger"> *</span></label>
-                          <select
-                            className="form-select"
+                          <label className="form-label">City <span className="text-danger">*</span></label>
+                          <input
+                            type="text"
+                            className="form-control"
                             name="city"
                             value={formData.city}
                             onChange={handleChange}
                             required
-                          >
-                            <option value="">Select</option>
-                            <option>Los Angeles</option>
-                            <option>San Diego</option>
-                            <option>Fresno</option>
-                            <option>San Francisco</option>
-                          </select>
+                          />
                         </div>
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Zipcode <span className="text-danger">*</span></label>
+                          <label className="form-label">Pincode <span className="text-danger">*</span></label>
                           <input
                             type="text"
                             className="form-control"
-                            name="zipcode"
-                            value={formData.zipcode}
+                            name="pincode"
+                            value={formData.pincode}
                             onChange={handleChange}
                             required
                           />
@@ -507,181 +470,12 @@ const AddUnitModal = ({ show, onClose }) => {
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-light me-2" onClick={onClose}>Cancel</button>
-                    <button type="submit" className="btn btn-primary">Save</button>
-                  </div>
-                </div>
-
-                {/* Social Profiles Tab */}
-                <div className={`tab-pane fade ${activeTab === 'social-profile' ? 'show active' : ''}`}>
-                  <div className="modal-body pb-0">
-                    <div className="row">
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Facebook</label>
-                          <input
-                            type="url"
-                            className="form-control"
-                            name="facebook"
-                            value={formData.facebook}
-                            onChange={handleChange}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Twitter</label>
-                          <input
-                            type="url"
-                            className="form-control"
-                            name="twitter"
-                            value={formData.twitter}
-                            onChange={handleChange}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">LinkedIn</label>
-                          <input
-                            type="url"
-                            className="form-control"
-                            name="linkedin"
-                            value={formData.linkedin}
-                            onChange={handleChange}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Skype</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="skype"
-                            value={formData.skype}
-                            onChange={handleChange}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Whatsapp</label>
-                          <input
-                            type="tel"
-                            className="form-control"
-                            name="whatsapp"
-                            value={formData.whatsapp}
-                            onChange={handleChange}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="mb-3">
-                          <label className="form-label">Instagram</label>
-                          <input
-                            type="url"
-                            className="form-control"
-                            name="instagram"
-                            value={formData.instagram}
-                            onChange={handleChange}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="modal-footer">
-                    <button type="button" className="btn btn-light me-2" onClick={onClose}>Cancel</button>
-                    <button type="submit" className="btn btn-primary">Save</button>
-                  </div>
-                </div>
-
-                {/* Access Tab */}
-                <div className={`tab-pane fade ${activeTab === 'access' ? 'show active' : ''}`}>
-                  <div className="modal-body pb-0">
-                    <div className="mb-4">
-                      <h6 className="fs-14 fw-medium mb-1">Visibility</h6>
-                      <div className="d-flex align-items-center">
-                        <div className="form-check me-3">
-                          <input
-                            className="form-check-input"
-                            type="radio"
-                            name="visibility"
-                            id="flexRadioDefault01"
-                            value="public"
-                            checked={formData.visibility === 'public'}
-                            onChange={handleChange}
-                          />
-                          <label className="form-check-label text-dark" htmlFor="flexRadioDefault01">
-                            Public
-                          </label>
-                        </div>
-                        <div className="form-check me-3">
-                          <input
-                            className="form-check-input"
-                            type="radio"
-                            name="visibility"
-                            id="flexRadioDefault02"
-                            value="private"
-                            checked={formData.visibility === 'private'}
-                            onChange={handleChange}
-                          />
-                          <label className="form-check-label text-dark" htmlFor="flexRadioDefault02">
-                            Private
-                          </label>
-                        </div>
-                        <div className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="radio"
-                            name="visibility"
-                            id="flexRadioDefault03"
-                            value="select-people"
-                            checked={formData.visibility === 'select-people'}
-                            onChange={handleChange}
-                          />
-                          <label className="form-check-label text-dark" htmlFor="flexRadioDefault03">
-                            Select People
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                    {formData.visibility === 'select-people' && (
-                      <div className="p-3 bg-gray br-5 mb-4">
-                        <div className="d-flex align-items-center mb-3">
-                          <input className="form-check-input me-1" type="checkbox" id="user-06" />
-                          <div className="d-flex align-items-center file-name-icon">
-                            <a href="#" className="avatar avatar-md border avatar-rounded">
-                              <img src="assets/img/reports/user-01.jpg" className="img-fluid" alt="img" />
-                            </a>
-                            <div className="ms-2">
-                              <h6 className="fw-normal"><a href="#">Michael Walker</a></h6>
-                            </div>
-                          </div>
-                        </div>
-                        {/* More user checkboxes... */}
-                        <div className="d-flex align-items-center justify-content-center">
-                          <button type="button" className="btn btn-primary">Confirm</button>
-                        </div>
-                      </div>
-                    )}
-                    <div className="mb-3">
-                      <label className="form-label">Status</label>
-                      <select
-                        className="form-select"
-                        name="status"
-                        value={formData.status}
-                        onChange={handleChange}
-                      >
-                        <option value="">Select</option>
-                        <option>Active</option>
-                        <option>Inactive</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="modal-footer">
-                    <button type="button" className="btn btn-light me-2" onClick={onClose}>Cancel</button>
-                    <button type="submit" className="btn btn-primary">Save</button>
+                    <button type="button" className="btn btn-light me-2" onClick={onClose} disabled={isSubmitting}>
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                      {isSubmitting ? 'Saving...' : 'Save'}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -689,6 +483,7 @@ const AddUnitModal = ({ show, onClose }) => {
           </div>
         </div>
       </div>
+
       <AddPositionsModal
         show={showPositionsModal}
         onClose={() => setShowPositionsModal(false)}
@@ -745,6 +540,17 @@ const AddUnitModal = ({ show, onClose }) => {
           setShowAddUserModal(false);
           setShowPositionsModal(true);
         }}
+      />
+       <ToastContainer 
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
       />
     </>
   );
