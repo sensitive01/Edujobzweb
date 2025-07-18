@@ -215,13 +215,13 @@ const EmployeerAdminPostJob = () => {
   const fetchJobs = async () => {
     try {
       setLoading(true);
-      const employerData = JSON.parse(localStorage.getItem('employerData'));
+      const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
 
-      if (!employerData || !employerData._id) {
+      if (!employerAdminData || !employerAdminData._id) {
         throw new Error('Employer not logged in or missing ID');
       }
 
-      const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`);
+      const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchjob/${employerAdminData._id}`);
 
       if (!response.data || response.data.length === 0) {
         throw new Error('No jobs found for this employer');
@@ -263,6 +263,7 @@ const EmployeerAdminPostJob = () => {
       setJobs([]);
     }
   };
+
 
   const formatDate = (dateString) => {
     try {
@@ -1040,50 +1041,6 @@ const FilterSidebar = ({
             </div>
           </div>
         </div>
-
-        {/* Experience Filter */}
-        {/* <div className="accordion-item">
-          <h2 className="accordion-header">
-            <button
-              className="accordion-button text-dark fs-16 align-items-center justify-content-between"
-              type="button"
-              onClick={() => toggleAccordion('experienceFilter')}
-            >
-              Experience
-              {openAccordions.experienceFilter ? (
-                <ChevronDown className="text-primary" />
-              ) : (
-                <ArrowUp className="text-primary" />
-              )}
-            </button>
-          </h2>
-          <div
-            id="experienceFilter"
-            className={`accordion-collapse collapse ${openAccordions.experienceFilter ? 'show' : ''}`}
-          >
-            <div className="accordion-body pb-0">
-              <div className="row gx-3">
-                <div className="price-inputs d-flex mb-3">
-                  <input
-                    type="number"
-                    className="form-control me-3"
-                    placeholder="From"
-                    value={experienceRange.from}
-                    onChange={(e) => onExperienceRangeChange({ ...experienceRange, from: e.target.value })}
-                  />
-                  <input
-                    type="number"
-                    className="form-control"
-                    placeholder="To"
-                    value={experienceRange.to}
-                    onChange={(e) => onExperienceRangeChange({ ...experienceRange, to: e.target.value })}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
-
         <div className="p-3 pt-5">
           <div className="row gx-3">
             <div className="col-6">
@@ -1117,7 +1074,7 @@ const JobCard = ({ job, onStatusChange }) => {
       setIsUpdating(true);
       const newStatus = !isActive;
 
-      const token = localStorage.getItem('employerToken');
+      const token = localStorage.getItem('EmployerAdminToken');
       if (!token) {
         throw new Error('Authentication required');
       }
@@ -1275,13 +1232,10 @@ const JobCard = ({ job, onStatusChange }) => {
             <b className="text-secondary">Date Posted:</b> {job.postedDate}
           </span>
           <div className="d-flex">
-            {/* <a href="applied-candidates" className="badge bg-warning fs-12 fw-medium me-2">
-              <Users className="me-1" style={{ width: '12px', height: '12px' }} /> Applied Candidates
-            </a> */}
             <Link to={`/employer/applied-candidates/${job.id}`} className="badge bg-warning fs-12 fw-medium me-2">
               <Users className="me-1" style={{ width: '12px', height: '12px' }} /> Applied Candidates
             </Link>
-            <Link to={`/employer/view-job/${job.id}`} className="badge bg-secondary fs-12 fw-medium">
+            <Link to={`/employer-admin/view-job/${job.id}`} className="badge bg-secondary fs-12 fw-medium">
               <Eye className="me-1" style={{ width: '12px', height: '12px' }} /> View Job Details
             </Link>
           </div>
@@ -1567,10 +1521,14 @@ const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }
     }));
   };
 
+
   const handleSubmit = async () => {
     try {
-      const employerData = JSON.parse(localStorage.getItem('employerData'));
-      if (!employerData || !employerData._id) {
+      // Get employerId the same way as in AddPositionsModal
+      const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+      const employid = employerAdminData._id || '';
+      
+      if (!employid) {
         throw new Error('Employer ID not found');
       }
 
@@ -1580,7 +1538,7 @@ const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }
           minute: '2-digit',
           hour12: true
         }),
-        employid: employerData._id,
+        employid: employid,  // Using the same employer ID as in AddPositionsModal
         companyName: formData.companyName,
         jobTitle: formData.jobTitle,
         description: formData.description,
@@ -1616,7 +1574,7 @@ const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }
       alert('Failed to post job. Please try again.');
     }
   };
-
+  
   return (
     <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
       <div className="modal-dialog modal-dialog-centered modal-lg">
@@ -1906,24 +1864,6 @@ const BasicInfoTab = ({ selectedFile, onFileChange, formData, onInputChange, onA
             />
           </div>
         </div>
-
-        {/* Job Priority */}
-        {/* <div className="col-md-6">
-          <div className="mb-3">
-            <label className="form-label">Job Priority</label>
-            <select
-              className="form-select"
-              name="priority"
-              value={formData.priority}
-              onChange={onInputChange}
-            >
-              <option value="">Select Priority</option>
-              <option value="High">High</option>
-              <option value="Medium">Medium</option>
-              <option value="Low">Low</option>
-            </select>
-          </div>
-        </div> */}
 
         {/* Skills */}
         <div className="col-md-12">

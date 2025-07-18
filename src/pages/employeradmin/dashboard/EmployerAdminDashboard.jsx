@@ -1,9 +1,17 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
 import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
+import AddTodoModal from './modal/AddTodoModal';
+import AddTeacherModal from './modal/AddteacherModal';
+import AddLeavesModal from './modal/AddleavesModal';
+import AddUserModal from './modal/AddUserModal';
 
 const EmployerAdminDashboard = () => {
+    const [showTodotModal, setShowTodoModal] = useState(false);
+    const [showTeacherModal, setShowTeacherModal] = useState(false);
+    const [showLeaveModal, setShowLeaveModal] = useState(false);
+    const [showUserModal, setShowUserModal] = useState(false);
     return (
         <>
             <EmployerAdminHeader />
@@ -21,9 +29,9 @@ const EmployerAdminDashboard = () => {
                             </div>
                         </div>
                         <div className="d-flex align-items-center flex-wrap mb-1">
-                            <a href="#" className="btn btn-primary btn-md me-2 mb-2" data-bs-toggle="modal" data-bs-target="#add_employee"><i className="ti ti-user-check me-1"></i>Add User</a>
-                            <a href="#" className="btn btn-secondary btn-md me-2 mb-2" data-bs-toggle="modal" data-bs-target="#add_project"><i className="ti ti-square-rounded-plus me-1"></i>Add Teacher</a>
-                            <a href="#" className="btn btn-default border border-dark btn-md mb-2" data-bs-toggle="modal" data-bs-target="#add_leaves"><i className="ti ti-user-plus me-1"></i>Add Leave Requests</a>
+                            <a className="btn btn-primary btn-md me-2 mb-2" onClick={() => setShowUserModal(true)}><i className="ti ti-user-check me-1"></i>Add User</a>
+                            <a className="btn btn-secondary btn-md me-2 mb-2" onClick={() => setShowTeacherModal(true)}><i className="ti ti-square-rounded-plus me-1"></i>Add Teacher</a>
+                            <a className="btn btn-default border border-dark btn-md mb-2" onClick={() => setShowLeaveModal(true)}><i className="ti ti-user-plus me-1"></i>Add Leave Requests</a>
                         </div>
                     </div>
                 </div>
@@ -257,7 +265,7 @@ const EmployerAdminDashboard = () => {
                                             </li>
                                         </ul>
                                     </div>
-                                    <a href="#" className="btn btn-primary btn-icon btn-xs rounded-circle d-flex align-items-center justify-content-center p-0 mb-2" data-bs-toggle="modal" data-bs-target="#add_todo"><i className="ti ti-plus fs-16"></i></a>
+                                    <a className="btn btn-primary btn-icon btn-xs rounded-circle d-flex align-items-center justify-content-center p-0 mb-2" onClick={() => setShowTodoModal(true)}><i className="ti ti-plus fs-16"></i></a>
                                 </div>
                             </div>
                             <div className="card-body">
@@ -1625,6 +1633,27 @@ const EmployerAdminDashboard = () => {
 
                 </div>
             </div>
+            <AddTodoModal
+                show={showTodotModal}
+                onClose={() => setShowTodoModal(false)}
+
+            />
+            <AddTeacherModal
+                show={showTeacherModal}
+                onClose={() => setShowTeacherModal(false)}
+
+            />
+            <AddLeavesModal
+                show={showLeaveModal}
+                onClose={() => setShowLeaveModal(false)}
+
+            />
+            <AddUserModal
+                show={showUserModal}
+                onClose={() => setShowUserModal(false)}
+
+            />
+
             <EmployerAdminFooter />
         </>
     );

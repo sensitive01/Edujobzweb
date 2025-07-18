@@ -47,7 +47,7 @@ const EmployerAdminobDetailsPage = () => {
         { favourite: newFavoriteStatus },
         {
           header: {
-            'Authorization': `Bearer ${localStorage.getItem('employerToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('EmployerAdminToken')}`
           }
         }
       );
@@ -72,15 +72,15 @@ const EmployerAdminobDetailsPage = () => {
         setLoading(true);
         setError(null);
 
-        const employerData = JSON.parse(localStorage.getItem('employerData'));
+        const EmployerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData'));
 
-        if (!employerData || !employerData._id) {
+        if (!EmployerAdminData || !EmployerAdminData._id) {
           throw new Error('Employer not authenticated');
         }
 
         const response = await axios.get(`https://edujobzbackend.onrender.com/employer/viewjobs/${id}`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('employerToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('EmployerAdminToken')}`
           }
         });
 
@@ -102,13 +102,13 @@ const EmployerAdminobDetailsPage = () => {
 
     const fetchRelatedJobs = async () => {
       try {
-        const employerData = JSON.parse(localStorage.getItem('employerData'));
+        const EmployerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData'));
 
-        if (!employerData || !employerData._id) {
+        if (!EmployerAdminData || !EmployerAdminData._id) {
           return;
         }
 
-        const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`);
+        const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchjob/${EmployerAdminData._id}`);
 
         if (response.data && response.data.length > 0) {
           // Filter out the current job and limit to 4 related jobs
@@ -262,7 +262,7 @@ const EmployerAdminobDetailsPage = () => {
                         <i className="ti ti-user-check"></i> Apply for a Candidate
                       </button>
                       <Link
-                        to={`/employer/shortlisted-candidate-byjob/${id}`}
+                        to={`/employer-admin/shortlisted-candidate-byjob/${id}`}
                         className="btn btn-primary flex-fill me-2"
                       >
                         <i className="ti ti-circle-check"></i> Shortlisted Candidates

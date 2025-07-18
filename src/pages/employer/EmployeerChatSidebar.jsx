@@ -1236,6 +1236,8 @@ import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
     const [messages, setMessages] = useState([]);
@@ -1509,172 +1511,72 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
         }
     };
 
-    // const handleUpdateStatus = async () => {
-    //     if (!selectedStatus) {
-    //         setError('Please select a status');
-    //         return;
-    //     }
 
-    //     if (!selectedJobTitle) {
-    //         setError('Please select a job title');
-    //         return;
-    //     }
 
-    //     // Find the selected job from the jobs list
-    //     const selectedJob = jobs.find(job => job.jobTitle === selectedJobTitle);
-    //     if (!selectedJob) {
-    //         setError('Selected job not found');
-    //         return;
-    //     }
-    //     const appliedJob = jobs.find(job =>
-    //         job.applications?.some(app => app.applicantId === candidate.applicantId)
-    //     ) || jobs.find(job => job.jobTitle === selectedJobTitle);
+    const showErrorToast = (message) => {
+        toast.error(message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+        });
+    };
 
-    //     if (!appliedJob) {
-    //         setError('No job found for this candidate');
-    //         return;
-    //     }
-    //     if (selectedStatus === "Interview Scheduled") {
-    //         if (!interviewType || !interviewDate || !interviewTime) {
-    //             setError('Please fill all interview details');
-    //             return;
-    //         }
-    //         if (interviewType === "online" && !onlineLink) {
-    //             setError('Please provide online meeting link');
-    //             return;
-    //         }
-    //         if (interviewType === "offline" && !venue) {
-    //             setError('Please provide venue details');
-    //             return;
-    //         }
-    //     }
+    const showSuccessToast = (message) => {
+        toast.success(message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+        });
+    };
 
-    //     try {
-    //         const token = localStorage.getItem('employerToken');
-
-    //         // First, check if the candidate has already applied for this job
-    //         const isApplied = selectedJob.applications?.some(app => app.applicantId === candidate.applicantId);
-
-    //         if (!isApplied) {
-    //             // If not applied, first apply the candidate to the job
-    //             try {
-    //                 const applyResponse = await axios.post(
-    //                     `https://edujobzbackend.onrender.com/${selectedJob._id}/apply`,
-    //                     {
-    //                         firstName: candidate.firstName || candidate.name,
-    //                         email: candidate.email,
-    //                         phone: candidate.phone,
-    //                         experience: candidate.experience || '',
-    //                         jobrole: candidate.jobrole || '',
-    //                         currentcity: candidate.currentcity || '',
-    //                         profileurl: candidate.profileurl || '',
-    //                         resume: candidate.resume || null,
-    //                         applicantId: candidate.applicantId
-    //                     },
-    //                     {
-    //                         headers: {
-    //                             'Authorization': `Bearer ${token}`
-    //                         }
-    //                     }
-    //                 );
-
-    //                 if (!applyResponse.data.success) {
-    //                     throw new Error('Failed to apply candidate to job');
-    //                 }
-    //             } catch (applyError) {
-    //                 console.error('Error applying candidate:', applyError);
-    //                 throw new Error(`Failed to apply candidate: ${applyError.response?.data?.message || applyError.message}`);
-    //             }
-    //         }
-
-    //         // Now update the status
-    //         const url = `https://edujobzbackend.onrender.com/employer/updatefavorite/${selectedJob._id}/${candidate.applicantId}`;
-
-    //         const requestBody = {
-    //             status: selectedStatus,
-    //             notes: statusNotes,
-    //             jobId: selectedJob._id,
-    //             jobTitle: selectedJobTitle,
-    //             ...(selectedStatus === "Interview Scheduled" && {
-    //                 interviewDetails: {
-    //                     type: interviewType,
-    //                     date: interviewDate,
-    //                     time: interviewTime,
-    //                     ...(interviewType === "online" && { link: onlineLink }),
-    //                     ...(interviewType === "offline" && { venue: venue }),
-    //                     jobTitle: selectedJobTitle
-    //                 }
-    //             })
-    //         };
-
-    //         const response = await axios.put(
-    //             url,
-    //             requestBody,
-    //             {
-    //                 headers: {
-    //                     'Authorization': `Bearer ${token}`
-    //                 }
-    //             }
-    //         );
-
-    //         if (response.data.success) {
-    //             // Send automatic status update message with interview details if applicable
-    //             await sendStatusUpdateMessage(selectedStatus);
-
-    //             // Reset form
-    //             setShowStatusModal(false);
-    //             setSelectedStatus('');
-    //             setStatusNotes('');
-    //             setInterviewType('');
-    //             setInterviewDate('');
-    //             setInterviewTime('');
-    //             setOnlineLink('');
-    //             setVenue('');
-    //         } else {
-    //             throw new Error(response.data.message || 'Status update failed');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error in handleUpdateStatus:', error);
-    //         setError(error.message || 'Failed to update status. Please try again.');
-    //     }
-    // };
 
     const handleUpdateStatus = async () => {
+        // Validate required fields
         if (!selectedStatus) {
-            setError('Please select a status');
+            showErrorToast('Please select a status');
             return;
         }
 
         if (!selectedJobTitle) {
-            setError('Please select a job title');
+            showErrorToast('Please select a job title');
             return;
         }
 
         // Find the selected job from the jobs list
         const selectedJob = jobs.find(job => job.jobTitle === selectedJobTitle);
         if (!selectedJob) {
-            setError('Selected job not found');
+            showErrorToast('Selected job not found');
             return;
         }
+
         const appliedJob = jobs.find(job =>
             job.applications?.some(app => app.applicantId === candidate.applicantId)
         ) || jobs.find(job => job.jobTitle === selectedJobTitle);
 
         if (!appliedJob) {
-            setError('No job found for this candidate');
+            showErrorToast('No job found for this candidate');
             return;
         }
+
         if (selectedStatus === "Interview Scheduled") {
             if (!interviewType || !interviewDate || !interviewTime) {
-                setError('Please fill all interview details');
+                showErrorToast('Please fill all interview details');
                 return;
             }
             if (interviewType === "online" && !onlineLink) {
-                setError('Please provide online meeting link');
+                showErrorToast('Please provide online meeting link');
                 return;
             }
             if (interviewType === "offline" && !venue) {
-                setError('Please provide venue details');
+                showErrorToast('Please provide venue details');
                 return;
             }
         }
@@ -1713,7 +1615,8 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
                     }
                 } catch (applyError) {
                     console.error('Error applying candidate:', applyError);
-                    throw new Error(`Failed to apply candidate: ${applyError.response?.data?.message || applyError.message}`);
+                    showErrorToast(`Failed to apply candidate: ${applyError.response?.data?.message || applyError.message}`);
+                    return;
                 }
             }
 
@@ -1779,6 +1682,8 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
                 // Send automatic status update message with interview details if applicable
                 await sendStatusUpdateMessage(selectedStatus);
 
+                showSuccessToast('Status updated successfully!');
+
                 // Reset form
                 setShowStatusModal(false);
                 setSelectedStatus('');
@@ -1793,77 +1698,76 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
             }
         } catch (error) {
             console.error('Error in handleUpdateStatus:', error);
-            setError(error.message || 'Failed to update status. Please try again.');
+            showErrorToast(error.message || 'Failed to update status. Please try again.');
         }
     };
 
+    const sendStatusUpdateMessage = async (status) => {
+        let statusMessage = `[Status Update] Job: ${selectedJobTitle}\n`;
 
-const sendStatusUpdateMessage = async (status) => {
-  let statusMessage = `[Status Update] Job: ${selectedJobTitle}\n`;
+        switch (status) {
+            case 'Selected':
+                statusMessage += 'Your application status has been updated to "Selected"';
+                break;
+            case 'Rejected':
+                statusMessage += 'Your application status has been updated to "Rejected"';
+                break;
+            case 'Hold':
+                statusMessage += 'Your application status has been updated to "Hold"';
+                break;
+            case 'Interview Scheduled':
+                // Format start and end times
+                const startTime = new Date(`${interviewDate}T${interviewTime}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const endTime = new Date(new Date(`${interviewDate}T${interviewTime}`).getTime() + 60 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  switch (status) {
-    case 'Selected':
-      statusMessage += 'Your application status has been updated to "Selected"';
-      break;
-    case 'Rejected':
-      statusMessage += 'Your application status has been updated to "Rejected"';
-      break;
-    case 'Hold':
-      statusMessage += 'Your application status has been updated to "Hold"';
-      break;
-    case 'Interview Scheduled':
-      // Format start and end times
-      const startTime = new Date(`${interviewDate}T${interviewTime}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const endTime = new Date(new Date(`${interviewDate}T${interviewTime}`).getTime() + 60 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
-      statusMessage += `Interview Scheduled Details:\n`;
-      statusMessage += `Title: Interview for ${candidate.firstName || candidate.name}\n`;
-      statusMessage += `Date: ${new Date(interviewDate).toLocaleDateString()}\n`;
-      statusMessage += `Start Time: ${startTime}\n`;
-      statusMessage += `End Time: ${endTime}\n`;
-      statusMessage += `Type: ${interviewType === 'online' ? 'Online' : 'In-Person'}\n`;
-      statusMessage += `Location: ${interviewType === 'online' ? onlineLink : venue}\n`;
-      statusMessage += `Description: ${statusNotes || 'No additional notes provided'}`;
-      break;
-    default:
-      statusMessage += `Your application status has been updated to "${status}"`;
-  }
+                statusMessage += `Interview Scheduled Details:\n`;
+                statusMessage += `Title: Interview for ${candidate.firstName || candidate.name}\n`;
+                statusMessage += `Date: ${new Date(interviewDate).toLocaleDateString()}\n`;
+                statusMessage += `Start Time: ${startTime}\n`;
+                statusMessage += `End Time: ${endTime}\n`;
+                statusMessage += `Type: ${interviewType === 'online' ? 'Online' : 'In-Person'}\n`;
+                statusMessage += `Location: ${interviewType === 'online' ? onlineLink : venue}\n`;
+                statusMessage += `Description: ${statusNotes || 'No additional notes provided'}`;
+                break;
+            default:
+                statusMessage += `Your application status has been updated to "${status}"`;
+        }
 
-  try {
-    const token = localStorage.getItem('employerToken');
-    const formData = new FormData();
-    formData.append('employeeId', candidate.applicantId);
-    formData.append('employerId', employerData._id);
-    formData.append('jobId', candidate.jobId || 'general');
-    formData.append('message', statusMessage);
-    formData.append('sender', 'employer');
-    formData.append('employerName', employerData.companyName);
-    formData.append('employerImage', employerData.profilePicture);
-    formData.append('employeeName', candidate.firstName || candidate.name);
-    formData.append('employeeImage', candidate.avatar);
+        try {
+            const token = localStorage.getItem('employerToken');
+            const formData = new FormData();
+            formData.append('employeeId', candidate.applicantId);
+            formData.append('employerId', employerData._id);
+            formData.append('jobId', candidate.jobId || 'general');
+            formData.append('message', statusMessage);
+            formData.append('sender', 'employer');
+            formData.append('employerName', employerData.companyName);
+            formData.append('employerImage', employerData.profilePicture);
+            formData.append('employeeName', candidate.firstName || candidate.name);
+            formData.append('employeeImage', candidate.avatar);
 
-    const newMsg = {
-      id: Date.now(),
-      sender: 'You',
-      avatar: employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      content: statusMessage,
-      isMe: true
+            const newMsg = {
+                id: Date.now(),
+                sender: 'You',
+                avatar: employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                content: statusMessage,
+                isMe: true
+            };
+
+            setMessages(prev => [...prev, newMsg]);
+
+            await axios.post('https://edujobzbackend.onrender.com/employer/sendchats', formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+        } catch (error) {
+            console.error('Error sending status update message:', error);
+        }
     };
 
-    setMessages(prev => [...prev, newMsg]);
-
-    await axios.post('https://edujobzbackend.onrender.com/employer/sendchats', formData, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-  } catch (error) {
-    console.error('Error sending status update message:', error);
-  }
-};
-    
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -2038,20 +1942,32 @@ const sendStatusUpdateMessage = async (status) => {
         );
     }
 
-    if (error) {
-        return (
-            <div className="chat-sidebar open" style={sidebarStyles}>
-                <div className="d-flex justify-content-center align-items-center h-100">
-                    <div className="alert alert-danger">{error}</div>
-                </div>
-            </div>
-        );
-    }
+    // if (error) {
+    //     return (
+    //         <div className="chat-sidebar open" style={sidebarStyles}>
+    //             <div className="d-flex justify-content-center align-items-center h-100">
+    //                 <div className="alert alert-danger">{error}</div>
+    //             </div>
+    //         </div>
+    //     );
+    // }
 
     return (
         <div className="chat-sidebar open" style={sidebarStyles}>
+
             {/* Status Update Modal */}
             <Modal show={showStatusModal} onHide={() => setShowStatusModal(false)}>
+                <ToastContainer
+                    position="top-right"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
                 <Modal.Header closeButton>
                     <Modal.Title>Update Candidate Status</Modal.Title>
                 </Modal.Header>
