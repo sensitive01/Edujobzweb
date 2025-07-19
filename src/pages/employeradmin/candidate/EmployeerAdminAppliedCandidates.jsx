@@ -301,14 +301,14 @@ const EmployeerAdminAppliedCandidates = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const employerData = JSON.parse(localStorage.getItem('employerData'));
-        if (!employerData) return;
+        const employerAdminData = JSON.parse(localStorage.getItem('employerAdminData'));
+        if (!employerAdminData) return;
 
         const response = await fetch(
-          `https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`,
+          `https://edujobzbackend.onrender.com/employer/fetchjob/${employerAdminData._id}`,
           {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('employerToken')}`
+              'Authorization': `Bearer ${localStorage.getItem('EmployerAdminToken')}`
             }
           }
         );
@@ -342,10 +342,10 @@ const EmployeerAdminAppliedCandidates = () => {
     const fetchCandidates = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('employerToken');
-        const employerData = JSON.parse(localStorage.getItem('employerData'));
+        const token = localStorage.getItem('EmployerAdminToken');
+        const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
 
-        if (!token || !employerData) {
+        if (!token || !employerAdminData._id) {
           navigate('/employer/login');
           return;
         }
@@ -383,7 +383,7 @@ const EmployeerAdminAppliedCandidates = () => {
 
   const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
     try {
-      const token = localStorage.getItem('employerToken');
+      const token = localStorage.getItem('EmployerAdminToken');
       if (!token) {
         navigate('/employer/login');
         return;
@@ -1272,8 +1272,8 @@ const EmployeerAdminAppliedCandidates = () => {
                                   className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
                                   onClick={(e) => {
                                     e.preventDefault();
-                                    const employerData = JSON.parse(localStorage.getItem('employerData'));
-                                    toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite || false);
+                                    const employerAdminData = JSON.parse(localStorage.getItem('employerAdminData'));
+                                    toggleFavoriteStatus(candidate._id, employerAdminData._id, candidate.favourite || false);
                                   }}
                                   style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
                                 >

@@ -295,16 +295,17 @@ const EmployerAdminCandidates = () => {
     const fetchCandidates = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('employerToken');
-        const employerData = JSON.parse(localStorage.getItem('employerData'));
+        const token = localStorage.getItem('EmployerAdminToken');
+        const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
 
-        if (!token || !employerData) {
+
+        if (!token || !employerAdminData._id) {
           navigate('/employer/login');
           return;
         }
 
         const response = await fetch(
-          `https://edujobzbackend.onrender.com/employer/viewallappliedcandi/${employerData._id}`,
+          `https://edujobzbackend.onrender.com/employer/viewallappliedcandi/${employerAdminData._id}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`
@@ -342,7 +343,7 @@ const EmployerAdminCandidates = () => {
         employid,
         currentStatus
       });
-      const token = localStorage.getItem('employerToken');
+      const token = localStorage.getItem('EmployerAdminToken');
       if (!token) {
         navigate('/employer/login');
         return;
@@ -860,8 +861,10 @@ const EmployerAdminCandidates = () => {
               </button>
               <ul
                 className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'export' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'export' ? 'block' : 'none',
-                  marginLeft: '-65px', }}
+                style={{
+                  display: activeDropdown === 'export' ? 'block' : 'none',
+                  marginLeft: '-65px',
+                }}
               >
                 {exportOptions.map((option) => (
                   <li key={option.label}>
@@ -1238,8 +1241,8 @@ const EmployerAdminCandidates = () => {
                                   className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
                                   onClick={(e) => {
                                     e.preventDefault();
-                                    const employerData = JSON.parse(localStorage.getItem('employerData'));
-                                    toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite);
+                                    const employerAdminData = JSON.parse(localStorage.getItem('employerAdminData'));
+                                    toggleFavoriteStatus(candidate._id, employerAdminData._id, candidate.favourite);
                                   }}
                                   style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
                                 >

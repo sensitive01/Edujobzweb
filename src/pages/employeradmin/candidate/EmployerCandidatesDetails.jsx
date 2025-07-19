@@ -32,7 +32,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
             setLoading(true);
             setError(null);
 
-            const token = localStorage.getItem('employerToken');
+            const token = localStorage.getItem('EmployerAdminToken');
             if (!token) {
                 throw new Error('Authentication required');
             }
@@ -67,7 +67,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
             setIsUpdating(true);
             setUpdateError(null);
 
-            const token = localStorage.getItem('employerToken');
+            const token = localStorage.getItem('EmployerAdminToken');
             if (!token) {
                 throw new Error('Authentication required');
             }
@@ -117,7 +117,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
             setUpdateError(null);
             setUpdateSuccess(false);
 
-            const token = localStorage.getItem('employerToken');
+            const token = localStorage.getItem('EmployerAdminToken');
             if (!token) {
                 throw new Error('Authentication required');
             }

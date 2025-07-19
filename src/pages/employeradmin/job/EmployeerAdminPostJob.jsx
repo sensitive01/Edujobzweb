@@ -1075,6 +1075,7 @@ const JobCard = ({ job, onStatusChange }) => {
       const newStatus = !isActive;
 
       const token = localStorage.getItem('EmployerAdminToken');
+
       if (!token) {
         throw new Error('Authentication required');
       }
@@ -1232,7 +1233,7 @@ const JobCard = ({ job, onStatusChange }) => {
             <b className="text-secondary">Date Posted:</b> {job.postedDate}
           </span>
           <div className="d-flex">
-            <Link to={`/employer/applied-candidates/${job.id}`} className="badge bg-warning fs-12 fw-medium me-2">
+            <Link to={`/employer-admin/applied-candidates/${job.id}`} className="badge bg-warning fs-12 fw-medium me-2">
               <Users className="me-1" style={{ width: '12px', height: '12px' }} /> Applied Candidates
             </Link>
             <Link to={`/employer-admin/view-job/${job.id}`} className="badge bg-secondary fs-12 fw-medium">
