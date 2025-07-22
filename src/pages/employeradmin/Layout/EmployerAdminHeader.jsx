@@ -103,7 +103,7 @@ const EmployerAdminHeader = () => {
     ];
 
     const jobsOptions = [
-        { name: 'Post Jobs', path: '/employer-admin/post-jobs' },
+        // { name: 'Post Jobs', path: '/employer-admin/post-jobs' },
         { name: 'List Jobs', path: '/employer-admin/post-jobs' },
         { name: 'Applied Candidates', path: '/employer-admin/applied-candidates ' },
         { name: 'Shortlisted Candidates', path: '/employer-admin/shortlisted-candidates' },

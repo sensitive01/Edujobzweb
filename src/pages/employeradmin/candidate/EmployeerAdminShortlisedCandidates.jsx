@@ -292,20 +292,20 @@ const EmployeerAdminShortlisedCandidates = () => {
     status: ''
   });
 
-  useEffect(() => {
+useEffect(() => {
     const fetchNonPendingCandidates = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('employerToken');
-        const employerData = JSON.parse(localStorage.getItem('employerData'));
+        const token = localStorage.getItem('EmployerAdminToken');
+        const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
 
-        if (!token || !employerData) {
+        if (!token || !employerAdminData._id) {
           navigate('/employer/login');
           return;
         }
 
         const response = await fetch(
-          `https://edujobzbackend.onrender.com/employer/fetchallnonpending/${employerData._id}`,
+          `https://edujobzbackend.onrender.com/employer/fetchallnonpending/${employerAdminData._id}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`
@@ -336,16 +336,18 @@ const EmployeerAdminShortlisedCandidates = () => {
   }, [filters, candidates, selectedSort, dateRange]);
 
 
-  const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
+  const toggleFavoriteStatus = async (applicationId, currentStatus) => {
     try {
-      const token = localStorage.getItem('employerToken');
-      if (!token) {
+      const token = localStorage.getItem('EmployerAdminToken');
+      const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+
+      if (!token || !employerAdminData._id) {
         navigate('/employer/login');
         return;
       }
 
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
+        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employerAdminData._id}`,
         {
           method: 'PUT',
           headers: {
@@ -364,14 +366,26 @@ const EmployeerAdminShortlisedCandidates = () => {
         throw new Error(data.message || 'Failed to update favorite status');
       }
 
-      // Update state
-      setCandidates(prev => prev.map(candidate =>
-        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
-      ));
+      // Update state only after successful API call
+      setCandidates(prev => prev.map(candidate => {
+        if (candidate._id === applicationId) {
+          return {
+            ...candidate,
+            favourite: !currentStatus
+          };
+        }
+        return candidate;
+      }));
 
-      setFilteredCandidates(prev => prev.map(candidate =>
-        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
-      ));
+      setFilteredCandidates(prev => prev.map(candidate => {
+        if (candidate._id === applicationId) {
+          return {
+            ...candidate,
+            favourite: !currentStatus
+          };
+        }
+        return candidate;
+      }));
 
     } catch (error) {
       console.error('Error updating favorite status:', error);
@@ -1265,8 +1279,7 @@ const EmployeerAdminShortlisedCandidates = () => {
                                   className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
                                   onClick={(e) => {
                                     e.preventDefault();
-                                    const employerData = JSON.parse(localStorage.getItem('employerData'));
-                                    toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite || false);
+                                    toggleFavoriteStatus(candidate._id, candidate.favourite);
                                   }}
                                   style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
                                 >

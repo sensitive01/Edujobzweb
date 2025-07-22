@@ -336,21 +336,18 @@ const EmployerAdminCandidates = () => {
   }, [filters, candidates, dateRange]);
 
 
-  const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
+  const toggleFavoriteStatus = async (applicationId, currentStatus) => {
     try {
-      console.log("Updating favorite status with:", {
-        applicationId,
-        employid,
-        currentStatus
-      });
       const token = localStorage.getItem('EmployerAdminToken');
-      if (!token) {
+      const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+
+      if (!token || !employerAdminData._id) {
         navigate('/employer/login');
         return;
       }
 
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
+        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employerAdminData._id}`,
         {
           method: 'PUT',
           headers: {
@@ -846,7 +843,7 @@ const EmployerAdminCandidates = () => {
               <button className="btn btn-icon btn-sm me-1">
                 <i className="ti ti-list-tree"></i>
               </button>
-              <button className="btn btn-icon btn-sm active bg-secondary text-white" onClick={() => navigate("/employer/new-candidate")} >
+              <button className="btn btn-icon btn-sm active bg-secondary text-white" onClick={() => navigate("/employer-admin/new-candidate")} >
                 <i className="ti ti-layout-grid"></i>
               </button>
             </div>
@@ -1241,8 +1238,7 @@ const EmployerAdminCandidates = () => {
                                   className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
                                   onClick={(e) => {
                                     e.preventDefault();
-                                    const employerAdminData = JSON.parse(localStorage.getItem('employerAdminData'));
-                                    toggleFavoriteStatus(candidate._id, employerAdminData._id, candidate.favourite);
+                                    toggleFavoriteStatus(candidate._id, candidate.favourite);
                                   }}
                                   style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
                                 >

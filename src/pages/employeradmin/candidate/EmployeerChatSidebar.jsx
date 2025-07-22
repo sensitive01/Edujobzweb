@@ -39,7 +39,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
     const audioRef = useRef(null);
     const chatBodyRef = useRef(null);
 
-    const employerAdminData = JSON.parse(localStorage.getItem('employerAdminData'));
+   const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
 
     useEffect(() => {
         const handleClickOutside = (event) => {
