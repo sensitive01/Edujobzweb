@@ -59,12 +59,12 @@ const EmployerAdminCalendarEvents = () => {
 
     const fetchEvents = async () => {
         try {
-            const employerData = JSON.parse(localStorage.getItem('employerData'));
-            if (!employerData || !employerData._id) {
+            const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+            if (!employerAdminData || !employerAdminData._id) {
                 throw new Error('Employer ID not found in localStorage');
             }
 
-            const response = await fetch(`${API_BASE_URL}/employer/geteveent?employerId=${employerData._id}`);
+            const response = await fetch(`${API_BASE_URL}/employer/geteveent?employerId=${employerAdminData._id}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch events');
             }
@@ -165,12 +165,12 @@ const EmployerAdminCalendarEvents = () => {
 
     const deleteEvent = async (eventId) => {
         try {
-            const employerData = JSON.parse(localStorage.getItem('employerData'));
-            if (!employerData || !employerData._id) {
+            const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+            if (!employerAdminData || !employerAdminData._id) {
                 throw new Error('Employer ID not found in localStorage');
             }
 
-            const response = await fetch(`${API_BASE_URL}/employer/deletecalendarevent/${eventId}?employerId=${employerData._id}`, {
+            const response = await fetch(`${API_BASE_URL}/employer/deletecalendarevent/${eventId}?employerId=${employerAdminData._id}`, {
                 method: 'DELETE'
             });
 
@@ -266,8 +266,8 @@ const EmployerAdminCalendarEvents = () => {
         setErrorMessage('');
 
         try {
-            const employerData = JSON.parse(localStorage.getItem('employerData'));
-            if (!employerData || !employerData._id) {
+            const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+            if (!employerAdminData || !employerAdminData._id) {
                 throw new Error('Employer ID not found in localStorage');
             }
 
@@ -282,7 +282,7 @@ const EmployerAdminCalendarEvents = () => {
             }
 
             const eventData = {
-                employerId: employerData._id,
+                 employerId: employerAdminData._id,
                 title: newEvent.title,
                 description: newEvent.description,
                 location: newEvent.location,
@@ -368,8 +368,8 @@ const EmployerAdminCalendarEvents = () => {
         setErrorMessage('');
 
         try {
-            const employerData = JSON.parse(localStorage.getItem('employerData'));
-            if (!employerData || !employerData._id) {
+            const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+            if (!employerAdminData || !employerAdminData._id) {
                 throw new Error('Employer ID not found in localStorage');
             }
 
@@ -384,7 +384,7 @@ const EmployerAdminCalendarEvents = () => {
             }
 
             const eventData = {
-                employerId: employerData._id,
+                employerId: employerAdminData._id,
                 title: editEvent.title,
                 description: editEvent.description,
                 location: editEvent.location,
@@ -450,8 +450,8 @@ const EmployerAdminCalendarEvents = () => {
         setErrorMessage('');
 
         try {
-            const employerData = JSON.parse(localStorage.getItem('employerData'));
-            if (!employerData || !employerData._id) {
+            const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+            if (!employerAdminData || !employerAdminData._id) {
                 throw new Error('Employer ID not found in localStorage');
             }
 

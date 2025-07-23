@@ -158,7 +158,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
                 params: {
                     employeeId: candidate.applicantId,
                     employerId: employerAdminData._id,
-                    jobId: candidate.jobId || 'general' // Use 'general' if no jobId
+                    jobId: candidate.jobId || 'general' 
                 },
                 headers: {
                     'Authorization': `Bearer ${token}`
