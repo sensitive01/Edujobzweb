@@ -101,7 +101,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
         try {
             const token = localStorage.getItem('EmployerAdminToken');
             const response = await axios.get(
-                `https://edujobzbackend.onrender.com/employer/fetchemployer/${employerAdminData._id}`,
+                `https://edujobzbackend.onrender.com/employeradmin/fetchprofile/${employerAdminData._id}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`

@@ -237,7 +237,7 @@
 //                     </div>
 //                     <div className="d-flex align-items-center justify-content-between mb-2">
 //                       <span className="d-inline-flex align-items-center">
-//                         <CalendarCheckIcon className="me-2" /> EduJobz Subscription Date
+//                         <CalendarCheckIcon className="me-2" /> EdProfioSubscription Date
 //                       </span>
 //                       <p className="text-dark">1st Jan 2023</p>
 //                     </div>

@@ -383,7 +383,7 @@ const EmployeerAdminCandidatesSearch = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const employerAdminData = JSON.parse(localStorage.getItem('employerAdminData'));
+         const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
         if (!employerAdminData) return;
 
         const response = await fetch(
@@ -1207,7 +1207,7 @@ const EmployeerAdminCandidatesSearch = () => {
                                 <i className="ti ti-mail-bolt fs-16"></i>
                               </a>
                             )}
-                            <a
+                            {/* <a
                               href="#"
                               className="btn btn-light text-info btn-icon text-info btn-sm me-1"
                               onClick={(e) => {
@@ -1224,7 +1224,27 @@ const EmployeerAdminCandidatesSearch = () => {
                               }}
                             >
                               <i className="ti ti-brand-hipchat fs-16"></i>
-                            </a>
+                            </a> */}
+
+                            <a
+  href="#"
+  className="btn btn-light text-info btn-icon text-info btn-sm me-1"
+  onClick={(e) => {
+    e.preventDefault();
+    setSelectedCandidateForChat({
+      applicantId: candidate._id, // Use candidate._id as applicantId
+      firstName: candidate.userName,
+      avatar: candidate.userProfilePic,
+      email: candidate.userEmail,
+      phone: candidate.userMobile,
+      experience: candidate.totalExperience,
+      skills: candidate.skills
+    });
+    setShowChatSidebar(true);
+  }}
+>
+  <i className="ti ti-brand-hipchat fs-16"></i>
+</a>
 
                             <a
                               href="#"
