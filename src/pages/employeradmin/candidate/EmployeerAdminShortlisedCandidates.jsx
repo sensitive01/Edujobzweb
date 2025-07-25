@@ -841,9 +841,9 @@ useEffect(() => {
             {/* View Toggle */}
             <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
               <button className="btn btn-icon btn-sm me-1">
-                <i className="ti ti-list-tree"></i>
+                <i className="ti ti-list-tree" onClick={() => navigate("/employer-admin/candidate-list")}></i>
               </button>
-              <button className="btn btn-icon btn-sm active bg-secondary text-white" onClick={() => navigate("/employer/new-candidate")}>
+              <button className="btn btn-icon btn-sm active bg-secondary text-white" onClick={() => navigate("/employer-admin/new-candidate")}>
                 <i className="ti ti-layout-grid"></i>
               </button>
             </div>

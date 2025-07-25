@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     ChevronDown,
     ChevronsUp,
@@ -13,9 +13,19 @@ import {
     FileOutput,
     CreditCard,
     Search,
+    CheckCircle,
+    AlertCircle,
+    ArrowLeft,
+    MapPin,
+    MessageCircleCode,
+    Edit,
+    User,
+    X
 } from 'lucide-react';
 import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
 import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
+import { getAllEvents, getEventDetails } from '../../../api/services/projectServices';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const EmployerAdminEnrollment = () => {
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -24,184 +34,277 @@ const EmployerAdminEnrollment = () => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [toast, setToast] = useState({ show: false, message: '', type: '' });
+    const [organizerFilter, setOrganizerFilter] = useState('All');
+    const [statusFilter, setStatusFilter] = useState('All');
+    const [fromDate, setFromDate] = useState('');
+    const [toDate, setToDate] = useState('');
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [formData, setFormData] = useState({
+        title: '',
+        category: '',
+        description: '',
+        eventDate: '',
+        startTime: '',
+        endTime: '',
+        venue: '',
+        priority: 'High',
+        status: 'Open',
+        coordinator: '',
+        bannerImage: ''
+    });
+    const { eventId } = useParams();
+    const navigate = useNavigate();
 
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const response = await getAllEvents();
+                const processedEvents = response.map(event => {
+                    const eventDate = new Date(event.eventDate);
+                    const today = new Date();
+                    let status = 'Upcoming';
 
-    // Complete subscribers data
-    const subscribersData = [
-        {
-            id: 1,
-            company: "BrightWave Innovations",
-            image: "company-01.svg",
-            plan: "Advanced (Monthly)",
-            billingCycle: "30 Days",
-            paymentMethod: "Credit Card",
-            amount: "$200",
-            createdDate: "12 Sep 2024",
-            expiringOn: "11 Oct 2024",
-            status: "Paid",
-            statusClass: "success"
-        },
-        {
-            id: 2,
-            company: "Stellar Dynamics",
-            image: "company-02.svg",
-            plan: "Basic (Yearly)",
-            billingCycle: "365 Days",
-            paymentMethod: "Paypal",
-            amount: "$600",
-            createdDate: "24 Oct 2024",
-            expiringOn: "23 Oct 2025",
-            status: "Paid",
-            statusClass: "success"
-        },
-        {
-            id: 3,
-            company: "Quantum Nexus",
-            image: "company-03.svg",
-            plan: "Advanced (Monthly)",
-            billingCycle: "30 Days",
-            paymentMethod: "Debit Card",
-            amount: "$200",
-            createdDate: "18 Feb 2024",
-            expiringOn: "17 Mar 2024",
-            status: "Paid",
-            statusClass: "success"
-        },
-        {
-            id: 4,
-            company: "EcoVision Enterprises",
-            image: "company-04.svg",
-            plan: "Advanced (Monthly)",
-            billingCycle: "30 Days",
-            paymentMethod: "Paypal",
-            amount: "$200",
-            createdDate: "17 Oct 2024",
-            expiringOn: "16 Nov 2024",
-            status: "Paid",
-            statusClass: "success"
-        },
-        {
-            id: 5,
-            company: "Aurora Technologies",
-            image: "company-05.svg",
-            plan: "Enterprise (Monthly)",
-            billingCycle: "30 Days",
-            paymentMethod: "Credit Card",
-            amount: "$400",
-            createdDate: "20 Jul 2024",
-            expiringOn: "19 Aug 2024",
-            status: "Paid",
-            statusClass: "success"
-        },
-        {
-            id: 6,
-            company: "BlueSky Ventures",
-            image: "company-06.svg",
-            plan: "Advanced (Monthly)",
-            billingCycle: "30 Days",
-            paymentMethod: "Paypal",
-            amount: "$200",
-            createdDate: "10 Apr 2024",
-            expiringOn: "19 Aug 2024",
-            status: "Paid",
-            statusClass: "success"
-        },
-        {
-            id: 7,
-            company: "TerraFusion Energy",
-            image: "company-07.svg",
-            plan: "Enterprise (Yearly)",
-            billingCycle: "365 Days",
-            paymentMethod: "Credit Card",
-            amount: "$4800",
-            createdDate: "29 Aug 2024",
-            expiringOn: "28 Aug 2025",
-            status: "Paid",
-            statusClass: "success"
-        },
-        {
-            id: 8,
-            company: "UrbanPulse Design",
-            image: "company-08.svg",
-            plan: "Basic (Monthly)",
-            billingCycle: "30 Days",
-            paymentMethod: "Credit Card",
-            amount: "$50",
-            createdDate: "22 Feb 2024",
-            expiringOn: "21 Mar 2024",
-            status: "Unpaid",
-            statusClass: "danger"
-        },
-        {
-            id: 9,
-            company: "Nimbus Networks",
-            image: "company-09.svg",
-            plan: "Basic (Yearly)",
-            billingCycle: "365 Days",
-            paymentMethod: "Paypal",
-            amount: "$600",
-            createdDate: "03 Nov 2024",
-            expiringOn: "02 Nov 2025",
-            status: "Paid",
-            statusClass: "success"
-        },
-        {
-            id: 10,
-            company: "Epicurean Delights",
-            image: "company-10.svg",
-            plan: "Advanced (Monthly)",
-            billingCycle: "30 Days",
-            paymentMethod: "Credit Card",
-            amount: "$200",
-            createdDate: "17 Dec 2024",
-            expiringOn: "16 Jan 2024",
-            status: "Paid",
-            statusClass: "success"
+                    if (eventDate < today) {
+                        status = 'Completed';
+                    } else if (eventDate.toDateString() === today.toDateString()) {
+                        status = 'Current';
+                    }
+
+                    if (event._id === "68564338f6e1e50b7331fa57") {
+                        status = 'On-hold';
+                    } else if (event._id === "6856433af6e1e50b7331fa59") {
+                        status = 'Cancelled';
+                    }
+
+                    return {
+                        ...event,
+                        status,
+                        type: event.category || 'Workshop'
+                    };
+                });
+                setEvents(processedEvents);
+                setLoading(false);
+            } catch (err) {
+                setError(err.message);
+                setLoading(false);
+            }
+        };
+
+        fetchEvents();
+    }, []);
+
+    useEffect(() => {
+        if (toast.show) {
+            const timer = setTimeout(() => {
+                setToast({ show: false, message: '', type: '' });
+            }, 3000);
+
+            return () => clearTimeout(timer);
         }
-    ];
+    }, [toast.show]);
 
-    // Complete stats data
-    const statsData = [
-        {
-            title: "Total Transaction",
-            value: "$5,340",
-            lineClass: "subscription-line-1",
-            trend: "+19.01%"
-        },
-        {
-            title: "Total Subscribers",
-            value: "600",
-            lineClass: "subscription-line-2",
-            trend: "+19.01%"
-        },
-        {
-            title: "Active Subscribers",
-            value: "560",
-            lineClass: "subscription-line-3",
-            trend: "+19.01%"
-        },
-        {
-            title: "Expired Subscribers",
-            value: "40",
-            lineClass: "subscription-line-4",
-            trend: "+19.01%"
-        }
-    ];
+    const filteredData = events.filter(event => {
+        const matchesSearch =
+            (event.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+            (event.venue?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+
+        const matchesOrganizer = organizerFilter === 'All' ||
+            (event.organizerId === "665fd983d7e1f2a70b89e5e7" ? 'Edujobz' : 'Other') === organizerFilter;
+
+        const matchesStatus = statusFilter === 'All' || event.status === statusFilter;
+
+        const eventDate = new Date(event.eventDate);
+        const matchesDate = (!fromDate || eventDate >= new Date(fromDate)) &&
+            (!toDate || eventDate <= new Date(toDate));
+
+        return matchesSearch && matchesOrganizer && matchesStatus && matchesDate;
+    });
 
     const handleSelectAll = (e) => {
         setSelectAll(e.target.checked);
     };
-    const filteredData = subscribersData.filter(subscriber =>
-        subscriber.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        subscriber.plan.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        subscriber.paymentMethod.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        subscriber.status.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+
+    const handleDeleteClick = (eventId) => {
+        setSelectedEvent(events.find(event => event._id === eventId));
+        setShowDeleteModal(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!selectedEvent) return;
+
+        try {
+            const response = await fetch(`https://edujobzbackend.onrender.com/employer/removeevents/${selectedEvent._id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete event');
+            }
+
+            setEvents(events.filter(event => event._id !== selectedEvent._id));
+            setShowDeleteModal(false);
+            setSelectedEvent(null);
+            setToast({ show: true, message: 'Event deleted successfully', type: 'success' });
+        } catch (err) {
+            setToast({ show: true, message: err.message, type: 'error' });
+            setError(err.message);
+        }
+    };
+
+    const exportToExcel = () => {
+        const headers = ['Title', 'Type', 'Date', 'Venue', 'Status', 'Registrations'];
+        const data = filteredData.map(event => [
+            event.title,
+            event.type,
+            new Date(event.eventDate).toLocaleDateString(),
+            event.venue,
+            event.status,
+            event.registrations?.length || 0
+        ]);
+
+        let csvContent = "data:text/csv;charset=utf-8," +
+            headers.join(",") + "\n" +
+            data.map(row => row.join(",")).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "events.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const exportToPDF = () => {
+        const printContent = `
+            <h2>Events Report</h2>
+            <table border="1" style="width:100%;border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Venue</th>
+                        <th>Status</th>
+                        <th>Registrations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${filteredData.map(event => `
+                        <tr>
+                            <td>${event.title}</td>
+                            <td>${event.type}</td>
+                            <td>${new Date(event.eventDate).toLocaleDateString()}</td>
+                            <td>${event.venue}</td>
+                            <td>${event.status}</td>
+                            <td>${event.registrations?.length || 0}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Events Report</title>
+                    <style>
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                        @media print {
+                            @page { size: landscape; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent}
+                    <script>
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                                window.close();
+                            }, 100);
+                        }
+                    </script>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+    };
+
+    const formatDate = (date) => {
+        if (!date) return '';
+        const d = new Date(date);
+        const day = d.getDate().toString().padStart(2, '0');
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
+
+const handleViewEvent = async (eventId) => {
+    try {
+        const eventData = await getEventDetails(eventId);
+        setSelectedEvent(eventData);
+        setShowInvoiceModal(true);
+    } catch (err) {
+        setToast({ show: true, message: err.message, type: 'error' });
+    }
+};
+
+    // const handleInputChange = (e) => {
+    //     const { name, value } = e.target;
+    //     setFormData(prev => ({
+    //         ...prev,
+    //         [name]: value
+    //     }));
+    // };
+
+   
 
     const totalPages = Math.ceil(filteredData.length / rowsPerPage);
     const startEntry = (currentPage - 1) * rowsPerPage + 1;
     const endEntry = Math.min(currentPage * rowsPerPage, filteredData.length);
     const currentData = filteredData.slice(startEntry - 1, endEntry);
+
+    // Stats data based on events
+    const statsData = [
+        {
+            title: "Total Events",
+            value: events.length,
+            lineClass: "subscription-line-1",
+            trend: "+19.01%"
+        },
+        {
+            title: "Current Events",
+            value: events.filter(e => e.status === 'Current').length,
+            lineClass: "subscription-line-2",
+            trend: "+19.01%"
+        },
+        {
+            title: "Upcoming Events",
+            value: events.filter(e => e.status === 'Upcoming').length,
+            lineClass: "subscription-line-3",
+            trend: "+19.01%"
+        },
+        {
+            title: "Completed Events",
+            value: events.filter(e => e.status === 'Completed').length,
+            lineClass: "subscription-line-4",
+            trend: "+19.01%"
+        }
+    ];
+
+    if (loading) return <div>Loading events...</div>;
+    if (error) return <div>Error: {error}</div>;
+
     return (
         <>
             <EmployerAdminHeader />
@@ -209,57 +312,63 @@ const EmployerAdminEnrollment = () => {
                 {/* Breadcrumb Section */}
                 <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
                     <div className="my-auto">
-                        <h2>Subscribers</h2>
+                        <h2>Events Management</h2>
                     </div>
                     <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
                         {/* Date Range Picker */}
                         <div className="me-2">
                             <div className="input-icon-end position-relative">
                                 <input
-                                    type="text"
-                                    className="form-control date-range bookingrange"
-                                    placeholder="dd/mm/yyyy - dd/mm/yyyy"
+                                    type="date"
+                                    className="form-control"
+                                    placeholder="From Date"
+                                    value={fromDate}
+                                    onChange={(e) => setFromDate(e.target.value)}
                                 />
                                 <span className="input-icon-addon">
-                                    <ChevronDown size={16} />
+                                    <Calendar size={16} />
+                                </span>
+                            </div>
+                        </div>
+                        <div className="me-2">
+                            <div className="input-icon-end position-relative">
+                                <input
+                                    type="date"
+                                    className="form-control"
+                                    placeholder="To Date"
+                                    value={toDate}
+                                    onChange={(e) => setToDate(e.target.value)}
+                                />
+                                <span className="input-icon-addon">
+                                    <Calendar size={16} />
                                 </span>
                             </div>
                         </div>
 
-                        {/* Plan Filter Dropdown */}
+                        {/* Organizer Filter Dropdown */}
                         <div className="dropdown me-2">
                             <button className="dropdown-toggle btn btn-white d-inline-flex align-items-center">
-                                Select Plan <ChevronDown size={16} className="ms-1" />
+                                {organizerFilter === 'All' ? 'Organizer' : organizerFilter} <ChevronDown size={16} className="ms-1" />
                             </button>
                             <ul className="dropdown-menu dropdown-menu-end p-3">
-                                <li><button className="dropdown-item rounded-1">Advanced (Monthly)</button></li>
-                                <li><button className="dropdown-item rounded-1">Basic (Yearly)</button></li>
-                                <li><button className="dropdown-item rounded-1">Enterprise (Monthly)</button></li>
+                                <li><button className="dropdown-item rounded-1" onClick={() => setOrganizerFilter('All')}>All</button></li>
+                                <li><button className="dropdown-item rounded-1" onClick={() => setOrganizerFilter('Edujobz')}>Edujobz</button></li>
+                                <li><button className="dropdown-item rounded-1" onClick={() => setOrganizerFilter('Other')}>Other</button></li>
                             </ul>
                         </div>
 
                         {/* Status Filter Dropdown */}
                         <div className="dropdown me-2">
                             <button className="dropdown-toggle btn btn-white d-inline-flex align-items-center">
-                                Select Status <ChevronDown size={16} className="ms-1" />
+                                {statusFilter === 'All' ? 'Status' : statusFilter} <ChevronDown size={16} className="ms-1" />
                             </button>
                             <ul className="dropdown-menu dropdown-menu-end p-3">
-                                <li><button className="dropdown-item rounded-1">Paid</button></li>
-                                <li><button className="dropdown-item rounded-1">Unpaid</button></li>
-                            </ul>
-                        </div>
-
-                        {/* Sort Dropdown */}
-                        <div className="dropdown me-2">
-                            <button className="dropdown-toggle btn btn-white d-inline-flex align-items-center">
-                                Sort By : Last 7 Days <ChevronDown size={16} className="ms-1" />
-                            </button>
-                            <ul className="dropdown-menu dropdown-menu-end p-3">
-                                <li><button className="dropdown-item rounded-1">Recently Added</button></li>
-                                <li><button className="dropdown-item rounded-1">Ascending</button></li>
-                                <li><button className="dropdown-item rounded-1">Descending</button></li>
-                                <li><button className="dropdown-item rounded-1">Last Month</button></li>
-                                <li><button className="dropdown-item rounded-1">Last 7 Days</button></li>
+                                <li><button className="dropdown-item rounded-1" onClick={() => setStatusFilter('All')}>All</button></li>
+                                <li><button className="dropdown-item rounded-1" onClick={() => setStatusFilter('Current')}>Current</button></li>
+                                <li><button className="dropdown-item rounded-1" onClick={() => setStatusFilter('Upcoming')}>Upcoming</button></li>
+                                <li><button className="dropdown-item rounded-1" onClick={() => setStatusFilter('Completed')}>Completed</button></li>
+                                <li><button className="dropdown-item rounded-1" onClick={() => setStatusFilter('On-hold')}>On-hold</button></li>
+                                <li><button className="dropdown-item rounded-1" onClick={() => setStatusFilter('Cancelled')}>Cancelled</button></li>
                             </ul>
                         </div>
 
@@ -270,12 +379,12 @@ const EmployerAdminEnrollment = () => {
                             </button>
                             <ul className="dropdown-menu dropdown-menu-end p-3">
                                 <li>
-                                    <button className="dropdown-item rounded-1">
+                                    <button className="dropdown-item rounded-1" onClick={exportToPDF}>
                                         <FileType2 size={16} className="me-1" /> Export as PDF
                                     </button>
                                 </li>
                                 <li>
-                                    <button className="dropdown-item rounded-1">
+                                    <button className="dropdown-item rounded-1" onClick={exportToExcel}>
                                         <FileSpreadsheet size={16} className="me-1" /> Export as Excel
                                     </button>
                                 </li>
@@ -326,6 +435,8 @@ const EmployerAdminEnrollment = () => {
                         </div>
                     ))}
                 </div>
+
+                {/* Search and Pagination Controls */}
                 <div className="row mb-3">
                     <div className="col-sm-12 col-md-6">
                         <div className="dataTables_length d-flex align-items-center">
@@ -335,7 +446,7 @@ const EmployerAdminEnrollment = () => {
                                 value={rowsPerPage}
                                 onChange={(e) => {
                                     setRowsPerPage(Number(e.target.value));
-                                    setCurrentPage(1); // Reset to first page when changing rows per page
+                                    setCurrentPage(1);
                                 }}
                                 style={{ padding: '0.25rem 1.5rem 0.25rem 0.5rem' }}
                             >
@@ -357,7 +468,7 @@ const EmployerAdminEnrollment = () => {
                                     value={searchTerm}
                                     onChange={(e) => {
                                         setSearchTerm(e.target.value);
-                                        setCurrentPage(1); // Reset to first page when searching
+                                        setCurrentPage(1);
                                     }}
                                     style={{ padding: '0.375rem 0.75rem' }}
                                 />
@@ -369,7 +480,7 @@ const EmployerAdminEnrollment = () => {
                     </div>
                 </div>
 
-                {/* Subscribers Table Section */}
+                {/* Events Table Section */}
                 <div className="card">
                     <div className="card-body p-0">
                         <div className="custom-datatable-filter table-responsive">
@@ -387,20 +498,19 @@ const EmployerAdminEnrollment = () => {
                                                 />
                                             </div>
                                         </th>
-                                        <th>Subscriber</th>
-                                        <th>Plan</th>
-                                        <th>Billing Cycle</th>
-                                        <th>Payment Method</th>
-                                        <th>Amount</th>
-                                        <th>Created Date</th>
-                                        <th>Expiring On</th>
+                                        <th>Event Title</th>
+                                        <th>Type</th>
+                                        <th>Date</th>
+                                        <th>Venue</th>
+                                        <th>Organizer</th>
+                                        <th>Registrations</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {currentData.map((subscriber) => (
-                                        <tr key={subscriber.id}>
+                                    {currentData.map((event) => (
+                                        <tr key={event._id}>
                                             <td>
                                                 <div className="form-check form-check-md">
                                                     <input
@@ -415,34 +525,37 @@ const EmployerAdminEnrollment = () => {
                                                 <div className="d-flex align-items-center file-name-icon">
                                                     <div className="avatar avatar-md border rounded-circle">
                                                         <img
-                                                            src={`assets/img/company/${subscriber.image}`}
+                                                            src={event.bannerImage || 'assets/img/default-event.png'}
                                                             className="img-fluid"
-                                                            alt={subscriber.company}
+                                                            alt={event.title}
                                                         />
                                                     </div>
                                                     <div className="ms-2">
-                                                        <h6 className="fw-medium">{subscriber.company}</h6>
+                                                        <h6 className="fw-medium">{event.title}</h6>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>{subscriber.plan}</td>
-                                            <td>{subscriber.billingCycle}</td>
-                                            <td>{subscriber.paymentMethod}</td>
-                                            <td>{subscriber.amount}</td>
-                                            <td>{subscriber.createdDate}</td>
-                                            <td>{subscriber.expiringOn}</td>
+                                            <td>{event.type}</td>
+                                            <td>{new Date(event.eventDate).toLocaleDateString()}</td>
+                                            <td>{event.venue}</td>
+                                            <td>{event.organizerId === "665fd983d7e1f2a70b89e5e7" ? 'Edujobz' : 'Other'}</td>
+                                            <td>{event.registrations?.length || 0}</td>
                                             <td>
-                                                <span className={`badge badge-${subscriber.statusClass} d-flex align-items-center badge-xs`}>
+                                                <span className={`badge badge-${event.status === 'Current' ? 'warning' : 
+                                                    event.status === 'Upcoming' ? 'info' : 
+                                                    event.status === 'Completed' ? 'success' : 
+                                                    event.status === 'On-hold' ? 'secondary' : 'danger'} 
+                                                    d-flex align-items-center badge-xs`}>
                                                     <Circle size={10} className="me-1" fill="currentColor" />
-                                                    {subscriber.status}
+                                                    {event.status}
                                                 </span>
                                             </td>
                                             <td>
                                                 <div className="action-icon d-inline-flex">
                                                     <button
                                                         className="me-2 btn btn-sm btn-icon"
-                                                        onClick={() => setShowInvoiceModal(true)}
-                                                        aria-label="View invoice"
+                                                        onClick={() => handleViewEvent(event._id)}
+                                                        aria-label="View details"
                                                     >
                                                         <FileText size={16} />
                                                     </button>
@@ -454,7 +567,7 @@ const EmployerAdminEnrollment = () => {
                                                     </button>
                                                     <button
                                                         className="btn btn-sm btn-icon text-danger"
-                                                        onClick={() => setShowDeleteModal(true)}
+                                                        onClick={() => handleDeleteClick(event._id)}
                                                         aria-label="Delete"
                                                     >
                                                         <Trash2 size={16} />
@@ -469,12 +582,13 @@ const EmployerAdminEnrollment = () => {
                     </div>
                 </div>
 
+                {/* Pagination Section */}
                 <div className="row mt-3">
                     <div className="col-sm-12 col-md-6">
                         <div className="dataTables_info">
                             Showing {startEntry} to {endEntry} of {filteredData.length} entries
-                            {searchTerm && filteredData.length !== subscribersData.length && (
-                                <span className="text-muted"> (filtered from {subscribersData.length} total entries)</span>
+                            {searchTerm && filteredData.length !== events.length && (
+                                <span className="text-muted"> (filtered from {events.length} total entries)</span>
                             )}
                         </div>
                     </div>
@@ -559,11 +673,20 @@ const EmployerAdminEnrollment = () => {
                     </div>
                 </div>
 
-                {/* View Invoice Modal */}
-                {showInvoiceModal && (
+                {/* View Event Details Modal */}
+                {showInvoiceModal && selectedEvent && (
                     <div className="modal fade show d-block" id="view_invoice">
                         <div className="modal-dialog modal-dialog-centered modal-lg">
                             <div className="modal-content">
+                                <div className="modal-header">
+                                    <button
+                                        type="button"
+                                        className="btn-close custom-btn-close"
+                                        onClick={() => setShowInvoiceModal(false)}
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
                                 <div className="modal-body p-5">
                                     <div className="row justify-content-between align-items-center mb-3">
                                         <div className="col-md-6">
@@ -573,15 +696,12 @@ const EmployerAdminEnrollment = () => {
                                         </div>
                                         <div className="col-md-6">
                                             <div className="text-end mb-3">
-                                                <h5 className="text-dark mb-1">Invoice</h5>
+                                                <h5 className="text-dark mb-1">Event Details</h5>
                                                 <p className="mb-1 fw-normal">
-                                                    <FileText size={14} className="me-1" />INV0287
+                                                    <FileText size={14} className="me-1" />EVENT-{selectedEvent._id.substring(0, 8).toUpperCase()}
                                                 </p>
                                                 <p className="mb-1 fw-normal">
-                                                    <Calendar size={14} className="me-1" />Issue date : 12 Sep 2024
-                                                </p>
-                                                <p className="fw-normal">
-                                                    <Calendar size={14} className="me-1" />Due date : 12 Oct 2024
+                                                    <Calendar size={14} className="me-1" />Created: {new Date(selectedEvent.createdAt).toLocaleDateString()}
                                                 </p>
                                             </div>
                                         </div>
@@ -589,19 +709,19 @@ const EmployerAdminEnrollment = () => {
 
                                     <div className="row mb-3 d-flex justify-content-between">
                                         <div className="col-md-7">
-                                            <p className="text-dark mb-2 fw-medium fs-16">Invoice From :</p>
+                                            <p className="text-dark mb-2 fw-medium fs-16">Organizer :</p>
                                             <div>
-                                                <p className="mb-1">SmartHR</p>
+                                                <p className="mb-1">Edujobz</p>
                                                 <p className="mb-1">367 Hillcrest Lane, Irvine, California, United States</p>
-                                                <p className="mb-1">contact@smarthr.com</p>
+                                                <p className="mb-1">contact@edujobz.com</p>
                                             </div>
                                         </div>
                                         <div className="col-md-5">
-                                            <p className="text-dark mb-2 fw-medium fs-16">Invoice To :</p>
+                                            <p className="text-dark mb-2 fw-medium fs-16">Event Details :</p>
                                             <div>
-                                                <p className="mb-1">BrightWave Innovations</p>
-                                                <p className="mb-1">367 Hillcrest Lane, Irvine, California, United States</p>
-                                                <p className="mb-1">contact@brightwave.com</p>
+                                                <p className="mb-1">Type: {selectedEvent.type}</p>
+                                                <p className="mb-1">Venue: {selectedEvent.venue}</p>
+                                                <p className="mb-1">Entry: Free</p>
                                             </div>
                                         </div>
                                     </div>
@@ -611,65 +731,36 @@ const EmployerAdminEnrollment = () => {
                                             <table className="table">
                                                 <thead className="thead-light">
                                                     <tr>
-                                                        <th>Plan</th>
-                                                        <th>Billing Cycle</th>
-                                                        <th>Created Date</th>
-                                                        <th>Expiring On</th>
-                                                        <th>Amount</th>
+                                                        <th>Title</th>
+                                                        <th>Description</th>
+                                                        <th>Date</th>
+                                                        <th>Status</th>
+                                                        <th>Registrations</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr>
-                                                        <td>Advanced (Monthly)</td>
-                                                        <td>30 Days</td>
-                                                        <td>12 Sep 2024</td>
-                                                        <td>12 Oct 2024</td>
-                                                        <td>$200</td>
+                                                        <td>{selectedEvent.title}</td>
+                                                        <td>{selectedEvent.description}</td>
+                                                        <td>{formatDate(new Date(selectedEvent.eventDate))}</td>
+                                                        <td>{selectedEvent.status}</td>
+                                                        <td>{selectedEvent.registrations?.length || 0}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
 
-                                    <div className="row mb-3 d-flex justify-content-between">
-                                        <div className="col-md-4">
-                                            <div>
-                                                <h6 className="mb-4">Payment info:</h6>
-                                                <p className="mb-0 d-flex align-items-center">
-                                                    <CreditCard size={16} className="me-2" /> Credit Card - 123***********789
-                                                </p>
-                                                <div className="d-flex justify-content-between align-items-center mb-2 pe-3 mt-3">
-                                                    <p className="mb-0">Amount</p>
-                                                    <p className="text-dark fw-medium mb-2">$200.00</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-4">
-                                            <div className="d-flex justify-content-between align-items-center pe-3 mb-2">
-                                                <p className="text-dark fw-medium mb-0">Sub Total</p>
-                                                <p className="mb-0">$200.00</p>
-                                            </div>
-                                            <div className="d-flex justify-content-between align-items-center pe-3 mb-2">
-                                                <p className="text-dark fw-medium mb-0">Tax</p>
-                                                <p className="mb-0">$0.00</p>
-                                            </div>
-                                            <div className="d-flex justify-content-between align-items-center pe-3">
-                                                <p className="text-dark fw-medium mb-0">Total</p>
-                                                <p className="text-dark fw-medium mb-0">$200.00</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                     <div className="card border mb-0">
                                         <div className="card-body">
-                                            <p className="text-dark fw-medium mb-2">Terms & Conditions:</p>
+                                            <p className="text-dark fw-medium mb-2">Event Description:</p>
                                             <p className="fs-12 fw-normal d-flex align-items-baseline mb-2">
                                                 <Circle size={8} className="text-primary me-2" fill="currentColor" />
-                                                All payments must be made according to the agreed schedule. Late payments may incur additional fees.
+                                                {selectedEvent.description}
                                             </p>
                                             <p className="fs-12 fw-normal d-flex align-items-baseline">
                                                 <Circle size={8} className="text-primary me-2" fill="currentColor" />
-                                                We are not liable for any indirect, incidental, or consequential damages, including loss of profits, revenue, or data.
+                                                Event Coordinator: {selectedEvent.coordinator}
                                             </p>
                                         </div>
                                     </div>
@@ -689,7 +780,7 @@ const EmployerAdminEnrollment = () => {
                 )}
 
                 {/* Delete Confirmation Modal */}
-                {showDeleteModal && (
+                {showDeleteModal && selectedEvent && (
                     <div className="modal fade show d-block" id="delete_modal">
                         <div className="modal-dialog modal-dialog-centered">
                             <div className="modal-content">
@@ -699,7 +790,7 @@ const EmployerAdminEnrollment = () => {
                                     </span>
                                     <h4 className="mb-1">Confirm Delete</h4>
                                     <p className="mb-3">
-                                        You want to delete all the marked items, this can't be undone once you delete.
+                                        Are you sure you want to delete the event "{selectedEvent.title}"? This action cannot be undone.
                                     </p>
                                     <div className="d-flex justify-content-center">
                                         <button
@@ -710,10 +801,7 @@ const EmployerAdminEnrollment = () => {
                                         </button>
                                         <button
                                             className="btn btn-danger"
-                                            onClick={() => {
-                                                setShowDeleteModal(false);
-                                                // Add your delete logic here
-                                            }}
+                                            onClick={handleConfirmDelete}
                                         >
                                             Yes, Delete
                                         </button>
@@ -724,8 +812,29 @@ const EmployerAdminEnrollment = () => {
                     </div>
                 )}
 
+                {/* Toast Notification */}
+                {toast.show && (
+                    <div
+                        className={`toast show position-fixed top-0 end-0 m-3 ${toast.type === 'success' ? 'bg-success' : 'bg-danger'}`}
+                        style={{
+                            zIndex: 9999,
+                            transition: 'opacity 0.5s ease-out',
+                            opacity: toast.show ? 1 : 0
+                        }}
+                    >
+                        <div className="toast-body text-white d-flex align-items-center">
+                            {toast.type === 'success' ? (
+                                <CheckCircle className="me-2" />
+                            ) : (
+                                <AlertCircle className="me-2" />
+                            )}
+                            {toast.message}
+                        </div>
+                    </div>
+                )}
+
                 {/* Modal Backdrop */}
-                {(showInvoiceModal || showDeleteModal) && (
+                {(showInvoiceModal || showDeleteModal ) && (
                     <div
                         className="modal-backdrop fade show"
                         onClick={() => {

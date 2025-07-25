@@ -228,7 +228,7 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
     if (!eventToDelete) return;
 
     try {
-      const response = await fetch(`https://edujobzbackend.onrender.com/employer/events/${eventToDelete}`, {
+      const response = await fetch(`https://edujobzbackend.onrender.com/employer/removeevents/${eventToDelete}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

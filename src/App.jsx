@@ -107,6 +107,9 @@ import Notification from './pages/employeradmin/notifications/Notifications';
 import CandidatesList from './pages/employer/CandidateList';
 import Dashboard from './pages/employer/dashboard/Dashboard';
 import EmployerAdminDashboard from './pages/employeradmin/dashboard/EmployerAdminDashboard';
+import EmployerAdminCandidateList from './pages/employeradmin/candidate/EmployerAdminCandidateList';
+import EmployerAdminEvents from './pages/employeradmin/events/EmployerAdminEvents';
+import EmployerAdminEventsDetails from './pages/employeradmin/events/EmployerAdminEventsDetails';
 
 function App() {
   return (
@@ -170,6 +173,7 @@ function App() {
 
 
           <Route path='/employer-admin/new-candidate' element={<EmployerAdminCandidates />} />
+          <Route path='/employer-admin/candidate-list' element={<EmployerAdminCandidateList />} />
           <Route path='/employer-admin/shortlisted-candidates' element={<EmployeerAdminShortlisedCandidates />} />
           <Route path='/employer-admin/applied-candidates' element={<EmployeerAdminAllAppliedCandidates />} />
           <Route path='/employer-admin/applied-candidates/:id' element={<EmployeerAdminAppliedCandidates />} />
@@ -184,6 +188,8 @@ function App() {
           <Route path='/employer-admin/plans-grid' element={<EmployeerAdminPlansGrid />} />
           <Route path='/employer-admin/calendar-events' element={<EmployerAdminCalendarEvents />} />
           <Route path='/employer-admin/enrollment' element={<EmployerAdminEnrollment />} />
+          <Route path='/employer-admin/events' element={<EmployerAdminEvents />} />
+          <Route path='/employer-admin/events-details/:eventId' element={<EmployerAdminEventsDetails />} />
           <Route path='/employer-admin/timetable' element={<TimeTable />} />
           <Route path='/employer-admin/FAQs' element={<EmployerAdminFAQs />} />
           <Route path='/employer-admin/support' element={<EmployerAdminSupportChatList />} />

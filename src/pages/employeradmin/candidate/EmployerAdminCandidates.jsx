@@ -840,7 +840,7 @@ const EmployerAdminCandidates = () => {
 
             {/* View Toggle */}
             <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
-              <button className="btn btn-icon btn-sm me-1">
+              <button className="btn btn-icon btn-sm me-1"  onClick={() => navigate("/employer-admin/candidate-list")}>
                 <i className="ti ti-list-tree"></i>
               </button>
               <button className="btn btn-icon btn-sm active bg-secondary text-white" onClick={() => navigate("/employer-admin/new-candidate")} >

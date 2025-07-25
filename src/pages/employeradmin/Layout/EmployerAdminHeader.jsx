@@ -290,7 +290,7 @@ const EmployerAdminHeader = () => {
                                     style={{ cursor: 'pointer' }}
                                 >
                                     <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                    <span className="text-dark">Events</span>
+                                    <span className="text-dark">Reminder</span>
                                     <ChevronDown className='ms-1' size={16} />
                                 </div>
 
@@ -316,7 +316,7 @@ const EmployerAdminHeader = () => {
                                             }}
                                             onClick={() => setEventsDropdown(false)}
                                         >
-                                            Events
+                                            reminder Events
                                         </Link>
                                         <Link
                                             to="/employer-admin/enrollment"
@@ -333,10 +333,14 @@ const EmployerAdminHeader = () => {
                                     </div>
                                 )}
                             </div>
-                            <Link to="/employer-admin/timetable" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                              <Link to="/employer-admin/events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                                <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                <span className="text-dark">events</span>
+                            </Link>
+                            {/* <Link to="/employer-admin/timetable" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                                 <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">TimeTable</span>
-                            </Link>
+                            </Link> */}
                             <Link to="/employer-admin/FAQs" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                                 <HelpCircle className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">FAQ</span>
