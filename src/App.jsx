@@ -110,6 +110,7 @@ import EmployerAdminDashboard from './pages/employeradmin/dashboard/EmployerAdmi
 import EmployerAdminCandidateList from './pages/employeradmin/candidate/EmployerAdminCandidateList';
 import EmployerAdminEvents from './pages/employeradmin/events/EmployerAdminEvents';
 import EmployerAdminEventsDetails from './pages/employeradmin/events/EmployerAdminEventsDetails';
+import EmployeerAdminJobList from './pages/employeradmin/job/EmployeerAdminJobList';
 
 function App() {
   return (
@@ -183,6 +184,7 @@ function App() {
 
           <Route path='/employer-admin/post-jobs' element={<EmployeerAdminPostJob />} />
           <Route path='/employer-admin/view-job/:id' element={<EmployerAdminobDetailsPage />} />
+          <Route path='/employer-admin/jobs' element={<EmployeerAdminJobList />} />
           <Route path='/employer-admin/messages' element={<EmployeerAdminMessage />} />
           <Route path='/employer-admin/plans' element={<EmployeerAdminPlans />} />
           <Route path='/employer-admin/plans-grid' element={<EmployeerAdminPlansGrid />} />

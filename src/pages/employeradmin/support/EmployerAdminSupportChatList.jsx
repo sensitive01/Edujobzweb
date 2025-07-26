@@ -5,7 +5,7 @@ import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
 
 const EmployerAdminSupportChatList = () => {
   const VITE_BASE_URL = 'https://edujobzbackend.onrender.com';
-  const [employerData, setEmployerData] = useState(null);
+  const [employerAdminData, setEmployerAdminData] = useState(null);
   const [employeeData, setEmployeeData] = useState(null);
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -24,24 +24,24 @@ const EmployerAdminSupportChatList = () => {
 
   // Get token from localStorage
   const getToken = () => {
-    return localStorage.getItem('token');
+    return localStorage.getItem('EmployerAdminToken');
   };
 
-  // Get employer data from localStorage on component mount
+  // Get employer admin data from localStorage on component mount
   useEffect(() => {
-    const storedEmployerData = localStorage.getItem('employerData');
-    if (storedEmployerData) {
-      const parsedData = JSON.parse(storedEmployerData);
-      setEmployerData(parsedData);
+    const storedEmployerAdminData = localStorage.getItem('EmployerAdminData');
+    if (storedEmployerAdminData) {
+      const parsedData = JSON.parse(storedEmployerAdminData);
+      setEmployerAdminData(parsedData);
       fetchChats(parsedData._id);
     }
   }, []);
 
-  // Fetch chats for the employer
-  const fetchChats = async (employerId) => {
+  // Fetch chats for the employer admin
+  const fetchChats = async (employerAdminId) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${VITE_BASE_URL}/employer/employer/${employerId}`, {
+      const response = await axios.get(`${VITE_BASE_URL}/employer/employer/${employerAdminId}`, {
         headers: {
           Authorization: `Bearer ${getToken()}`
         }
@@ -97,12 +97,12 @@ const EmployerAdminSupportChatList = () => {
   // Fetch messages for the selected chat
   const fetchMessages = async (employeeId, jobId) => {
     try {
-      if (!employerData) return;
+      if (!employerAdminData) return;
 
       const response = await axios.get(`${VITE_BASE_URL}/employer/view`, {
         params: {
           employeeId,
-          employerId: employerData._id,
+          employerId: employerAdminData._id,
           jobId
         },
         headers: {
@@ -126,17 +126,17 @@ const EmployerAdminSupportChatList = () => {
   // Send a new message
   const sendMessage = async () => {
     if (!newMessage.trim() && !file && !audioBlob) return;
-    if (!selectedChat || !employerData) return;
+    if (!selectedChat || !employerAdminData) return;
 
     try {
       const formData = new FormData();
       formData.append('employeeId', selectedChat.employeeId);
-      formData.append('employerId', employerData._id);
+      formData.append('employerId', employerAdminData._id);
       formData.append('jobId', selectedChat.jobId);
       formData.append('message', newMessage);
       formData.append('sender', 'employer');
-      formData.append('employerName', employerData.schoolName);
-      formData.append('employerImage', employerData.userProfilePic);
+      formData.append('employerName', employerAdminData.schoolName);
+      formData.append('employerImage', employerAdminData.userProfilePic);
 
       if (employeeData) {
         formData.append('employeeName', employeeData.userName);
@@ -165,7 +165,7 @@ const EmployerAdminSupportChatList = () => {
       // Refresh messages
       fetchMessages(selectedChat.employeeId, selectedChat.jobId);
       // Refresh chat list to update last message
-      fetchChats(employerData._id);
+      fetchChats(employerAdminData._id);
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -216,6 +216,7 @@ const EmployerAdminSupportChatList = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
   const formatMessageDate = (dateString) => {
     const messageDate = new Date(dateString);
     const today = new Date();
@@ -433,11 +434,6 @@ const EmployerAdminSupportChatList = () => {
 
                             return (
                               <React.Fragment key={index}>
-                                {/* {showDate && (
-                                <div className="chat-line">
-                                  <span className="chat-date">{messageDate}</span>
-                                </div>
-                              )} */}
                                 {showDate && (
                                   <div className="chat-line">
                                     <span className="chat-date">
@@ -540,7 +536,7 @@ const EmployerAdminSupportChatList = () => {
                                   {message.sender === 'employer' && (
                                     <div className="chat-avatar">
                                       <img
-                                        src={employerData?.userProfilePic || 'assets/img/profiles/avatar-14.jpg'}
+                                        src={employerAdminData?.userProfilePic || 'assets/img/profiles/avatar-14.jpg'}
                                         className="rounded-circle dreams_chat"
                                         alt="You"
                                         onError={(e) => {
