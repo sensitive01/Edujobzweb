@@ -102,62 +102,74 @@ const EmployeerJobList = () => {
             completed
         };
     };
+
     const fetchJobs = async () => {
         try {
             setLoading(true);
+            const employerData = JSON.parse(localStorage.getItem('employerData'));
             const token = localStorage.getItem('employerToken');
-            if (!token) {
-                throw new Error('Authentication required');
+
+            if (!employerData || !employerData._id) {
+                throw new Error('Employer not logged in or missing ID');
             }
 
-            const employerData = JSON.parse(localStorage.getItem('employerData'));
-            const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
+            const response = await axios.get(
+                `https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 }
+            );
+
+            const formattedJobs = response.data.map(job => {
+                // Make sure applications is an array before trying to use filter/length
+                const applications = Array.isArray(job.applications) ? job.applications : [];
+
+                return {
+                    id: job._id,
+                    title: job.jobTitle,
+                    employerProfilePic: job.employerProfilePic || 'default.svg',
+                    applicants: applications.length,
+                    shortlisted: applications.filter(app => app.employapplicantstatus === 'Shortlisted').length,
+                    location: job.location,
+                    salaryFrom: job.salaryFrom || 0,
+                    salaryTo: job.salaryTo || 0,
+                    salary: `${job.salaryFrom || 'N/A'} - ${job.salaryTo || 'N/A'} ${job.salaryType || ''}`,
+                    experience: job.experienceLevel || 'Not specified',
+                    type: job.jobType || 'Not specified',
+                    category: job.category || 'Not specified',
+                    postedDate: formatDate(job.createdAt),
+                    description: job.description || '',
+                    skills: job.skills || [],
+                    status: job.isActive ? 'Active' : 'Inactive',
+                    createdDate: new Date(job.createdAt),
+                    isRemote: job.isRemote || false,
+                    // Make sure to only include simple values that can be rendered
+                    addOns: job.addOns || 'None' // Added this line to prevent undefined in the table
+                };
             });
 
-            const formattedJobs = response.data.map(job => ({
-                id: job._id,
-                title: job.jobTitle,
-                experience: job.experienceLevel || 'Not specified',
-                location: job.location,
-                salary: `${job.salaryFrom || 'N/A'} - ${job.salaryTo || 'N/A'} ${job.salaryType || ''}`,
-                salaryFrom: job.salaryFrom,
-                salaryTo: job.salaryTo,
-                postedDate: formatDate(job.createdAt),
-                addOns: `${job.jobType || ''} / ${job.isRemote ? 'Remote' : 'On-site'}`,
-                applications: job.applications?.length || 0,
-                status: job.isActive ? 'Active' : 'Inactive',
-                createdDate: new Date(job.createdAt),
-                description: job.description,
-                skills: job.skills || [],
-                employerProfilePic: job.employerProfilePic || 'default.svg'
-            }));
-
             setJobs(formattedJobs);
-
-            // Calculate and set candidate statistics
-            const stats = calculateCandidateStats(formattedJobs);
-            setCandidateStats(stats);
-
-            // Calculate and set status distribution
-            const distribution = calculateStatusDistribution(formattedJobs);
-            setStatusDistribution(distribution);
-
+            setCandidateStats(calculateCandidateStats(formattedJobs));
+            setStatusDistribution(calculateStatusDistribution(formattedJobs));
             setLoading(false);
+            setError(null);
         } catch (err) {
             console.error('Error fetching jobs:', err);
             setError(err.message || 'Failed to load jobs');
             setLoading(false);
+            toast.error('Failed to load jobs');
         }
     };
+
+
     const formatDate = (dateString) => {
+        if (!dateString) return '';
         const options = { day: 'numeric', month: 'short', year: 'numeric' };
         return new Date(dateString).toLocaleDateString('en-US', options);
     };
 
-    // Toggle job status
     const toggleJobStatus = async (jobId, currentStatus) => {
         try {
             const token = localStorage.getItem('employerToken');
@@ -168,22 +180,22 @@ const EmployeerJobList = () => {
                 { isActive: newStatus },
                 {
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     }
                 }
             );
 
-            // Update local state
             setJobs(jobs.map(job =>
                 job.id === jobId ? { ...job, status: newStatus ? 'Active' : 'Inactive' } : job
             ));
+            toast.success(`Job status updated to ${newStatus ? 'Active' : 'Inactive'}`);
         } catch (err) {
             console.error('Error updating job status:', err);
-            alert('Failed to update job status');
+            toast.error('Failed to update job status');
         }
     };
 
-    // Post new job
     const postJob = async (jobData) => {
         try {
             const token = localStorage.getItem('employerToken');
@@ -197,7 +209,8 @@ const EmployeerJobList = () => {
                 },
                 {
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     }
                 }
             );
@@ -205,11 +218,12 @@ const EmployeerJobList = () => {
             if (response.data) {
                 setShowAddJobModal(false);
                 setShowSuccessModal(true);
-                fetchJobs(); // Refresh jobs list
+                fetchJobs();
+                toast.success('Job posted successfully!');
             }
         } catch (err) {
             console.error('Error posting job:', err);
-            alert('Failed to post job');
+            toast.error('Failed to post job');
         }
     };
 
@@ -256,7 +270,102 @@ const EmployeerJobList = () => {
         };
     }, []);
     ChartJS.register(ArcElement, Tooltip, Legend);
+    const exportToCSV = () => {
+        // CSV headers
+        const headers = [
+            'Job Title',
+            'Experience',
+            'Location',
+            'Salary Range',
+            'Posted Date',
+            'Add-Ons',
+            'Applications',
+            'Status'
+        ];
 
+        // CSV rows
+        const rows = jobs.map(job => [
+            `"${job.title}"`,
+            `"${job.experience}"`,
+            `"${job.location}"`,
+            `"${job.salary}"`,
+            `"${job.postedDate}"`,
+            `"${job.addOns}"`,
+            `"${job.applications}"`,
+            `"${job.status}"`
+        ]);
+
+        // Combine headers and rows
+        const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+
+        // Create download link
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'jobs_list.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    // Utility function to export as PDF (basic implementation)
+    const exportToPDF = () => {
+        // Create a simple HTML table
+        const html = `
+    <html>
+      <head>
+        <title>Jobs List</title>
+        <style>
+          table { border-collapse: collapse; width: 100%; }
+          th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+          th { background-color: #f2f2f2; }
+        </style>
+      </head>
+      <body>
+        <h1>Jobs List</h1>
+        <table>
+          <thead>
+            <tr>
+              <th>Job Title</th>
+              <th>Experience</th>
+              <th>Location</th>
+              <th>Salary Range</th>
+              <th>Posted Date</th>
+              <th>Add-Ons</th>
+              <th>Applications</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${jobs.map(job => `
+              <tr>
+                <td>${job.title}</td>
+                <td>${job.experience}</td>
+                <td>${job.location}</td>
+                <td>${job.salary}</td>
+                <td>${job.postedDate}</td>
+                <td>${job.addOns}</td>
+                <td>${job.applications}</td>
+                <td>${job.status}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </body>
+    </html>
+  `;
+
+        // Open a new window with the HTML and use browser's print to PDF
+        const win = window.open('', '_blank');
+        win.document.write(html);
+        win.document.close();
+        win.focus();
+        setTimeout(() => {
+            win.print();
+        }, 500);
+    };
     return (
         <>
             <EmployerHeader />
@@ -460,13 +569,25 @@ const EmployeerJobList = () => {
                             </button>
                             <ul className={`dropdown-menu dropdown-menu-end p-3 ${showExportDropdown ? 'show' : ''}`}>
                                 <li>
-                                    <button className="dropdown-item rounded-1">
+                                    <button
+                                        className="dropdown-item rounded-1"
+                                        onClick={() => {
+                                            exportToPDF();
+                                            setShowExportDropdown(false);
+                                        }}
+                                    >
                                         <i className="ti ti-file-type-pdf me-1"></i>
                                         Export as PDF
                                     </button>
                                 </li>
                                 <li>
-                                    <button className="dropdown-item rounded-1">
+                                    <button
+                                        className="dropdown-item rounded-1"
+                                        onClick={() => {
+                                            exportToCSV();
+                                            setShowExportDropdown(false);
+                                        }}
+                                    >
                                         <i className="ti ti-file-type-xls me-1"></i>
                                         Export as Excel
                                     </button>
@@ -720,7 +841,7 @@ const EmployeerJobList = () => {
                                     ) : error ? (
                                         <tr>
                                             <td colSpan="8" className="text-center text-danger py-4">
-                                                {error}
+                                                {error.toString()} {/* Ensure error is converted to string */}
                                             </td>
                                         </tr>
                                     ) : jobs.length === 0 ? (
@@ -753,14 +874,14 @@ const EmployeerJobList = () => {
                                                         </a>
                                                         <div className="ms-2">
                                                             <h6 className="fw-medium">
-                                                                <a href="job-preview">{job.title}</a>
+                                                                <Link to={`/job-preview/${job.id}`}>{job.title || 'No title'}</Link>
                                                             </h6>
-                                                            <span className="d-block mt-1">{job.applications} Applications</span>
+                                                            <span className="d-block mt-1">{job.applicants || 0} Applications</span>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>{job.experience}</td>
-                                                <td>{job.location}</td>
+                                                <td>{job.location || 'Not specified'}</td>
                                                 <td>{job.salary}</td>
                                                 <td>{job.postedDate}</td>
                                                 <td>{job.addOns}</td>
@@ -815,9 +936,11 @@ const EmployeerJobList = () => {
                                 ...updatedJob,
                                 postedDate: formatDate(updatedJob.updatedAt || updatedJob.createdAt)
                             } : j));
+                            toast.success('Job updated successfully!');
                         }}
                     />
                 )}
+
                 {/* Success Modal */}
                 {showSuccessModal && (
                     <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
@@ -861,7 +984,6 @@ const EmployeerJobList = () => {
         </>
     );
 };
-
 
 const AddJobModal = ({ activeTab, onTabChange, onClose, onSubmit }) => {
     const [formData, setFormData] = useState({
@@ -1410,8 +1532,6 @@ const AddJobModal = ({ activeTab, onTabChange, onClose, onSubmit }) => {
     );
 };
 
-
-
 const EditJobModal = ({ jobId, onClose, onJobUpdated }) => {
     const [activeTab, setActiveTab] = useState('basic-info');
     const [formData, setFormData] = useState({
@@ -1560,15 +1680,15 @@ const EditJobModal = ({ jobId, onClose, onJobUpdated }) => {
             );
 
             onJobUpdated(response.data);
-            toast.success('Job updated successfully!', {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
+            // toast.success('Job updated successfully!', {
+            //     position: "top-right",
+            //     autoClose: 3000,
+            //     hideProgressBar: false,
+            //     closeOnClick: true,
+            //     pauseOnHover: true,
+            //     draggable: true,
+            //     progress: undefined,
+            // });
             onClose();
         } catch (error) {
             console.error('Error updating job:', error);

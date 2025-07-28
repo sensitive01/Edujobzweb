@@ -111,6 +111,7 @@ import EmployerAdminCandidateList from './pages/employeradmin/candidate/Employer
 import EmployerAdminEvents from './pages/employeradmin/events/EmployerAdminEvents';
 import EmployerAdminEventsDetails from './pages/employeradmin/events/EmployerAdminEventsDetails';
 import EmployeerAdminJobList from './pages/employeradmin/job/EmployeerAdminJobList';
+import EmployeerJobList from './pages/employer/EmployeerJobList';
 
 function App() {
   return (
@@ -137,6 +138,7 @@ function App() {
 
           <Route path='/employer/search' element={<EmployeerCandidatesSearch />} />
           <Route path='/employer/post-jobs' element={<EmployeerPostJob />} />
+          <Route path='/employer/jobs' element={<EmployeerJobList />} />
           <Route path='/employer/view-job/:id' element={<EmployeerJobDetails />} />
           <Route path='/employer/profile' element={<EmployeerProfileView />} />
 

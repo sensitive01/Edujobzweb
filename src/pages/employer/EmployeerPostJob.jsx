@@ -664,7 +664,7 @@ const EmployeerPostJob = () => {
             />
 
             <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
-              <a href="post-jobs" className="btn btn-icon btn-sm me-1">
+              <a href="jobs" className="btn btn-icon btn-sm me-1">
                 <i className="ti ti-list-tree"></i>
               </a>
               <a href="post-jobs" className="btn btn-icon btn-sm active bg-secondary text-white">
