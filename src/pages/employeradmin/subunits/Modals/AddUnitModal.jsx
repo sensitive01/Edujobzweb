@@ -93,10 +93,8 @@ const handleSubmit = async (e) => {
       userProfilePic: '',
       employerType: '',
     });
-    
-    // Optionally close the modal if you want
     onClose();
-     navigate('/employer-admin/units-grid');
+    //  navigate('/employer-admin/units-grid');
     
   } catch (err) {
     console.error('Error creating employer:', err);

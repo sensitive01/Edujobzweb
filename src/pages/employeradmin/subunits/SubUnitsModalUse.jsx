@@ -49,6 +49,7 @@ import EditUnitModal from './Modals/EditUnitModal';
 import DeleteConfirmationModal from './Modals/DeleteConfirmationModal';
 import UnitDetailModal from './Modals/UnitDetailModal';
 import UpgradePackageModal from './Modals/UpgradePackageModal';
+import { FileText } from 'lucide-react';
 
 const SubUnitsModalUse = () => {
   const [showAddUnitModal, setShowAddUnitModal] = useState(false);
@@ -59,6 +60,7 @@ const SubUnitsModalUse = () => {
   const [units, setUnits] = useState([]);
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
 
   // Get organization ID from localStorage
   const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
@@ -138,7 +140,7 @@ const SubUnitsModalUse = () => {
         ...newUnitData,
         organizationid
       });
-      
+
       if (response.data.success) {
         const newUnit = {
           id: response.data.data._id,
@@ -151,7 +153,7 @@ const SubUnitsModalUse = () => {
           members: [avatar01, avatar02, avatar03, avatar04, avatar05],
           originalData: response.data.data
         };
-        
+
         setUnits([...units, newUnit]);
         setShowAddUnitModal(false);
       }
@@ -163,9 +165,9 @@ const SubUnitsModalUse = () => {
   const handleUpdateUnit = async (updatedData) => {
     try {
       const response = await axios.put(`https://edujobzbackend.onrender.com/employeradmin/${selectedUnit.id}`, updatedData);
-      
+
       if (response.data.success) {
-        setUnits(units.map(unit => 
+        setUnits(units.map(unit =>
           unit.id === selectedUnit.id ? {
             ...unit,
             name: response.data.data.schoolName,
@@ -180,6 +182,94 @@ const SubUnitsModalUse = () => {
     } catch (error) {
       console.error('Error updating unit:', error);
     }
+  };
+
+  const handleExportPDF = () => {
+    setShowExportDropdown(false);
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+    <html>
+      <head>
+        <title>Units Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h1 { color: #333; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          th { background-color: #f2f2f2; }
+          .summary { margin-top: 20px; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <h1>Units Report</h1>
+        <p>Generated on: ${new Date().toLocaleDateString()}</p>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Unit Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Location</th>
+              <th>Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${units.map(unit => `
+              <tr>
+                <td>${unit.name}</td>
+                <td>${unit.email}</td>
+                <td>${unit.phone}</td>
+                <td>${unit.location}</td>
+                <td>${unit.rating}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        
+        <div class="summary">
+          Total Units: ${units.length}
+        </div>
+        
+        <script>
+          // Automatically trigger print dialog when the window loads
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+            }, 200);
+          };
+        </script>
+      </body>
+    </html>
+  `);
+    printWindow.document.close();
+  };
+
+  const handleExportExcel = () => {
+    setShowExportDropdown(false);
+
+    // Create CSV content
+    const csvContent = [
+      ['Unit Name', 'Email', 'Phone', 'Location', 'Rating'],
+      ...units.map(unit => [
+        unit.name,
+        unit.email,
+        unit.phone,
+        unit.location,
+        unit.rating
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `units_report_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (loading) {
@@ -223,19 +313,32 @@ const SubUnitsModalUse = () => {
             </div>
             <div className="me-2">
               <div className="dropdown">
-                <a href="javascript:void(0);" className="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                <a href="javascript:void(0);"
+                  className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                  onClick={() => setShowExportDropdown(!showExportDropdown)}>
                   <i className="ti ti-file-export me-1"></i>Export
                 </a>
-                <ul className="dropdown-menu dropdown-menu-end p-3">
+                <ul
+                  className={`dropdown-menu dropdown-menu-end p-3 ${showExportDropdown ? 'show' : ''}`}
+                  style={{ display: showExportDropdown ? 'block' : 'none' }}
+                >
                   <li>
-                    <a href="javascript:void(0);" className="dropdown-item rounded-1">
-                      <i className="ti ti-file-type-pdf me-1"></i>Export as PDF
-                    </a>
+                    <button
+                      className="dropdown-item rounded-1 d-flex align-items-center"
+                      onClick={handleExportPDF}
+                    >
+                      <FileText size={16} className="me-1" />
+                      Export as PDF
+                    </button>
                   </li>
                   <li>
-                    <a href="javascript:void(0);" className="dropdown-item rounded-1">
-                      <i className="ti ti-file-type-xls me-1"></i>Export as Excel
-                    </a>
+                    <button
+                      className="dropdown-item rounded-1 d-flex align-items-center"
+                      onClick={handleExportExcel}
+                    >
+                      <FileText size={16} className="me-1" />
+                      Export as Excel
+                    </button>
                   </li>
                 </ul>
               </div>
@@ -249,7 +352,7 @@ const SubUnitsModalUse = () => {
               </button>
             </div>
             <div className="dropdown">
-              <a href="javascript:void(0);" className="dropdown-toggle btn btn-sm btn-white d-inline-flex align-items-center " data-bs-toggle="dropdown"  style={{fontSize: '15px', paddingTop:'8px', paddingBottom: '8px'}}>
+              <a href="javascript:void(0);" className="dropdown-toggle btn btn-sm btn-white d-inline-flex align-items-center " data-bs-toggle="dropdown" style={{ fontSize: '15px', paddingTop: '8px', paddingBottom: '8px' }}>
                 Sort By : Last 7 Days
               </a>
               <ul className="dropdown-menu dropdown-menu-end p-3">
@@ -384,7 +487,7 @@ const SubUnitsModalUse = () => {
             </div>
           )}
         </div>
-        
+
         {units.length > 0 && (
           <div className="text-center mb-4">
             <a href="#" className="btn btn-white border">
@@ -398,7 +501,7 @@ const SubUnitsModalUse = () => {
           onClose={() => setShowAddUnitModal(false)}
           onSave={handleAddUnit}
         />
-        
+
         {selectedUnit && (
           <>
             <UnitDetailModal
@@ -406,13 +509,13 @@ const SubUnitsModalUse = () => {
               onClose={() => setShowUnitDetail(false)}
               unit={selectedUnit}
             />
-            
+
             <UpgradePackageModal
               show={showUpgradeModal}
               onClose={() => setShowUpgradeModal(false)}
               unit={selectedUnit}
             />
-            
+
             <EditUnitModal
               show={showEditUnitModal}
               onClose={() => setShowEditUnitModal(false)}
@@ -421,7 +524,7 @@ const SubUnitsModalUse = () => {
             />
           </>
         )}
-        
+
         <DeleteConfirmationModal
           show={itemToDelete}
           onClose={() => setItemToDelete(false)}

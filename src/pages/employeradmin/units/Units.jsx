@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import {
     ChevronDown,
     LayoutGrid,
@@ -30,6 +31,8 @@ import UnitAddSchoolModal from './Modals/UnitAddSchoolModal';
 import UnitEditSchoolModal from './Modals/UnitEditSchoolModal';
 import UnitSchoolDetailModal from './Modals/UnitSchoolDetailModal';
 import UnitUpgradeModal from './Modals/UnitUpgradeModal';
+import DeleteConfirmationModal from '../subunits/Modals/DeleteConfirmationModal';
+import AddUnitModal from '../subunits/Modals/AddUnitModal';
 
 const UnitsPage = () => {
     const [selectedDateRange, setSelectedDateRange] = useState('');
@@ -46,109 +49,77 @@ const UnitsPage = () => {
     const [showEditSchoolModal, setShowEditSchoolModal] = useState(false);
     const [showDetailsSchoolModal, setShowDetailsSchoolModal] = useState(false);
     const [showUpgradeSchoolModal, setShowUpgradeSchoolModal] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState(null);
+    const [schools, setSchools] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedSchool, setSelectedSchool] = useState(null);
+    const [stats, setStats] = useState({
+        totalSchools: 0,
+        activeSchools: 0,
+        inactiveSchools: 0,
+        schoolLocations: 0
+    });
 
-    const schools = [
-        {
-            id: 1,
-            name: 'BrightWave Innovations',
-            email: 'contact@bwi.com',
-            url: 'bwi.example.com',
-            plan: 'Advanced (Monthly)',
-            date: '12 Sep 2024',
-            status: 'Active',
-            image: company01
-        },
-        {
-            id: 2,
-            name: 'Stellar Dynamics',
-            email: 'contact@sd.com',
-            url: 'sd.example.com',
-            plan: 'Basic (Yearly)',
-            date: '24 Oct 2024',
-            status: 'Active',
-            image: company02
-        },
-        {
-            id: 3,
-            name: 'Quantum Nexus',
-            email: 'contact@qn.com',
-            url: 'qn.example.com',
-            plan: 'Advanced (Monthly)',
-            date: '18 Feb 2024',
-            status: 'Active',
-            image: company03
-        },
-        {
-            id: 4,
-            name: 'EcoVision Enterprises',
-            email: 'contact@eve.com',
-            url: 'eve.example.com',
-            plan: 'Advanced (Monthly)',
-            date: '17 Oct 2024',
-            status: 'Active',
-            image: company04
-        },
-        {
-            id: 5,
-            name: 'Aurora Technologies',
-            email: 'contact@at.com',
-            url: 'at.example.com',
-            plan: 'Enterprise (Monthly)',
-            date: '20 Jul 2024',
-            status: 'Active',
-            image: company05
-        },
-        {
-            id: 6,
-            name: 'BlueSky Ventures',
-            email: 'contact@bsv.com',
-            url: 'bsv.example.com',
-            plan: 'Advanced (Monthly)',
-            date: '10 Apr 2024',
-            status: 'Active',
-            image: company06
-        },
-        {
-            id: 7,
-            name: 'TerraFusion Energy',
-            email: 'contact@tfe.com',
-            url: 'tfe.example.com',
-            plan: 'Enterprise (Yearly)',
-            date: '29 Aug 2024',
-            status: 'Active',
-            image: company07
-        },
-        {
-            id: 8,
-            name: 'UrbanPulse Design',
-            email: 'contact@upd.com',
-            url: 'upd.example.com',
-            plan: 'Basic (Monthly)',
-            date: '22 Feb 2024',
-            status: 'Inactive',
-            image: company08
-        },
-        {
-            id: 9,
-            name: 'Nimbus Networks',
-            email: 'contact@nn.com',
-            url: 'nn.example.com',
-            plan: 'Basic (Yearly)',
-            date: '03 Nov 2024',
-            status: 'Active',
-            image: company09
-        },
-        {
-            id: 10,
-            name: 'Epicurean Delights',
-            email: 'contact@ed.com',
-            url: 'ed.example.com',
-            plan: 'Advanced (Monthly)',
-            date: '17 Dec 2024',
-            status: 'Active',
-            image: company10
+    // Get organization ID from localStorage
+    const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+    const organizationid = employerAdminData._id || '';
+
+    useEffect(() => {
+        const fetchSchools = async () => {
+            try {
+                const response = await axios.get(`https://edujobzbackend.onrender.com/employeradmin/fetchbyorg/${organizationid}`);
+                if (response.data.success) {
+                    const transformedSchools = response.data.data.map((school, index) => ({
+                        id: school._id,
+                        name: school.schoolName,
+                        email: school.userEmail,
+                        url: school.website || `${school.schoolName.toLowerCase().replace(/\s+/g, '-')}.example.com`,
+                        plan: school.userMobile || 'Basic (Monthly)',
+                        date: new Date(school.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                        status: school.status || 'Active',
+                        image: getCompanyLogo(school), // Pass the school object instead of just index
+                        originalData: school
+                    }));
+
+                    setSchools(transformedSchools);
+
+                    // Calculate stats
+                    const total = transformedSchools.length;
+                    const active = transformedSchools.filter(s => s.status === 'Active').length;
+                    const inactive = total - active;
+                    const locations = new Set(transformedSchools.map(s => `${s.originalData.city}, ${s.originalData.state}`)).size;
+
+                    setStats({
+                        totalSchools: total,
+                        activeSchools: active,
+                        inactiveSchools: inactive,
+                        schoolLocations: locations
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching schools:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (organizationid) {
+            fetchSchools();
         }
-    ];
+    }, [organizationid]);
+
+    // Helper function to get company logo based on index
+    const getCompanyLogo = (school) => {
+        // If school has a profile picture, use that
+        if (school?.userProfilePic) {
+            return school.userProfilePic;
+        }
+
+        // Fallback to static images based on index if no profile picture
+        const logos = [company01, company02, company03, company04, company05,
+            company06, company07, company08, company09, company10];
+        return logos[school?._id?.charCodeAt(0) % logos.length] || company01;
+    };
 
     const handleSelectAll = (e) => {
         const isChecked = e.target.checked;
@@ -163,6 +134,126 @@ const UnitsPage = () => {
                 : [...prev, id]
         );
     };
+
+    const handleEdit = (school) => {
+        setSelectedSchool(school);
+        setShowEditSchoolModal(true);
+    };
+
+    const handleDelete = (school) => {
+        setSelectedSchool(school);
+        setItemToDelete(true);
+    };
+
+    const handleViewDetails = (school) => {
+        setSelectedSchool(school);
+        setShowDetailsSchoolModal(true);
+    };
+
+    const handleUpgrade = (school) => {
+        setSelectedSchool(school);
+        setShowUpgradeSchoolModal(true);
+    };
+
+    const handleDeleteConfirmed = async () => {
+        try {
+            await axios.delete(`https://edujobzbackend.onrender.com/employeradmin/${selectedSchool.id}`);
+            setSchools(schools.filter(school => school.id !== selectedSchool.id));
+            setItemToDelete(false);
+
+            // Update stats
+            setStats(prev => ({
+                ...prev,
+                totalSchools: prev.totalSchools - 1,
+                activeSchools: selectedSchool.status === 'Active' ? prev.activeSchools - 1 : prev.activeSchools,
+                inactiveSchools: selectedSchool.status !== 'Active' ? prev.inactiveSchools - 1 : prev.inactiveSchools
+            }));
+        } catch (error) {
+            console.error('Error deleting school:', error);
+        }
+    };
+
+    const handleAddSchool = async (newSchoolData) => {
+        try {
+            const response = await axios.post('https://edujobzbackend.onrender.com/employeradmin', {
+                ...newSchoolData,
+                organizationid
+            });
+
+            if (response.data.success) {
+                const newSchool = {
+                    id: response.data.data._id,
+                    name: response.data.data.schoolName,
+                    email: response.data.data.userEmail,
+                    url: response.data.data.website || `${response.data.data.schoolName.toLowerCase().replace(/\s+/g, '-')}.example.com`,
+                    plan: response.data.data.plan || 'Basic (Monthly)',
+                    date: new Date(response.data.data.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                    status: response.data.data.status || 'Active',
+                    image: getCompanyLogo(schools.length),
+                    originalData: response.data.data
+                };
+
+                setSchools([...schools, newSchool]);
+                setShowAddSchoolModal(false);
+
+                // Update stats
+                setStats(prev => ({
+                    ...prev,
+                    totalSchools: prev.totalSchools + 1,
+                    activeSchools: newSchool.status === 'Active' ? prev.activeSchools + 1 : prev.activeSchools,
+                    inactiveSchools: newSchool.status !== 'Active' ? prev.inactiveSchools + 1 : prev.inactiveSchools,
+                    schoolLocations: prev.schoolLocations +
+                        (schools.some(s => `${s.originalData.city}, ${s.originalData.state}` === `${newSchool.originalData.city}, ${newSchool.originalData.state}`))
+                        ? 0 : 1
+                }));
+            }
+        } catch (error) {
+            console.error('Error adding school:', error);
+        }
+    };
+
+    const handleUpdateSchool = async (updatedData) => {
+        try {
+            const response = await axios.put(`https://edujobzbackend.onrender.com/employeradmin/${selectedSchool.id}`, updatedData);
+
+            if (response.data.success) {
+                const updatedSchools = schools.map(school => {
+                    if (school.id === selectedSchool.id) {
+                        return {
+                            ...school,
+                            name: response.data.data.schoolName,
+                            email: response.data.data.userEmail,
+                            url: response.data.data.website || school.url,
+                            plan: response.data.data.plan || school.plan,
+                            status: response.data.data.status || school.status,
+                            originalData: response.data.data
+                        };
+                    }
+                    return school;
+                });
+
+                setSchools(updatedSchools);
+                setShowEditSchoolModal(false);
+
+                // Update stats if status changed
+                if (selectedSchool.status !== (response.data.data.status || selectedSchool.status)) {
+                    const newStatus = response.data.data.status || selectedSchool.status;
+                    setStats(prev => ({
+                        ...prev,
+                        activeSchools: newStatus === 'Active'
+                            ? prev.activeSchools + (selectedSchool.status !== 'Active' ? 1 : 0)
+                            : prev.activeSchools - (selectedSchool.status === 'Active' ? 1 : 0),
+                        inactiveSchools: newStatus !== 'Active'
+                            ? prev.inactiveSchools + (selectedSchool.status === 'Active' ? 1 : 0)
+                            : prev.inactiveSchools - (selectedSchool.status !== 'Active' ? 1 : 0)
+                    }));
+                }
+            }
+        } catch (error) {
+            console.error('Error updating school:', error);
+        }
+    };
+
     const useOutsideClick = (ref, callback) => {
         useEffect(() => {
             const handleClickOutside = (event) => {
@@ -175,7 +266,8 @@ const UnitsPage = () => {
                 document.removeEventListener('mousedown', handleClickOutside);
             }
         }, [ref, callback]);
-    }
+    };
+
     const planDropdownRef = useRef(null);
     const sortDropdownRef = useRef(null);
     const exportDropdownRef = useRef(null);
@@ -184,6 +276,119 @@ const UnitsPage = () => {
     useOutsideClick(sortDropdownRef, () => setShowSortDropdown(false));
     useOutsideClick(exportDropdownRef, () => setShowExportDropdown(false));
     useOutsideClick(statusDropdownRef, () => setShowStatusDropdown(false));
+
+    // Add these functions to your component (inside the UnitsPage component)
+
+    const handleExportPDF = () => {
+        setShowExportDropdown(false);
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+    <html>
+      <head>
+        <title>Schools Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          h1 { color: #333; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          th { background-color: #f2f2f2; }
+          .summary { margin-top: 20px; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <h1>Schools Report</h1>
+        <p>Generated on: ${new Date().toLocaleDateString()}</p>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>School Name</th>
+              <th>Email</th>
+              <th>Website</th>
+              <th>Plan</th>
+              <th>Created Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${schools.map(school => `
+              <tr>
+                <td>${school.name}</td>
+                <td>${school.email}</td>
+                <td>${school.url}</td>
+                <td>${school.plan}</td>
+                <td>${school.date}</td>
+                <td>${school.status}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        
+        <div class="summary">
+          Total Schools: ${stats.totalSchools} | 
+          Active: ${stats.activeSchools} | 
+          Inactive: ${stats.inactiveSchools}
+        </div>
+        
+        <script>
+          // Automatically trigger print dialog when the window loads
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+            }, 200);
+          };
+        </script>
+      </body>
+    </html>
+  `);
+        printWindow.document.close();
+    };
+
+    const handleExportExcel = () => {
+        setShowExportDropdown(false);
+
+        // Create CSV content
+        const csvContent = [
+            ['School Name', 'Email', 'Website', 'Plan', 'Created Date', 'Status'],
+            ...schools.map(school => [
+                school.name,
+                school.email,
+                school.url,
+                school.plan,
+                school.date,
+                school.status
+            ])
+        ].map(row => row.join(',')).join('\n');
+
+        // Create download link
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `schools_report_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+
+    if (loading) {
+        return (
+            <>
+                <EmployerAdminHeader />
+                <div className="content m-2">
+                    <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <EmployerAdminFooter />
+            </>
+        );
+    }
+
     return (
         <>
             <EmployerAdminHeader />
@@ -296,13 +501,12 @@ const UnitsPage = () => {
                         </div>
 
                         {/* Sort By Dropdown */}
-
                         <div className="dropdown me-2" ref={sortDropdownRef}>
                             <button
                                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
                                 onClick={() => {
                                     setShowSortDropdown(!showSortDropdown);
-                                    setShowExportDropdown(false); // Close other dropdowns
+                                    setShowExportDropdown(false);
                                 }}
                             >
                                 Sort By: {sortBy}
@@ -385,7 +589,7 @@ const UnitsPage = () => {
                                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
                                 onClick={() => {
                                     setShowExportDropdown(!showExportDropdown);
-                                    setShowSortDropdown(false); // Close other dropdowns
+                                    setShowSortDropdown(false);
                                 }}
                             >
                                 <Download size={16} className="me-1" />
@@ -398,10 +602,7 @@ const UnitsPage = () => {
                                 <li>
                                     <button
                                         className="dropdown-item rounded-1 d-flex align-items-center"
-                                        onClick={() => {
-                                            // Handle PDF export logic here
-                                            setShowExportDropdown(false);
-                                        }}
+                                        onClick={handleExportPDF}
                                     >
                                         <FileText size={16} className="me-1" />
                                         Export as PDF
@@ -410,10 +611,7 @@ const UnitsPage = () => {
                                 <li>
                                     <button
                                         className="dropdown-item rounded-1 d-flex align-items-center"
-                                        onClick={() => {
-                                            // Handle Excel export logic here
-                                            setShowExportDropdown(false);
-                                        }}
+                                        onClick={handleExportExcel}
                                     >
                                         <FileText size={16} className="me-1" />
                                         Export as Excel
@@ -421,7 +619,10 @@ const UnitsPage = () => {
                                 </li>
                             </ul>
                         </div>
-                        <a onClick={() => setShowAddSchoolModal(true)} class="btn btn-primary d-flex align-items-center"><i class="ti ti-circle-plus me-2"></i>Add School</a>
+                        <button onClick={() => setShowAddSchoolModal(true)} className="btn btn-primary d-flex align-items-center">
+                            <PlusCircle size={16} className="me-2" />
+                            Add School
+                        </button>
                     </div>
                 </div>
 
@@ -437,7 +638,7 @@ const UnitsPage = () => {
                                     </span>
                                     <div className="ms-2 overflow-hidden">
                                         <p className="fs-12 fw-medium mb-1 text-truncate">Total Schools</p>
-                                        <h4>950</h4>
+                                        <h4>{stats.totalSchools}</h4>
                                     </div>
                                 </div>
                                 <div id="total-chart"></div>
@@ -455,7 +656,7 @@ const UnitsPage = () => {
                                     </span>
                                     <div className="ms-2 overflow-hidden">
                                         <p className="fs-12 fw-medium mb-1 text-truncate">Active Schools</p>
-                                        <h4>920</h4>
+                                        <h4>{stats.activeSchools}</h4>
                                     </div>
                                 </div>
                                 <div id="active-chart"></div>
@@ -472,7 +673,7 @@ const UnitsPage = () => {
                                     </span>
                                     <div className="ms-2 overflow-hidden">
                                         <p className="fs-12 fw-medium mb-1 text-truncate">Inactive Schools</p>
-                                        <h4>30</h4>
+                                        <h4>{stats.inactiveSchools}</h4>
                                     </div>
                                 </div>
                                 <div id="inactive-chart"></div>
@@ -490,7 +691,7 @@ const UnitsPage = () => {
                                     </span>
                                     <div className="ms-2 overflow-hidden">
                                         <p className="fs-12 fw-medium mb-1 text-truncate">School Location</p>
-                                        <h4>180</h4>
+                                        <h4>{stats.schoolLocations}</h4>
                                     </div>
                                 </div>
                                 <div id="location-chart"></div>
@@ -519,82 +720,120 @@ const UnitsPage = () => {
                                         </th>
                                         <th>School Name</th>
                                         <th>Email</th>
-                                        <th>Account URL</th>
-                                        <th>Plan</th>
+                                        <th>Website</th>
+                                        <th>Contact</th>
                                         <th>Created Date</th>
                                         <th>Status</th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {schools.map((school) => (
-                                        <tr key={school.id}>
-                                            <td>
-                                                <div className="form-check form-check-md">
-                                                    <input
-                                                        className="form-check-input"
-                                                        type="checkbox"
-                                                        checked={selectedRows.includes(school.id)}
-                                                        onChange={() => handleRowSelect(school.id)}
-                                                    />
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div className="d-flex align-items-center file-name-icon">
-                                                    <a href="#" className="avatar avatar-md border rounded-circle">
-                                                        <img src={school.image} className="img-fluid" alt={school.name} />
-                                                    </a>
-                                                    <div className="ms-2">
-                                                        <h6 className="fw-medium">
-                                                            <a href="#">{school.name}</a>
-                                                        </h6>
+                                    {schools.length > 0 ? (
+                                        schools.map((school) => (
+                                            <tr key={school.id}>
+                                                <td>
+                                                    <div className="form-check form-check-md">
+                                                        <input
+                                                            className="form-check-input"
+                                                            type="checkbox"
+                                                            checked={selectedRows.includes(school.id)}
+                                                            onChange={() => handleRowSelect(school.id)}
+                                                        />
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td><a href={`mailto:${school.email}`}>{school.email}</a></td>
-                                            <td>{school.url}</td>
-                                            <td>
-                                                <div className="d-flex align-items-center justify-content-between">
-                                                    <p className="mb-0 me-2">{school.plan}</p>
-                                                    <a onClick={() => setShowUpgradeSchoolModal(true)} className="badge badge-purple badge-xs">Upgrade</a>
-                                                </div>
-                                            </td>
-                                            <td>{school.date}</td>
-                                            <td>
-                                                <span className={`badge ${school.status === 'Active' ? 'badge-success' : 'badge-danger'} d-inline-flex align-items-center badge-xs`}>
-                                                    <i class="ti ti-point-filled me-1"></i>
-                                                    {school.status}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="action-icon d-inline-flex">
-                                                    <a onClick={() => setShowDetailsSchoolModal(true)} class="me-2"><i class="ti ti-eye"></i></a>
-                                                    <a onClick={() => setShowEditSchoolModal(true)} class="me-2"><i class="ti ti-edit"></i></a>
-                                                    <a href="javascript:void(0);"><i class="ti ti-trash text-danger"></i></a>
-                                                </div>
+                                                </td>
+                                                <td>
+                                                    <div className="d-flex align-items-center file-name-icon">
+                                                        <a href="#" className="avatar avatar-md border rounded-circle">
+                                                            <img src={school.image} className="img-fluid" alt={school.name} />
+                                                        </a>
+                                                        <div className="ms-2">
+                                                            <h6 className="fw-medium">
+                                                                <a href="#">{school.name}</a>
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td><a href={`mailto:${school.email}`}>{school.email}</a></td>
+                                                <td>{school.url}</td>
+                                                <td>
+                                                    <div className="d-flex align-items-center justify-content-between">
+                                                        <p className="mb-0 me-2">{school.plan}</p>
+                                                        <button onClick={() => handleUpgrade(school)} className="badge badge-purple badge-xs">Upgrade</button>
+                                                    </div>
+                                                </td>
+                                                <td>{school.date}</td>
+                                                <td>
+                                                    <span className={`badge ${school.status === 'Active' ? 'badge-success' : 'badge-danger'} d-inline-flex align-items-center badge-xs`}>
+                                                        <Circle size={12} className="me-1" />
+                                                        {school.status}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div className="action-icon d-inline-flex">
+                                                        <button onClick={() => handleViewDetails(school)} className="me-2 btn btn-icon btn-sm">
+                                                            <Eye size={16} />
+                                                        </button>
+                                                        <button onClick={() => handleEdit(school)} className="me-2 btn btn-icon btn-sm">
+                                                            <Edit2 size={16} />
+                                                        </button>
+                                                        <button onClick={() => handleDelete(school)} className="btn btn-icon btn-sm">
+                                                            <Trash2 size={16} className="text-danger" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="8" className="text-center py-5">
+                                                <h4>No schools found</h4>
+                                                <p>Click "Add School" to create your first school</p>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )}
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
-            <UnitAddSchoolModal
+
+            {/* Modals */}
+            <AddUnitModal
                 show={showAddSchooltModal}
                 onClose={() => setShowAddSchoolModal(false)}
+                onSave={handleAddSchool}
             />
-            <UnitEditSchoolModal
-                show={showEditSchoolModal}
-                onClose={() => setShowEditSchoolModal(false)}
+
+            {selectedSchool && (
+                <>
+                    <UnitEditSchoolModal
+                        show={showEditSchoolModal}
+                        onClose={() => setShowEditSchoolModal(false)}
+                        school={selectedSchool}
+                        onSave={handleUpdateSchool}
+                    />
+
+                    <UnitSchoolDetailModal
+                        show={showDetailsSchoolModal}
+                        onClose={() => setShowDetailsSchoolModal(false)}
+                        school={selectedSchool}
+                    />
+
+                    <UnitUpgradeModal
+                        show={showUpgradeSchoolModal}
+                        onClose={() => setShowUpgradeSchoolModal(false)}
+                        school={selectedSchool}
+                    />
+                </>
+            )}
+
+            <DeleteConfirmationModal
+                show={itemToDelete}
+                onClose={() => setItemToDelete(false)}
+                onConfirm={handleDeleteConfirmed}
             />
-            <UnitSchoolDetailModal
-            show={showDetailsSchoolModal}
-            onClose={() => setShowDetailsSchoolModal (false)}/>
-            <UnitUpgradeModal
-            show={showUpgradeSchoolModal}
-            onClose={() => setShowUpgradeSchoolModal(false)}/>
+
             <EmployerAdminFooter />
         </>
     );

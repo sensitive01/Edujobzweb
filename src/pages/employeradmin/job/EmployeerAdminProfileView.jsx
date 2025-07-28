@@ -26,6 +26,7 @@ const EmployeerAdminProfileView = () => {
         }
 
         const response = await fetchEmployerAdminProfile(adminData._id);
+        
         setProfileData(response.admin);
       } catch (err) {
         console.error('Error fetching profile:', err);
