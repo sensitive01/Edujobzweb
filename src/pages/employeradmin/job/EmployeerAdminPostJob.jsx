@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
 import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
+import appleIcon from '../../../assets/employer-admin/assets/img/icons/apple.svg';
 
 // Main Jobs Component
 const EmployeerAdminPostJob = () => {
@@ -1157,7 +1158,7 @@ const JobCard = ({ job, onStatusChange }) => {
                 <a href="#" className="me-2">
                   <span className="avatar avatar-lg bg-gray">
                     <img
-                      src={job.employerProfilePic || 'employeer/assets/img/icons/default.svg'}
+                     src={job.employerProfilePic || appleIcon}
                       style={{
                         width: '48px',
                         height: '48px',

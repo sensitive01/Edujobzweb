@@ -853,13 +853,13 @@ const EmployeerAdminJobList = () => {
                                                 </td>
                                                 <td>
                                                     <div className="d-flex align-items-center file-name-icon">
-                                                        <a href="#" className="avatar avatar-md bg-light rounded">
+                                                        {/* <a href="#" className="avatar avatar-md bg-light rounded">
                                                             <img
                                                                 src={`assets/img/icons/${job.employerProfilePic}`}
                                                                 className="img-fluid rounded-circle"
                                                                 alt="img"
                                                             />
-                                                        </a>
+                                                        </a> */}
                                                         <div className="ms-2">
                                                             <h6 className="fw-medium">
                                                                 <a href="job-preview">{job.title}</a>

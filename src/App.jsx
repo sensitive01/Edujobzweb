@@ -112,6 +112,9 @@ import EmployerAdminEvents from './pages/employeradmin/events/EmployerAdminEvent
 import EmployerAdminEventsDetails from './pages/employeradmin/events/EmployerAdminEventsDetails';
 import EmployeerAdminJobList from './pages/employeradmin/job/EmployeerAdminJobList';
 import EmployeerJobList from './pages/employer/EmployeerJobList';
+import EmployeerAdminGridJobUnit from './pages/employeradmin/job/EmployeerAdminGridJobUnit';
+import EmployerAdminJobListUnit from './pages/employeradmin/job/EmployerAdminJobListUnit';
+import NotFoundPage from './pages/404/404';
 
 function App() {
   return (
@@ -184,9 +187,11 @@ function App() {
           <Route path='/employer-admin/shortlisted-candidate-byjob/:id' element={<EmployeerAdminJobIdShortlistedCandidates />} />
           <Route path='/employer-admin/search' element={<EmployeerAdminCandidatesSearch />} />
 
-          <Route path='/employer-admin/post-jobs' element={<EmployeerAdminPostJob />} />
+          <Route path='/employer-admin/post-jobs' element={<EmployeerAdminPostJob />} />3
           <Route path='/employer-admin/view-job/:id' element={<EmployerAdminobDetailsPage />} />
           <Route path='/employer-admin/jobs' element={<EmployeerAdminJobList />} />
+          <Route path='/employer-admin/unit-jobs' element={<EmployeerAdminGridJobUnit />} />
+          <Route path='/employer-admin/unit-listjobs' element={<EmployerAdminJobListUnit />} />
           <Route path='/employer-admin/messages' element={<EmployeerAdminMessage />} />
           <Route path='/employer-admin/plans' element={<EmployeerAdminPlans />} />
           <Route path='/employer-admin/plans-grid' element={<EmployeerAdminPlansGrid />} />
@@ -255,9 +260,11 @@ function App() {
               <Route path='/signup' element={<SignupPage />} />
               <Route path='/employee-registration' element={<EmployeeRegistration />} />
               <Route path='/school-registration' element={<SchoolRegistration />} />
+            <Route path='*' element={<NotFoundPage />} />
             </Routes>
           </Layout>
         } />
+         <Route path='*' element={<NotFoundPage />} />
       </Routes>
     </Router>
   );
