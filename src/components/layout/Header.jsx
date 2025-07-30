@@ -1,17 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import {
-  FaHome,
-  FaBriefcase,
-  FaUsers,
-  FaGraduationCap,
-  FaUniversity,
-  FaUserCircle,
-  FaSignOutAlt,
-  FaTimes,
-  FaChevronDown,
-  FaChevronUp
-} from 'react-icons/fa';
+import { FaHome, FaBriefcase, FaUsers, FaGraduationCap, FaUniversity, FaUserCircle, FaSignOutAlt, FaTimes, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { useLoginCleanup } from '../../hooks/useLoginCleanup';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,9 +10,15 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Use the login cleanup hook
+  useLoginCleanup();
+
   useEffect(() => {
-    const authToken = localStorage.getItem('authToken') || localStorage.getItem('employerToken');
-    setIsLoggedIn(!!authToken);
+    const authToken = localStorage.getItem('authToken');
+    const userType = localStorage.getItem('userType');
+    
+    // Only set as logged in if we have both token and user type
+    setIsLoggedIn(!!authToken && !!userType);
   }, [location]);
 
   useEffect(() => {
@@ -47,15 +43,20 @@ const Header = () => {
   };
 
   const handleProfileClick = () => {
-    navigate('/dashboard');
+    const userType = localStorage.getItem('userType');
+    if (userType === 'employee') {
+      navigate('/dashboard');
+    } else {
+      navigate('/employer/dashboard');
+    }
     setIsMenuOpen(false);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
-    localStorage.removeItem('employerData');
     localStorage.removeItem('employerToken');
     localStorage.removeItem('userData');
+    localStorage.removeItem('userType');
     setIsLoggedIn(false);
     navigate('/login');
   };
@@ -72,11 +73,10 @@ const Header = () => {
 
   const handleAccountClick = () => {
     if (isLoggedIn) {
-      navigate('/dashboard');
+      handleProfileClick();
     } else {
-      navigate('/login');
+      handleLogin();
     }
-    setIsMenuOpen(false);
   };
 
   return (
@@ -508,24 +508,24 @@ const Header = () => {
 
             {openDropdown === 'candidates' && (
               <div style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
-                  {!isLoggedIn && (
-                <Link
-                  to="/employee-registration"
-                  onClick={handleLinkClick}
-                  style={{
-                    display: 'block',
-                    padding: '12px 20px 12px 52px',
-                    color: '#fff',
-                    textDecoration: 'none',
-                    fontSize: '14px',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    transition: 'background-color 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#ffa500'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                >
-                  Login / Signup
-                </Link>
+                {!isLoggedIn && (
+                  <Link
+                    to="/employee-registration"
+                    onClick={handleLinkClick}
+                    style={{
+                      display: 'block',
+                      padding: '12px 20px 12px 52px',
+                      color: '#fff',
+                      textDecoration: 'none',
+                      fontSize: '14px',
+                      borderBottom: '1px solid rgba(255,255,255,0.1)',
+                      transition: 'background-color 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#ffa500'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    Login / Signup
+                  </Link>
                 )}
                 <Link
                   to="/dashboard"

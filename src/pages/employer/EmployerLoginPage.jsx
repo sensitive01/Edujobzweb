@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { validateLoginForm } from '../../utils/validateLogin';
 import { loginSchool } from '../../api/services/projectServices';
@@ -89,7 +89,13 @@ const EmployerLoginPage = () => {
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
-
+  useEffect(() => {
+    // Clear any existing login data when component mounts
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('employerToken');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('userType');
+  }, []);
   return (
     <div className="bg-white">
       {/* Main Wrapper */}

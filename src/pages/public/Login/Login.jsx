@@ -245,7 +245,13 @@ useEffect(() => {
   };
   document.body.appendChild(script);
 }, []);
-
+  useEffect(() => {
+    // Clear any existing login data when component mounts
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('employerToken');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('userType');
+  }, []);
   return (
     <>
       <div className="subvisual-block subvisual-theme-1 bg-white d-flex pt-60 text-white"></div>

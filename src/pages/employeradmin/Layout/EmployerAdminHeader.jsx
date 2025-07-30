@@ -276,10 +276,10 @@ const EmployerAdminHeader = () => {
                                 <MessageSquare className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">Messages</span>
                             </Link>
-                            <Link to="/employer-admin/plans-grid" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                            {/* <Link to="/employer-admin/plans-grid" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                                 <Star className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">Upgrade Plan</span>
-                            </Link>
+                            </Link> */}
                             <div className='position-relative me-2'>
                                 <div
                                     className='d-flex align-items-center fw-medium px-3 py-2 rounded dropdown'
@@ -334,7 +334,7 @@ const EmployerAdminHeader = () => {
                                     </div>
                                 )}
                             </div>
-                              <Link to="/employer-admin/events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                            <Link to="/employer-admin/events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                                 <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">events</span>
                             </Link>
@@ -342,10 +342,10 @@ const EmployerAdminHeader = () => {
                                 <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">TimeTable</span>
                             </Link> */}
-                            <Link to="/employer-admin/FAQs" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                            {/* <Link to="/employer-admin/FAQs" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                                 <HelpCircle className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">FAQ</span>
-                            </Link>
+                            </Link> */}
                         </div>
                     </nav>
 
@@ -563,6 +563,14 @@ const EmployerAdminHeader = () => {
                                             >
                                                 <span className="me-1 text-primary">↑</span>My Account
                                             </Link>
+                                            <Link to="/employer-admin/plans-grid" className='dropdown-item d-inline-flex align-items-center p-0 py-2 text-decoration-none'>
+                                                <Star className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                                <span className="text-dark">Upgrade Plan</span>
+                                            </Link>
+                                            <Link to="/employer-admin/FAQs" className='dropdown-item d-inline-flex align-items-center p-0 py-2 text-decoration-none'>
+                                                <HelpCircle className='me-2' size={16} style={{ color: '#f9ab00' }} />
+                                                <span className="text-dark">FAQ</span>
+                                            </Link>
                                         </div>
                                         <div className="card-footer py-1">
                                             <button
@@ -598,7 +606,7 @@ const EmployerAdminHeader = () => {
                     >
                         {/* Mobile Navigation Links */}
                         <div className="mb-3">
-                               <Link
+                            <Link
                                 to="/employer-admin/dashboard"
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
@@ -606,12 +614,12 @@ const EmployerAdminHeader = () => {
                                 <i class="ti ti-layout-grid-remove text-primary"></i>
                                 <span className="text-dark">Dashboard</span>
                             </Link>
-                               <Link
+                            <Link
                                 to="/employer-admin/units-grid"
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
                             >
-                           <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
                                 <span className="text-dark">Sub Units</span>
                             </Link>
                             {/* Candidates Section */}
@@ -689,14 +697,14 @@ const EmployerAdminHeader = () => {
                                 <MessageSquare className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">Messages</span>
                             </Link>
-                            <Link
+                            {/* <Link
                                 to="/employer-admin/plans-grid"
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
                             >
                                 <Star className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">Upgrade Plan</span>
-                            </Link>
+                            </Link> */}
                             <div className="mb-2">
                                 <div
                                     className="d-flex align-items-center justify-content-between fw-medium px-3 py-2 rounded mobile-dropdown-header"
@@ -741,14 +749,14 @@ const EmployerAdminHeader = () => {
                                 <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">TimeTable</span>
                             </Link>
-                            <Link
+                            {/* <Link
                                 to="/employer-admin/FAQs"
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
                             >
                                 <HelpCircle className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">FAQ</span>
-                            </Link>
+                            </Link> */}
                         </div>
 
                         {/* Mobile Actions */}

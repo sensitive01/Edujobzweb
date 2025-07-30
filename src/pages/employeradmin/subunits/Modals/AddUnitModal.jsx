@@ -7,12 +7,12 @@ import AccessModal from './AccessModal';
 import EditStageModal from './EditStageModal';
 import AddStageModal from './AddStageModal ';
 import AddUserModal from './AddUserModal';
-import { toast,ToastContainer  } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 
 const AddUnitModal = ({ show, onClose }) => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('basic-info');
   const [showPositionsModal, setShowPositionsModal] = useState(false);
   const [showAccessModal, setShowAccessModal] = useState(false);
@@ -25,8 +25,8 @@ const AddUnitModal = ({ show, onClose }) => {
   const [error, setError] = useState(null);
 
   // Get organization ID from localStorage
-const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
-const organizationid = employerAdminData._id || '';
+  const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData')) || '{}';
+  const organizationid = employerAdminData._id || '';
 
   const [formData, setFormData] = useState({
     schoolName: '',
@@ -45,7 +45,8 @@ const organizationid = employerAdminData._id || '';
     userMobile: '',
     userPassword: '',
     userProfilePic: '',
-    employerType: ''
+    employerType: '',
+    country: ''
   });
 
   const handleChange = (e) => {
@@ -56,10 +57,44 @@ const organizationid = employerAdminData._id || '';
     }));
   };
 
-const handleSubmit = async (e) => {
+  const handleNext = () => {
+    // Validate required fields in basic info before proceeding
+    if (
+      !formData.schoolName ||
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.institutionName ||
+      !formData.board ||
+      !formData.institutionType ||
+      !formData.userMobile ||
+      !formData.userPassword ||
+      !formData.employerType
+    ) {
+      setError('Please fill all required fields');
+      return;
+    }
+    setError(null);
+    setActiveTab('address');
+  };
+
+
+  const handleSubmit = async (e) => {
   e.preventDefault();
   setIsSubmitting(true);
   setError(null);
+
+  // Validate address fields
+  if (
+    !formData.address ||
+    !formData.country ||
+    !formData.state ||
+    !formData.city ||
+    !formData.pincode
+  ) {
+    setError('Please fill all address fields');
+    setIsSubmitting(false);
+    return;
+  }
 
   try {
     const token = localStorage.getItem('EmployerAdminToken');
@@ -71,9 +106,9 @@ const handleSubmit = async (e) => {
     });
 
     console.log('Employer created successfully:', response.data);
-    toast.success('Profile created successfully!');
+    toast.success('Unit created successfully!');
     
-    // Reset form data to initial state after successful submission
+    // Reset form data
     setFormData({
       schoolName: '',
       firstName: '',
@@ -92,19 +127,22 @@ const handleSubmit = async (e) => {
       userPassword: '',
       userProfilePic: '',
       employerType: '',
+      country: ''
     });
-    onClose();
-    //  navigate('/employer-admin/units-grid');
+    
+    // Close modal after a short delay to allow toast to show
+    setTimeout(() => {
+      onClose();
+    }, 1000);
     
   } catch (err) {
     console.error('Error creating employer:', err);
-    setError(err.response?.data?.message || 'Failed to create employer. Please try again.');
-    toast.error('Failed to create profile. Please try again.');
+    setError(err.response?.data?.message || 'Failed to create unit. Please try again.');
+    toast.error('Failed to create unit. Please try again.');
   } finally {
     setIsSubmitting(false);
   }
 };
-
   if (!show) {
     return null;
   }
@@ -385,8 +423,13 @@ const handleSubmit = async (e) => {
                     <button type="button" className="btn btn-light me-2" onClick={onClose} disabled={isSubmitting}>
                       Cancel
                     </button>
-                    <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                      {isSubmitting ? 'Saving...' : 'Save'}
+                    <button 
+                      type="button" 
+                      className="btn btn-primary" 
+                      onClick={handleNext}
+                      disabled={isSubmitting}
+                    >
+                      Next
                     </button>
                   </div>
                 </div>
@@ -539,7 +582,7 @@ const handleSubmit = async (e) => {
           setShowPositionsModal(true);
         }}
       />
-       <ToastContainer 
+      <ToastContainer 
         position="top-right"
         autoClose={5000}
         hideProgressBar={false}
