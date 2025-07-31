@@ -87,10 +87,10 @@ const schoolSchoolDetailModal = ({ show, onClose, school }) => {
                         </p>
                       </div>
                     </div>
-                    <span className="badge badge-success">
+                    {/* <span className="badge badge-success">
                       <i className="ti ti-point-filled"></i>
                       {employerData.isVerified ? 'Verified' : 'Not Verified'}
-                    </span>
+                    </span> */}
                   </div>
                 </div>
                 

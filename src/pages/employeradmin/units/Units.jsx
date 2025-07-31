@@ -1621,7 +1621,7 @@ const UnitsPage = () => {
                                         <th>Website</th>
                                         <th>Contact</th>
                                         <th>Created Date</th>
-                                        <th>Status</th>
+                                        {/* <th>Status</th> */}
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -1659,12 +1659,12 @@ const UnitsPage = () => {
                                                 </div>
                                             </td>
                                             <td>{school.date}</td>
-                                            <td>
+                                            {/* <td>
                                                 <span className={`badge ${school.status === 'Active' ? 'badge-success' : 'badge-danger'} d-inline-flex align-items-center badge-xs`}>
                                                     <Circle size={12} className="me-1" />
                                                     {school.status}
                                                 </span>
-                                            </td>
+                                            </td> */}
                                             <td>
                                                 <div className="action-icon d-inline-flex">
                                                     <button onClick={() => handleViewDetails(school)} className="me-2 btn btn-icon btn-sm">

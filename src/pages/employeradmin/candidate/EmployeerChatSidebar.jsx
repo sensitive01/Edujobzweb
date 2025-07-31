@@ -149,57 +149,127 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
         }
     };
 
+useEffect(() => {
+    let intervalId;
+    
+    if (isOpen && candidate) {
+        // Initial fetch
+        fetchChatMessages();
+        
+        // Set up polling every 2 seconds
+        intervalId = setInterval(fetchChatMessages, 2000);
+    }
+    
+    return () => {
+        if (intervalId) clearInterval(intervalId);
+    };
+}, [isOpen, candidate]);
+
+    // const fetchChatMessages = async () => {
+    //     try {
+    //         if (!candidate?.applicantId || !employerAdminData?._id) return;
+
+    //         const token = localStorage.getItem('EmployerAdminToken');
+    //         const response = await axios.get(`https://edujobzbackend.onrender.com/employer/view`, {
+    //             params: {
+    //                 employeeId: candidate.applicantId,
+    //                 employerId: employerAdminData._id,
+    //                 jobId: candidate.jobId || 'general' 
+    //             },
+    //             headers: {
+    //                 'Authorization': `Bearer ${token}`
+    //             }
+    //         });
+
+    //         if (response.data) {
+    //             const chat = response.data;
+
+    //             if (chat && chat.messages) {
+    //                 const formattedMessages = chat.messages.map(msg => ({
+    //                     id: msg._id || Date.now(),
+    //                     sender: msg.sender === 'employer' ? 'You' : candidate.firstName || candidate.name || 'Candidate',
+    //                     avatar: msg.sender === 'employer'
+    //                         ? employerAdminData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg'
+    //                         : employeeDetails?.userProfilePic || candidate.avatar || 'employer/assets/img/profiles/avatar-29.jpg',
+    //                     time: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    //                     content: msg.message,
+    //                     isMe: msg.sender === 'employer',
+    //                     ...(msg.mediaUrl && { mediaUrl: msg.mediaUrl }),
+    //                     ...(msg.mediaType && { mediaType: msg.mediaType === 'video' ? 'audio' : msg.mediaType })
+    //                 }));
+
+    //                 setMessages(formattedMessages);
+    //                 setChatId(chat._id);
+    //             } else {
+    //                 setMessages([]);
+    //                 setChatId(chat._id);
+    //             }
+    //         }
+    //     } catch (err) {
+    //         console.error('Error fetching chat messages:', err);
+    //         if (err.response?.status === 404) {
+    //             setMessages([]);
+    //             setChatId(null);
+    //         } else {
+    //             setError('Failed to load chat messages');
+    //         }
+    //     }
+    // };
+
+
     const fetchChatMessages = async () => {
-        try {
-            if (!candidate?.applicantId || !employerAdminData?._id) return;
+    try {
+        if (!candidate?.applicantId || !employerAdminData?._id) return;
 
-            const token = localStorage.getItem('EmployerAdminToken');
-            const response = await axios.get(`https://edujobzbackend.onrender.com/employer/view`, {
-                params: {
-                    employeeId: candidate.applicantId,
-                    employerId: employerAdminData._id,
-                    jobId: candidate.jobId || 'general' 
-                },
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (response.data) {
-                const chat = response.data;
-
-                if (chat && chat.messages) {
-                    const formattedMessages = chat.messages.map(msg => ({
-                        id: msg._id || Date.now(),
-                        sender: msg.sender === 'employer' ? 'You' : candidate.firstName || candidate.name || 'Candidate',
-                        avatar: msg.sender === 'employer'
-                            ? employerAdminData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg'
-                            : employeeDetails?.userProfilePic || candidate.avatar || 'employer/assets/img/profiles/avatar-29.jpg',
-                        time: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                        content: msg.message,
-                        isMe: msg.sender === 'employer',
-                        ...(msg.mediaUrl && { mediaUrl: msg.mediaUrl }),
-                        ...(msg.mediaType && { mediaType: msg.mediaType === 'video' ? 'audio' : msg.mediaType })
-                    }));
-
-                    setMessages(formattedMessages);
-                    setChatId(chat._id);
-                } else {
-                    setMessages([]);
-                    setChatId(chat._id);
-                }
+        const token = localStorage.getItem('EmployerAdminToken');
+        const response = await axios.get(`https://edujobzbackend.onrender.com/employer/view`, {
+            params: {
+                employeeId: candidate.applicantId,
+                employerId: employerAdminData._id,
+                jobId: candidate.jobId || 'general' 
+            },
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-        } catch (err) {
-            console.error('Error fetching chat messages:', err);
-            if (err.response?.status === 404) {
-                setMessages([]);
-                setChatId(null);
-            } else {
-                setError('Failed to load chat messages');
+        });
+
+        if (response.data) {
+            const chat = response.data;
+            if (chat && chat.messages) {
+                // Only update if messages have changed
+                setMessages(prevMessages => {
+                    if (prevMessages.length !== chat.messages.length || 
+                        (prevMessages.length > 0 && 
+                         prevMessages[prevMessages.length-1].id !== chat.messages[chat.messages.length-1]._id)) {
+                        
+                        return chat.messages.map(msg => ({
+                            id: msg._id || Date.now(),
+                            sender: msg.sender === 'employer' ? 'You' : candidate.firstName || candidate.name || 'Candidate',
+                            avatar: msg.sender === 'employer'
+                                ? employerAdminData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg'
+                                : employeeDetails?.userProfilePic || candidate.avatar || 'employer/assets/img/profiles/avatar-29.jpg',
+                            time: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                            content: msg.message,
+                            isMe: msg.sender === 'employer',
+                            ...(msg.mediaUrl && { mediaUrl: msg.mediaUrl }),
+                            ...(msg.mediaType && { mediaType: msg.mediaType === 'video' ? 'audio' : msg.mediaType })
+                        }));
+                    }
+                    return prevMessages;
+                });
+                
+                if (!chatId) {
+                    setChatId(chat._id);
+                }
             }
         }
-    };
-
+    } catch (err) {
+        console.error('Error fetching chat messages:', err);
+        if (err.response?.status !== 404) {
+            setError('Failed to load chat messages');
+        }
+    }
+};
     const handleSendMessage = async (e) => {
         if (e && e.preventDefault) e.preventDefault();
         if ((newMessage.trim() === '' && !fileInputRef.current?.files?.length) || !candidate) return;

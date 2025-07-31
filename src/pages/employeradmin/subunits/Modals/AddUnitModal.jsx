@@ -77,9 +77,7 @@ const AddUnitModal = ({ show, onClose }) => {
     setActiveTab('address');
   };
 
-
-  const handleSubmit = async (e) => {
-    
+const handleSubmit = async (e) => {
   e.preventDefault();
   setIsSubmitting(true);
   setError(null);
@@ -108,6 +106,11 @@ const AddUnitModal = ({ show, onClose }) => {
 
     console.log('Employer created successfully:', response.data);
     toast.success('Unit created successfully!');
+    
+    // Call the onSave prop with the response data
+    if (typeof onSave === 'function') {
+      onSave(response.data.data);
+    }
     
     // Reset form data
     setFormData({

@@ -124,52 +124,146 @@ const EmployeerAdminMessage = () => {
   };
 
   // Send a new message
+  // const sendMessage = async () => {
+  //   if (!newMessage.trim() && !file && !audioBlob) return;
+  //   if (!selectedChat || !employerAdminData) return;
+
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append('employeeId', selectedChat.employeeId);
+  //     formData.append('employerId', employerAdminData._id);
+  //     formData.append('jobId', selectedChat.jobId);
+  //     formData.append('message', newMessage);
+  //     formData.append('sender', 'employer');
+  //     formData.append('employerName', employerAdminData.schoolName);
+  //     formData.append('employerImage', employerAdminData.userProfilePic);
+
+  //     if (employeeData) {
+  //       formData.append('employeeName', employeeData.userName);
+  //       formData.append('employeeImage', employeeData.userProfilePic || '');
+  //     }
+
+  //     if (file) {
+  //       formData.append('file', file);
+  //       formData.append('fileType', fileType);
+  //     } else if (audioBlob) {
+  //       formData.append('file', audioBlob, 'audio.webm');
+  //       formData.append('fileType', 'audio');
+  //     }
+
+  //     const response = await axios.post(`${VITE_BASE_URL}/employer/sendchats`, formData, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //         Authorization: `Bearer ${getToken()}`
+  //       }
+  //     });
+
+  //     setNewMessage('');
+  //     setFile(null);
+  //     setAudioBlob(null);
+
+  //     // Refresh messages
+  //     fetchMessages(selectedChat.employeeId, selectedChat.jobId);
+  //     // Refresh chat list to update last message
+  //     fetchChats(employerAdminData._id);
+  //   } catch (error) {
+  //     console.error('Error sending message:', error);
+  //   }
+  // };
+
+
   const sendMessage = async () => {
-    if (!newMessage.trim() && !file && !audioBlob) return;
-    if (!selectedChat || !employerAdminData) return;
+  if (!newMessage.trim() && !file && !audioBlob) return;
+  if (!selectedChat || !employerAdminData) return;
 
+  // Create a temporary message to show immediately
+  const tempId = Date.now().toString();
+  const tempMessage = {
+    _id: tempId,
+    message: newMessage,
+    sender: 'employer',
+    createdAt: new Date().toISOString(),
+    mediaUrl: file ? URL.createObjectURL(file) : audioBlob ? URL.createObjectURL(audioBlob) : null,
+    mediaType: file ? (file.type.startsWith('image') ? 'image' : 'file') : audioBlob ? 'audio' : null
+  };
+
+  // Add the message immediately to the UI
+  setMessages(prev => [...prev, tempMessage]);
+  setNewMessage('');
+  setFile(null);
+  setAudioBlob(null);
+  scrollToBottom();
+
+  try {
+    const formData = new FormData();
+    formData.append('employeeId', selectedChat.employeeId);
+    formData.append('employerId', employerAdminData._id);
+    formData.append('jobId', selectedChat.jobId);
+    formData.append('message', newMessage);
+    formData.append('sender', 'employer');
+    
+    // Add file/audio if exists
+    if (file) {
+      formData.append('file', file);
+      formData.append('fileType', file.type.startsWith('image') ? 'image' : 'file');
+    } else if (audioBlob) {
+      formData.append('file', audioBlob, 'audio.webm');
+      formData.append('fileType', 'audio');
+    }
+
+    await axios.post(`${VITE_BASE_URL}/employer/sendchats`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${getToken()}`
+      }
+    });
+
+    // Refresh messages to get the actual message from server
+    fetchMessages(selectedChat.employeeId, selectedChat.jobId);
+    fetchChats(employerAdminData._id);
+
+  } catch (error) {
+    console.error('Error sending message:', error);
+    // Remove the temporary message if sending failed
+    setMessages(prev => prev.filter(msg => msg._id !== tempId));
+  }
+};
+
+useEffect(() => {
+  if (!selectedChat) return;
+
+  // Function to fetch messages
+  const fetchAndUpdateMessages = async () => {
     try {
-      const formData = new FormData();
-      formData.append('employeeId', selectedChat.employeeId);
-      formData.append('employerId', employerAdminData._id);
-      formData.append('jobId', selectedChat.jobId);
-      formData.append('message', newMessage);
-      formData.append('sender', 'employer');
-      formData.append('employerName', employerAdminData.schoolName);
-      formData.append('employerImage', employerAdminData.userProfilePic);
-
-      if (employeeData) {
-        formData.append('employeeName', employeeData.userName);
-        formData.append('employeeImage', employeeData.userProfilePic || '');
-      }
-
-      if (file) {
-        formData.append('file', file);
-        formData.append('fileType', fileType);
-      } else if (audioBlob) {
-        formData.append('file', audioBlob, 'audio.webm');
-        formData.append('fileType', 'audio');
-      }
-
-      const response = await axios.post(`${VITE_BASE_URL}/employer/sendchats`, formData, {
+      const response = await axios.get(`${VITE_BASE_URL}/employer/view`, {
+        params: {
+          employeeId: selectedChat.employeeId,
+          employerId: employerAdminData._id,
+          jobId: selectedChat.jobId
+        },
         headers: {
-          'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${getToken()}`
         }
       });
-
-      setNewMessage('');
-      setFile(null);
-      setAudioBlob(null);
-
-      // Refresh messages
-      fetchMessages(selectedChat.employeeId, selectedChat.jobId);
-      // Refresh chat list to update last message
-      fetchChats(employerAdminData._id);
+      
+      if (response.data?.messages) {
+        setMessages(response.data.messages);
+        scrollToBottom();
+      }
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('Error fetching messages:', error);
     }
   };
+
+  // Initial fetch
+  fetchAndUpdateMessages();
+
+  // Set up polling (every 2 seconds)
+  const intervalId = setInterval(fetchAndUpdateMessages, 2000);
+
+  // Clean up interval
+  return () => clearInterval(intervalId);
+}, [selectedChat, employerAdminData]);
 
   // Handle file upload
   const handleFileChange = (e) => {

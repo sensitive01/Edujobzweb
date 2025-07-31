@@ -115,62 +115,95 @@ const Inbox = () => {
         fetchConversations();
     }, []);
 
+    // useEffect(() => {
+    //     if (!selectedConversation) return;
+
+    //     const fetchMessagesAndDetails = async () => {
+    //         try {
+    //             setMessagesLoading(true);
+    //             // Fetch messages
+    //             const messagesResponse = await axios.get('https://edujobzbackend.onrender.com/employer/view', {
+    //                 params: {
+    //                     employeeId: selectedConversation.employeeId,
+    //                     employerId: selectedConversation.employerId,
+    //                     jobId: selectedConversation.jobId
+    //                 }
+    //             });
+
+    //             // If we don't already have the profile details for this conversation, fetch them
+    //             if (!conversationDetails[selectedConversation._id]) {
+    //                 const employerProfile = await fetchEmployerProfile(selectedConversation.employerId);
+
+    //                 // Also fetch job details
+    //                 const jobDetailsResponse = await axios.get(
+    //                     `https://edujobzbackend.onrender.com/employer/fetchjob/${selectedConversation.employerId}`
+    //                 );
+
+    //                 if (jobDetailsResponse.data && jobDetailsResponse.data.length > 0) {
+    //                     const job = jobDetailsResponse.data.find(j => j._id === selectedConversation.jobId);
+    //                     if (job) {
+    //                         setConversationDetails(prev => ({
+    //                             ...prev,
+    //                             [selectedConversation._id]: {
+    //                                 ...(employerProfile || {}),
+    //                                 jobTitle: job.jobTitle || 'Job'
+    //                             }
+    //                         }));
+    //                     }
+    //                 } else if (employerProfile) {
+    //                     setConversationDetails(prev => ({
+    //                         ...prev,
+    //                         [selectedConversation._id]: employerProfile
+    //                     }));
+    //                 }
+    //             }
+
+    //             if (messagesResponse.data && messagesResponse.data.messages) {
+    //                 setMessages(messagesResponse.data.messages);
+    //             }
+    //         } catch (err) {
+    //             console.error('Error fetching data:', err);
+    //             setError(err.response?.data?.message || err.message || 'Failed to fetch data');
+    //         } finally {
+    //             setMessagesLoading(false);
+    //         }
+    //     };
+
+    //     fetchMessagesAndDetails();
+    // }, [selectedConversation]);
+
+
     useEffect(() => {
-        if (!selectedConversation) return;
+  if (!selectedConversation) return;
 
-        const fetchMessagesAndDetails = async () => {
-            try {
-                setMessagesLoading(true);
-                // Fetch messages
-                const messagesResponse = await axios.get('https://edujobzbackend.onrender.com/employer/view', {
-                    params: {
-                        employeeId: selectedConversation.employeeId,
-                        employerId: selectedConversation.employerId,
-                        jobId: selectedConversation.jobId
-                    }
-                });
+  // Function to fetch messages
+  const fetchMessages = async () => {
+    try {
+      const messagesResponse = await axios.get('https://edujobzbackend.onrender.com/employer/view', {
+        params: {
+          employeeId: selectedConversation.employeeId,
+          employerId: selectedConversation.employerId,
+          jobId: selectedConversation.jobId
+        }
+      });
+      
+      if (messagesResponse.data && messagesResponse.data.messages) {
+        setMessages(messagesResponse.data.messages);
+      }
+    } catch (err) {
+      console.error('Error fetching messages:', err);
+    }
+  };
 
-                // If we don't already have the profile details for this conversation, fetch them
-                if (!conversationDetails[selectedConversation._id]) {
-                    const employerProfile = await fetchEmployerProfile(selectedConversation.employerId);
+  // Initial fetch
+  fetchMessages();
 
-                    // Also fetch job details
-                    const jobDetailsResponse = await axios.get(
-                        `https://edujobzbackend.onrender.com/employer/fetchjob/${selectedConversation.employerId}`
-                    );
+  // Set up polling (every 3 seconds)
+  const intervalId = setInterval(fetchMessages, 3000);
 
-                    if (jobDetailsResponse.data && jobDetailsResponse.data.length > 0) {
-                        const job = jobDetailsResponse.data.find(j => j._id === selectedConversation.jobId);
-                        if (job) {
-                            setConversationDetails(prev => ({
-                                ...prev,
-                                [selectedConversation._id]: {
-                                    ...(employerProfile || {}),
-                                    jobTitle: job.jobTitle || 'Job'
-                                }
-                            }));
-                        }
-                    } else if (employerProfile) {
-                        setConversationDetails(prev => ({
-                            ...prev,
-                            [selectedConversation._id]: employerProfile
-                        }));
-                    }
-                }
-
-                if (messagesResponse.data && messagesResponse.data.messages) {
-                    setMessages(messagesResponse.data.messages);
-                }
-            } catch (err) {
-                console.error('Error fetching data:', err);
-                setError(err.response?.data?.message || err.message || 'Failed to fetch data');
-            } finally {
-                setMessagesLoading(false);
-            }
-        };
-
-        fetchMessagesAndDetails();
-    }, [selectedConversation]);
+  // Clean up interval on component unmount or when conversation changes
+  return () => clearInterval(intervalId);
+}, [selectedConversation]);
 
     const fetchEmployerProfile = async (employerId) => {
         try {
