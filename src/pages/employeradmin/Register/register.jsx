@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import axios from 'axios';
 
 // Import images
 import logo from '../../../assets/employer-admin/assets/img/logo.svg';
@@ -27,6 +28,16 @@ const EmployerAdminRegister = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // State for OTP functionality
+  const [otp, setOtp] = useState('');
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -67,10 +78,137 @@ const EmployerAdminRegister = () => {
       return false;
     }
 
+    if (!isOtpVerified) {
+      setError('Please verify your email with OTP');
+      return false;
+    }
+
     return true;
   };
 
-  const handleSubmit = async (e) => {
+  // Send OTP to backend
+  const sendOtp = async () => {
+    if (!formData.employeradminEmail) {
+      setOtpError('Please enter your email address first');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.employeradminEmail)) {
+      setOtpError('Please enter a valid email address');
+      return;
+    }
+
+    setIsSendingOtp(true);
+    setOtpError('');
+
+    try {
+      const response = await axios.post('https://edujobemailverification.onrender.com/api/send-otp', {
+        email: formData.employeradminEmail
+      });
+
+      if (response.data.success) {
+        setIsOtpSent(true);
+        setOtpError('');
+      } else {
+        setOtpError(response.data.error || 'Failed to send OTP');
+      }
+    } catch (error) {
+      setOtpError(error.response?.data?.error || 'Failed to send OTP');
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  // Verify OTP with backend
+  const verifyOtp = async () => {
+    if (!otp || otp.length !== 6) {
+      setOtpError('Please enter a 6-digit OTP');
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    setOtpError('');
+
+    try {
+      const response = await axios.post('https://edujobemailverification.onrender.com/api/verify-otp', {
+        email: formData.employeradminEmail,
+        otp
+      });
+
+      if (response.data.success) {
+        setIsOtpVerified(true);
+        setOtpError('');
+      } else {
+        setOtpError(response.data.error || 'Invalid OTP');
+        setIsOtpVerified(false);
+      }
+    } catch (error) {
+      setOtpError(error.response?.data?.error || 'Verification failed');
+      setIsOtpVerified(false);
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setError('');
+
+  //   if (!validateForm()) return;
+
+  //   try {
+  //     setLoading(true);
+
+  //     const adminData = {
+  //       employeradminUsername: formData.employeradminUsername,
+  //       employeradminEmail: formData.employeradminEmail,
+  //       employeradminMobile: formData.employeradminMobile,
+  //       employeradminPassword: formData.employeradminPassword,
+  //       employerconfirmPassword: formData.employerconfirmPassword
+  //     };
+
+  //     await registerEmployerAdmin(adminData);
+
+  //     navigate('/employer-admin/login', {
+  //       state: { registrationSuccess: true }
+  //     });
+  //   } catch (err) {
+  //     console.error('Registration error:', err);
+  //     setError(err.message || 'Registration failed. Please try again.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
+  const checkExistingData = async () => {
+    try {
+      // Attempt registration which will fail if email/mobile exists
+      await registerEmployerAdmin({
+        employeradminUsername: formData.employeradminUsername,
+        employeradminEmail: formData.employeradminEmail,
+        employeradminMobile: formData.employeradminMobile,
+        employeradminPassword: formData.employeradminPassword,
+        employerconfirmPassword: formData.employerconfirmPassword
+      });
+
+      // If no error, data doesn't exist
+      return { emailExists: false, mobileExists: false };
+    } catch (error) {
+      // Parse error message to determine which field exists
+      const errorMsg = error.response?.data?.message || error.message;
+
+      if (errorMsg.includes('email')) {
+        return { emailExists: true, mobileExists: false };
+      } else if (errorMsg.includes('mobile')) {
+        return { emailExists: false, mobileExists: true };
+      }
+      return { emailExists: false, mobileExists: false };
+    }
+  };
+
+const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -92,13 +230,51 @@ const EmployerAdminRegister = () => {
       navigate('/employer-admin/login', {
         state: { registrationSuccess: true }
       });
+
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err.message || 'Registration failed. Please try again.');
+      
+      // Parse the error response for duplicate email or mobile
+      const errorResponse = err.response?.data;
+      const errorMessage = errorResponse?.message || err.message || 'Registration failed';
+
+      if (errorResponse) {
+        // Check for duplicate email error
+        if (errorResponse.errors?.some(e => e.path === 'userEmail')) {
+          setError('Email address is already registered');
+          setValidationErrors(prev => ({
+            ...prev,
+            emailError: 'Email address is already registered'
+          }));
+        } 
+        // Check for duplicate mobile error
+        else if (errorResponse.errors?.some(e => e.path === 'userMobile')) {
+          setError('Mobile number is already registered');
+          setValidationErrors(prev => ({
+            ...prev,
+            mobileError: 'Mobile number is already registered'
+          }));
+        }
+        // Generic duplicate error
+        else if (errorMessage.includes('already exists')) {
+          if (errorMessage.includes('email')) {
+            setError('Email address is already registered');
+          } else if (errorMessage.includes('mobile')) {
+            setError('Mobile number is already registered');
+          } else {
+            setError(errorMessage);
+          }
+        } else {
+          setError(errorMessage);
+        }
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="bg-white">
@@ -167,6 +343,7 @@ const EmployerAdminRegister = () => {
                               </span>
                             </div>
                           </div>
+
                           <div className="mb-3">
                             <label className="form-label">Email Address</label>
                             <div className="input-group">
@@ -177,12 +354,54 @@ const EmployerAdminRegister = () => {
                                 onChange={handleChange}
                                 className="form-control border-end-0"
                                 required
+                                disabled={isOtpSent}
                               />
                               <span className="input-group-text border-start-0">
                                 <i className="ti ti-mail"></i>
                               </span>
                             </div>
+                            <div className="d-flex align-items-center mt-2">
+                              <input
+                                type="text"
+                                placeholder="Enter OTP"
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value)}
+                                className="form-control me-2"
+                                style={{ width: '150px' }}
+                                disabled={!isOtpSent}
+                                maxLength="6"
+                              />
+                              {!isOtpSent ? (
+                                <button
+                                  type="button"
+                                  onClick={sendOtp}
+                                  className="btn btn-outline-primary"
+                                  disabled={isSendingOtp || !formData.employeradminEmail}
+                                >
+                                  {isSendingOtp ? 'Sending...' : 'Send OTP'}
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={verifyOtp}
+                                  className={`btn ${isOtpVerified ? 'btn-success' : 'btn-primary'}`}
+                                  disabled={isVerifyingOtp || isOtpVerified}
+                                >
+                                  {isVerifyingOtp ? 'Verifying...' : isOtpVerified ? 'Verified' : 'Verify'}
+                                </button>
+                              )}
+                            </div>
+                            {isOtpSent && !isOtpVerified && (
+                              <small className="text-muted">OTP sent to your email</small>
+                            )}
+                            {isOtpVerified && (
+                              <small className="text-success">Email verified successfully!</small>
+                            )}
+                            {otpError && (
+                              <div className="text-danger small mt-1">{otpError}</div>
+                            )}
                           </div>
+
                           <div className="mb-3">
                             <label className="form-label">Mobile Number</label>
                             <div className="input-group">
@@ -282,7 +501,7 @@ const EmployerAdminRegister = () => {
                             <button
                               type="submit"
                               className="btn btn-primary w-100"
-                              disabled={loading}
+                              disabled={loading || !isOtpVerified}
                             >
                               {loading ? (
                                 <>

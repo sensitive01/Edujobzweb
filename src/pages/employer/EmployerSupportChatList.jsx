@@ -59,14 +59,16 @@ const EmployerSupportChatList = () => {
             return {
               ...chat,
               employeeName: employeeResponse.data.userName,
-              employeeImage: employeeResponse.data.userProfilePic
+              employeeImage: employeeResponse.data.userProfilePic,
+              unreadCount: chat.unreadCount || 0
             };
           } catch (error) {
             console.error('Error fetching employee data:', error);
             return {
               ...chat,
               employeeName: 'Unknown Employee',
-              employeeImage: 'assets/img/profiles/avatar-01.jpg'
+              employeeImage: 'assets/img/profiles/avatar-01.jpg',
+              unreadCount: 0
             };
           }
         })
@@ -94,6 +96,32 @@ const EmployerSupportChatList = () => {
     }
   };
 
+  // Mark messages as read when chat is selected
+  const markMessagesAsRead = async (employeeId, jobId) => {
+    try {
+      await axios.post(`${VITE_BASE_URL}/employer/mark-as-read`, {
+        employeeId,
+        employerId: employerData._id,
+        jobId
+      }, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`
+        }
+      });
+      
+      // Update the chats to reflect the read status
+      setChats(prevChats => 
+        prevChats.map(chat => 
+          chat.employeeId === employeeId && chat.jobId === jobId 
+            ? {...chat, unreadCount: 0} 
+            : chat
+        )
+      );
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+    }
+  };
+
   // Fetch messages for the selected chat
   const fetchMessages = async (employeeId, jobId) => {
     try {
@@ -109,8 +137,12 @@ const EmployerSupportChatList = () => {
           Authorization: `Bearer ${getToken()}`
         }
       });
+      
       setMessages(response.data.messages || []);
       scrollToBottom();
+      
+      // Mark messages as read when fetched
+      await markMessagesAsRead(employeeId, jobId);
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
@@ -125,95 +157,94 @@ const EmployerSupportChatList = () => {
 
   // Send a new message
   const sendMessage = async () => {
-  if (!newMessage.trim() && !file && !audioBlob) return;
-  if (!selectedChat || !employerData) return;
+    if (!newMessage.trim() && !file && !audioBlob) return;
+    if (!selectedChat || !employerData) return;
 
-  // Create temporary message for immediate UI update
-  const tempId = Date.now().toString();
-  const tempMessage = {
-    _id: tempId,
-    message: newMessage,
-    sender: 'employer',
-    createdAt: new Date().toISOString(),
-    mediaUrl: file ? URL.createObjectURL(file) : audioBlob ? URL.createObjectURL(audioBlob) : null,
-    mediaType: file ? (file.type.startsWith('image') ? 'image' : 'file') : audioBlob ? 'audio' : null
-  };
+    // Create temporary message for immediate UI update
+    const tempId = Date.now().toString();
+    const tempMessage = {
+      _id: tempId,
+      message: newMessage,
+      sender: 'employer',
+      createdAt: new Date().toISOString(),
+      mediaUrl: file ? URL.createObjectURL(file) : audioBlob ? URL.createObjectURL(audioBlob) : null,
+      mediaType: file ? (file.type.startsWith('image') ? 'image' : 'file') : audioBlob ? 'audio' : null
+    };
 
-  // Add to UI immediately
-  setMessages(prev => [...prev, tempMessage]);
-  setNewMessage('');
-  setFile(null);
-  setAudioBlob(null);
-  scrollToBottom();
+    // Add to UI immediately
+    setMessages(prev => [...prev, tempMessage]);
+    setNewMessage('');
+    setFile(null);
+    setAudioBlob(null);
+    scrollToBottom();
 
-  try {
-    const formData = new FormData();
-    formData.append('employeeId', selectedChat.employeeId);
-    formData.append('employerId', employerData._id);
-    formData.append('jobId', selectedChat.jobId);
-    formData.append('message', newMessage);
-    formData.append('sender', 'employer');
-    
-    if (file) {
-      formData.append('file', file);
-      formData.append('fileType', file.type.startsWith('image') ? 'image' : 'file');
-    } else if (audioBlob) {
-      formData.append('file', audioBlob, 'audio.webm');
-      formData.append('fileType', 'audio');
-    }
-
-    await axios.post(`${VITE_BASE_URL}/employer/sendchats`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${getToken()}`
-      }
-    });
-
-    // Refresh messages to get the actual message from server
-    fetchMessages(selectedChat.employeeId, selectedChat.jobId);
-    fetchChats(employerData._id);
-
-  } catch (error) {
-    console.error('Error sending message:', error);
-    // Remove temporary message if failed
-    setMessages(prev => prev.filter(msg => msg._id !== tempId));
-  }
-};
-
-useEffect(() => {
-  if (!selectedChat) return;
-
-  const fetchAndUpdateMessages = async () => {
     try {
-      const response = await axios.get(`${VITE_BASE_URL}/employer/view`, {
-        params: {
-          employeeId: selectedChat.employeeId,
-          employerId: employerData._id,
-          jobId: selectedChat.jobId
-        },
+      const formData = new FormData();
+      formData.append('employeeId', selectedChat.employeeId);
+      formData.append('employerId', employerData._id);
+      formData.append('jobId', selectedChat.jobId);
+      formData.append('message', newMessage);
+      formData.append('sender', 'employer');
+      
+      if (file) {
+        formData.append('file', file);
+        formData.append('fileType', file.type.startsWith('image') ? 'image' : 'file');
+      } else if (audioBlob) {
+        formData.append('file', audioBlob, 'audio.webm');
+        formData.append('fileType', 'audio');
+      }
+
+      await axios.post(`${VITE_BASE_URL}/employer/sendchats`, formData, {
         headers: {
+          'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${getToken()}`
         }
       });
-      
-      if (response.data?.messages) {
-        setMessages(response.data.messages);
-        scrollToBottom();
-      }
+
+      // Refresh messages to get the actual message from server
+      fetchMessages(selectedChat.employeeId, selectedChat.jobId);
+      fetchChats(employerData._id);
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      console.error('Error sending message:', error);
+      // Remove temporary message if failed
+      setMessages(prev => prev.filter(msg => msg._id !== tempId));
     }
   };
 
-  // Initial fetch
-  fetchAndUpdateMessages();
+  useEffect(() => {
+    if (!selectedChat) return;
 
-  // Set up polling (every 2 seconds)
-  const intervalId = setInterval(fetchAndUpdateMessages, 2000);
+    const fetchAndUpdateMessages = async () => {
+      try {
+        const response = await axios.get(`${VITE_BASE_URL}/employer/view`, {
+          params: {
+            employeeId: selectedChat.employeeId,
+            employerId: employerData._id,
+            jobId: selectedChat.jobId
+          },
+          headers: {
+            Authorization: `Bearer ${getToken()}`
+          }
+        });
+        
+        if (response.data?.messages) {
+          setMessages(response.data.messages);
+          scrollToBottom();
+        }
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      }
+    };
 
-  // Clean up interval
-  return () => clearInterval(intervalId);
-}, [selectedChat, employerData]);
+    // Initial fetch
+    fetchAndUpdateMessages();
+
+    // Set up polling (every 2 seconds)
+    const intervalId = setInterval(fetchAndUpdateMessages, 2000);
+
+    // Clean up interval
+    return () => clearInterval(intervalId);
+  }, [selectedChat, employerData]);
 
   // Handle file upload
   const handleFileChange = (e) => {
@@ -260,6 +291,7 @@ useEffect(() => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
   const formatMessageDate = (dateString) => {
     const messageDate = new Date(dateString);
     const today = new Date();
@@ -377,9 +409,11 @@ useEffect(() => {
                                   {new Date(chat.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                                 <div className="chat-pin">
-                                  {index % 3 === 0 && <i className="ti ti-pin me-2"></i>}
-                                  {index % 4 === 0 && <i className="ti ti-heart-filled text-warning"></i>}
-                                  {index % 5 === 0 && <span className="count-message fs-12 fw-semibold">{index % 5 + 1}</span>}
+                                  {chat.unreadCount > 0 && (
+                                    <span className="count-message fs-12 fw-semibold">
+                                      {chat.unreadCount}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -477,11 +511,6 @@ useEffect(() => {
 
                             return (
                               <React.Fragment key={index}>
-                                {/* {showDate && (
-                                <div className="chat-line">
-                                  <span className="chat-date">{messageDate}</span>
-                                </div>
-                              )} */}
                                 {showDate && (
                                   <div className="chat-line">
                                     <span className="chat-date">
@@ -603,7 +632,7 @@ useEffect(() => {
                     </div>
                   </div>
 
-                  <div className="chat-footer" style={{ flexShrink: 0, }}>
+                  <div className="chat-footer" style={{ flexShrink: 0 }}>
                     <form className="footer-form" onSubmit={(e) => {
                       e.preventDefault();
                       sendMessage();

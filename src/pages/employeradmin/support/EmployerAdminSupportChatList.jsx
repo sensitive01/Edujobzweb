@@ -47,7 +47,6 @@ const EmployerAdminSupportChatList = () => {
         }
       });
 
-      // Enhance chat data with employee info
       const enhancedChats = await Promise.all(
         response.data.data.map(async (chat) => {
           try {
@@ -56,17 +55,20 @@ const EmployerAdminSupportChatList = () => {
                 Authorization: `Bearer ${getToken()}`
               }
             });
+            
             return {
               ...chat,
               employeeName: employeeResponse.data.userName,
-              employeeImage: employeeResponse.data.userProfilePic
+              employeeImage: employeeResponse.data.userProfilePic,
+              unreadCount: chat.unreadCount || 0
             };
           } catch (error) {
             console.error('Error fetching employee data:', error);
             return {
               ...chat,
               employeeName: 'Unknown Employee',
-              employeeImage: 'assets/img/profiles/avatar-01.jpg'
+              employeeImage: 'assets/img/profiles/avatar-01.jpg',
+              unreadCount: 0
             };
           }
         })
@@ -94,6 +96,32 @@ const EmployerAdminSupportChatList = () => {
     }
   };
 
+  // Mark messages as read when chat is selected
+  const markMessagesAsRead = async (employeeId, jobId) => {
+    try {
+      await axios.post(`${VITE_BASE_URL}/employer/mark-as-read`, {
+        employeeId,
+        employerId: employerAdminData._id,
+        jobId
+      }, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`
+        }
+      });
+      
+      // Update the chats to reflect the read status
+      setChats(prevChats => 
+        prevChats.map(chat => 
+          chat.employeeId === employeeId && chat.jobId === jobId 
+            ? {...chat, unreadCount: 0} 
+            : chat
+        )
+      );
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+    }
+  };
+
   // Fetch messages for the selected chat
   const fetchMessages = async (employeeId, jobId) => {
     try {
@@ -109,8 +137,12 @@ const EmployerAdminSupportChatList = () => {
           Authorization: `Bearer ${getToken()}`
         }
       });
+      
       setMessages(response.data.messages || []);
       scrollToBottom();
+      
+      // Mark messages as read when fetched
+      await markMessagesAsRead(employeeId, jobId);
     } catch (error) {
       console.error('Error fetching messages:', error);
     }
@@ -124,98 +156,90 @@ const EmployerAdminSupportChatList = () => {
   };
 
   // Send a new message
-   const sendMessage = async () => {
-  if (!newMessage.trim() && !file && !audioBlob) return;
-  if (!selectedChat || !employerAdminData) return;
+  const sendMessage = async () => {
+    if (!newMessage.trim() && !file && !audioBlob) return;
+    if (!selectedChat || !employerAdminData) return;
 
-  // Create a temporary message to show immediately
-  const tempId = Date.now().toString();
-  const tempMessage = {
-    _id: tempId,
-    message: newMessage,
-    sender: 'employer',
-    createdAt: new Date().toISOString(),
-    mediaUrl: file ? URL.createObjectURL(file) : audioBlob ? URL.createObjectURL(audioBlob) : null,
-    mediaType: file ? (file.type.startsWith('image') ? 'image' : 'file') : audioBlob ? 'audio' : null
-  };
+    const tempId = Date.now().toString();
+    const tempMessage = {
+      _id: tempId,
+      message: newMessage,
+      sender: 'employer',
+      createdAt: new Date().toISOString(),
+      mediaUrl: file ? URL.createObjectURL(file) : audioBlob ? URL.createObjectURL(audioBlob) : null,
+      mediaType: file ? (file.type.startsWith('image') ? 'image' : 'file') : audioBlob ? 'audio' : null
+    };
 
-  // Add the message immediately to the UI
-  setMessages(prev => [...prev, tempMessage]);
-  setNewMessage('');
-  setFile(null);
-  setAudioBlob(null);
-  scrollToBottom();
+    // Add the message immediately to the UI
+    setMessages(prev => [...prev, tempMessage]);
+    setNewMessage('');
+    setFile(null);
+    setAudioBlob(null);
+    scrollToBottom();
 
-  try {
-    const formData = new FormData();
-    formData.append('employeeId', selectedChat.employeeId);
-    formData.append('employerId', employerAdminData._id);
-    formData.append('jobId', selectedChat.jobId);
-    formData.append('message', newMessage);
-    formData.append('sender', 'employer');
-    
-    // Add file/audio if exists
-    if (file) {
-      formData.append('file', file);
-      formData.append('fileType', file.type.startsWith('image') ? 'image' : 'file');
-    } else if (audioBlob) {
-      formData.append('file', audioBlob, 'audio.webm');
-      formData.append('fileType', 'audio');
-    }
-
-    await axios.post(`${VITE_BASE_URL}/employer/sendchats`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${getToken()}`
-      }
-    });
-
-    // Refresh messages to get the actual message from server
-    fetchMessages(selectedChat.employeeId, selectedChat.jobId);
-    fetchChats(employerAdminData._id);
-
-  } catch (error) {
-    console.error('Error sending message:', error);
-    // Remove the temporary message if sending failed
-    setMessages(prev => prev.filter(msg => msg._id !== tempId));
-  }
-};
-
-useEffect(() => {
-  if (!selectedChat) return;
-
-  // Function to fetch messages
-  const fetchAndUpdateMessages = async () => {
     try {
-      const response = await axios.get(`${VITE_BASE_URL}/employer/view`, {
-        params: {
-          employeeId: selectedChat.employeeId,
-          employerId: employerAdminData._id,
-          jobId: selectedChat.jobId
-        },
+      const formData = new FormData();
+      formData.append('employeeId', selectedChat.employeeId);
+      formData.append('employerId', employerAdminData._id);
+      formData.append('jobId', selectedChat.jobId);
+      formData.append('message', newMessage);
+      formData.append('sender', 'employer');
+      
+      if (file) {
+        formData.append('file', file);
+        formData.append('fileType', file.type.startsWith('image') ? 'image' : 'file');
+      } else if (audioBlob) {
+        formData.append('file', audioBlob, 'audio.webm');
+        formData.append('fileType', 'audio');
+      }
+
+      await axios.post(`${VITE_BASE_URL}/employer/sendchats`, formData, {
         headers: {
+          'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${getToken()}`
         }
       });
-      
-      if (response.data?.messages) {
-        setMessages(response.data.messages);
-        scrollToBottom();
-      }
+
+      // Refresh messages to get the actual message from server
+      fetchMessages(selectedChat.employeeId, selectedChat.jobId);
+      fetchChats(employerAdminData._id);
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      console.error('Error sending message:', error);
+      // Remove the temporary message if sending failed
+      setMessages(prev => prev.filter(msg => msg._id !== tempId));
     }
   };
 
-  // Initial fetch
-  fetchAndUpdateMessages();
+  useEffect(() => {
+    if (!selectedChat) return;
 
-  // Set up polling (every 2 seconds)
-  const intervalId = setInterval(fetchAndUpdateMessages, 2000);
+    const fetchAndUpdateMessages = async () => {
+      try {
+        const response = await axios.get(`${VITE_BASE_URL}/employer/view`, {
+          params: {
+            employeeId: selectedChat.employeeId,
+            employerId: employerAdminData._id,
+            jobId: selectedChat.jobId
+          },
+          headers: {
+            Authorization: `Bearer ${getToken()}`
+          }
+        });
+        
+        if (response.data?.messages) {
+          setMessages(response.data.messages);
+          scrollToBottom();
+        }
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      }
+    };
 
-  // Clean up interval
-  return () => clearInterval(intervalId);
-}, [selectedChat, employerAdminData]);
+    fetchAndUpdateMessages();
+    const intervalId = setInterval(fetchAndUpdateMessages, 2000);
+
+    return () => clearInterval(intervalId);
+  }, [selectedChat, employerAdminData]);
 
   // Handle file upload
   const handleFileChange = (e) => {
@@ -269,7 +293,6 @@ useEffect(() => {
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
-    // Reset hours to compare just dates
     messageDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
     yesterday.setHours(0, 0, 0, 0);
@@ -382,7 +405,11 @@ useEffect(() => {
                                 <div className="chat-pin">
                                   {index % 3 === 0 && <i className="ti ti-pin me-2"></i>}
                                   {index % 4 === 0 && <i className="ti ti-heart-filled text-warning"></i>}
-                                  {index % 5 === 0 && <span className="count-message fs-12 fw-semibold">{index % 5 + 1}</span>}
+                                  {chat.unreadCount > 0 && (
+                                    <span className="count-message fs-12 fw-semibold">
+                                      {chat.unreadCount}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -473,7 +500,6 @@ useEffect(() => {
                           <div className="text-center py-4">No messages yet. Start the conversation!</div>
                         ) : (
                           messages.map((message, index) => {
-                            // Group messages by date
                             const messageDate = new Date(message.createdAt).toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
                             const prevMessageDate = index > 0 ? new Date(messages[index - 1].createdAt).toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' }) : null;
                             const showDate = index === 0 || messageDate !== prevMessageDate;
@@ -601,7 +627,7 @@ useEffect(() => {
                     </div>
                   </div>
 
-                  <div className="chat-footer" style={{ flexShrink: 0, }}>
+                  <div className="chat-footer" style={{ flexShrink: 0 }}>
                     <form className="footer-form" onSubmit={(e) => {
                       e.preventDefault();
                       sendMessage();
