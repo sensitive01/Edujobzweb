@@ -153,7 +153,7 @@
 //     formData.append('jobId', selectedChat.jobId);
 //     formData.append('message', newMessage);
 //     formData.append('sender', 'employer');
-    
+
 //     if (file) {
 //       formData.append('file', file);
 //       formData.append('fileType', file.type.startsWith('image') ? 'image' : 'file');
@@ -195,7 +195,7 @@
 //           Authorization: `Bearer ${getToken()}`
 //         }
 //       });
-      
+
 //       if (response.data?.messages) {
 //         setMessages(response.data.messages);
 //         scrollToBottom();
@@ -728,6 +728,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import EmployerHeader from './EmployerHeader';
 import EmployerFooter from './EmployerFooter';
+import defaultEmployeeAvatar from '../../assets/employer/assets/img/profiles/avatar-01.jpg';
+import defaultEmployerAvatar from '../../assets/employer/assets/img/profiles/avatar-14.jpg';
 
 const ChatPage = () => {
   const VITE_BASE_URL = 'https://edujobzbackend.onrender.com';
@@ -834,12 +836,12 @@ const ChatPage = () => {
           Authorization: `Bearer ${getToken()}`
         }
       });
-      
+
       // Update the chats to reflect the read status
-      setChats(prevChats => 
-        prevChats.map(chat => 
-          chat.employeeId === employeeId && chat.jobId === jobId 
-            ? {...chat, unreadCount: 0} 
+      setChats(prevChats =>
+        prevChats.map(chat =>
+          chat.employeeId === employeeId && chat.jobId === jobId
+            ? { ...chat, unreadCount: 0 }
             : chat
         )
       );
@@ -863,10 +865,10 @@ const ChatPage = () => {
           Authorization: `Bearer ${getToken()}`
         }
       });
-      
+
       setMessages(response.data.messages || []);
       scrollToBottom();
-      
+
       // Mark messages as read when fetched
       await markMessagesAsRead(employeeId, jobId);
     } catch (error) {
@@ -911,7 +913,7 @@ const ChatPage = () => {
       formData.append('jobId', selectedChat.jobId);
       formData.append('message', newMessage);
       formData.append('sender', 'employer');
-      
+
       if (file) {
         formData.append('file', file);
         formData.append('fileType', file.type.startsWith('image') ? 'image' : 'file');
@@ -952,7 +954,7 @@ const ChatPage = () => {
             Authorization: `Bearer ${getToken()}`
           }
         });
-        
+
         if (response.data?.messages) {
           setMessages(response.data.messages);
           scrollToBottom();
@@ -1115,11 +1117,11 @@ const ChatPage = () => {
                           <a href="javascript:void(0)" className="chat-user-list">
                             <div className="avatar avatar-lg online me-2">
                               <img
-                                src={chat.employeeImage || 'assets/img/profiles/avatar-01.jpg'}
+                                src={chat.employeeImage || defaultEmployeeAvatar}
                                 className="rounded-circle"
                                 alt={chat.employeeName}
                                 onError={(e) => {
-                                  e.target.src = 'assets/img/profiles/avatar-01.jpg';
+                                  e.target.src = defaultEmployeeAvatar;
                                 }}
                               />
                             </div>
@@ -1178,11 +1180,11 @@ const ChatPage = () => {
                         </div>
                         <div className="avatar avatar-lg online flex-shrink-0">
                           <img
-                            src={selectedChat.employeeImage || 'assets/img/profiles/avatar-01.jpg'}
+                            src={selectedChat.employeeImage || defaultEmployeeAvatar}
                             className="rounded-circle"
                             alt={selectedChat.employeeName}
                             onError={(e) => {
-                              e.target.src = 'assets/img/profiles/avatar-01.jpg';
+                              e.target.src = defaultEmployeeAvatar;
                             }}
                           />
                         </div>
@@ -1249,11 +1251,11 @@ const ChatPage = () => {
                                   {message.sender !== 'employer' && (
                                     <div className="chat-avatar">
                                       <img
-                                        src={selectedChat.employeeImage || 'assets/img/profiles/avatar-01.jpg'}
+                                        src={selectedChat.employeeImage || defaultEmployeeAvatar}
                                         className="rounded-circle"
                                         alt={selectedChat.employeeName}
                                         onError={(e) => {
-                                          e.target.src = 'assets/img/profiles/avatar-01.jpg';
+                                          e.target.src = defaultEmployeeAvatar;
                                         }}
                                       />
                                     </div>
@@ -1265,9 +1267,12 @@ const ChatPage = () => {
                                         {message.mediaUrl ? (
                                           message.mediaType === 'image' ? (
                                             <img
-                                              src={message.mediaUrl}
+                                              src={message.mediaUrl || defaultEmployeeAvatar}
                                               alt="Sent image"
                                               style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '8px' }}
+                                              onError={(e) => {
+                                                e.target.src = defaultEmployeeAvatar;
+                                              }}
                                             />
                                           ) : message.mediaType === 'audio' ? (
                                             <audio controls>
@@ -1339,11 +1344,11 @@ const ChatPage = () => {
                                   {message.sender === 'employer' && (
                                     <div className="chat-avatar">
                                       <img
-                                        src={employerData?.userProfilePic || 'assets/img/profiles/avatar-14.jpg'}
+                                        src={employerData?.userProfilePic || defaultEmployerAvatar}
                                         className="rounded-circle dreams_chat"
                                         alt="You"
                                         onError={(e) => {
-                                          e.target.src = 'assets/img/profiles/avatar-14.jpg';
+                                          e.target.src = defaultEmployerAvatar;
                                         }}
                                       />
                                     </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CandidatesBreadcrumb from './CandidatesBreadcrumb';
+import defaultEmployeeAvatar from '../../assets/employer/assets/img/profiles/avatar-12.jpg';
 
 
 
@@ -122,7 +123,7 @@ const CandidatesListEmployeer = () => {
                     ))
                   ) : (
                     <div className="col-12 text-center py-5">
-                      <img src="/images/no-jobs-found.png" alt="No candidates found" width="150" className="mb-3" />
+                      <img src={defaultEmployeeAvatar} alt="No candidates found" width="150" className="mb-3" />
                       <h4>No candidates have applied yet</h4>
                       <p className="text-muted">Check back later for applications</p>
                     </div>

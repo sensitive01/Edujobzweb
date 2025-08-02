@@ -9,6 +9,7 @@ import axios from 'axios';
 import EmployeerChatSidebar from './EmployeerChatSidebar';
 import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
 import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
+import defaultEmployeeAvatar from '../../../assets/employer-admin/assets/img/profiles/avatar-12.jpg';
 
 const EmployeerAdminJobIdShortlistedCandidates = () => {
   const { id: jobId } = useParams();
@@ -1354,7 +1355,7 @@ const EmployeerAdminJobIdShortlistedCandidates = () => {
                     ))
                   ) : (
                     <div className="col-12 text-center py-5">
-                      <img src="/images/no-jobs-found.png" alt="No candidates found" width="150" className="mb-3" />
+                      <img src={defaultEmployeeAvatar} alt="No candidates found" width="150" className="mb-3" />
                       <h4>No candidates found</h4>
                       <p className="text-muted">Try adjusting your search filters</p>
                     </div>

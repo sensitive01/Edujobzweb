@@ -3,7 +3,7 @@ import Jobsbreadcrumb from './jobsbreadcrumb';
 import { Search } from 'lucide-react';
 import JobsFilter from './JobsFilter';
 import { useLocation } from 'react-router-dom';
-
+import defaultEmployeeAvatar from '../../../assets/employer-admin/assets/img/profiles/avatar-12.jpg';
 const JobsPage = () => {
   const location = useLocation();
   const [allJobListings, setAllJobListings] = useState([]);
@@ -376,7 +376,7 @@ const JobsPage = () => {
                     ))
                   ) : (
                     <div className="col-12 text-center py-5">
-                      <img src="/images/no-jobs-found.png" alt="No jobs found" width="150" className="mb-3" />
+                      <img src={defaultEmployeeAvatar} alt="No jobs found" width="150" className="mb-3" />
                       <h4>
                         {filters.category
                           ? `No ${filters.category} jobs found matching your criteria`

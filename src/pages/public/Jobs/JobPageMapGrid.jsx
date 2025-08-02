@@ -3,6 +3,7 @@ import JobsFilter from './JobsFilter';
 import Jobsbreadcrumb from './jobsbreadcrumb';
 import { Filter, Search, X, Bookmark, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import defaultEmployeeAvatar from '../../../assets/employer-admin/assets/img/profiles/avatar-12.jpg';
 
 const JobPageMapGrid = () => {
   const [allJobListings, setAllJobListings] = useState([]);
@@ -317,7 +318,7 @@ const JobPageMapGrid = () => {
                     ))
                   ) : (
                     <div className="col-12 text-center py-5">
-                      <img src="/images/no-jobs-found.png" alt="No jobs found" width="150" className="mb-3" />
+                      <img src={defaultEmployeeAvatar} alt="No jobs found" width="150" className="mb-3" />
                       <h4>No jobs found matching your criteria</h4>
                       <p className="text-muted">Try adjusting your search filters</p>
                       <button

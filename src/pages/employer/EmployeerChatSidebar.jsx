@@ -1238,6 +1238,8 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import defaultEmployerAvatar from '../../assets/employer/assets/img/profiles/avatar-14.jpg';
+import defaultEmployeeAvatar from '../../assets/employer/assets/img/profiles/avatar-29.jpg';
 
 const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
     const [messages, setMessages] = useState([]);
@@ -2262,7 +2264,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
                                             </div>
                                             <div className="chat-avatar">
                                                 <img
-                                                    src={employerProfile?.userProfilePic || employerData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg'}
+                                                    src={employerProfile?.userProfilePic || employerData.profilePicture ||  defaultEmployerAvatar}
                                                     className="rounded-circle"
                                                     alt="image"
                                                     style={avatarStyles}
@@ -2289,7 +2291,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
                                         <div className="chats mb-3" style={theirMessageStyles}>
                                             <div className="chat-avatar me-2">
                                                 <img
-                                                    src={employeeDetails?.userProfilePic || candidate?.avatar || 'employer/assets/img/profiles/avatar-29.jpg'}
+                                                    src={employeeDetails?.userProfilePic || candidate?.avatar || defaultEmployeeAvatar}
                                                     className="rounded-circle"
                                                     alt="image"
                                                     style={avatarStyles}

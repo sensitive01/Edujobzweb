@@ -201,7 +201,7 @@
 //     formData.append('jobId', selectedChat.jobId);
 //     formData.append('message', newMessage);
 //     formData.append('sender', 'employer');
-    
+
 //     // Add file/audio if exists
 //     if (file) {
 //       formData.append('file', file);
@@ -245,7 +245,7 @@
 //           Authorization: `Bearer ${getToken()}`
 //         }
 //       });
-      
+
 //       if (response.data?.messages) {
 //         setMessages(response.data.messages);
 //         scrollToBottom();
@@ -774,6 +774,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
 import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
+import defaultEmployeeAvatar from '../../../assets/employer-admin/assets/img/profiles/avatar-01.jpg';
+import defaultEmployerAvatar from '../../../assets/employer-admin/assets/img/profiles/avatar-14.jpg';
 
 const EmployeerAdminMessage = () => {
   const VITE_BASE_URL = 'https://edujobzbackend.onrender.com';
@@ -862,14 +864,14 @@ const EmployeerAdminMessage = () => {
       );
 
       setChats(enhancedChats);
-      
+
       // Update unread counts state
       const counts = {};
       enhancedChats.forEach(chat => {
         counts[`${chat.employeeId}-${chat.jobId}`] = chat.unreadCount;
       });
       setUnreadCounts(counts);
-      
+
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching chats:', error);
@@ -898,10 +900,10 @@ const EmployeerAdminMessage = () => {
       }));
 
       // Update chats to reflect read status
-      setChats(prevChats => 
-        prevChats.map(chat => 
-          chat.employeeId === employeeId && chat.jobId === jobId 
-            ? { ...chat, unreadCount: 0 } 
+      setChats(prevChats =>
+        prevChats.map(chat =>
+          chat.employeeId === employeeId && chat.jobId === jobId
+            ? { ...chat, unreadCount: 0 }
             : chat
         )
       );
@@ -941,7 +943,7 @@ const EmployeerAdminMessage = () => {
       });
       setMessages(response.data.messages || []);
       scrollToBottom();
-      
+
       // Mark messages as read when fetched
       markMessagesAsRead(employeeId, jobId);
     } catch (error) {
@@ -985,7 +987,7 @@ const EmployeerAdminMessage = () => {
       formData.append('jobId', selectedChat.jobId);
       formData.append('message', newMessage);
       formData.append('sender', 'employer');
-      
+
       // Add file/audio if exists
       if (file) {
         formData.append('file', file);
@@ -1029,7 +1031,7 @@ const EmployeerAdminMessage = () => {
             Authorization: `Bearer ${getToken()}`
           }
         });
-        
+
         if (response.data?.messages) {
           setMessages(response.data.messages);
           scrollToBottom();
@@ -1255,11 +1257,11 @@ const EmployeerAdminMessage = () => {
                         </div>
                         <div className="avatar avatar-lg online flex-shrink-0">
                           <img
-                            src={selectedChat.employeeImage || 'assets/img/profiles/avatar-01.jpg'}
+                            src={selectedChat.employeeImage || defaultEmployeeAvatar}
                             className="rounded-circle"
                             alt={selectedChat.employeeName}
                             onError={(e) => {
-                              e.target.src = 'assets/img/profiles/avatar-01.jpg';
+                              e.target.src = defaultEmployeeAvatar;
                             }}
                           />
                         </div>
@@ -1326,11 +1328,11 @@ const EmployeerAdminMessage = () => {
                                   {message.sender !== 'employer' && (
                                     <div className="chat-avatar">
                                       <img
-                                        src={selectedChat.employeeImage || 'assets/img/profiles/avatar-01.jpg'}
+                                        src={selectedChat.employeeImage || defaultEmployeeAvatar}
                                         className="rounded-circle"
                                         alt={selectedChat.employeeName}
                                         onError={(e) => {
-                                          e.target.src = 'assets/img/profiles/avatar-01.jpg';
+                                          e.target.src = defaultEmployeeAvatar;
                                         }}
                                       />
                                     </div>
@@ -1342,9 +1344,12 @@ const EmployeerAdminMessage = () => {
                                         {message.mediaUrl ? (
                                           message.mediaType === 'image' ? (
                                             <img
-                                              src={message.mediaUrl}
+                                              src={message.mediaUrl || defaultEmployeeAvatar}
                                               alt="Sent image"
                                               style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '8px' }}
+                                              onError={(e) => {
+                                                e.target.src = defaultEmployeeAvatar;
+                                              }}
                                             />
                                           ) : message.mediaType === 'audio' ? (
                                             <audio controls>
@@ -1416,11 +1421,11 @@ const EmployeerAdminMessage = () => {
                                   {message.sender === 'employer' && (
                                     <div className="chat-avatar">
                                       <img
-                                        src={employerAdminData?.userProfilePic || 'assets/img/profiles/avatar-14.jpg'}
+                                        src={employerAdminData?.userProfilePic || defaultEmployerAvatar}
                                         className="rounded-circle dreams_chat"
                                         alt="You"
                                         onError={(e) => {
-                                          e.target.src = 'assets/img/profiles/avatar-14.jpg';
+                                          e.target.src = defaultEmployerAvatar;
                                         }}
                                       />
                                     </div>

@@ -213,22 +213,29 @@ const EmployeerAdminGridJobUnit = () => {
     filterAndSortJobs();
   }, [jobs, filters, searchTerm]);
 
-  const fetchJobs = async () => {
-    try {
-      setLoading(true);
-      const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
 
-      if (!employerAdminData || !employerAdminData._id) {
-        throw new Error('Employer not logged in or missing ID');
-      }
+   const fetchJobs = async () => {
+  try {
+    setLoading(true);
+    const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
 
-      const response = await axios.get(`https://edujobzbackend.onrender.com/employeradmin/getjobsbyorg/${employerAdminData._id}`);
+    if (!employerAdminData || !employerAdminData._id) {
+      throw new Error('Employer not logged in or missing ID');
+    }
 
-      if (!response.data || response.data.length === 0) {
-        throw new Error('No jobs found for this employer');
-      }
+    const response = await axios.get(
+      `https://edujobzbackend.onrender.com/employeradmin/getjobsbyorg/${employerAdminData._id}`
+    );
 
-      const formattedJobs = response.data.data.map(job => ({
+    // Handle case when no jobs are found (empty array)
+    if (!response.data || !response.data.data || response.data.data.length === 0) {
+      setJobs([]);
+      setFilteredJobs([]);
+      setLoading(false);
+      return; // Exit early
+    }
+
+    const formattedJobs = response.data.data.map(job => ({
         id: job._id,
         title: job.jobTitle,
         employerProfilePic: job.employerProfilePic,
@@ -252,19 +259,24 @@ const EmployeerAdminGridJobUnit = () => {
         createdDate: new Date(job.createdAt),
         priority: job.priority || 'null',
         educationLevel: job.educationLevel || ''
-      }));
+         }));
 
-      setJobs(formattedJobs);
-      setLoading(false);
-      setError(null);
-    } catch (err) {
+    setJobs(formattedJobs);
+    setFilteredJobs(formattedJobs); // Initialize filteredJobs with all jobs
+    setLoading(false);
+    setError(null);
+  } catch (err) {
+    // Handle 404 specifically
+    if (err.response && err.response.status === 404) {
+      setJobs([]);
+      setFilteredJobs([]);
+    } else {
       console.error('Error fetching jobs:', err);
       setError(err.message || 'Failed to load jobs. Please try again later.');
-      setLoading(false);
-      setJobs([]);
     }
-  };
-
+    setLoading(false);
+  }
+};
 
   const formatDate = (dateString) => {
     try {

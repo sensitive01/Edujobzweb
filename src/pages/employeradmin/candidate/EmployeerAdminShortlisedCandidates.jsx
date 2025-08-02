@@ -7,6 +7,7 @@ import EmployeerChatSidebar from './EmployeerChatSidebar';
 import { useNavigate } from 'react-router-dom';
 import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
 import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
+import defaultEmployeeAvatar from '../../../assets/employer-admin/assets/img/profiles/avatar-12.jpg';
 
 const EmployeerAdminShortlisedCandidates = () => {
   const [showCandidateModal, setShowCandidateModal] = useState(false);
@@ -1321,7 +1322,7 @@ useEffect(() => {
                     ))
                   ) : (
                     <div className="col-12 text-center py-5">
-                      <img src="/images/no-jobs-found.png" alt="No shortlisted candidates found" width="150" className="mb-3" />
+                      <img src={defaultEmployeeAvatar} alt="No shortlisted candidates found" width="150" className="mb-3" />
                       <h4>No shortlisted candidates found</h4>
                       <p className="text-muted">Try adjusting your search filters</p>
                     </div>

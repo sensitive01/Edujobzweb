@@ -9,6 +9,7 @@ import EmployeerChatSidebar from './EmployeerChatSidebar';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import defaultEmployeeAvatar from '../../assets/employer/assets/img/profiles/avatar-12.jpg';
 
 const EmployeerShortlisedCandidates = () => {
   const [showCandidateModal, setShowCandidateModal] = useState(false);
@@ -1349,7 +1350,7 @@ const EmployeerShortlisedCandidates = () => {
                     ))
                   ) : (
                     <div className="col-12 text-center py-5">
-                      <img src="/images/no-jobs-found.png" alt="No shortlisted candidates found" width="150" className="mb-3" />
+                      <img src={defaultEmployeeAvatar} alt="No shortlisted candidates found" width="150" className="mb-3" />
                       <h4>No shortlisted candidates found</h4>
                       <p className="text-muted">Try adjusting your search filters</p>
                     </div>

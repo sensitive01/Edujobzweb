@@ -8,6 +8,7 @@ import EmployerCandidatesDetails from './EmployerCandidatesDetails';
 import EmployeerChatSidebar from './EmployeerChatSidebar';
 import { FaArrowCircleUp } from 'react-icons/fa';
 import SearchChat from './searchchat/SearchChat';
+import defaultEmployeeAvatar from '../../assets/employer/assets/img/profiles/avatar-12.jpg';
 
 const EmployeerCandidatesSearch = () => {
   const [sortBy, setSortBy] = useState('Sort By : Last 7 Days');
@@ -1277,7 +1278,7 @@ const EmployeerCandidatesSearch = () => {
                 <div className="col-12">
                   <div className="card">
                     <div className="card-body text-center py-5">
-                      <img src="/images/no-results.png" alt="No results" width="150" className="mb-3" />
+                      <img src={defaultEmployeeAvatar} alt="No results" width="150" className="mb-3" />
                       <h4>No candidates found</h4>
                       <p className="text-muted">Try adjusting your search query or filters</p>
                     </div>

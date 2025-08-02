@@ -8,6 +8,7 @@ import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import EmployerHeader from './EmployerHeader';
 import EmployerFooter from './EmployerFooter';
+import defaultEmployeeAvatar from '../../assets/employer/assets/img/profiles/avatar-12.jpg';
 
 
 
@@ -867,9 +868,13 @@ const EmployeerJobList = () => {
                                                     <div className="d-flex align-items-center file-name-icon">
                                                         <a href="#" className="avatar avatar-md bg-light rounded">
                                                             <img
-                                                                src={`assets/img/icons/${job.employerProfilePic}`}
+                                                                src={job.employerProfilePic ? `assets/img/icons/${job.employerProfilePic}` : defaultEmployeeAvatar}
                                                                 className="img-fluid rounded-circle"
-                                                                alt="img"
+                                                                alt="employer profile"
+                                                                onError={(e) => {
+                                                                    e.target.onerror = null; // Prevent infinite loop if default image fails
+                                                                    e.target.src = defaultEmployeeAvatar;
+                                                                }}
                                                             />
                                                         </a>
                                                         <div className="ms-2">

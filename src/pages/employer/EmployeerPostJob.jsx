@@ -212,57 +212,69 @@ const EmployeerPostJob = () => {
     filterAndSortJobs();
   }, [jobs, filters, searchTerm]);
 
-  const fetchJobs = async () => {
-    try {
-      setLoading(true);
-      const employerData = JSON.parse(localStorage.getItem('employerData'));
+const fetchJobs = async () => {
+  try {
+    setLoading(true);
+    const employerData = JSON.parse(localStorage.getItem('employerData'));
 
-      if (!employerData || !employerData._id) {
-        throw new Error('Employer not logged in or missing ID');
-      }
+    if (!employerData || !employerData._id) {
+      throw new Error('Employer not logged in or missing ID');
+    }
 
-      const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`);
+    const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`);
 
-      if (!response.data || response.data.length === 0) {
-        throw new Error('No jobs found for this employer');
-      }
-
-      const formattedJobs = response.data.map(job => ({
-        id: job._id,
-        title: job.jobTitle,
-        employerProfilePic: job.employerProfilePic,
-        applicants: job.applications?.length || 0,
-        shortlisted: job.applications?.filter(app => app.employapplicantstatus === 'Shortlisted').length || 0,
-        location: job.location,
-        salaryFrom: job.salaryFrom || 0,
-        salaryTo: job.salaryTo || 0,
-        salary: `${job.salaryFrom || 'N/A'} - ${job.salaryTo || 'N/A'} ${job.salaryType || ''}`,
-        experience: job.experienceLevel || 'Not specified',
-        type: job.jobType || 'Not specified',
-        category: job.category || 'Not specified',
-        accommodation: job.benefits || "Not specified",
-        skills: job.skills || [],
-        postedDate: formatDate(job.createdAt),
-        icon: job.employerProfilePic || "default.svg",
-        description: job.description || '',
-        remote: job.isRemote || false,
-        applications: job.applications || [],
-        status: job.isActive ? 'Active' : 'Inactive',
-        createdDate: new Date(job.createdAt),
-        priority: job.priority || 'null',
-        educationLevel: job.educationLevel || ''
-      }));
-
-      setJobs(formattedJobs);
+    // Handle case when no jobs are found (empty array or no data)
+    if (!response.data || response.data.length === 0) {
+      setJobs([]);
+      setFilteredJobs([]);
       setLoading(false);
-      setError(null);
-    } catch (err) {
+      setError(null); // Clear any previous error
+      return; // Exit early
+    }
+
+    const formattedJobs = response.data.map(job => ({
+      id: job._id,
+      title: job.jobTitle,
+      employerProfilePic: job.employerProfilePic,
+      applicants: job.applications?.length || 0,
+      shortlisted: job.applications?.filter(app => app.employapplicantstatus === 'Shortlisted').length || 0,
+      location: job.location,
+      salaryFrom: job.salaryFrom || 0,
+      salaryTo: job.salaryTo || 0,
+      salary: `${job.salaryFrom || 'N/A'} - ${job.salaryTo || 'N/A'} ${job.salaryType || ''}`,
+      experience: job.experienceLevel || 'Not specified',
+      type: job.jobType || 'Not specified',
+      category: job.category || 'Not specified',
+      accommodation: job.benefits || "Not specified",
+      skills: job.skills || [],
+      postedDate: formatDate(job.createdAt),
+      icon: job.employerProfilePic || "default.svg",
+      description: job.description || '',
+      remote: job.isRemote || false,
+      applications: job.applications || [],
+      status: job.isActive ? 'Active' : 'Inactive',
+      createdDate: new Date(job.createdAt),
+      priority: job.priority || 'null',
+      educationLevel: job.educationLevel || ''
+    }));
+
+    setJobs(formattedJobs);
+    setFilteredJobs(formattedJobs);
+    setLoading(false);
+    setError(null);
+  } catch (err) {
+    // Handle 404 specifically (no jobs found)
+    if (err.response && err.response.status === 404) {
+      setJobs([]);
+      setFilteredJobs([]);
+      setError(null); // No error to show for 404
+    } else {
       console.error('Error fetching jobs:', err);
       setError(err.message || 'Failed to load jobs. Please try again later.');
-      setLoading(false);
-      setJobs([]);
     }
-  };
+    setLoading(false);
+  }
+};
 
   const formatDate = (dateString) => {
     try {

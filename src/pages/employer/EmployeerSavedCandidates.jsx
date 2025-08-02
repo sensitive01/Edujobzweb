@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import EmployeerChatSidebar from './EmployeerChatSidebar';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import defaultEmployeeAvatar from '../../assets/employer-admin/assets/img/profiles/avatar-12.jpg';
 
 const EmployeerSavedCandidates = () => {
   const [showCandidateModal, setShowCandidateModal] = useState(false);
@@ -1329,7 +1330,7 @@ const EmployeerSavedCandidates = () => {
                     ))
                   ) : (
                     <div className="col-12 text-center py-5">
-                      <img src="/images/no-jobs-found.png" alt="No Saved candidates found" width="150" className="mb-3" />
+                      <img src={defaultEmployeeAvatar} alt="No Saved candidates found" width="150" className="mb-3" />
                       <h4>No Saved candidates found</h4>
                       <p className="text-muted">Try adjusting your search filters</p>
                     </div>

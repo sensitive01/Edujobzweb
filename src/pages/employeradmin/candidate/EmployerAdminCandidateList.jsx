@@ -5,7 +5,11 @@ import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
 import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
 import AddCandidateModal from '../addcandidatemodal/AddCandidateModal';
 import EditCandidateModal from '../addcandidatemodal/EditCandidatemodal';
-
+import defaultEmployeeReport from '../../../assets/employer-admin/assets/img/reports-img/employee-report-icon.svg';
+import defaultEmployeesuccess from '../../../assets/employer-admin/assets/img/reports-img/employee-report-success.svg';
+import defaultEmployeeinfo from '../../../assets/employer-admin/assets/img/reports-img/employee-report-info.svg';
+import defaultEmployeedanger from '../../../assets/employer-admin/assets/img/reports-img/employee-report-danger.svg';
+import user13 from '../../../assets/employer-admin/assets/img/users/user-13.jpg';
 const EmployerAdminCandidateList = () => {
   const navigate = useNavigate();
   const [candidates, setCandidates] = useState([]);
@@ -15,7 +19,7 @@ const EmployerAdminCandidateList = () => {
   const [selectedRole, setSelectedRole] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [sortBy, setSortBy] = useState('Last 7 Days');
-  const [dateRange, setDateRange] = useState('');
+  // const [dateRange, setDateRange] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedYear, setSelectedYear] = useState('This Year');
   const [selectedCandidates, setSelectedCandidates] = useState([]);
@@ -35,13 +39,123 @@ const EmployerAdminCandidateList = () => {
   const [location, setLocation] = useState('');
   const [qualification, setQualification] = useState('');
   const [experienceRange, setExperienceRange] = useState({ min: '', max: '' });
+  const [dateRange, setDateRange] = useState({
+    start: '',
+    end: ''
+  });
+  const [selectedDateRange, setSelectedDateRange] = useState('This Year');
+  const [showDateDropdown, setShowDateDropdown] = useState(false);
+
+  const getDynamicDateRangeOptions = () => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1;
+    const currentDate = today.getDate();
+
+    return [
+      {
+        label: 'Today',
+        value: 'today',
+        dateLabel: `${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`
+      },
+      {
+        label: 'Yesterday',
+        value: 'yesterday',
+        dateLabel: (() => {
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          return `${yesterday.getDate().toString().padStart(2, '0')}/${(yesterday.getMonth() + 1).toString().padStart(2, '0')}/${yesterday.getFullYear()}`;
+        })()
+      },
+      {
+        label: 'Last 7 Days',
+        value: 'last7days',
+        dateLabel: (() => {
+          const week = new Date(today);
+          week.setDate(week.getDate() - 7);
+          return `${week.getDate().toString().padStart(2, '0')}/${(week.getMonth() + 1).toString().padStart(2, '0')}/${week.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
+        })()
+      },
+      {
+        label: 'Last 30 Days',
+        value: 'last30days',
+        dateLabel: (() => {
+          const month = new Date(today);
+          month.setDate(month.getDate() - 30);
+          return `${month.getDate().toString().padStart(2, '0')}/${(month.getMonth() + 1).toString().padStart(2, '0')}/${month.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
+        })()
+      },
+      {
+        label: 'This Year',
+        value: 'thisyear',
+        dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`
+      },
+      {
+        label: 'Last Year',
+        value: 'lastyear',
+        dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`
+      },
+      {
+        label: 'Custom Range',
+        value: 'custom',
+        dateLabel: 'Select dates'
+      }
+    ];
+  };
+
+  const handleDateRangeSelect = (option) => {
+    if (option.value === 'custom') {
+      setSelectedDateRange('Custom Range');
+      return;
+    }
+
+    setSelectedDateRange(option.label);
+    const today = new Date();
+    let startDate, endDate;
+
+    switch (option.value) {
+      case 'today':
+        startDate = endDate = today.toISOString().split('T')[0];
+        break;
+      case 'yesterday':
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        startDate = endDate = yesterday.toISOString().split('T')[0];
+        break;
+      case 'last7days':
+        const week = new Date(today);
+        week.setDate(week.getDate() - 7);
+        startDate = week.toISOString().split('T')[0];
+        endDate = today.toISOString().split('T')[0];
+        break;
+      case 'last30days':
+        const month = new Date(today);
+        month.setDate(month.getDate() - 30);
+        startDate = month.toISOString().split('T')[0];
+        endDate = today.toISOString().split('T')[0];
+        break;
+      case 'thisyear':
+        startDate = `${today.getFullYear()}-01-01`;
+        endDate = `${today.getFullYear()}-12-31`;
+        break;
+      case 'lastyear':
+        startDate = `${today.getFullYear() - 1}-01-01`;
+        endDate = `${today.getFullYear() - 1}-12-31`;
+        break;
+      default:
+        return;
+    }
+
+    setDateRange({ start: startDate, end: endDate });
+  };
+
 
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('EmployerAdminToken');
-       const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+        const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
 
         if (!token || !employerAdminData._id) {
           navigate('/employer/login');
@@ -105,6 +219,21 @@ const EmployerAdminCandidateList = () => {
   const applyFilters = () => {
     let filtered = [...candidates];
 
+    if (dateRange.start && dateRange.end) {
+      const startDate = new Date(dateRange.start);
+      const endDate = new Date(dateRange.end);
+
+      // Set time to beginning and end of day respectively
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
+
+      filtered = filtered.filter(candidate => {
+        if (!candidate.appliedDate) return false;
+        const appliedDate = new Date(candidate.appliedDate);
+        return appliedDate >= startDate && appliedDate <= endDate;
+      });
+    }
+
     // Role filter
     if (selectedRole !== 'All') {
       filtered = filtered.filter(candidate => candidate.jobrole === selectedRole);
@@ -125,10 +254,10 @@ const EmployerAdminCandidateList = () => {
       );
     }
 
-     // Job Category filter
+    // Job Category filter
     const selectedCategories = Object.keys(jobCategories).filter(cat => jobCategories[cat]);
     if (selectedCategories.length > 0) {
-      filtered = filtered.filter(candidate => 
+      filtered = filtered.filter(candidate =>
         selectedCategories.includes(candidate.jobCategory)
       );
     }
@@ -205,6 +334,8 @@ const EmployerAdminCandidateList = () => {
     setLocation('');
     setQualification('');
     setExperienceRange({ min: '', max: '' });
+    setDateRange({ start: '', end: '' });
+    setSelectedDateRange('This Year');
     setFilteredCandidates(candidates);
   };
 
@@ -337,7 +468,9 @@ const EmployerAdminCandidateList = () => {
         return 'border border-purple text-purple';
     }
   };
-
+  useEffect(() => {
+    applyFilters();
+  }, [selectedRole, selectedStatus, searchTerm, dateRange]);
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
@@ -365,20 +498,104 @@ const EmployerAdminCandidateList = () => {
             <h2>&nbsp; <i className="fa fa-users text-primary"></i> Candidates</h2>
           </div>
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
-            <div className="me-2">
-              <div className="input-icon-end position-relative">
-                <input
-                  type="text"
-                  className="form-control date-range bookingrange"
-                  style={{ width: '205px' }}
-                  placeholder="dd/mm/yyyy - dd/mm/yyyy"
-                  value={dateRange}
-                  onChange={(e) => setDateRange(e.target.value)}
-                />
-                <span className="input-icon-addon">
-                  <i className="ti ti-chevron-down"></i>
-                </span>
-              </div>
+            <div className="dropdown me-2">
+              <button
+                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                onClick={() => setShowDateDropdown(!showDateDropdown)}
+              >
+                <i className="ti ti-calendar me-1"></i>
+                {selectedDateRange || 'Select Date Range'}
+              </button>
+              <ul
+                className={`dropdown-menu dropdown-menu-end p-3 ${showDateDropdown ? 'show' : ''}`}
+                style={{ minWidth: '280px' }}
+              >
+                {selectedDateRange === 'Custom Range' ? (
+                  // Custom Range Date Picker View
+                  <li className="p-2">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <h6 className="mb-0">Select Date Range</h6>
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => setSelectedDateRange('')}
+                      >
+                        <i className="ti ti-arrow-left"></i> Back
+                      </button>
+                    </div>
+                    <div className="d-flex align-items-center mb-2">
+                      <input
+                        type="date"
+                        className="form-control me-2"
+                        style={{ fontSize: '12px' }}
+                        value={dateRange.start}
+                        onChange={(e) => {
+                          setDateRange({ ...dateRange, start: e.target.value });
+                          if (dateRange.end && e.target.value) {
+                            setSelectedDateRange(`${e.target.value} - ${dateRange.end}`);
+                          }
+                        }}
+                        placeholder="Start Date"
+                      />
+                      <span className="me-2">to</span>
+                      <input
+                        type="date"
+                        className="form-control"
+                        style={{ fontSize: '12px' }}
+                        value={dateRange.end}
+                        onChange={(e) => {
+                          setDateRange({ ...dateRange, end: e.target.value });
+                          if (dateRange.start && e.target.value) {
+                            setSelectedDateRange(`${dateRange.start} - ${e.target.value}`);
+                          }
+                        }}
+                        min={dateRange.start}
+                        placeholder="End Date"
+                      />
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => {
+                          setDateRange({ start: '', end: '' });
+                          setSelectedDateRange('');
+                          setShowDateDropdown(false);
+                        }}
+                      >
+                        Clear
+                      </button>
+                      <button
+                        className="btn btn-sm btn-primary"
+                        onClick={() => {
+                          if (dateRange.start && dateRange.end) {
+                            setShowDateDropdown(false);
+                          }
+                        }}
+                        disabled={!dateRange.start || !dateRange.end}
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </li>
+                ) : (
+                  // Regular Date Range Options
+                  <>
+                    {getDynamicDateRangeOptions().map((option) => (
+                      <li key={option.value}>
+                        <button
+                          className="dropdown-item rounded-1 d-flex justify-content-between align-items-center"
+                          onClick={() => {
+                            handleDateRangeSelect(option);
+                            setShowDateDropdown(false);
+                          }}
+                        >
+                          <span>{option.label}</span>
+                          <small className="text-muted">{option.dateLabel}</small>
+                        </button>
+                      </li>
+                    ))}
+                  </>
+                )}
+              </ul>
             </div>
 
             <div className="dropdown me-2">
@@ -570,7 +787,7 @@ const EmployerAdminCandidateList = () => {
                   <div className="card-body">
                     <div className="overflow-hidden d-flex mb-2 align-items-center">
                       <span className="me-2">
-                        <img src="/assets/img/reports-img/employee-report-icon.svg" alt="Img" className="img-fluid" />
+                        <img src={defaultEmployeeReport} alt="Img" className="img-fluid" />
                       </span>
                       <div>
                         <p className="fs-14 fw-bold mb-1 text-primary">Total Candidates</p>
@@ -596,7 +813,7 @@ const EmployerAdminCandidateList = () => {
                   <div className="card-body">
                     <div className="overflow-hidden d-flex mb-2 align-items-center">
                       <span className="me-2">
-                        <img src="/assets/img/reports-img/employee-report-success.svg" alt="Img" className="img-fluid" />
+                        <img src={defaultEmployeesuccess} alt="Img" className="img-fluid" />
                       </span>
                       <div>
                         <p className="fs-14 fw-bold mb-1 text-primary">Shortlisted Candidates</p>
@@ -622,7 +839,7 @@ const EmployerAdminCandidateList = () => {
                   <div className="card-body">
                     <div className="overflow-hidden d-flex mb-2 align-items-center">
                       <span className="me-2">
-                        <img src="/assets/img/reports-img/employee-report-info.svg" alt="Img" className="img-fluid" />
+                        <img src={defaultEmployeeinfo} alt="Img" className="img-fluid" />
                       </span>
                       <div>
                         <p className="fs-14 fw-bold mb-1 text-primary">New Candidates</p>
@@ -653,7 +870,7 @@ const EmployerAdminCandidateList = () => {
                   <div className="card-body">
                     <div className="overflow-hidden d-flex mb-2 align-items-center">
                       <span className="me-2">
-                        <img src="/assets/img/reports-img/employee-report-danger.svg" alt="Img" className="img-fluid" />
+                        <img src={defaultEmployeedanger} alt="Img" className="img-fluid" />
                       </span>
                       <div>
                         <p className="fs-14 fw-bold mb-1 text-primary">Inactive Candidates</p>
@@ -776,9 +993,12 @@ const EmployerAdminCandidateList = () => {
                               viewCandidateDetails(candidate);
                             }} className="avatar avatar-md">
                               <img
-                                src={candidate.profileurl || '/assets/img/users/user-01.jpg'}
+                                src={candidate.profileurl || user13}
                                 className="img-fluid rounded-circle"
                                 alt="img"
+                                onError={(e) => {
+                                  e.target.src = user13; // Fallback if the image fails to load
+                                }}
                               />
                             </a>
                             <div className="ms-2">

@@ -9,7 +9,6 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
 import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
 
-
 const EmployeerAdminJobList = () => {
     // State for dropdowns
     const [selectedRole, setSelectedRole] = useState('Role');
@@ -25,7 +24,15 @@ const EmployeerAdminJobList = () => {
     const [editingJob, setEditingJob] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
-
+    const [showDateDropdown, setShowDateDropdown] = useState(false);
+    const [filteredJobs, setFilteredJobs] = useState([]);
+    const [selectedDateRange, setSelectedDateRange] = useState('This Year');
+    const [dateRange, setDateRange] = useState({
+        start: '',
+        end: ''
+    });
+    const [isFiltering, setIsFiltering] = useState(false);
+    const dateDropdownRef = useRef(null);
     // State for form tabs
     const [activeTab, setActiveTab] = useState('basic-info');
 
@@ -61,6 +68,202 @@ const EmployeerAdminJobList = () => {
         setShowEditModal(true);
     };
 
+    const getDynamicDateRangeOptions = () => {
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth() + 1;
+        const currentDate = today.getDate();
+
+        return [
+            {
+                label: 'Today',
+                value: 'today',
+                dateLabel: `${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`
+            },
+            {
+                label: 'Yesterday',
+                value: 'yesterday',
+                dateLabel: (() => {
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    return `${yesterday.getDate().toString().padStart(2, '0')}/${(yesterday.getMonth() + 1).toString().padStart(2, '0')}/${yesterday.getFullYear()}`;
+                })()
+            },
+            {
+                label: 'Last 7 Days',
+                value: 'last7days',
+                dateLabel: (() => {
+                    const week = new Date(today);
+                    week.setDate(week.getDate() - 7);
+                    return `${week.getDate().toString().padStart(2, '0')}/${(week.getMonth() + 1).toString().padStart(2, '0')}/${week.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
+                })()
+            },
+            {
+                label: 'Last 30 Days',
+                value: 'last30days',
+                dateLabel: (() => {
+                    const month = new Date(today);
+                    month.setDate(month.getDate() - 30);
+                    return `${month.getDate().toString().padStart(2, '0')}/${(month.getMonth() + 1).toString().padStart(2, '0')}/${month.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
+                })()
+            },
+            {
+                label: 'This Year',
+                value: 'thisyear',
+                dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`
+            },
+            {
+                label: 'Last Year',
+                value: 'lastyear',
+                dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`
+            },
+            {
+                label: 'Custom Range',
+                value: 'custom',
+                dateLabel: 'Select dates'
+            }
+        ];
+    };
+
+    const handleDateRangeSelect = (option) => {
+        if (option.value === 'custom') {
+            setSelectedDateRange('Custom Range');
+            setShowDateDropdown(true);
+            return;
+        }
+
+        setSelectedDateRange(option.label);
+        const today = new Date();
+        let startDate, endDate;
+
+        switch (option.value) {
+            case 'today':
+                startDate = endDate = today.toISOString().split('T')[0];
+                break;
+            case 'yesterday':
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                startDate = endDate = yesterday.toISOString().split('T')[0];
+                break;
+            case 'last7days':
+                const week = new Date(today);
+                week.setDate(week.getDate() - 7);
+                startDate = week.toISOString().split('T')[0];
+                endDate = today.toISOString().split('T')[0];
+                break;
+            case 'last30days':
+                const month = new Date(today);
+                month.setDate(month.getDate() - 30);
+                startDate = month.toISOString().split('T')[0];
+                endDate = today.toISOString().split('T')[0];
+                break;
+            case 'thisyear':
+                startDate = `${today.getFullYear()}-01-01`;
+                endDate = `${today.getFullYear()}-12-31`;
+                break;
+            case 'lastyear':
+                startDate = `${today.getFullYear() - 1}-01-01`;
+                endDate = `${today.getFullYear() - 1}-12-31`;
+                break;
+            default:
+                return;
+        }
+
+        setDateRange({ start: startDate, end: endDate });
+        setShowDateDropdown(false);
+    };
+
+    const applyFilters = () => {
+        setIsFiltering(true);
+        let filtered = [...jobs];
+
+        // Apply date range filter
+        if (dateRange.start && dateRange.end) {
+            const startDate = new Date(dateRange.start);
+            const endDate = new Date(dateRange.end);
+
+            // Set time to beginning and end of day respectively
+            startDate.setHours(0, 0, 0, 0);
+            endDate.setHours(23, 59, 59, 999);
+
+            filtered = filtered.filter(job => {
+                if (!job.createdDate) return false;
+                const jobDate = new Date(job.createdDate);
+                return jobDate >= startDate && jobDate <= endDate;
+            });
+        }
+
+        // Apply role filter if not default
+        if (selectedRole !== 'Role') {
+            filtered = filtered.filter(job =>
+                job.title.toLowerCase().includes(selectedRole.toLowerCase())
+            );
+        }
+
+        // Apply status filter if not default
+        if (selectedStatus !== 'Select Status') {
+            filtered = filtered.filter(job =>
+                job.status.toLowerCase() === selectedStatus.toLowerCase()
+            );
+        }
+
+        // Apply sorting
+        if (sortBy === 'Recently Added') {
+            filtered.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
+        } else if (sortBy === 'Ascending') {
+            filtered.sort((a, b) => a.title.localeCompare(b.title));
+        } else if (sortBy === 'Descending') {
+            filtered.sort((a, b) => b.title.localeCompare(a.title));
+        } else if (sortBy === 'Last Month') {
+            const lastMonth = new Date();
+            lastMonth.setMonth(lastMonth.getMonth() - 1);
+            filtered = filtered.filter(job => new Date(job.createdDate) >= lastMonth);
+        } else if (sortBy === 'Last 7 Days') {
+            const lastWeek = new Date();
+            lastWeek.setDate(lastWeek.getDate() - 7);
+            filtered = filtered.filter(job => new Date(job.createdDate) >= lastWeek);
+        }
+
+        setFilteredJobs(filtered);
+        setIsFiltering(false);
+
+        // Update stats based on filtered jobs
+        const stats = calculateCandidateStats(filtered);
+        setCandidateStats(stats);
+
+        const distribution = calculateStatusDistribution(filtered);
+        setStatusDistribution(distribution);
+    };
+
+    const resetFilters = () => {
+        setSelectedRole('Role');
+        setSelectedStatus('Select Status');
+        setSortBy('Last 7 Days');
+        setDateRange({ start: '', end: '' });
+        setSelectedDateRange('This Year');
+        setFilteredJobs(jobs);
+
+        // Reset stats to original jobs data
+        const stats = calculateCandidateStats(jobs);
+        setCandidateStats(stats);
+
+        const distribution = calculateStatusDistribution(jobs);
+        setStatusDistribution(distribution);
+    };
+
+    useEffect(() => {
+        if (jobs.length > 0) {
+            setFilteredJobs(jobs);
+            const stats = calculateCandidateStats(jobs);
+            setCandidateStats(stats);
+            const distribution = calculateStatusDistribution(jobs);
+            setStatusDistribution(distribution);
+        }
+    }, [jobs]);
+
+    useEffect(() => {
+        applyFilters();
+    }, [dateRange, selectedRole, selectedStatus, sortBy, jobs]);
 
     const calculateCandidateStats = (jobs) => {
         let total = 0;
@@ -68,11 +271,8 @@ const EmployeerAdminJobList = () => {
         let pending = 0;
         let newCandidates = 0;
 
-        // This is a placeholder - you'll need to replace with actual logic based on your API
         jobs.forEach(job => {
             total += job.applications || 0;
-            // These would need to come from your backend or be calculated
-            // For now, using random values as placeholders
             completed += Math.floor((job.applications || 0) * 0.7);
             pending += Math.floor((job.applications || 0) * 0.2);
             newCandidates += Math.floor((job.applications || 0) * 0.1);
@@ -87,20 +287,28 @@ const EmployeerAdminJobList = () => {
     };
 
     const calculateStatusDistribution = (jobs) => {
-        // This is a placeholder - you'll need actual status data from your backend
-        // For now, using random values as placeholders
-        const pending = Math.floor(jobs.length * 0.3);
-        const onHold = Math.floor(jobs.length * 0.1);
-        const inProgress = Math.floor(jobs.length * 0.2);
-        const completed = Math.floor(jobs.length * 0.4);
+        const statusCounts = {
+            Active: 0,
+            Inactive: 0
+        };
+
+        jobs.forEach(job => {
+            if (job.status === 'Active') {
+                statusCounts.Active++;
+            } else {
+                statusCounts.Inactive++;
+            }
+        });
 
         return {
-            pending,
-            onHold,
-            inProgress,
-            completed
+            pending: Math.floor(jobs.length * 0.3),
+            onHold: Math.floor(jobs.length * 0.1),
+            inProgress: Math.floor(jobs.length * 0.2),
+            completed: Math.floor(jobs.length * 0.4),
+            ...statusCounts
         };
     };
+
     const fetchJobs = async () => {
         try {
             setLoading(true);
@@ -135,6 +343,7 @@ const EmployeerAdminJobList = () => {
             }));
 
             setJobs(formattedJobs);
+            setFilteredJobs(formattedJobs);
 
             // Calculate and set candidate statistics
             const stats = calculateCandidateStats(formattedJobs);
@@ -151,6 +360,7 @@ const EmployeerAdminJobList = () => {
             setLoading(false);
         }
     };
+
     const formatDate = (dateString) => {
         const options = { day: 'numeric', month: 'short', year: 'numeric' };
         return new Date(dateString).toLocaleDateString('en-US', options);
@@ -174,6 +384,11 @@ const EmployeerAdminJobList = () => {
 
             // Update local state
             setJobs(jobs.map(job =>
+                job.id === jobId ? { ...job, status: newStatus ? 'Active' : 'Inactive' } : job
+            ));
+
+            // Update filtered jobs as well
+            setFilteredJobs(filteredJobs.map(job =>
                 job.id === jobId ? { ...job, status: newStatus ? 'Active' : 'Inactive' } : job
             ));
         } catch (err) {
@@ -220,7 +435,7 @@ const EmployeerAdminJobList = () => {
     const handleSelectAll = (e) => {
         const isChecked = e.target.checked;
         setSelectAll(isChecked);
-        setSelectedJobs(isChecked ? jobs.map(job => job.id) : []);
+        setSelectedJobs(isChecked ? filteredJobs.map(job => job.id) : []);
     };
 
     // Handle individual job selection
@@ -247,6 +462,9 @@ const EmployeerAdminJobList = () => {
             if (exportDropdownRef.current && !exportDropdownRef.current.contains(event.target)) {
                 setShowExportDropdown(false);
             }
+            if (dateDropdownRef.current && !dateDropdownRef.current.contains(event.target)) {
+                setShowDateDropdown(false);
+            }
         };
 
         document.addEventListener('mousedown', handleClickOutside);
@@ -254,105 +472,8 @@ const EmployeerAdminJobList = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
     ChartJS.register(ArcElement, Tooltip, Legend);
-
-    // Utility function to export as CSV (Excel)
-    const exportToCSV = () => {
-        // CSV headers
-        const headers = [
-            'Job Title',
-            'Experience',
-            'Location',
-            'Salary Range',
-            'Posted Date',
-            'Add-Ons',
-            'Applications',
-            'Status'
-        ];
-
-        // CSV rows
-        const rows = jobs.map(job => [
-            `"${job.title}"`,
-            `"${job.experience}"`,
-            `"${job.location}"`,
-            `"${job.salary}"`,
-            `"${job.postedDate}"`,
-            `"${job.addOns}"`,
-            `"${job.applications}"`,
-            `"${job.status}"`
-        ]);
-
-        // Combine headers and rows
-        const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
-
-        // Create download link
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.setAttribute('href', url);
-        link.setAttribute('download', 'jobs_list.csv');
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    // Utility function to export as PDF (basic implementation)
-    const exportToPDF = () => {
-        // Create a simple HTML table
-        const html = `
-    <html>
-      <head>
-        <title>Jobs List</title>
-        <style>
-          table { border-collapse: collapse; width: 100%; }
-          th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-          th { background-color: #f2f2f2; }
-        </style>
-      </head>
-      <body>
-        <h1>Jobs List</h1>
-        <table>
-          <thead>
-            <tr>
-              <th>Job Title</th>
-              <th>Experience</th>
-              <th>Location</th>
-              <th>Salary Range</th>
-              <th>Posted Date</th>
-              <th>Add-Ons</th>
-              <th>Applications</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${jobs.map(job => `
-              <tr>
-                <td>${job.title}</td>
-                <td>${job.experience}</td>
-                <td>${job.location}</td>
-                <td>${job.salary}</td>
-                <td>${job.postedDate}</td>
-                <td>${job.addOns}</td>
-                <td>${job.applications}</td>
-                <td>${job.status}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </body>
-    </html>
-  `;
-
-        // Open a new window with the HTML and use browser's print to PDF
-        const win = window.open('', '_blank');
-        win.document.write(html);
-        win.document.close();
-        win.focus();
-        setTimeout(() => {
-            win.print();
-        }, 500);
-    };
 
     return (
         <>
@@ -365,18 +486,100 @@ const EmployeerAdminJobList = () => {
                     </div>
                     <div className="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
                         {/* Date Range Picker */}
-                        <div className="me-2">
-                            <div className="input-icon-end position-relative">
-                                <input
-                                    type="text"
-                                    className="form-control date-range bookingrange bg-white border border-grey"
-                                    style={{ width: '205px' }}
-                                    placeholder="dd/mm/yyyy - dd/mm/yyyy"
-                                />
-                                <span className="input-icon-addon">
-                                    <i className="ti ti-chevron-down"></i>
-                                </span>
-                            </div>
+                        <div className="dropdown me-2" ref={dateDropdownRef}>
+                            <button
+                                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                                onClick={() => setShowDateDropdown(!showDateDropdown)}
+                            >
+                                <i className="ti ti-calendar me-1"></i>
+                                {selectedDateRange || 'Select Date Range'}
+                            </button>
+                            <ul className={`dropdown-menu dropdown-menu-end p-3 ${showDateDropdown ? 'show' : ''}`} style={{ minWidth: '280px' }}>
+                                {selectedDateRange === 'Custom Range' ? (
+                                    <li className="p-2">
+                                        <div className="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 className="mb-0">Select Date Range</h6>
+                                            <button
+                                                className="btn btn-sm btn-outline-secondary"
+                                                onClick={() => setSelectedDateRange('This Year')}
+                                            >
+                                                <i className="ti ti-arrow-left"></i> Back
+                                            </button>
+                                        </div>
+                                        <div className="d-flex align-items-center mb-2">
+                                            <input
+                                                type="date"
+                                                className="form-control me-2"
+                                                style={{ fontSize: '12px' }}
+                                                value={dateRange.start}
+                                                onChange={(e) => {
+                                                    setDateRange({ ...dateRange, start: e.target.value });
+                                                    if (dateRange.end && e.target.value) {
+                                                        setSelectedDateRange(`${e.target.value} - ${dateRange.end}`);
+                                                    }
+                                                }}
+                                                placeholder="Start Date"
+                                            />
+                                            <span className="me-2">to</span>
+                                            <input
+                                                type="date"
+                                                className="form-control"
+                                                style={{ fontSize: '12px' }}
+                                                value={dateRange.end}
+                                                onChange={(e) => {
+                                                    setDateRange({ ...dateRange, end: e.target.value });
+                                                    if (dateRange.start && e.target.value) {
+                                                        setSelectedDateRange(`${dateRange.start} - ${e.target.value}`);
+                                                    }
+                                                }}
+                                                min={dateRange.start}
+                                                placeholder="End Date"
+                                            />
+                                        </div>
+                                        <div className="d-flex justify-content-between">
+                                            <button
+                                                className="btn btn-sm btn-outline-secondary"
+                                                onClick={() => {
+                                                    setDateRange({ start: '', end: '' });
+                                                    setSelectedDateRange('This Year');
+                                                    setShowDateDropdown(false);
+                                                }}
+                                            >
+                                                Clear
+                                            </button>
+                                            <button
+                                                className="btn btn-sm btn-primary"
+                                                onClick={() => {
+                                                    if (dateRange.start && dateRange.end) {
+                                                        setShowDateDropdown(false);
+                                                        applyFilters();
+                                                    }
+                                                }}
+                                                disabled={!dateRange.start || !dateRange.end}
+                                            >
+                                                Apply
+                                            </button>
+                                        </div>
+                                    </li>
+                                ) : (
+                                    <>
+                                        {getDynamicDateRangeOptions().map((option) => (
+                                            <li key={option.value}>
+                                                <button
+                                                    className="dropdown-item rounded-1 d-flex justify-content-between align-items-center"
+                                                    onClick={() => {
+                                                        handleDateRangeSelect(option);
+                                                        applyFilters();
+                                                    }}
+                                                >
+                                                    <span>{option.label}</span>
+                                                    <small className="text-muted">{option.dateLabel}</small>
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </>
+                                )}
+                            </ul>
                         </div>
 
                         {/* Role Dropdown */}
@@ -394,6 +597,7 @@ const EmployeerAdminJobList = () => {
                                         onClick={() => {
                                             setSelectedRole('PGT Teacher');
                                             setShowRoleDropdown(false);
+                                            applyFilters();
                                         }}
                                     >
                                         PGT Teacher
@@ -405,9 +609,22 @@ const EmployeerAdminJobList = () => {
                                         onClick={() => {
                                             setSelectedRole('Administration Staff');
                                             setShowRoleDropdown(false);
+                                            applyFilters();
                                         }}
                                     >
                                         Administration Staff
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                        className="dropdown-item rounded-1"
+                                        onClick={() => {
+                                            setSelectedRole('Role');
+                                            setShowRoleDropdown(false);
+                                            applyFilters();
+                                        }}
+                                    >
+                                        Clear Filter
                                     </button>
                                 </li>
                             </ul>
@@ -426,44 +643,36 @@ const EmployeerAdminJobList = () => {
                                     <button
                                         className="dropdown-item rounded-1"
                                         onClick={() => {
-                                            setSelectedStatus('Accepted');
+                                            setSelectedStatus('Active');
                                             setShowStatusDropdown(false);
+                                            applyFilters();
                                         }}
                                     >
-                                        Accepted
+                                        Active
                                     </button>
                                 </li>
                                 <li>
                                     <button
                                         className="dropdown-item rounded-1"
                                         onClick={() => {
-                                            setSelectedStatus('Sent');
+                                            setSelectedStatus('Inactive');
                                             setShowStatusDropdown(false);
+                                            applyFilters();
                                         }}
                                     >
-                                        Sent
+                                        Inactive
                                     </button>
                                 </li>
                                 <li>
                                     <button
                                         className="dropdown-item rounded-1"
                                         onClick={() => {
-                                            setSelectedStatus('Expired');
+                                            setSelectedStatus('Select Status');
                                             setShowStatusDropdown(false);
+                                            applyFilters();
                                         }}
                                     >
-                                        Expired
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        className="dropdown-item rounded-1"
-                                        onClick={() => {
-                                            setSelectedStatus('Declined');
-                                            setShowStatusDropdown(false);
-                                        }}
-                                    >
-                                        Declined
+                                        Clear Filter
                                     </button>
                                 </li>
                             </ul>
@@ -484,6 +693,7 @@ const EmployeerAdminJobList = () => {
                                         onClick={() => {
                                             setSortBy('Recently Added');
                                             setShowSortDropdown(false);
+                                            applyFilters();
                                         }}
                                     >
                                         Recently Added
@@ -495,6 +705,7 @@ const EmployeerAdminJobList = () => {
                                         onClick={() => {
                                             setSortBy('Ascending');
                                             setShowSortDropdown(false);
+                                            applyFilters();
                                         }}
                                     >
                                         Ascending
@@ -506,6 +717,7 @@ const EmployeerAdminJobList = () => {
                                         onClick={() => {
                                             setSortBy('Descending');
                                             setShowSortDropdown(false);
+                                            applyFilters();
                                         }}
                                     >
                                         Descending
@@ -517,6 +729,7 @@ const EmployeerAdminJobList = () => {
                                         onClick={() => {
                                             setSortBy('Last Month');
                                             setShowSortDropdown(false);
+                                            applyFilters();
                                         }}
                                     >
                                         Last Month
@@ -528,6 +741,7 @@ const EmployeerAdminJobList = () => {
                                         onClick={() => {
                                             setSortBy('Last 7 Days');
                                             setShowSortDropdown(false);
+                                            applyFilters();
                                         }}
                                     >
                                         Last 7 Days
@@ -560,7 +774,7 @@ const EmployeerAdminJobList = () => {
                                     <button
                                         className="dropdown-item rounded-1"
                                         onClick={() => {
-                                            exportToPDF();
+                                            // exportToPDF();
                                             setShowExportDropdown(false);
                                         }}
                                     >
@@ -572,7 +786,7 @@ const EmployeerAdminJobList = () => {
                                     <button
                                         className="dropdown-item rounded-1"
                                         onClick={() => {
-                                            exportToCSV();
+                                            // exportToCSV();
                                             setShowExportDropdown(false);
                                         }}
                                     >
@@ -582,6 +796,14 @@ const EmployeerAdminJobList = () => {
                                 </li>
                             </ul>
                         </div>
+
+                        {/* Reset Filters Button */}
+                        <button
+                            className="btn btn-outline-secondary me-2"
+                            onClick={resetFilters}
+                        >
+                            Reset Filters
+                        </button>
 
                         {/* Add Job Button */}
                         <button
@@ -746,7 +968,12 @@ const EmployeerAdminJobList = () => {
                                                 data={{
                                                     labels: ['Pending', 'On Hold', 'In Progress', 'Completed'],
                                                     datasets: [{
-                                                        data: [30, 10, 20, 40],
+                                                        data: [
+                                                            statusDistribution.pending,
+                                                            statusDistribution.onHold,
+                                                            statusDistribution.inProgress,
+                                                            statusDistribution.completed
+                                                        ],
                                                         backgroundColor: [
                                                             '#0dcaf0',
                                                             '#ab47bc',
@@ -768,19 +995,19 @@ const EmployeerAdminJobList = () => {
                                         <div className="row gy-4">
                                             <div className="col-md-6">
                                                 <p className="fs-16 project-report-badge-blue fw-normal mb-0 text-gray-5">Pending</p>
-                                                <p className="fs-20 fw-bold text-dark">30%</p>
+                                                <p className="fs-20 fw-bold text-dark">{statusDistribution.pending}</p>
                                             </div>
                                             <div className="col-md-6">
                                                 <p className="fs-16 project-report-badge-purple mb-0 fw-normal text-gray-5">On Hold</p>
-                                                <p className="fs-20 fw-bold text-dark">10%</p>
+                                                <p className="fs-20 fw-bold text-dark">{statusDistribution.onHold}</p>
                                             </div>
                                             <div className="col-md-6">
                                                 <p className="fs-16 project-report-badge-warning mb-0 fw-normal text-gray-5">Inprogress</p>
-                                                <p className="fs-20 fw-bold text-dark">20%</p>
+                                                <p className="fs-20 fw-bold text-dark">{statusDistribution.inProgress}</p>
                                             </div>
                                             <div className="col-md-6">
                                                 <p className="fs-16 project-report-badge-success mb-0 fw-normal text-gray-5">Completed</p>
-                                                <p className="fs-20 fw-bold text-dark">40%</p>
+                                                <p className="fs-20 fw-bold text-dark">{statusDistribution.completed}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -832,14 +1059,14 @@ const EmployeerAdminJobList = () => {
                                                 {error}
                                             </td>
                                         </tr>
-                                    ) : jobs.length === 0 ? (
+                                    ) : filteredJobs.length === 0 ? (
                                         <tr>
                                             <td colSpan="8" className="text-center py-4">
-                                                No jobs found
+                                                No jobs found matching your criteria
                                             </td>
                                         </tr>
                                     ) : (
-                                        jobs.map(job => (
+                                        filteredJobs.map(job => (
                                             <tr key={job.id}>
                                                 <td>
                                                     <div className="form-check form-check-md">
@@ -853,16 +1080,9 @@ const EmployeerAdminJobList = () => {
                                                 </td>
                                                 <td>
                                                     <div className="d-flex align-items-center file-name-icon">
-                                                        {/* <a href="#" className="avatar avatar-md bg-light rounded">
-                                                            <img
-                                                                src={`assets/img/icons/${job.employerProfilePic}`}
-                                                                className="img-fluid rounded-circle"
-                                                                alt="img"
-                                                            />
-                                                        </a> */}
                                                         <div className="ms-2">
                                                             <h6 className="fw-medium">
-                                                                <a href="job-preview">{job.title}</a>
+                                                                <Link to={`/job-preview/${job.id}`}>{job.title}</Link>
                                                             </h6>
                                                             <span className="d-block mt-1">{job.applications} Applications</span>
                                                         </div>
