@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, MessageSquare, Star, Calendar, HelpCircle, Maximize2, Bell, Plus, LayoutDashboard, Users, Briefcase, Menu, X, LayoutGrid } from 'lucide-react';
-import user19 from '../../../assets/employer-admin/assets/img/logo - dark.png';
+import user19 from '../../../assets//employer-admin/assets/img/logo - dark.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiLogOut } from 'react-icons/fi';
 
@@ -157,7 +157,7 @@ const EmployerAdminHeader = () => {
                     {/* Logo */}
                     <div className='d-flex align-items-center'>
                         <div className='d-flex align-items-center me-4'>
-                            <Link to="/employer-admin/new-candidate" className='d-flex align-items-center justify-content-center me-3 rounded'
+                            <Link to="/employer-admin/dashboard" className='d-flex align-items-center justify-content-center me-3 rounded'
                                 style={{
                                     width: '100px',
                                 }}

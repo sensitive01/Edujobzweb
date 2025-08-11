@@ -115,6 +115,9 @@ import EmployeerJobList from './pages/employer/EmployeerJobList';
 import EmployeerAdminGridJobUnit from './pages/employeradmin/job/EmployeerAdminGridJobUnit';
 import EmployerAdminJobListUnit from './pages/employeradmin/job/EmployerAdminJobListUnit';
 import NotFoundPage from './pages/404/404';
+import AdminDashboard from './pages/admin/dashboard/AdminDashboard';
+import AdminCandidateList from './pages/admin/candidate/AdminCandidateList';
+import EmployerList from './pages/admin/employer/EmployerList';
 
 function App() {
   return (
@@ -159,6 +162,12 @@ function App() {
 
           <Route path='/admin/login' element={<AdminLoginPage />} />
           <Route path='/admin/register' element={<AdminRegister />} />
+
+          <Route path='/admin/dashboard' element={<AdminDashboard />} />
+
+
+          <Route path='/admin/candidate-list' element={<AdminCandidateList />} />
+           <Route path='/admin/employer-list' element={<EmployerList />} />
 
           {/* Employer-Admin routes */}
 
@@ -260,11 +269,11 @@ function App() {
               <Route path='/signup' element={<SignupPage />} />
               <Route path='/employee-registration' element={<EmployeeRegistration />} />
               <Route path='/school-registration' element={<SchoolRegistration />} />
-            <Route path='*' element={<NotFoundPage />} />
+              <Route path='*' element={<NotFoundPage />} />
             </Routes>
           </Layout>
         } />
-         <Route path='*' element={<NotFoundPage />} />
+        <Route path='*' element={<NotFoundPage />} />
       </Routes>
     </Router>
   );
