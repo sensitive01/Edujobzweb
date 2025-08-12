@@ -118,6 +118,8 @@ import NotFoundPage from './pages/404/404';
 import AdminDashboard from './pages/admin/dashboard/AdminDashboard';
 import AdminCandidateList from './pages/admin/candidate/AdminCandidateList';
 import EmployerList from './pages/admin/employer/EmployerList';
+import OrganizationList from './pages/admin/Organization/OrganizationList';
+import JobList from './pages/admin/job/JobList';
 
 function App() {
   return (
@@ -167,7 +169,9 @@ function App() {
 
 
           <Route path='/admin/candidate-list' element={<AdminCandidateList />} />
-           <Route path='/admin/employer-list' element={<EmployerList />} />
+          <Route path='/admin/employer-list' element={<EmployerList />} />
+          <Route path='/admin/organization-list' element={<OrganizationList />} />
+          <Route path='/admin/job-list' element={<JobList />} />
 
           {/* Employer-Admin routes */}
 

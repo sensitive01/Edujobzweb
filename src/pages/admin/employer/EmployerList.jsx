@@ -23,6 +23,17 @@ const EmployerList = () => {
   const [employerToDelete, setEmployerToDelete] = useState(null);
   const [showFilterSidebar, setShowFilterSidebar] = useState(false);
 
+  const [newEmployer, setNewEmployer] = useState({
+    employerType: '',
+    schoolName: '',
+    firstName: '',
+    lastName: '',
+    userEmail: '',
+    userMobile: '',
+    userPassword: '',
+    referralCode: ''
+  });
+
   // Dynamic filter states
   const [employerTypes, setEmployerTypes] = useState({});
   const [institutionTypes, setInstitutionTypes] = useState({});
@@ -136,6 +147,76 @@ const EmployerList = () => {
     }
 
     setDateRange({ start: startDate, end: endDate });
+  };
+
+  const handleNewEmployerChange = (e) => {
+    const { name, value } = e.target;
+    setNewEmployer(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle Add Employer form submission
+  const handleAddEmployer = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+
+      // Basic validation
+      if (!newEmployer.userEmail && !newEmployer.userMobile) {
+        throw new Error('Email or mobile is required');
+      }
+
+      if (!newEmployer.userPassword) {
+        throw new Error('Password is required');
+      }
+
+      const response = await fetch('https://edujobzbackend.onrender.com/employer/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newEmployer)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add employer');
+      }
+
+      const data = await response.json();
+
+      // Add the new employer to the list
+      const addedEmployer = {
+        ...data.data,
+        _id: data.data.id,
+        verificationstatus: data.data.verificationstatus || 'pending',
+        blockstatus: data.data.blockstatus || 'unblock'
+      };
+
+      setEmployers(prev => [...prev, addedEmployer]);
+      setFilteredEmployers(prev => [...prev, addedEmployer]);
+
+      // Close modal and reset form
+      setShowAddEmployerModal(false);
+      setNewEmployer({
+        employerType: '',
+        schoolName: '',
+        firstName: '',
+        lastName: '',
+        userEmail: '',
+        userMobile: '',
+        userPassword: '',
+        referralCode: ''
+      });
+
+    } catch (err) {
+      console.error('Add employer error:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -400,7 +481,7 @@ const EmployerList = () => {
       const newStatus = currentStatus === 'block' ? 'unblock' : 'block';
 
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/admin/updateblockstatusemployer/${employerId}`,
+        `https://edujobzbackend.onrender.com/admin/updateblockstatus/${employerId}`,
         {
           method: 'PUT',
           headers: {
@@ -485,875 +566,1321 @@ const EmployerList = () => {
     });
   };
 
+  const handleExport = (type) => {
+    // Prepare data for export (simplify if needed)
+    const exportData = filteredEmployers.map(employer => ({
+      ID: `Emp-${employer._id.substring(employer._id.length - 4)}`,
+      Name: employer.schoolName || `${employer.firstName || ''} ${employer.lastName || ''}`.trim(),
+      Type: employer.employerType || 'N/A',
+      Email: employer.userEmail || 'N/A',
+      Phone: employer.userMobile || 'N/A',
+      Status: employer.verificationstatus || 'pending',
+      'Created Date': formatDate(employer.createdAt)
+    }));
+
+    if (type === 'pdf') {
+      // Simple PDF export using browser print
+      const printWindow = window.open('', '_blank');
+      const htmlContent = `
+      <html>
+        <head>
+          <title>Employers Export</title>
+          <style>
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+          <h1>Employers List</h1>
+          <table>
+            <thead>
+              <tr>
+                ${Object.keys(exportData[0]).map(key => `<th>${key}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${exportData.map(row => `
+                <tr>
+                  ${Object.values(row).map(value => `<td>${value}</td>`).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      printWindow.print();
+    } else if (type === 'excel') {
+      // CSV export (works in Excel)
+      const headers = Object.keys(exportData[0]).join(',');
+      const csvContent = [
+        headers,
+        ...exportData.map(row => Object.values(row).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'employers_export.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+
   if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
+    return <div className="text-center py-5">Loading employers...</div>;
   }
 
   if (error) {
-    return (
-      <div className="alert alert-danger m-4" role="alert">
-        <strong>Error:</strong> {error}
-      </div>
-    );
+    return <div className="alert alert-danger">{error}</div>;
   }
 
   return (
     <>
-          <AdminHeader />
-    <div className="container-fluid">
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 className="mb-0">
-            <i className="fas fa-users text-primary me-2"></i>
-            Employers
-          </h2>
-          <p className="text-muted mb-0">Manage and monitor all employers</p>
-        </div>
-        <button 
-          className="btn btn-primary"
-          onClick={() => setShowAddEmployerModal(true)}
-        >
-          <i className="fas fa-plus me-2"></i>
-          Add Employer
-        </button>
-      </div>
-
-      {/* Filter Controls */}
-      <div className="row mb-4">
-        <div className="col-md-3">
-          <div className="dropdown">
-            <button
-              className="btn btn-outline-secondary dropdown-toggle w-100"
-              type="button"
-              data-bs-toggle="dropdown"
-            >
-              Date: {selectedDateRange}
-            </button>
-            <div className={`dropdown-menu p-3 ${showDateDropdown ? 'show' : ''}`}>
-              {selectedDateRange === 'Custom Range' ? (
-                <div>
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h6 className="mb-0">Select Date Range</h6>
-                    <button
-                      className="btn btn-sm btn-outline-secondary"
-                      onClick={() => setSelectedDateRange('')}
-                    >
-                      ← Back
-                    </button>
-                  </div>
-                  <div className="row g-2">
-                    <div className="col-6">
+      <AdminHeader />
+      <div className="content">
+        {/* Breadcrumb */}
+        <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+          <div className="my-auto">
+            <h2>&nbsp; <i className="fa fa-building text-primary"></i> Employers</h2>
+          </div>
+          <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
+            <div className="dropdown me-2">
+              <button
+                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                onClick={() => setShowDateDropdown(!showDateDropdown)}
+              >
+                <i className="ti ti-calendar me-1"></i>
+                {selectedDateRange || 'Select Date Range'}
+              </button>
+              <ul
+                className={`dropdown-menu dropdown-menu-end p-3 ${showDateDropdown ? 'show' : ''}`}
+                style={{ minWidth: '280px' }}
+              >
+                {selectedDateRange === 'Custom Range' ? (
+                  // Custom Range Date Picker View
+                  <li className="p-2">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <h6 className="mb-0">Select Date Range</h6>
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => setSelectedDateRange('')}
+                      >
+                        <i className="ti ti-arrow-left"></i> Back
+                      </button>
+                    </div>
+                    <div className="d-flex align-items-center mb-2">
                       <input
                         type="date"
-                        className="form-control form-control-sm"
+                        className="form-control me-2"
+                        style={{ fontSize: '12px' }}
                         value={dateRange.start}
-                        onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                        onChange={(e) => {
+                          setDateRange({ ...dateRange, start: e.target.value });
+                          if (dateRange.end && e.target.value) {
+                            setSelectedDateRange(`${e.target.value} - ${dateRange.end}`);
+                          }
+                        }}
+                        placeholder="Start Date"
                       />
-                    </div>
-                    <div className="col-6">
+                      <span className="me-2">to</span>
                       <input
                         type="date"
-                        className="form-control form-control-sm"
+                        className="form-control"
+                        style={{ fontSize: '12px' }}
                         value={dateRange.end}
-                        onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                        onChange={(e) => {
+                          setDateRange({ ...dateRange, end: e.target.value });
+                          if (dateRange.start && e.target.value) {
+                            setSelectedDateRange(`${dateRange.start} - ${e.target.value}`);
+                          }
+                        }}
+                        min={dateRange.start}
+                        placeholder="End Date"
                       />
                     </div>
-                  </div>
-                </div>
-              ) : (
-                getDynamicDateRangeOptions().map((option) => (
-                  <button
-                    key={option.value}
-                    className="dropdown-item"
-                    onClick={() => handleDateRangeSelect(option)}
-                  >
-                    {option.label}
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-        
-        <div className="col-md-2">
-          <select 
-            className="form-select"
-            value={selectedType}
-            onChange={(e) => handleTypeFilter(e.target.value)}
-          >
-            <option value="All">All Types</option>
-            {[...new Set(employers.map(e => e.employerType).filter(Boolean))].map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
-        </div>
-        
-        <div className="col-md-2">
-          <select 
-            className="form-select"
-            value={selectedStatus}
-            onChange={(e) => handleStatusFilter(e.target.value)}
-          >
-            <option value="All">All Status</option>
-            <option value="approved">Approved</option>
-            <option value="pending">Pending</option>
-            <option value="rejected">Rejected</option>
-          </select>
-        </div>
-        
-        <div className="col-md-2">
-          <select 
-            className="form-select"
-            value={subscriptionStatus}
-            onChange={(e) => handleSubscriptionFilter(e.target.value)}
-          >
-            <option value="All">All Subscriptions</option>
-            <option value="subscribed">Subscribed</option>
-            <option value="trial">Trial</option>
-            <option value="none">Not Subscribed</option>
-          </select>
-        </div>
-        
-        <div className="col-md-3">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search employers..."
-            value={searchTerm}
-            onChange={handleSearch}
-          />
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="row mb-4">
-        <div className="col-md-3">
-          <div className="card bg-primary text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title mb-0">Total Employers</h6>
-                  <h3 className="mb-0">{employers.length}</h3>
-                </div>
-                <i className="fas fa-users fa-2x opacity-50"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="col-md-3">
-          <div className="card bg-success text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title mb-0">Approved</h6>
-                  <h3 className="mb-0">{employers.filter(e => e.verificationstatus === 'approved').length}</h3>
-                </div>
-                <i className="fas fa-check-circle fa-2x opacity-50"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="col-md-3">
-          <div className="card bg-info text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title mb-0">New This Week</h6>
-                  <h3 className="mb-0">
-                    {employers.filter(e => {
-                      const createdDate = new Date(e.createdAt);
-                      const sevenDaysAgo = new Date();
-                      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-                      return createdDate > sevenDaysAgo;
-                    }).length}
-                  </h3>
-                </div>
-                <i className="fas fa-plus-circle fa-2x opacity-50"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="col-md-3">
-          <div className="card bg-danger text-white">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="card-title mb-0">Rejected</h6>
-                  <h3 className="mb-0">{employers.filter(e => e.verificationstatus === 'rejected').length}</h3>
-                </div>
-                <i className="fas fa-times-circle fa-2x opacity-50"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Table */}
-      <div className="card">
-        <div className="card-header">
-          <div className="d-flex justify-content-between align-items-center">
-            <h5 className="mb-0">Employers List ({filteredEmployers.length})</h5>
-            <div className="d-flex gap-2">
-              <button 
-                className="btn btn-outline-secondary btn-sm"
-                onClick={() => setShowFilterSidebar(true)}
-              >
-                <i className="fas fa-filter me-1"></i>
-                Advanced Filter
-              </button>
-              <button 
-                className="btn btn-outline-primary btn-sm"
-                onClick={resetFilters}
-              >
-                <i className="fas fa-refresh me-1"></i>
-                Reset
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        <div className="card-body p-0">
-          <div className="table-responsive">
-            <table className="table table-striped table-hover mb-0">
-              <thead className="table-dark">
-                <tr>
-                  <th>
-                    <input
-                      type="checkbox"
-                      className="form-check-input"
-                      checked={selectedEmployers.length === filteredEmployers.length && filteredEmployers.length > 0}
-                      onChange={handleSelectAll}
-                    />
-                  </th>
-                  <th>Emp ID</th>
-                  <th>Employer</th>
-                  <th>Type</th>
-                  <th>Contact</th>
-                  <th>Created Date</th>
-                  <th>Subscription</th>
-                  <th>Status</th>
-                  <th>Block Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredEmployers.length > 0 ? (
-                  filteredEmployers.map((employer) => (
-                    <tr key={employer._id}>
-                      <td>
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          checked={selectedEmployers.includes(employer._id)}
-                          onChange={() => handleSelectEmployer(employer._id)}
-                        />
-                      </td>
-                      <td>
-                        <small className="text-muted">
-                          Emp-{employer._id.substring(employer._id.length - 4)}
-                        </small>
-                      </td>
-                      <td>
-                        <div className="d-flex align-items-center">
-                          <div className="avatar-circle me-3">
-                            {employer.userProfilePic ? (
-                              <img
-                                src={employer.userProfilePic}
-                                alt="Profile"
-                                className="rounded-circle"
-                                width="40"
-                                height="40"
-                              />
-                            ) : (
-                              <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style={{width: '40px', height: '40px'}}>
-                                {(employer.firstName || employer.schoolName || 'U').charAt(0).toUpperCase()}
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <div className="fw-medium">
-                              {employer.schoolName || `${employer.firstName || ''} ${employer.lastName || ''}`.trim() || 'N/A'}
-                            </div>
-                            <small className="text-muted">{employer.userEmail || 'N/A'}</small>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="badge bg-light text-dark">
-                          {employer.employerType || 'N/A'}
-                        </span>
-                      </td>
-                      <td>
-                        <div>
-                          <div className="text-sm">{employer.userEmail || 'N/A'}</div>
-                          <small className="text-muted">{employer.userMobile || 'N/A'}</small>
-                        </div>
-                      </td>
-                      <td>{formatDate(employer.createdAt)}</td>
-                      <td>
-                        <span className={getSubscriptionBadge(employer.subscription, employer.trial)}>
-                          {getSubscriptionText(employer.subscription, employer.trial)}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={getStatusBadge(employer.verificationstatus)}>
-                          {employer.verificationstatus || 'pending'}
-                        </span>
-                      </td>
-                      <td>
+                    <div className="d-flex justify-content-between">
+                      <button
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => {
+                          setDateRange({ start: '', end: '' });
+                          setSelectedDateRange('');
+                          setShowDateDropdown(false);
+                        }}
+                      >
+                        Clear
+                      </button>
+                      <button
+                        className="btn btn-sm btn-primary"
+                        onClick={() => {
+                          if (dateRange.start && dateRange.end) {
+                            setShowDateDropdown(false);
+                          }
+                        }}
+                        disabled={!dateRange.start || !dateRange.end}
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </li>
+                ) : (
+                  // Regular Date Range Options
+                  <>
+                    {getDynamicDateRangeOptions().map((option) => (
+                      <li key={option.value}>
                         <button
-                          className={`btn btn-sm ${employer.blockstatus === 'block' ? 'btn-danger' : 'btn-success'}`}
-                          onClick={() => handleBlockStatusToggle(employer._id, employer.blockstatus)}
+                          className="dropdown-item rounded-1 d-flex justify-content-between align-items-center"
+                          onClick={() => {
+                            handleDateRangeSelect(option);
+                            setShowDateDropdown(false);
+                          }}
                         >
-                          {employer.blockstatus === 'block' ? 'Blocked' : 'Active'}
+                          <span>{option.label}</span>
+                          <small className="text-muted">{option.dateLabel}</small>
                         </button>
-                      </td>
-                      <td>
-                        <div className="dropdown">
-                          <button
-                            className="btn btn-sm btn-outline-secondary dropdown-toggle"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                          >
-                            Actions
-                          </button>
-                          <ul className="dropdown-menu">
-                            <li>
-                              <button
-                                className="dropdown-item"
-                                onClick={() => viewEmployerDetails(employer)}
-                              >
-                                <i className="fas fa-eye me-2"></i>View Details
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                className="dropdown-item"
-                                onClick={() => {
-                                  setSelectedEmployer(employer);
-                                  setShowEditEmployerModal(true);
-                                }}
-                              >
-                                <i className="fas fa-edit me-2"></i>Edit
-                              </button>
-                            </li>
-                            <li><hr className="dropdown-divider" /></li>
-                            <li>
-                              <button
-                                className="dropdown-item text-danger"
-                                onClick={() => handleDeleteClick(employer)}
-                              >
-                                <i className="fas fa-trash me-2"></i>Delete
-                              </button>
-                            </li>
-                          </ul>
-                        </div>
+                      </li>
+                    ))}
+                  </>
+                )}
+              </ul>
+            </div>
+
+            <div className="dropdown me-2">
+              <button
+                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                data-bs-toggle="dropdown"
+              >
+                {selectedType || 'Type'}
+              </button>
+              <ul className="dropdown-menu dropdown-menu-end p-3">
+                <li>
+                  <button
+                    className="dropdown-item rounded-1"
+                    onClick={() => handleTypeFilter('All')}
+                  >
+                    All Types
+                  </button>
+                </li>
+                {Array.from(new Set(employers.map(e => e.employerType).filter(Boolean))).map(type => (
+                  <li key={type}>
+                    <button
+                      className="dropdown-item rounded-1"
+                      onClick={() => handleTypeFilter(type)}
+                    >
+                      {type}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="dropdown me-2">
+              <button
+                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                data-bs-toggle="dropdown"
+              >
+                {selectedStatus || 'Select Status'}
+              </button>
+              <ul className="dropdown-menu dropdown-menu-end p-3">
+                <li>
+                  <button
+                    className="dropdown-item rounded-1"
+                    onClick={() => handleStatusFilter('All')}
+                  >
+                    All Statuses
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item rounded-1"
+                    onClick={() => handleStatusFilter('approved')}
+                  >
+                    Approved
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item rounded-1"
+                    onClick={() => handleStatusFilter('pending')}
+                  >
+                    Pending
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item rounded-1"
+                    onClick={() => handleStatusFilter('rejected')}
+                  >
+                    Rejected
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <div className="dropdown me-2">
+              <button
+                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                data-bs-toggle="dropdown"
+              >
+                Sort By: {sortBy}
+              </button>
+              <ul className="dropdown-menu dropdown-menu-end p-3">
+                <li>
+                  <button className="dropdown-item rounded-1">Recently Added</button>
+                </li>
+                <li>
+                  <button className="dropdown-item rounded-1">Ascending</button>
+                </li>
+                <li>
+                  <button className="dropdown-item rounded-1">Descending</button>
+                </li>
+                <li>
+                  <button className="dropdown-item rounded-1">Last Month</button>
+                </li>
+                <li>
+                  <button className="dropdown-item rounded-1">Last 7 Days</button>
+                </li>
+              </ul>
+            </div>
+
+            <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
+              <input
+                type="text"
+                className="form-control border-0"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={handleSearch}
+              />
+              <button className="btn btn-icon btn-sm me-1">
+                <i className="ti ti-search"></i>
+              </button>
+            </div>
+
+            <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
+              <button className="btn btn-icon btn-sm me-1 toggle-theme" onClick={() => setShowFilterSidebar(true)}>
+                <i className="ti ti-filter"></i>
+              </button>
+            </div>
+
+            <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
+              <button className="btn btn-icon btn-sm active bg-primary text-white me-1" onClick={() => navigate("/employer-admin/employer-list")} >
+                <i className="ti ti-list-tree"></i>
+              </button>
+              <button className="btn btn-icon btn-sm" onClick={() => navigate("/employer-admin/new-employer")}>
+                <i className="ti ti-layout-grid" ></i>
+              </button>
+            </div>
+
+            <div className="dropdown me-2">
+              <button className="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                <i className="ti ti-file-export me-1"></i>Export
+              </button>
+              <ul className="dropdown-menu dropdown-menu-end p-3">
+                <li>
+                  <button className="dropdown-item rounded-1" onClick={() => handleExport('pdf')}>
+                    <i className="ti ti-file-type-pdf me-1"></i>Export as PDF
+                  </button>
+                </li>
+                <li>
+                  <button className="dropdown-item rounded-1" onClick={() => handleExport('excel')}>
+                    <i className="ti ti-file-type-xls me-1"></i>Export as Excel
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <button className="btn btn-primary d-flex align-items-center" onClick={() => setShowAddEmployerModal(true)}>
+              <i className="ti ti-circle-plus me-2"></i>Add Employer
+            </button>
+          </div>
+        </div>
+        {/* Stats Cards */}
+        <div className="row mb-4">
+          <div className="col-md-3">
+            <div className="card bg-primary text-white">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 className="card-title mb-0">Total Employers</h6>
+                    <h3 className="mb-0">{employers.length}</h3>
+                  </div>
+                  <i className="fas fa-users fa-2x opacity-50"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-md-3">
+            <div className="card bg-success text-white">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 className="card-title mb-0">Approved</h6>
+                    <h3 className="mb-0">{employers.filter(e => e.verificationstatus === 'approved').length}</h3>
+                  </div>
+                  <i className="fas fa-check-circle fa-2x opacity-50"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-md-3">
+            <div className="card bg-info text-white">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 className="card-title mb-0">New This Week</h6>
+                    <h3 className="mb-0">
+                      {employers.filter(e => {
+                        const createdDate = new Date(e.createdAt);
+                        const sevenDaysAgo = new Date();
+                        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                        return createdDate > sevenDaysAgo;
+                      }).length}
+                    </h3>
+                  </div>
+                  <i className="fas fa-plus-circle fa-2x opacity-50"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-md-3">
+            <div className="card bg-danger text-white">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 className="card-title mb-0">Rejected</h6>
+                    <h3 className="mb-0">{employers.filter(e => e.verificationstatus === 'rejected').length}</h3>
+                  </div>
+                  <i className="fas fa-times-circle fa-2x opacity-50"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Table */}
+        <div className="card">
+          <div className="card-body p-0">
+            <div className="custom-datatable-filter table-responsive">
+              <table className="table datatable">
+                <thead className="thead-light">
+                  <tr>
+                    <th className="no-sort">
+                      <div className="form-check form-check-md">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          id="select-all"
+                          checked={selectedEmployers.length === filteredEmployers.length && filteredEmployers.length > 0}
+                          onChange={handleSelectAll}
+                        />
+                      </div>
+                    </th>
+                    <th>Emp ID</th>
+                    <th>Employer</th>
+                    <th>Type</th>
+                    <th>Contact</th>
+                    <th>Created Date</th>
+                    <th>Subscription</th>
+                    <th>Status</th>
+                    <th>Block Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredEmployers.length > 0 ? (
+                    filteredEmployers.map((employer) => (
+                      <tr key={employer._id}>
+                        <td>
+                          <div className="form-check form-check-md">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              checked={selectedEmployers.includes(employer._id)}
+                              onChange={() => handleSelectEmployer(employer._id)}
+                            />
+                          </div>
+                        </td>
+                        <td>Emp-{employer._id.substring(employer._id.length - 4)}</td>
+                        <td>
+                          <div className="d-flex align-items-center file-name-icon">
+                            <a onClick={(e) => {
+                              e.preventDefault();
+                              viewEmployerDetails(employer);
+                            }} className="avatar avatar-md">
+                              {employer.userProfilePic ? (
+                                <img
+                                  src={employer.userProfilePic}
+                                  className="img-fluid rounded-circle"
+                                  alt="img"
+                                />
+                              ) : (
+                                <div className="avatar-text bg-primary text-white rounded-circle">
+                                  {(employer.schoolName || employer.firstName || 'E').charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                            </a>
+                            <div className="ms-2">
+                              <h6 className="fw-medium">
+                                <a onClick={(e) => {
+                                  e.preventDefault();
+                                  viewEmployerDetails(employer);
+                                }}>
+                                  {employer.schoolName || `${employer.firstName || ''} ${employer.lastName || ''}`.trim()}
+                                </a>
+                              </h6>
+                              <span className="d-block mt-1">
+                                <a href="#">{employer.city || 'N/A'}, {employer.state || 'N/A'}</a>
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          {employer.employerType || 'N/A'}
+                        </td>
+                        <td>
+                          <div className="action-icon d-inline-flex">
+                            <a href={`tel:${employer.userMobile}`} className="me-2">
+                              <i className="ti ti-phone text-success"></i>
+                            </a>
+                            <a href={`mailto:${employer.userEmail}`} className="me-2">
+                              <i className="ti ti-mail text-danger"></i>
+                            </a>
+                          </div>
+                        </td>
+                        <td>{formatDate(employer.createdAt)}</td>
+                        <td>
+                          <span className={`badge ${getSubscriptionBadge(employer.subscription, employer.trial)}`}>
+                            {getSubscriptionText(employer.subscription, employer.trial)}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`badge ${getStatusBadge(employer.verificationstatus)}`}>
+                            {employer.verificationstatus || 'pending'}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="form-check form-switch">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              role="switch"
+                              checked={employer.blockstatus === 'unblock'}
+                              onChange={() => handleBlockStatusToggle(employer._id, employer.blockstatus)}
+                            />
+                            <label className="form-check-label">
+                              {employer.blockstatus === 'unblock' ? 'Unblock' : 'Blocked'}
+                            </label>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="d-flex align-items-center">
+                            <button
+                              className="btn btn-sm btn-icon btn-primary-light me-2"
+                              onClick={() => {
+                                setSelectedEmployer(employer);
+                                setShowEditEmployerModal(true);
+                              }}
+                            >
+                              <i className="ti ti-edit"></i>
+                            </button>
+                            <button
+                              className="btn btn-sm btn-icon btn-danger-light"
+                              onClick={() => handleDeleteClick(employer)}
+                            >
+                              <i className="ti ti-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="10" className="text-center py-4">
+                        No employers found matching your criteria
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="10" className="text-center py-5">
-                      <div className="text-muted">
-                        <i className="fas fa-inbox fa-3x mb-3 d-block"></i>
-                        No employers found matching your criteria
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
+        {/* Pagination could go here */}
 
-      {/* Pagination could go here */}
-      
-      {/* Filter Sidebar */}
-      {showFilterSidebar && (
-        <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-scrollable">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Advanced Filters</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowFilterSidebar(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                {/* Employer Types */}
-                <div className="mb-4">
-                  <h6>Employer Types</h6>
-                  {Object.keys(employerTypes).map(type => (
-                    <div key={type} className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        checked={employerTypes[type]}
-                        onChange={() => handleEmployerTypeChange(type)}
-                      />
-                      <label className="form-check-label">{type}</label>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Institution Types */}
-                {Object.keys(institutionTypes).length > 0 && (
-                  <div className="mb-4">
-                    <h6>Institution Types</h6>
-                    {Object.keys(institutionTypes).map(type => (
-                      <div key={type} className="form-check">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          checked={institutionTypes[type]}
-                          onChange={() => handleInstitutionTypeChange(type)}
-                        />
-                        <label className="form-check-label">{type}</label>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* States */}
-                {Object.keys(states).length > 0 && (
-                  <div className="mb-4">
-                    <h6>States</h6>
-                    <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                      {Object.keys(states).map(state => (
-                        <div key={state} className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            checked={states[state]}
-                            onChange={() => handleStateChange(state)}
-                          />
-                          <label className="form-check-label">{state}</label>
+        {/* Filter Sidebar */}
+        <div className={`sidebar-themesettings offcanvas offcanvas-end ${showFilterSidebar ? 'show' : ''}`}
+          id="theme-setting"
+          style={{ visibility: showFilterSidebar ? 'visible' : 'hidden' }}>
+          <div className="offcanvas-header d-flex align-items-center justify-content-between bg-dark">
+            <div>
+              <h3 className="mb-1 text-white">Filter Employers</h3>
+              <p className="text-light">Search & Filter</p>
+            </div>
+            <a href="#" className="custom-btn-close d-flex align-items-center justify-content-center text-white"
+              onClick={(e) => { e.preventDefault(); setShowFilterSidebar(false); }}>
+              <i className="ti ti-x"></i>
+            </a>
+          </div>
+          <div className="themesettings-inner offcanvas-body">
+            <div className="accordion accordion-customicon1 accordions-items-seperate" id="settingtheme">
+              {/* Employer Types */}
+              <div className="accordion-item">
+                <h2 className="accordion-header">
+                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#employerTypes" aria-expanded="true">
+                    Employer Types
+                  </button>
+                </h2>
+                <div id="employerTypes" className="accordion-collapse collapse show">
+                  <div className="accordion-body">
+                    <div className="row gx-3">
+                      <div className="form-group">
+                        <div className="checkbox-limit">
+                          <ul className="checkbox-list">
+                            {Object.keys(employerTypes).map(type => (
+                              <React.Fragment key={type}>
+                                <li>
+                                  <label className="custom-checkbox">
+                                    <input
+                                      type="checkbox"
+                                      checked={employerTypes[type]}
+                                      onChange={() => handleEmployerTypeChange(type)}
+                                    />
+                                    <span className="fake-checkbox"></span>
+                                    <span className="label-text">{type}</span>
+                                  </label>
+                                </li>
+                                <br />
+                              </React.Fragment>
+                            ))}
+                          </ul>
                         </div>
-                      ))}
+                      </div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
-              <div className="modal-footer">
+
+              {/* Institution Types */}
+              {Object.keys(institutionTypes).length > 0 && (
+                <div className="accordion-item">
+                  <h2 className="accordion-header">
+                    <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#institutionTypes" aria-expanded="true">
+                      Institution Types
+                    </button>
+                  </h2>
+                  <div id="institutionTypes" className="accordion-collapse collapse show">
+                    <div className="accordion-body">
+                      <div className="row gx-3">
+                        <div className="form-group">
+                          <div className="checkbox-limit">
+                            <ul className="checkbox-list">
+                              {Object.keys(institutionTypes).map(type => (
+                                <React.Fragment key={type}>
+                                  <li>
+                                    <label className="custom-checkbox">
+                                      <input
+                                        type="checkbox"
+                                        checked={institutionTypes[type]}
+                                        onChange={() => handleInstitutionTypeChange(type)}
+                                      />
+                                      <span className="fake-checkbox"></span>
+                                      <span className="label-text">{type}</span>
+                                    </label>
+                                  </li>
+                                  <br />
+                                </React.Fragment>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* States */}
+              {Object.keys(states).length > 0 && (
+                <div className="accordion-item">
+                  <h2 className="accordion-header">
+                    <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#states" aria-expanded="true">
+                      States
+                    </button>
+                  </h2>
+                  <div id="states" className="accordion-collapse collapse show">
+                    <div className="accordion-body">
+                      <div className="row gx-3">
+                        <div className="form-group">
+                          <div className="checkbox-limit" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                            <ul className="checkbox-list">
+                              {Object.keys(states).map(state => (
+                                <React.Fragment key={state}>
+                                  <li>
+                                    <label className="custom-checkbox">
+                                      <input
+                                        type="checkbox"
+                                        checked={states[state]}
+                                        onChange={() => handleStateChange(state)}
+                                      />
+                                      <span className="fake-checkbox"></span>
+                                      <span className="label-text">{state}</span>
+                                    </label>
+                                  </li>
+                                  <br />
+                                </React.Fragment>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Verification Status */}
+              <div className="accordion-item">
+                <h2 className="accordion-header">
+                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#verificationStatus" aria-expanded="true">
+                    Verification Status
+                  </button>
+                </h2>
+                <div id="verificationStatus" className="accordion-collapse collapse show">
+                  <div className="accordion-body">
+                    <div className="d-flex align-items-center">
+                      <div className="theme-width m-1 me-2">
+                        <input
+                          type="radio"
+                          name="verificationStatus"
+                          id="allStatus"
+                          checked={selectedStatus === 'All'}
+                          onChange={() => setSelectedStatus('All')}
+                        />
+                        <label htmlFor="allStatus" className="d-block rounded fs-12">All</label>
+                      </div>
+                      <div className="theme-width m-1 me-2">
+                        <input
+                          type="radio"
+                          name="verificationStatus"
+                          id="approvedStatus"
+                          checked={selectedStatus === 'approved'}
+                          onChange={() => setSelectedStatus('approved')}
+                        />
+                        <label htmlFor="approvedStatus" className="d-block rounded fs-12">Approved</label>
+                      </div>
+                      <div className="theme-width m-1 me-2">
+                        <input
+                          type="radio"
+                          name="verificationStatus"
+                          id="pendingStatus"
+                          checked={selectedStatus === 'pending'}
+                          onChange={() => setSelectedStatus('pending')}
+                        />
+                        <label htmlFor="pendingStatus" className="d-block rounded fs-12">Pending</label>
+                      </div>
+                      <div className="theme-width m-1">
+                        <input
+                          type="radio"
+                          name="verificationStatus"
+                          id="rejectedStatus"
+                          checked={selectedStatus === 'rejected'}
+                          onChange={() => setSelectedStatus('rejected')}
+                        />
+                        <label htmlFor="rejectedStatus" className="d-block rounded fs-12">Rejected</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Subscription Status */}
+              <div className="accordion-item">
+                <h2 className="accordion-header">
+                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#subscriptionStatus" aria-expanded="true">
+                    Subscription Status
+                  </button>
+                </h2>
+                <div id="subscriptionStatus" className="accordion-collapse collapse show">
+                  <div className="accordion-body">
+                    <div className="d-flex align-items-center">
+                      <div className="theme-width m-1 me-2">
+                        <input
+                          type="radio"
+                          name="subscriptionStatus"
+                          id="allSubStatus"
+                          checked={subscriptionStatus === 'All'}
+                          onChange={() => setSubscriptionStatus('All')}
+                        />
+                        <label htmlFor="allSubStatus" className="d-block rounded fs-12">All</label>
+                      </div>
+                      <div className="theme-width m-1 me-2">
+                        <input
+                          type="radio"
+                          name="subscriptionStatus"
+                          id="subscribedStatus"
+                          checked={subscriptionStatus === 'subscribed'}
+                          onChange={() => setSubscriptionStatus('subscribed')}
+                        />
+                        <label htmlFor="subscribedStatus" className="d-block rounded fs-12">Subscribed</label>
+                      </div>
+                      <div className="theme-width m-1 me-2">
+                        <input
+                          type="radio"
+                          name="subscriptionStatus"
+                          id="trialStatus"
+                          checked={subscriptionStatus === 'trial'}
+                          onChange={() => setSubscriptionStatus('trial')}
+                        />
+                        <label htmlFor="trialStatus" className="d-block rounded fs-12">Trial</label>
+                      </div>
+                      <div className="theme-width m-1">
+                        <input
+                          type="radio"
+                          name="subscriptionStatus"
+                          id="notSubscribedStatus"
+                          checked={subscriptionStatus === 'notSubscribed'}
+                          onChange={() => setSubscriptionStatus('notSubscribed')}
+                        />
+                        <label htmlFor="notSubscribedStatus" className="d-block rounded fs-12">Not Subscribed</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Date Range */}
+              <div className="accordion-item">
+                <h2 className="accordion-header">
+                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#dateRange" aria-expanded="true">
+                    Date Range
+                  </button>
+                </h2>
+                <div id="dateRange" className="accordion-collapse collapse show">
+                  <div className="accordion-body pb-0">
+                    <div className="row gx-3">
+                      <div className="form-group">
+                        <div className="price-inputs d-flex">
+                          <input
+                            type="date"
+                            className="form-control"
+                            placeholder="From"
+                            value={dateRange.start}
+                            onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                          />
+                          <input
+                            type="date"
+                            className="form-control"
+                            placeholder="To"
+                            value={dateRange.end}
+                            onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="p-3 pt-0">
+            <div className="row gx-3">
+              <div className="col-6">
                 <button
-                  type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-light close-theme w-100"
                   onClick={resetFilters}
                 >
-                  Reset All
+                  <i className="ti ti-restore me-1"></i>Reset
                 </button>
+              </div>
+              <div className="col-6">
                 <button
-                  type="button"
-                  className="btn btn-primary"
+                  className="btn btn-primary w-100"
                   onClick={applyFilters}
                 >
-                  Apply Filters
+                  <i className="ti ti-circle-check me-1"></i>Apply
                 </button>
               </div>
             </div>
           </div>
         </div>
-      )}
+        {showFilterSidebar && (
+          <div className="modal-backdrop fade show" onClick={() => setShowFilterSidebar(false)}></div>
+        )}
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Confirm Delete</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowDeleteModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p>Are you sure you want to delete this employer?</p>
-                {employerToDelete && (
-                  <div className="alert alert-warning">
-                    <strong>Employer:</strong> {employerToDelete.schoolName || `${employerToDelete.firstName || ''} ${employerToDelete.lastName || ''}`.trim()}
-                    <br />
-                    <strong>Email:</strong> {employerToDelete.userEmail}
-                  </div>
-                )}
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowDeleteModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={handleConfirmDelete}
-                >
-                  Delete
-                </button>
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Confirm Delete</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowDeleteModal(false)}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <p>Are you sure you want to delete this employer?</p>
+                  {employerToDelete && (
+                    <div className="alert alert-warning">
+                      <strong>Employer:</strong> {employerToDelete.schoolName || `${employerToDelete.firstName || ''} ${employerToDelete.lastName || ''}`.trim()}
+                      <br />
+                      <strong>Email:</strong> {employerToDelete.userEmail}
+                    </div>
+                  )}
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setShowDeleteModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={handleConfirmDelete}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Employer Details Modal */}
-      {showDetails && selectedEmployer && (
-        <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-lg modal-dialog-scrollable">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Employer Details</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowDetails(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <div className="row">
-                  <div className="col-md-4 text-center mb-4">
-                    {selectedEmployer.userProfilePic ? (
-                      <img
-                        src={selectedEmployer.userProfilePic}
-                        alt="Profile"
-                        className="rounded-circle mb-3"
-                        width="120"
-                        height="120"
-                      />
-                    ) : (
-                      <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{width: '120px', height: '120px', fontSize: '48px'}}>
-                        {(selectedEmployer.firstName || selectedEmployer.schoolName || 'U').charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <h5>{selectedEmployer.schoolName || `${selectedEmployer.firstName || ''} ${selectedEmployer.lastName || ''}`.trim()}</h5>
-                    <p className="text-muted">{selectedEmployer.userEmail}</p>
-                  </div>
-                  
-                  <div className="col-md-8">
-                    <div className="row">
-                      <div className="col-sm-6 mb-3">
-                        <label className="form-label fw-bold">Employer ID:</label>
-                        <p>Emp-{selectedEmployer._id.substring(selectedEmployer._id.length - 4)}</p>
-                      </div>
-                      
-                      <div className="col-sm-6 mb-3">
-                        <label className="form-label fw-bold">Employer Type:</label>
-                        <p>{selectedEmployer.employerType || 'N/A'}</p>
-                      </div>
-                      
-                      <div className="col-sm-6 mb-3">
-                        <label className="form-label fw-bold">Institution Type:</label>
-                        <p>{selectedEmployer.institutionType || 'N/A'}</p>
-                      </div>
-                      
-                      <div className="col-sm-6 mb-3">
-                        <label className="form-label fw-bold">Phone:</label>
-                        <p>{selectedEmployer.userMobile || 'N/A'}</p>
-                      </div>
-                      
-                      <div className="col-sm-6 mb-3">
-                        <label className="form-label fw-bold">State:</label>
-                        <p>{selectedEmployer.state || 'N/A'}</p>
-                      </div>
-                      
-                      <div className="col-sm-6 mb-3">
-                        <label className="form-label fw-bold">City:</label>
-                        <p>{selectedEmployer.city || 'N/A'}</p>
-                      </div>
-                      
-                      <div className="col-sm-6 mb-3">
-                        <label className="form-label fw-bold">Verification Status:</label>
-                        <p>
-                          <span className={getStatusBadge(selectedEmployer.verificationstatus)}>
-                            {selectedEmployer.verificationstatus || 'pending'}
-                          </span>
-                        </p>
-                      </div>
-                      
-                      <div className="col-sm-6 mb-3">
-                        <label className="form-label fw-bold">Subscription:</label>
-                        <p>
-                          <span className={getSubscriptionBadge(selectedEmployer.subscription, selectedEmployer.trial)}>
-                            {getSubscriptionText(selectedEmployer.subscription, selectedEmployer.trial)}
-                          </span>
-                        </p>
-                      </div>
-                      
-                      <div className="col-sm-6 mb-3">
-                        <label className="form-label fw-bold">Block Status:</label>
-                        <p>
-                          <span className={`badge ${selectedEmployer.blockstatus === 'block' ? 'bg-danger' : 'bg-success'}`}>
-                            {selectedEmployer.blockstatus === 'block' ? 'Blocked' : 'Active'}
-                          </span>
-                        </p>
-                      </div>
-                      
-                      <div className="col-sm-6 mb-3">
-                        <label className="form-label fw-bold">Created Date:</label>
-                        <p>{formatDate(selectedEmployer.createdAt)}</p>
-                      </div>
-                      
-                      {selectedEmployer.address && (
-                        <div className="col-12 mb-3">
-                          <label className="form-label fw-bold">Address:</label>
-                          <p>{selectedEmployer.address}</p>
+        {/* Employer Details Modal */}
+        {showDetails && selectedEmployer && (
+          <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog modal-lg modal-dialog-scrollable">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Employer Details</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowDetails(false)}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <div className="row">
+                    <div className="col-md-4 text-center mb-4">
+                      {selectedEmployer.userProfilePic ? (
+                        <img
+                          src={selectedEmployer.userProfilePic}
+                          alt="Profile"
+                          className="rounded-circle mb-3"
+                          width="120"
+                          height="120"
+                        />
+                      ) : (
+                        <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: '120px', height: '120px', fontSize: '48px' }}>
+                          {(selectedEmployer.firstName || selectedEmployer.schoolName || 'U').charAt(0).toUpperCase()}
                         </div>
                       )}
-                      
-                      {selectedEmployer.description && (
-                        <div className="col-12 mb-3">
-                          <label className="form-label fw-bold">Description:</label>
-                          <p>{selectedEmployer.description}</p>
+                      <h5>{selectedEmployer.schoolName || `${selectedEmployer.firstName || ''} ${selectedEmployer.lastName || ''}`.trim()}</h5>
+                      <p className="text-muted">{selectedEmployer.userEmail}</p>
+                    </div>
+
+                    <div className="col-md-8">
+                      <div className="row">
+                        <div className="col-sm-6 mb-3">
+                          <label className="form-label fw-bold">Employer ID:</label>
+                          <p>Emp-{selectedEmployer._id.substring(selectedEmployer._id.length - 4)}</p>
                         </div>
-                      )}
+
+                        <div className="col-sm-6 mb-3">
+                          <label className="form-label fw-bold">Employer Type:</label>
+                          <p>{selectedEmployer.employerType || 'N/A'}</p>
+                        </div>
+
+                        <div className="col-sm-6 mb-3">
+                          <label className="form-label fw-bold">Institution Type:</label>
+                          <p>{selectedEmployer.institutionType || 'N/A'}</p>
+                        </div>
+
+                        <div className="col-sm-6 mb-3">
+                          <label className="form-label fw-bold">Phone:</label>
+                          <p>{selectedEmployer.userMobile || 'N/A'}</p>
+                        </div>
+
+                        <div className="col-sm-6 mb-3">
+                          <label className="form-label fw-bold">State:</label>
+                          <p>{selectedEmployer.state || 'N/A'}</p>
+                        </div>
+
+                        <div className="col-sm-6 mb-3">
+                          <label className="form-label fw-bold">City:</label>
+                          <p>{selectedEmployer.city || 'N/A'}</p>
+                        </div>
+
+                        <div className="col-sm-6 mb-3">
+                          <label className="form-label fw-bold">Verification Status:</label>
+                          <p>
+                            <span className={getStatusBadge(selectedEmployer.verificationstatus)}>
+                              {selectedEmployer.verificationstatus || 'pending'}
+                            </span>
+                          </p>
+                        </div>
+
+                        <div className="col-sm-6 mb-3">
+                          <label className="form-label fw-bold">Subscription:</label>
+                          <p>
+                            <span className={getSubscriptionBadge(selectedEmployer.subscription, selectedEmployer.trial)}>
+                              {getSubscriptionText(selectedEmployer.subscription, selectedEmployer.trial)}
+                            </span>
+                          </p>
+                        </div>
+
+                        <div className="col-sm-6 mb-3">
+                          <label className="form-label fw-bold">Block Status:</label>
+                          <p>
+                            <span className={`badge ${selectedEmployer.blockstatus === 'block' ? 'bg-danger' : 'bg-success'}`}>
+                              {selectedEmployer.blockstatus === 'block' ? 'Blocked' : 'Active'}
+                            </span>
+                          </p>
+                        </div>
+
+                        <div className="col-sm-6 mb-3">
+                          <label className="form-label fw-bold">Created Date:</label>
+                          <p>{formatDate(selectedEmployer.createdAt)}</p>
+                        </div>
+
+                        {selectedEmployer.address && (
+                          <div className="col-12 mb-3">
+                            <label className="form-label fw-bold">Address:</label>
+                            <p>{selectedEmployer.address}</p>
+                          </div>
+                        )}
+
+                        {selectedEmployer.description && (
+                          <div className="col-12 mb-3">
+                            <label className="form-label fw-bold">Description:</label>
+                            <p>{selectedEmployer.description}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowDetails(false)}
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => {
-                    setShowDetails(false);
-                    setShowEditEmployerModal(true);
-                  }}
-                >
-                  Edit Employer
-                </button>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setShowDetails(false)}
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => {
+                      setShowDetails(false);
+                      setShowEditEmployerModal(true);
+                    }}
+                  >
+                    Edit Employer
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Add Employer Modal */}
-      {showAddEmployerModal && (
-        <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Add New Employer</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowAddEmployerModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <form>
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">School/Company Name</label>
-                      <input type="text" className="form-control" required />
+        {/* Add Employer Modal */}
+        {showAddEmployerModal && (
+          <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog modal-lg">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Add New Employer</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowAddEmployerModal(false)}
+                    disabled={loading}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  {error && (
+                    <div className="alert alert-danger mb-3">
+                      {error}
+                      <button
+                        type="button"
+                        className="btn-close float-end"
+                        onClick={() => setError(null)}
+                      ></button>
                     </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Employer Type</label>
-                      <select className="form-select" required>
-                        <option value="">Select Type</option>
-                        <option value="School">School</option>
-                        <option value="College">College</option>
-                        <option value="University">University</option>
-                        <option value="Company">Company</option>
-                      </select>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">First Name</label>
-                      <input type="text" className="form-control" required />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Last Name</label>
-                      <input type="text" className="form-control" required />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Email</label>
-                      <input type="email" className="form-control" required />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Phone</label>
-                      <input type="tel" className="form-control" required />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">State</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">City</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                    <div className="col-12 mb-3">
-                      <label className="form-label">Address</label>
-                      <textarea className="form-control" rows="3"></textarea>
-                    </div>
-                  </div>
-                </form>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowAddEmployerModal(false)}
-                >
-                  Cancel
-                </button>
-                <button type="button" className="btn btn-primary">
-                  Add Employer
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+                  )}
 
-      {/* Edit Employer Modal */}
-      {showEditEmployerModal && selectedEmployer && (
-        <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Edit Employer</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowEditEmployerModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <form>
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">School/Company Name</label>
-                      <input 
-                        type="text" 
-                        className="form-control" 
-                        defaultValue={selectedEmployer.schoolName || ''}
-                      />
+                  <form onSubmit={handleAddEmployer}>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Employer Type*</label>
+                        <select
+                          name="employerType"
+                          className="form-select"
+                          value={newEmployer.employerType}
+                          onChange={handleNewEmployerChange}
+                          required
+                        >
+                          <option value="">Select Type</option>
+                          <option value="School">School</option>
+                          <option value="College">College</option>
+                          <option value="University">University</option>
+                          <option value="Company">Company</option>
+                        </select>
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">School/Company Name</label>
+                        <input
+                          type="text"
+                          name="schoolName"
+                          className="form-control"
+                          value={newEmployer.schoolName}
+                          onChange={handleNewEmployerChange}
+                        />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">First Name</label>
+                        <input
+                          type="text"
+                          name="firstName"
+                          className="form-control"
+                          value={newEmployer.firstName}
+                          onChange={handleNewEmployerChange}
+                        />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Last Name</label>
+                        <input
+                          type="text"
+                          name="lastName"
+                          className="form-control"
+                          value={newEmployer.lastName}
+                          onChange={handleNewEmployerChange}
+                        />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Email</label>
+                        <input
+                          type="email"
+                          name="userEmail"
+                          className="form-control"
+                          value={newEmployer.userEmail}
+                          onChange={handleNewEmployerChange}
+                        />
+                        <small className="text-muted">Either email or mobile is required</small>
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Mobile</label>
+                        <input
+                          type="tel"
+                          name="userMobile"
+                          className="form-control"
+                          value={newEmployer.userMobile}
+                          onChange={handleNewEmployerChange}
+                        />
+                        <small className="text-muted">Either email or mobile is required</small>
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Password*</label>
+                        <input
+                          type="password"
+                          name="userPassword"
+                          className="form-control"
+                          value={newEmployer.userPassword}
+                          onChange={handleNewEmployerChange}
+                          required
+                        />
+                      </div>
+
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Referral Code (Optional)</label>
+                        <input
+                          type="text"
+                          name="referralCode"
+                          className="form-control"
+                          value={newEmployer.referralCode}
+                          onChange={handleNewEmployerChange}
+                        />
+                      </div>
                     </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Employer Type</label>
-                      <select className="form-select" defaultValue={selectedEmployer.employerType || ''}>
-                        <option value="">Select Type</option>
-                        <option value="School">School</option>
-                        <option value="College">College</option>
-                        <option value="University">University</option>
-                        <option value="Company">Company</option>
-                      </select>
+
+                    <div className="modal-footer">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => setShowAddEmployerModal(false)}
+                        disabled={loading}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            Adding...
+                          </>
+                        ) : (
+                          'Add Employer'
+                        )}
+                      </button>
                     </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">First Name</label>
-                      <input 
-                        type="text" 
-                        className="form-control" 
-                        defaultValue={selectedEmployer.firstName || ''}
-                      />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Last Name</label>
-                      <input 
-                        type="text" 
-                        className="form-control" 
-                        defaultValue={selectedEmployer.lastName || ''}
-                      />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Email</label>
-                      <input 
-                        type="email" 
-                        className="form-control" 
-                        defaultValue={selectedEmployer.userEmail || ''}
-                      />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Phone</label>
-                      <input 
-                        type="tel" 
-                        className="form-control" 
-                        defaultValue={selectedEmployer.userMobile || ''}
-                      />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">State</label>
-                      <input 
-                        type="text" 
-                        className="form-control" 
-                        defaultValue={selectedEmployer.state || ''}
-                      />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">City</label>
-                      <input 
-                        type="text" 
-                        className="form-control" 
-                        defaultValue={selectedEmployer.city || ''}
-                      />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Verification Status</label>
-                      <select className="form-select" defaultValue={selectedEmployer.verificationstatus || 'pending'}>
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                      </select>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Block Status</label>
-                      <select className="form-select" defaultValue={selectedEmployer.blockstatus || 'unblock'}>
-                        <option value="unblock">Active</option>
-                        <option value="block">Blocked</option>
-                      </select>
-                    </div>
-                    <div className="col-12 mb-3">
-                      <label className="form-label">Address</label>
-                      <textarea 
-                        className="form-control" 
-                        rows="3"
-                        defaultValue={selectedEmployer.address || ''}
-                      ></textarea>
-                    </div>
-                  </div>
-                </form>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowEditEmployerModal(false)}
-                >
-                  Cancel
-                </button>
-                <button type="button" className="btn btn-primary">
-                  Update Employer
-                </button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-    
+        )}
+
+        {/* Edit Employer Modal */}
+        {showEditEmployerModal && selectedEmployer && (
+          <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog modal-lg">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Edit Employer</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowEditEmployerModal(false)}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <form>
+                    <div className="row">
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">School/Company Name</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue={selectedEmployer.schoolName || ''}
+                        />
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Employer Type</label>
+                        <select className="form-select" defaultValue={selectedEmployer.employerType || ''}>
+                          <option value="">Select Type</option>
+                          <option value="School">School</option>
+                          <option value="College">College</option>
+                          <option value="University">University</option>
+                          <option value="Company">Company</option>
+                        </select>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">First Name</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue={selectedEmployer.firstName || ''}
+                        />
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Last Name</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue={selectedEmployer.lastName || ''}
+                        />
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Email</label>
+                        <input
+                          type="email"
+                          className="form-control"
+                          defaultValue={selectedEmployer.userEmail || ''}
+                        />
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Phone</label>
+                        <input
+                          type="tel"
+                          className="form-control"
+                          defaultValue={selectedEmployer.userMobile || ''}
+                        />
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">State</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue={selectedEmployer.state || ''}
+                        />
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">City</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue={selectedEmployer.city || ''}
+                        />
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Verification Status</label>
+                        <select className="form-select" defaultValue={selectedEmployer.verificationstatus || 'pending'}>
+                          <option value="pending">Pending</option>
+                          <option value="approved">Approved</option>
+                          <option value="rejected">Rejected</option>
+                        </select>
+                      </div>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Block Status</label>
+                        <select className="form-select" defaultValue={selectedEmployer.blockstatus || 'unblock'}>
+                          <option value="unblock">Active</option>
+                          <option value="block">Blocked</option>
+                        </select>
+                      </div>
+                      <div className="col-12 mb-3">
+                        <label className="form-label">Address</label>
+                        <textarea
+                          className="form-control"
+                          rows="3"
+                          defaultValue={selectedEmployer.address || ''}
+                        ></textarea>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setShowEditEmployerModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button type="button" className="btn btn-primary">
+                    Update Employer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       <AdminFooter />
     </>
   );

@@ -497,6 +497,74 @@ const AdminCandidateList = () => {
     });
   };
 
+const handleExport = (type) => {
+  // Prepare data for export
+  const exportData = filteredCandidates.map(candidate => ({
+    ID: `Cand-${candidate._id.substring(candidate._id.length - 4)}`,
+    Name: candidate.userName,
+    Email: candidate.userEmail,
+    Phone: candidate.userMobile,
+    Specialization: candidate.specialization || 'N/A',
+    Experience: `${candidate.totalExperience || 0} years`,
+    Location: candidate.currentCity || 'N/A',
+    Status: candidate.verificationstatus || 'pending',
+    'Created Date': formatDate(candidate.createdAt)
+  }));
+
+  if (type === 'pdf') {
+    // Simple PDF export using browser print
+    const printWindow = window.open('', '_blank');
+    const htmlContent = `
+      <html>
+        <head>
+          <title>Candidates Export</title>
+          <style>
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+          <h1>Candidates List</h1>
+          <table>
+            <thead>
+              <tr>
+                ${Object.keys(exportData[0]).map(key => `<th>${key}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${exportData.map(row => `
+                <tr>
+                  ${Object.values(row).map(value => `<td>${value}</td>`).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.print();
+  } else if (type === 'excel') {
+    // CSV export (works in Excel)
+    const headers = Object.keys(exportData[0]).join(',');
+    const csvContent = [
+      headers,
+      ...exportData.map(row => Object.values(row).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'candidates_export.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+};
+
   if (loading) {
     return <div className="text-center py-5">Loading candidates...</div>;
   }
@@ -741,27 +809,22 @@ const AdminCandidateList = () => {
               </button>
             </div>
 
-            <div className="me-2">
-              <div className="dropdown">
-                <button
-                  className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                  data-bs-toggle="dropdown"
-                >
-                  <i className="ti ti-file-export me-1"></i>Export
-                </button>
-                <ul className="dropdown-menu dropdown-menu-end p-3">
-                  <li>
-                    <button className="dropdown-item rounded-1">
-                      <i className="ti ti-file-type-pdf me-1"></i>Export as PDF
-                    </button>
-                  </li>
-                  <li>
-                    <button className="dropdown-item rounded-1">
-                      <i className="ti ti-file-type-xls me-1"></i>Export as Excel
-                    </button>
-                  </li>
-                </ul>
-              </div>
+            <div className="dropdown me-2">
+              <button className="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+                <i className="ti ti-file-export me-1"></i>Export
+              </button>
+              <ul className="dropdown-menu dropdown-menu-end p-3">
+                <li>
+                  <button className="dropdown-item rounded-1" onClick={() => handleExport('pdf')}>
+                    <i className="ti ti-file-type-pdf me-1"></i>Export as PDF
+                  </button>
+                </li>
+                <li>
+                  <button className="dropdown-item rounded-1" onClick={() => handleExport('excel')}>
+                    <i className="ti ti-file-type-xls me-1"></i>Export as Excel
+                  </button>
+                </li>
+              </ul>
             </div>
 
             <button className="btn btn-primary d-flex align-items-center" onClick={() => setShowAddCandidateModal(true)}>
@@ -1100,192 +1163,266 @@ const AdminCandidateList = () => {
         </div>
 
         {/* Filter Sidebar */}
-        {showFilterSidebar && (
-          <div className="filter-sidebar">
-            <div className="filter-sidebar-content">
-              <div className="filter-sidebar-header">
-                <h5>Filters</h5>
-                <button
-                  className="close-filter"
-                  onClick={() => setShowFilterSidebar(false)}
-                >
-                  <i className="ti ti-x"></i>
-                </button>
-              </div>
-              <div className="filter-sidebar-body">
-                {/* Job Category Filter */}
-                <div className="filter-group">
-                  <h6>Job Category</h6>
-                  <div className="filter-options">
-                    {Object.keys(jobCategories).map((category) => (
-                      <div className="form-check" key={category}>
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id={`category-${category}`}
-                          checked={jobCategories[category]}
-                          onChange={() => handleJobCategoryChange(category)}
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor={`category-${category}`}
-                        >
-                          {category}
-                        </label>
+        <div className={`sidebar-themesettings offcanvas offcanvas-end ${showFilterSidebar ? 'show' : ''}`}
+          id="theme-setting"
+          style={{ visibility: showFilterSidebar ? 'visible' : 'hidden' }}>
+          <div className="offcanvas-header d-flex align-items-center justify-content-between bg-dark">
+            <div>
+              <h3 className="mb-1 text-white">Filter Candidates</h3>
+              <p className="text-light">Search & Filter</p>
+            </div>
+            <a href="#" className="custom-btn-close d-flex align-items-center justify-content-center text-white"
+              onClick={(e) => { e.preventDefault(); setShowFilterSidebar(false); }}>
+              <i className="ti ti-x"></i>
+            </a>
+          </div>
+          <div className="themesettings-inner offcanvas-body">
+            <div className="accordion accordion-customicon1 accordions-items-seperate" id="settingtheme">
+              {/* Job Categories */}
+              <div className="accordion-item">
+                <h2 className="accordion-header">
+                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#jobCategories" aria-expanded="true">
+                    Job Categories
+                  </button>
+                </h2>
+                <div id="jobCategories" className="accordion-collapse collapse show">
+                  <div className="accordion-body">
+                    <div className="row gx-3">
+                      <div className="form-group">
+                        <div className="checkbox-limit">
+                          <ul className="checkbox-list">
+                            {Object.keys(jobCategories).map(category => (
+                              <React.Fragment key={category}>
+                                <li>
+                                  <label className="custom-checkbox">
+                                    <input
+                                      type="checkbox"
+                                      checked={jobCategories[category]}
+                                      onChange={() => handleJobCategoryChange(category)}
+                                    />
+                                    <span className="fake-checkbox"></span>
+                                    <span className="label-text">{category}</span>
+                                  </label>
+                                </li>
+                                <br />
+                              </React.Fragment>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Job Type Filter */}
-                <div className="filter-group">
-                  <h6>Job Type</h6>
-                  <div className="filter-options">
-                    {Object.keys(jobTypes).map((type) => (
-                      <div className="form-check" key={type}>
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          id={`type-${type}`}
-                          checked={jobTypes[type]}
-                          onChange={() => handleJobTypeChange(type)}
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor={`type-${type}`}
-                        >
-                          {type}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Gender Filter */}
-                <div className="filter-group">
-                  <h6>Gender</h6>
-                  <select
-                    className="form-select"
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
-                  >
-                    <option value="All">All Genders</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-
-                {/* Salary Range Filter */}
-                <div className="filter-group">
-                  <h6>Salary Range</h6>
-                  <div className="row g-2">
-                    <div className="col">
-                      <input
-                        type="number"
-                        className="form-control"
-                        placeholder="Min"
-                        value={salaryRange.min}
-                        onChange={(e) =>
-                          setSalaryRange({
-                            ...salaryRange,
-                            min: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="col">
-                      <input
-                        type="number"
-                        className="form-control"
-                        placeholder="Max"
-                        value={salaryRange.max}
-                        onChange={(e) =>
-                          setSalaryRange({
-                            ...salaryRange,
-                            max: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Location Filter */}
-                <div className="filter-group">
-                  <h6>Location</h6>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Enter location"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                  />
-                </div>
-
-                {/* Qualification Filter */}
-                <div className="filter-group">
-                  <h6>Qualification</h6>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Enter qualification"
-                    value={qualification}
-                    onChange={(e) => setQualification(e.target.value)}
-                  />
-                </div>
-
-                {/* Experience Range Filter */}
-                <div className="filter-group">
-                  <h6>Experience Range (years)</h6>
-                  <div className="row g-2">
-                    <div className="col">
-                      <input
-                        type="number"
-                        className="form-control"
-                        placeholder="Min"
-                        value={experienceRange.min}
-                        onChange={(e) =>
-                          setExperienceRange({
-                            ...experienceRange,
-                            min: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="col">
-                      <input
-                        type="number"
-                        className="form-control"
-                        placeholder="Max"
-                        value={experienceRange.max}
-                        onChange={(e) =>
-                          setExperienceRange({
-                            ...experienceRange,
-                            max: e.target.value,
-                          })
-                        }
-                      />
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="filter-sidebar-footer">
+
+              {/* Job Types */}
+              <div className="accordion-item">
+                <h2 className="accordion-header">
+                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#jobTypes" aria-expanded="true">
+                    Job Types
+                  </button>
+                </h2>
+                <div id="jobTypes" className="accordion-collapse collapse show">
+                  <div className="accordion-body">
+                    <div className="row gx-3">
+                      <div className="form-group">
+                        <div className="checkbox-limit">
+                          <ul className="checkbox-list">
+                            {Object.keys(jobTypes).map(type => (
+                              <React.Fragment key={type}>
+                                <li>
+                                  <label className="custom-checkbox">
+                                    <input
+                                      type="checkbox"
+                                      checked={jobTypes[type]}
+                                      onChange={() => handleJobTypeChange(type)}
+                                    />
+                                    <span className="fake-checkbox"></span>
+                                    <span className="label-text">{type}</span>
+                                  </label>
+                                </li>
+                                <br />
+                              </React.Fragment>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Gender */}
+              <div className="accordion-item">
+                <h2 className="accordion-header">
+                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#genderFilter" aria-expanded="true">
+                    Gender
+                  </button>
+                </h2>
+                <div id="genderFilter" className="accordion-collapse collapse show">
+                  <div className="accordion-body">
+                    <div className="d-flex align-items-center">
+                      <div className="theme-width m-1 me-2">
+                        <input
+                          type="radio"
+                          name="gender"
+                          id="allGender"
+                          value="All"
+                          checked={gender === 'All'}
+                          onChange={() => setGender('All')}
+                        />
+                        <label htmlFor="allGender" className="d-block rounded fs-12">All</label>
+                      </div>
+                      <div className="theme-width m-1 me-2">
+                        <input
+                          type="radio"
+                          name="gender"
+                          id="maleGender"
+                          value="male"
+                          checked={gender === 'male'}
+                          onChange={() => setGender('male')}
+                        />
+                        <label htmlFor="maleGender" className="d-block rounded fs-12">Male</label>
+                      </div>
+                      <div className="theme-width m-1 me-2">
+                        <input
+                          type="radio"
+                          name="gender"
+                          id="femaleGender"
+                          value="female"
+                          checked={gender === 'female'}
+                          onChange={() => setGender('female')}
+                        />
+                        <label htmlFor="femaleGender" className="d-block rounded fs-12">Female</label>
+                      </div>
+                      <div className="theme-width m-1">
+                        <input
+                          type="radio"
+                          name="gender"
+                          id="otherGender"
+                          value="other"
+                          checked={gender === 'other'}
+                          onChange={() => setGender('other')}
+                        />
+                        <label htmlFor="otherGender" className="d-block rounded fs-12">Other</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Salary Range */}
+              <div className="accordion-item">
+                <h2 className="accordion-header">
+                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#salaryRange" aria-expanded="true">
+                    Salary Range
+                  </button>
+                </h2>
+                <div id="salaryRange" className="accordion-collapse collapse show">
+                  <div className="accordion-body pb-0">
+                    <div className="row gx-3">
+                      <div className="form-group">
+                        <div className="price-inputs d-flex">
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="From"
+                            value={salaryRange.min}
+                            onChange={(e) => setSalaryRange({ ...salaryRange, min: e.target.value })}
+                          />
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="To"
+                            value={salaryRange.max}
+                            onChange={(e) => setSalaryRange({ ...salaryRange, max: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Location */}
+              <div className="accordion-item">
+                <h2 className="accordion-header">
+                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#locationFilter" aria-expanded="true">
+                    Location
+                  </button>
+                </h2>
+                <div id="locationFilter" className="accordion-collapse collapse show">
+                  <div className="accordion-body">
+                    <div className="d-flex align-items-center">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Enter Location"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Experience */}
+              <div className="accordion-item">
+                <h2 className="accordion-header">
+                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#experienceFilter" aria-expanded="true">
+                    Experience (Years)
+                  </button>
+                </h2>
+                <div id="experienceFilter" className="accordion-collapse collapse show">
+                  <div className="accordion-body pb-0">
+                    <div className="row gx-3">
+                      <div className="form-group">
+                        <div className="price-inputs d-flex">
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="From"
+                            value={experienceRange.min}
+                            onChange={(e) => setExperienceRange({ ...experienceRange, min: e.target.value })}
+                          />
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="To"
+                            value={experienceRange.max}
+                            onChange={(e) => setExperienceRange({ ...experienceRange, max: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="p-3 pt-0">
+            <div className="row gx-3">
+              <div className="col-6">
                 <button
-                  className="btn btn-outline-secondary me-2"
+                  className="btn btn-light close-theme w-100"
                   onClick={resetFilters}
                 >
-                  Reset
+                  <i className="ti ti-restore me-1"></i>Reset
                 </button>
+              </div>
+              <div className="col-6">
                 <button
-                  className="btn btn-primary"
+                  className="btn btn-primary w-100"
                   onClick={applyFilters}
                 >
-                  Apply Filters
+                  <i className="ti ti-circle-check me-1"></i>Apply
                 </button>
               </div>
             </div>
           </div>
+        </div>
+        {showFilterSidebar && (
+          <div className="modal-backdrop fade show" onClick={() => setShowFilterSidebar(false)}></div>
         )}
 
         {/* Add Candidate Modal */}

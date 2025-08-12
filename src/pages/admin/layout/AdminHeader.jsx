@@ -101,7 +101,6 @@ const AdminHeader = () => {
     ];
 
     const jobsOptions = [
-        // { name: 'Post Jobs', path: '/admin/post-jobs' },
         { name: 'Jobs', path: '/admin/jobs' },
     ];
 
@@ -176,54 +175,18 @@ const AdminHeader = () => {
                                 <i class="ti ti-layout-grid-remove text-primary"></i>
                                 <span className="text-dark">Candidates</span>
                             </Link>
-                             <Link to="/admin/employer-list" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                            <Link to="/admin/employer-list" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                                 <i class="ti ti-layout-grid-remove text-primary"></i>
                                 <span className="text-dark">Employer</span>
                             </Link>
-                            <div className='position-relative me-2'>
-                                <div className='d-flex align-items-center fw-medium px-3 py-2 rounded dropdown'
-                                    onClick={() => {
-                                        setJobsDropdown(!jobsDropdown);
-                                        setCandidatesDropdown(false);
-                                        setEventsDropdown(false);
-                                    }}
-                                    style={{ cursor: 'pointer' }}
-                                >
-                                    <Briefcase className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                    <span className="text-dark">Jobs</span>
-                                    <ChevronDown className='me-2' size={16} />
-                                </div>
-                                {jobsDropdown && (
-                                    <div className='position-absolute bg-white border rounded shadow-sm'
-                                        style={{
-                                            top: '100%',
-                                            left: '0',
-                                            minWidth: '180px',
-                                            zIndex: '1000',
-                                            marginTop: '4px',
-                                        }}
-                                    >
-                                        {jobsOptions.map((option, index) => (
-                                            <Link
-                                                key={index}
-                                                to={option.path}
-                                                className='px-3 py-2 dropdown-item text-decoration-none'
-                                                style={{
-                                                    cursor: 'pointer',
-                                                    color: '#374151',
-                                                    display: 'block',
-                                                    borderBottom: index < jobsOptions.length - 1 ? '1px solid #f1f5f9' : 'none'
-                                                }}
-                                                onClick={() => {
-                                                    setJobsDropdown(false);
-                                                }}
-                                            >
-                                                {option.name}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                            <Link to="/admin/organization-list" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">Organization</span>
+                            </Link>
+                              <Link to="/admin/job-list" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">Jobs</span>
+                            </Link>
                             <Link to="/admin/messages" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                                 <MessageSquare className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                 <span className="text-dark">Messages</span>
@@ -566,7 +529,7 @@ const AdminHeader = () => {
                                 <i class="ti ti-layout-grid-remove text-primary"></i>
                                 <span className="text-dark">Dashboard</span>
                             </Link>
-                             <Link
+                            <Link
                                 to="/admin/candidate-list"
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
@@ -574,7 +537,7 @@ const AdminHeader = () => {
                                 <i class="ti ti-layout-grid-remove text-primary"></i>
                                 <span className="text-dark">Candidates</span>
                             </Link>
-                             <Link
+                            <Link
                                 to="/admin/employer-list"
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
@@ -582,39 +545,23 @@ const AdminHeader = () => {
                                 <i class="ti ti-layout-grid-remove text-primary"></i>
                                 <span className="text-dark">Employer</span>
                             </Link>
+                            <Link
+                                to="/admin/organization-list"
+                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                                onClick={closeMobileMenu}
+                            >
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">Organization</span>
+                            </Link>
+                             <Link
+                                to="/admin/job-list"
+                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                                onClick={closeMobileMenu}
+                            >
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">Jobs</span>
+                            </Link>
 
-                            {/* Jobs Section */}
-                            <div className="mb-2">
-                                <div
-                                    className="d-flex align-items-center justify-content-between fw-medium px-3 py-2 rounded mobile-dropdown-header"
-                                    onClick={() => setJobsDropdown(!jobsDropdown)}
-                                    style={{ cursor: 'pointer', backgroundColor: jobsDropdown ? '#f8f9fa' : 'transparent' }}
-                                >
-                                    <div className="d-flex align-items-center">
-                                        <Briefcase className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                        <span className="text-dark">Jobs</span>
-                                    </div>
-                                    <ChevronDown
-                                        className={`transition-transform ${jobsDropdown ? 'rotate-180' : ''}`}
-                                        size={16}
-                                    />
-                                </div>
-                                {jobsDropdown && (
-                                    <div className="mobile-dropdown-content bg-light rounded mx-3 mt-2">
-                                        {jobsOptions.map((option, index) => (
-                                            <Link
-                                                key={index}
-                                                to={option.path}
-                                                className="d-block px-3 py-2 text-decoration-none mobile-dropdown-item"
-                                                style={{ color: '#374151' }}
-                                                onClick={closeMobileMenu}
-                                            >
-                                                {option.name}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
 
                             {/* Regular Menu Items */}
                             <Link
