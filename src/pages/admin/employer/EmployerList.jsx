@@ -22,6 +22,7 @@ const EmployerList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [employerToDelete, setEmployerToDelete] = useState(null);
   const [showFilterSidebar, setShowFilterSidebar] = useState(false);
+  const [editedEmployer, setEditedEmployer] = useState(null);
 
   const [newEmployer, setNewEmployer] = useState({
     employerType: '',
@@ -272,6 +273,104 @@ const EmployerList = () => {
       setStates(initialStates);
     }
   }, [employers]);
+
+
+  // Replace the existing setShowEditEmployerModal calls with this:
+
+  const fetchEmployerDetails = async (employerId) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`https://edujobzbackend.onrender.com/employer/fetchemployer/${employerId}`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch employer details');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      console.error('Fetch employer error:', err);
+      setError(err.message);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditClick = async (employer) => {
+    setSelectedEmployer(employer);
+    setLoading(true);
+
+    try {
+      const details = await fetchEmployerDetails(employer._id);
+      if (details) {
+        setEditedEmployer({
+          firstName: details.firstName || '',
+          lastName: details.lastName || '',
+          userEmail: details.userEmail || '',
+          userMobile: details.userMobile || '',
+          address: details.address || '',
+          state: details.state || '',
+          pincode: details.pincode || '',
+          city: details.city || '',
+          schoolName: details.schoolName || '',
+          website: details.website || '',
+          board: details.board || '',
+          institutionType: details.institutionType || '',
+          employerType: details.employerType || '',
+          organizationid: details.organizationid || '',
+        });
+        setShowEditEmployerModal(true);
+      }
+    } catch (err) {
+      console.error('Error loading employer details:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleUpdateEmployer = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `https://edujobzbackend.onrender.com/employer/updateemployer/${selectedEmployer._id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(editedEmployer)
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update employer');
+      }
+
+      const data = await response.json();
+
+      // Update the local state
+      setEmployers(employers.map(employer =>
+        employer._id === selectedEmployer._id
+          ? { ...employer, ...editedEmployer }
+          : employer
+      ));
+
+      setFilteredEmployers(filteredEmployers.map(employer =>
+        employer._id === selectedEmployer._id
+          ? { ...employer, ...editedEmployer }
+          : employer
+      ));
+
+      setShowEditEmployerModal(false);
+    } catch (err) {
+      console.error('Update error:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Apply all filters
   const applyFilters = () => {
@@ -1085,10 +1184,7 @@ const EmployerList = () => {
                           <div className="d-flex align-items-center">
                             <button
                               className="btn btn-sm btn-icon btn-primary-light me-2"
-                              onClick={() => {
-                                setSelectedEmployer(employer);
-                                setShowEditEmployerModal(true);
-                              }}
+                              onClick={() => handleEditClick(employer)}
                             >
                               <i className="ti ti-edit"></i>
                             </button>
@@ -1685,7 +1781,7 @@ const EmployerList = () => {
                           value={newEmployer.userEmail}
                           onChange={handleNewEmployerChange}
                         />
-                        <small className="text-muted">Either email or mobile is required</small>
+                        <small className="text-muted">Email is required</small>
                       </div>
 
                       <div className="col-md-6 mb-3">
@@ -1697,7 +1793,7 @@ const EmployerList = () => {
                           value={newEmployer.userMobile}
                           onChange={handleNewEmployerChange}
                         />
-                        <small className="text-muted">Either email or mobile is required</small>
+                        <small className="text-muted">mobile is required</small>
                       </div>
 
                       <div className="col-md-6 mb-3">
@@ -1712,7 +1808,7 @@ const EmployerList = () => {
                         />
                       </div>
 
-                      <div className="col-md-6 mb-3">
+                      {/* <div className="col-md-6 mb-3">
                         <label className="form-label">Referral Code (Optional)</label>
                         <input
                           type="text"
@@ -1721,7 +1817,7 @@ const EmployerList = () => {
                           value={newEmployer.referralCode}
                           onChange={handleNewEmployerChange}
                         />
-                      </div>
+                      </div> */}
                     </div>
 
                     <div className="modal-footer">
@@ -1756,125 +1852,202 @@ const EmployerList = () => {
         )}
 
         {/* Edit Employer Modal */}
-        {showEditEmployerModal && selectedEmployer && (
+        {showEditEmployerModal && (
           <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
             <div className="modal-dialog modal-lg">
               <div className="modal-content">
                 <div className="modal-header">
-                  <h5 className="modal-title">Edit Employer</h5>
+                  <h5 className="modal-title">
+                    {loading ? 'Loading Employer Details...' : 'Edit Employer'}
+                  </h5>
                   <button
                     type="button"
                     className="btn-close"
                     onClick={() => setShowEditEmployerModal(false)}
+                    disabled={loading}
                   ></button>
                 </div>
-                <div className="modal-body">
-                  <form>
-                    <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">School/Company Name</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          defaultValue={selectedEmployer.schoolName || ''}
-                        />
+
+                {loading ? (
+                  <div className="modal-body text-center py-4">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p className="mt-2">Fetching employer details...</p>
+                  </div>
+                ) : (
+                  <>
+                    {error && (
+                      <div className="alert alert-danger mb-3 mx-3">
+                        {error}
+                        <button
+                          type="button"
+                          className="btn-close float-end"
+                          onClick={() => setError(null)}
+                        ></button>
                       </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Employer Type</label>
-                        <select className="form-select" defaultValue={selectedEmployer.employerType || ''}>
-                          <option value="">Select Type</option>
-                          <option value="School">School</option>
-                          <option value="College">College</option>
-                          <option value="University">University</option>
-                          <option value="Company">Company</option>
-                        </select>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">First Name</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          defaultValue={selectedEmployer.firstName || ''}
-                        />
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Last Name</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          defaultValue={selectedEmployer.lastName || ''}
-                        />
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Email</label>
-                        <input
-                          type="email"
-                          className="form-control"
-                          defaultValue={selectedEmployer.userEmail || ''}
-                        />
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Phone</label>
-                        <input
-                          type="tel"
-                          className="form-control"
-                          defaultValue={selectedEmployer.userMobile || ''}
-                        />
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">State</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          defaultValue={selectedEmployer.state || ''}
-                        />
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">City</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          defaultValue={selectedEmployer.city || ''}
-                        />
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Verification Status</label>
-                        <select className="form-select" defaultValue={selectedEmployer.verificationstatus || 'pending'}>
-                          <option value="pending">Pending</option>
-                          <option value="approved">Approved</option>
-                          <option value="rejected">Rejected</option>
-                        </select>
-                      </div>
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Block Status</label>
-                        <select className="form-select" defaultValue={selectedEmployer.blockstatus || 'unblock'}>
-                          <option value="unblock">Active</option>
-                          <option value="block">Blocked</option>
-                        </select>
-                      </div>
-                      <div className="col-12 mb-3">
-                        <label className="form-label">Address</label>
-                        <textarea
-                          className="form-control"
-                          rows="3"
-                          defaultValue={selectedEmployer.address || ''}
-                        ></textarea>
+                    )}
+
+                    <div className="modal-body">
+                      <div className="row">
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">First Name</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editedEmployer?.firstName || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, firstName: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Last Name</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editedEmployer?.lastName || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, lastName: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Email</label>
+                          <input
+                            type="email"
+                            className="form-control"
+                            value={editedEmployer?.userEmail || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, userEmail: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Phone</label>
+                          <input
+                            type="tel"
+                            className="form-control"
+                            value={editedEmployer?.userMobile || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, userMobile: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">School/Company Name</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editedEmployer?.schoolName || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, schoolName: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Employer Type</label>
+                          <select
+                            className="form-select"
+                            value={editedEmployer?.employerType || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, employerType: e.target.value })}
+                          >
+                            <option value="">Select Type</option>
+                            <option value="School">School</option>
+                            <option value="College">College</option>
+                            <option value="University">University</option>
+                            <option value="Company">Company</option>
+                          </select>
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Institution Type</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editedEmployer?.institutionType || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, institutionType: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Organization ID</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editedEmployer?.organizationid || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, organizationid: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">State</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editedEmployer?.state || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, state: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">City</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editedEmployer?.city || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, city: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Pincode</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editedEmployer?.pincode || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, pincode: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Board</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editedEmployer?.board || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, board: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Website</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={editedEmployer?.website || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, website: e.target.value })}
+                          />
+                        </div>
+                        <div className="col-12 mb-3">
+                          <label className="form-label">Address</label>
+                          <textarea
+                            className="form-control"
+                            rows="3"
+                            value={editedEmployer?.address || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, address: e.target.value })}
+                          ></textarea>
+                        </div>
                       </div>
                     </div>
-                  </form>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={() => setShowEditEmployerModal(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button type="button" className="btn btn-primary">
-                    Update Employer
-                  </button>
-                </div>
+                    <div className="modal-footer">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => setShowEditEmployerModal(false)}
+                        disabled={loading}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={handleUpdateEmployer}
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            Updating...
+                          </>
+                        ) : 'Update Employer'}
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

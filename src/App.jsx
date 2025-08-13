@@ -120,6 +120,13 @@ import AdminCandidateList from './pages/admin/candidate/AdminCandidateList';
 import EmployerList from './pages/admin/employer/EmployerList';
 import OrganizationList from './pages/admin/Organization/OrganizationList';
 import JobList from './pages/admin/job/JobList';
+import PlansLList from './pages/admin/plans/PlansLList';
+import AdminSubscribers from './pages/admin/subscribers/AdminSubscribers';
+import AdminEventDetails from './pages/admin/events/EventDetails';
+import AdminEvents from './pages/admin/events/Events';
+import CalenderReminder from './pages/admin/calender/CalenderReminder';
+import AdminFaq from './pages/admin/faq/AdminFaq';
+import AdminSupport from './pages/admin/support/AdminSupport';
 
 function App() {
   return (
@@ -172,6 +179,13 @@ function App() {
           <Route path='/admin/employer-list' element={<EmployerList />} />
           <Route path='/admin/organization-list' element={<OrganizationList />} />
           <Route path='/admin/job-list' element={<JobList />} />
+          <Route path='/admin/plan-list' element={<PlansLList />} />
+          <Route path='/admin/subscribers' element={<AdminSubscribers />} />
+          <Route path='/admin/events' element={<AdminEvents />} />
+          <Route path='/admin/events-details/:eventId' element={<AdminEventDetails />} />
+          <Route path='/admin/calendar-reminders' element={<CalenderReminder />} />
+          <Route path='/admin/faq' element={<AdminFaq />} />
+          <Route path='/admin/support' element={<AdminSupport />} />
 
           {/* Employer-Admin routes */}
 

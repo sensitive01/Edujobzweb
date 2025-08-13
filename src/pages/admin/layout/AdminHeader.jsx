@@ -183,84 +183,28 @@ const AdminHeader = () => {
                                 <i class="ti ti-layout-grid-remove text-primary"></i>
                                 <span className="text-dark">Organization</span>
                             </Link>
-                              <Link to="/admin/job-list" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                            <Link to="/admin/job-list" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                                 <i class="ti ti-layout-grid-remove text-primary"></i>
                                 <span className="text-dark">Jobs</span>
                             </Link>
-                            <Link to="/admin/messages" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
-                                <MessageSquare className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                <span className="text-dark">Messages</span>
+                            <Link to="/admin/plan-list" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">Plans</span>
                             </Link>
-                            {/* <Link to="/admin/plans-grid" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
-                                <Star className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                <span className="text-dark">Upgrade Plan</span>
-                            </Link> */}
-                            <div className='position-relative me-2'>
-                                <div
-                                    className='d-flex align-items-center fw-medium px-3 py-2 rounded dropdown'
-                                    onClick={() => {
-                                        setEventsDropdown(!eventsDropdown);
-                                        setCandidatesDropdown(false);
-                                        setJobsDropdown(false);
-                                    }}
-                                    style={{ cursor: 'pointer' }}
-                                >
-                                    <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                    <span className="text-dark">Reminder</span>
-                                    <ChevronDown className='ms-1' size={16} />
-                                </div>
-
-                                {eventsDropdown && (
-                                    <div
-                                        className='position-absolute bg-white border rounded shadow-sm'
-                                        style={{
-                                            top: '100%',
-                                            left: '0',
-                                            minWidth: '180px',
-                                            zIndex: 1000,
-                                            marginTop: '4px'
-                                        }}
-                                    >
-                                        <Link
-                                            to="/admin/calendar-events"
-                                            className='px-3 py-2 dropdown-item text-decoration-none'
-                                            style={{
-                                                cursor: 'pointer',
-                                                color: '#374151',
-                                                display: 'block',
-                                                borderBottom: '1px solid #f1f5f9'
-                                            }}
-                                            onClick={() => setEventsDropdown(false)}
-                                        >
-                                            reminder Events
-                                        </Link>
-                                        <Link
-                                            to="/admin/enrollment"
-                                            className='px-3 py-2 dropdown-item text-decoration-none'
-                                            style={{
-                                                cursor: 'pointer',
-                                                color: '#374151',
-                                                display: 'block'
-                                            }}
-                                            onClick={() => setEventsDropdown(false)}
-                                        >
-                                            Enrollment
-                                        </Link>
-                                    </div>
-                                )}
-                            </div>
+                            <Link to="/admin/subscribers" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">Subscribers</span>
+                            </Link>
                             <Link to="/admin/events" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                                 <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                <span className="text-dark">events</span>
+                                <span className="text-dark">Events</span>
                             </Link>
-                            {/* <Link to="/admin/timetable" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
+                            <Link to="/admin/calendar-reminders" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
                                 <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                <span className="text-dark">TimeTable</span>
-                            </Link> */}
-                            {/* <Link to="/admin/FAQs" className='d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none'>
-                                <HelpCircle className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                <span className="text-dark">FAQ</span>
-                            </Link> */}
+                                <span className="text-dark">Calendar reminders
+                                </span>
+                            </Link>
+                         
                         </div>
                     </nav>
 
@@ -292,7 +236,7 @@ const AdminHeader = () => {
                             </Link>
 
                             {/* Ads Button */}
-                            <Link
+                            {/* <Link
                                 to="/admin/subscribers"
                                 className="btn fw-medium me-2 text-decoration-none"
                                 style={{
@@ -304,7 +248,7 @@ const AdminHeader = () => {
                                 }}
                             >
                                 Ads
-                            </Link>
+                            </Link> */}
                         </div>
 
                         {/* Notification Dropdown */}
@@ -478,11 +422,7 @@ const AdminHeader = () => {
                                             >
                                                 <span className="me-1 text-primary">↑</span>My Account
                                             </Link>
-                                            <Link to="/admin/plans-grid" className='dropdown-item d-inline-flex align-items-center p-0 py-2 text-decoration-none'>
-                                                <Star className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                                <span className="text-dark">Upgrade Plan</span>
-                                            </Link>
-                                            <Link to="/admin/FAQs" className='dropdown-item d-inline-flex align-items-center p-0 py-2 text-decoration-none'>
+                                            <Link to="/admin/faq" className='dropdown-item d-inline-flex align-items-center p-0 py-2 text-decoration-none'>
                                                 <HelpCircle className='me-2' size={16} style={{ color: '#f9ab00' }} />
                                                 <span className="text-dark">FAQ</span>
                                             </Link>
@@ -553,7 +493,7 @@ const AdminHeader = () => {
                                 <i class="ti ti-layout-grid-remove text-primary"></i>
                                 <span className="text-dark">Organization</span>
                             </Link>
-                             <Link
+                            <Link
                                 to="/admin/job-list"
                                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                                 onClick={closeMobileMenu}
@@ -561,77 +501,53 @@ const AdminHeader = () => {
                                 <i class="ti ti-layout-grid-remove text-primary"></i>
                                 <span className="text-dark">Jobs</span>
                             </Link>
+                            <Link
+                                to="/admin/plan-list"
+                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                                onClick={closeMobileMenu}
+                            >
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">Plans</span>
+                            </Link>
+                            <Link
+                                to="/admin/subscribers"
+                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                                onClick={closeMobileMenu}
+                            >
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">Subscribers</span>
+                            </Link>
+                            <Link
+                                to="/admin/events"
+                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                                onClick={closeMobileMenu}
+                            >
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">Events</span>
+                            </Link>
+                            <Link
+                                to="/admin/calendar-reminders
+"
+                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                                onClick={closeMobileMenu}
+                            >
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">Calendar reminders</span>
+                            </Link>
+                            <Link
+                                to="/admin/faq
+"
+                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
+                                onClick={closeMobileMenu}
+                            >
+                                <i class="ti ti-layout-grid-remove text-primary"></i>
+                                <span className="text-dark">FAQ</span>
+                            </Link>
 
 
                             {/* Regular Menu Items */}
-                            <Link
-                                to="/admin/messages"
-                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
-                                onClick={closeMobileMenu}
-                            >
-                                <MessageSquare className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                <span className="text-dark">Messages</span>
-                            </Link>
-                            {/* <Link
-                                to="/admin/plans-grid"
-                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
-                                onClick={closeMobileMenu}
-                            >
-                                <Star className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                <span className="text-dark">Upgrade Plan</span>
-                            </Link> */}
-                            <div className="mb-2">
-                                <div
-                                    className="d-flex align-items-center justify-content-between fw-medium px-3 py-2 rounded mobile-dropdown-header"
-                                    onClick={() => setEventsDropdown(!eventsDropdown)}
-                                    style={{ cursor: 'pointer', backgroundColor: eventsDropdown ? '#f8f9fa' : 'transparent' }}
-                                >
-                                    <div className="d-flex align-items-center">
-                                        <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                        <span className="text-dark">Events</span>
-                                    </div>
-                                    <ChevronDown
-                                        className={`transition-transform ${eventsDropdown ? 'rotate-180' : ''}`}
-                                        size={16}
-                                    />
-                                </div>
-                                {eventsDropdown && (
-                                    <div className="mobile-dropdown-content bg-light rounded mx-3 mt-2">
-                                        <Link
-                                            to="/admin/calendar-events"
-                                            className="d-block px-3 py-2 text-decoration-none mobile-dropdown-item"
-                                            style={{ color: '#374151' }}
-                                            onClick={closeMobileMenu}
-                                        >
-                                            Events
-                                        </Link>
-                                        <Link
-                                            to="/admin/enrollment"
-                                            className="d-block px-3 py-2 text-decoration-none mobile-dropdown-item"
-                                            style={{ color: '#374151' }}
-                                            onClick={closeMobileMenu}
-                                        >
-                                            Enrollment
-                                        </Link>
-                                    </div>
-                                )}
-                            </div>
-                            <Link
-                                to="/admin/timetable"
-                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
-                                onClick={closeMobileMenu}
-                            >
-                                <Calendar className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                <span className="text-dark">TimeTable</span>
-                            </Link>
-                            {/* <Link
-                                to="/admin/FAQs"
-                                className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
-                                onClick={closeMobileMenu}
-                            >
-                                <HelpCircle className='me-2' size={16} style={{ color: '#f9ab00' }} />
-                                <span className="text-dark">FAQ</span>
-                            </Link> */}
+
+
                         </div>
 
                         {/* Mobile Actions */}
@@ -639,14 +555,6 @@ const AdminHeader = () => {
                             <div className="d-flex flex-wrap gap-2 px-3">
                                 <Link
                                     to="/admin/support"
-                                    className="btn btn-outline-secondary btn-sm d-flex align-items-center text-decoration-none"
-                                    onClick={closeMobileMenu}
-                                >
-                                    <HelpCircle className='me-1' size={14} />
-                                    Support (5)
-                                </Link>
-                                <Link
-                                    to="/admin/subscribers"
                                     className="btn btn-sm text-decoration-none flex-grow-1"
                                     style={{
                                         backgroundColor: '#063970',
@@ -655,7 +563,8 @@ const AdminHeader = () => {
                                     }}
                                     onClick={closeMobileMenu}
                                 >
-                                    Ads
+                                    <HelpCircle className='me-1' size={14} />
+                                    Support Chats
                                 </Link>
                             </div>
                             <div className="mt-3 px-3">
