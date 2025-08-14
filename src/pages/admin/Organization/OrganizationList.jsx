@@ -25,14 +25,11 @@ const OrganizationList = () => {
   const [editedEmployer, setEditedEmployer] = useState(null);
 
   const [newEmployer, setNewEmployer] = useState({
-    employerType: '',
-    schoolName: '',
-    firstName: '',
-    lastName: '',
-    userEmail: '',
-    userMobile: '',
-    userPassword: '',
-    referralCode: ''
+    employeradminUsername: '',
+    employeradminEmail: '',
+    employeradminMobile: '',
+    employeradminPassword: '',
+    employerconfirmPassword: ''
   });
 
   // Dynamic filter states
@@ -165,15 +162,11 @@ const OrganizationList = () => {
       setLoading(true);
 
       // Basic validation
-      if (!newEmployer.userEmail && !newEmployer.userMobile) {
-        throw new Error('Email or mobile is required');
+      if (newEmployer.employeradminPassword !== newEmployer.employerconfirmPassword) {
+        throw new Error('Passwords do not match');
       }
 
-      if (!newEmployer.userPassword) {
-        throw new Error('Password is required');
-      }
-
-      const response = await fetch('https://edujobzbackend.onrender.com/employer/signup', {
+      const response = await fetch('https://edujobzbackend.onrender.com/employeradmin/employeradminsignup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -183,37 +176,46 @@ const OrganizationList = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to add employer');
+        throw new Error(errorData.message || 'Failed to add employer admin');
       }
 
       const data = await response.json();
 
-      // Add the new employer to the list
-      const addedEmployer = {
-        ...data.data,
-        _id: data.data.id,
-        verificationstatus: data.data.verificationstatus || 'pending',
-        blockstatus: data.data.blockstatus || 'unblock'
-      };
-
-      setEmployers(prev => [...prev, addedEmployer]);
-      setFilteredEmployers(prev => [...prev, addedEmployer]);
+      // Refresh the list after successful addition
+      fetchEmployers();
 
       // Close modal and reset form
       setShowAddEmployerModal(false);
       setNewEmployer({
-        employerType: '',
-        schoolName: '',
-        firstName: '',
-        lastName: '',
-        userEmail: '',
-        userMobile: '',
-        userPassword: '',
-        referralCode: ''
+        employeradminUsername: '',
+        employeradminEmail: '',
+        employeradminMobile: '',
+        employeradminPassword: '',
+        employerconfirmPassword: ''
       });
 
     } catch (err) {
-      console.error('Add employer error:', err);
+      console.error('Add employer admin error:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchEmployers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('https://edujobzbackend.onrender.com/admin/fetchallemployeradmin');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch employers');
+      }
+
+      const data = await response.json();
+      setEmployers(data.data || []);
+      setFilteredEmployers(data.data || []);
+    } catch (err) {
+      console.error('Fetch error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -221,26 +223,6 @@ const OrganizationList = () => {
   };
 
   useEffect(() => {
-    const fetchEmployers = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('https://edujobzbackend.onrender.com/admin/getallemployers');
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch employers');
-        }
-
-        const data = await response.json();
-        setEmployers(data.data || []);
-        setFilteredEmployers(data.data || []);
-      } catch (err) {
-        console.error('Fetch error:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEmployers();
   }, []);
 
@@ -280,7 +262,7 @@ const OrganizationList = () => {
   const fetchEmployerDetails = async (employerId) => {
     try {
       setLoading(true);
-      const response = await fetch(`https://edujobzbackend.onrender.com/employer/fetchemployer/${employerId}`);
+      const response = await fetch(`https://edujobzbackend.onrender.com/employeradmin/fetchprofile/${employerId}`);
 
       if (!response.ok) {
         throw new Error('Failed to fetch employer details');
@@ -296,32 +278,32 @@ const OrganizationList = () => {
       setLoading(false);
     }
   };
-
   const handleEditClick = async (employer) => {
     setSelectedEmployer(employer);
     setLoading(true);
 
     try {
-      const details = await fetchEmployerDetails(employer._id);
-      if (details) {
-        setEditedEmployer({
-          firstName: details.firstName || '',
-          lastName: details.lastName || '',
-          userEmail: details.userEmail || '',
-          userMobile: details.userMobile || '',
-          address: details.address || '',
-          state: details.state || '',
-          pincode: details.pincode || '',
-          city: details.city || '',
-          schoolName: details.schoolName || '',
-          website: details.website || '',
-          board: details.board || '',
-          institutionType: details.institutionType || '',
-          employerType: details.employerType || '',
-          organizationid: details.organizationid || '',
-        });
-        setShowEditEmployerModal(true);
+      const response = await fetch(
+        `https://edujobzbackend.onrender.com/employeradmin/fetchprofile/${employer._id}`
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch employer details');
       }
+
+      const data = await response.json();
+
+      // Set the fetched data to editedEmployer state
+      setEditedEmployer({
+        employeradminUsername: data.admin.employeradminUsername,
+        employeradminEmail: data.admin.employeradminEmail,
+        employeradminMobile: data.admin.employeradminMobile || '',
+        verificationstatus: data.admin.verificationstatus,
+        blockstatus: data.admin.blockstatus,
+        employeradminProfilePic: data.admin.employeradminProfilePic || ''
+      });
+
+      setShowEditEmployerModal(true);
     } catch (err) {
       console.error('Error loading employer details:', err);
       setError(err.message);
@@ -329,17 +311,40 @@ const OrganizationList = () => {
       setLoading(false);
     }
   };
+
   const handleUpdateEmployer = async () => {
     try {
       setLoading(true);
+
+      const formData = new FormData();
+
+      // Add all fields to formData
+      formData.append('employeradminUsername', editedEmployer.employeradminUsername);
+      formData.append('employeradminEmail', editedEmployer.employeradminEmail);
+      formData.append('employeradminMobile', editedEmployer.employeradminMobile);
+
+      if (editedEmployer.employeradminPassword) {
+        formData.append('employeradminPassword', editedEmployer.employeradminPassword);
+        formData.append('employerconfirmPassword', editedEmployer.employerconfirmPassword);
+      }
+
+      // Add file if exists
+      if (editedEmployer.file) {
+        formData.append('file', editedEmployer.file);
+        formData.append('fileType', 'profileImage'); // This is correct
+      }
+
+      const token = localStorage.getItem('adminToken'); // Add if using authentication
+
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/employer/updateemployer/${selectedEmployer._id}`,
+        `https://edujobzbackend.onrender.com/employeradmin/updateemployeradmin/${selectedEmployer._id}?fileType=profileImage`, // Add fileType in URL
         {
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` // Add if using authentication
+            // Don't set Content-Type header - the browser will set it with the correct boundary
           },
-          body: JSON.stringify(editedEmployer)
+          body: formData
         }
       );
 
@@ -353,13 +358,13 @@ const OrganizationList = () => {
       // Update the local state
       setEmployers(employers.map(employer =>
         employer._id === selectedEmployer._id
-          ? { ...employer, ...editedEmployer }
+          ? { ...employer, ...editedEmployer, employeradminProfilePic: data.employeradminProfilePic }
           : employer
       ));
 
       setFilteredEmployers(filteredEmployers.map(employer =>
         employer._id === selectedEmployer._id
-          ? { ...employer, ...editedEmployer }
+          ? { ...employer, ...editedEmployer, employeradminProfilePic: data.employeradminProfilePic }
           : employer
       ));
 
@@ -376,74 +381,32 @@ const OrganizationList = () => {
   const applyFilters = () => {
     let filtered = [...employers];
 
+    // Date filter remains same
     if (dateRange.start && dateRange.end) {
       const startDate = new Date(dateRange.start);
       const endDate = new Date(dateRange.end);
-
-      // Set time to beginning and end of day respectively
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
 
-      filtered = filtered.filter(employer => {
-        if (!employer.createdAt) return false;
-        const createdDate = new Date(employer.createdAt);
+      filtered = filtered.filter(admin => {
+        if (!admin.createdAt) return false;
+        const createdDate = new Date(admin.createdAt);
         return createdDate >= startDate && createdDate <= endDate;
       });
     }
 
-    // Type filter
-    if (selectedType !== 'All') {
-      filtered = filtered.filter(employer => employer.employerType === selectedType);
-    }
-
     // Status filter
     if (selectedStatus !== 'All') {
-      filtered = filtered.filter(employer => employer.verificationstatus === selectedStatus);
-    }
-
-    // Subscription status filter
-    if (subscriptionStatus !== 'All') {
-      if (subscriptionStatus === 'subscribed') {
-        filtered = filtered.filter(employer => employer.subscription === 'true');
-      } else if (subscriptionStatus === 'trial') {
-        filtered = filtered.filter(employer => employer.trial === 'true');
-      } else {
-        filtered = filtered.filter(employer => employer.subscription === 'false' && employer.trial === 'false');
-      }
+      filtered = filtered.filter(admin => admin.verificationstatus === selectedStatus);
     }
 
     // Search term filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(employer =>
-        employer.schoolName?.toLowerCase().includes(term) ||
-        employer.userEmail?.toLowerCase().includes(term) ||
-        `${employer.firstName || ''} ${employer.lastName || ''}`.toLowerCase().includes(term) ||
-        employer.userMobile?.includes(term)
-      );
-    }
-
-    // Employer Type filter
-    const selectedEmployerTypes = Object.keys(employerTypes).filter(type => employerTypes[type]);
-    if (selectedEmployerTypes.length > 0) {
-      filtered = filtered.filter(employer =>
-        selectedEmployerTypes.includes(employer.employerType)
-      );
-    }
-
-    // Institution Type filter
-    const selectedInstitutionTypes = Object.keys(institutionTypes).filter(type => institutionTypes[type]);
-    if (selectedInstitutionTypes.length > 0) {
-      filtered = filtered.filter(employer =>
-        employer.institutionType && selectedInstitutionTypes.includes(employer.institutionType)
-      );
-    }
-
-    // State filter
-    const selectedStates = Object.keys(states).filter(state => states[state]);
-    if (selectedStates.length > 0) {
-      filtered = filtered.filter(employer =>
-        employer.state && selectedStates.includes(employer.state)
+      filtered = filtered.filter(admin =>
+        admin.employeradminUsername?.toLowerCase().includes(term) ||
+        admin.employeradminEmail?.toLowerCase().includes(term) ||
+        admin.employeradminMobile?.includes(term)
       );
     }
 
@@ -580,7 +543,7 @@ const OrganizationList = () => {
       const newStatus = currentStatus === 'block' ? 'unblock' : 'block';
 
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/admin/updateblockstatus/${employerId}`,
+        `https://edujobzbackend.onrender.com/admin/updateblockstatusemployeradmin/${employerId}`,
         {
           method: 'PUT',
           headers: {
@@ -613,6 +576,43 @@ const OrganizationList = () => {
     }
   };
 
+  const handleVerificationStatusToggle = async (employerId, currentStatus) => {
+    try {
+      const newStatus = currentStatus === 'approved' ? 'pending' : 'approved';
+
+      const response = await fetch(
+        `https://edujobzbackend.onrender.com/admin/approveemployeradmin/${employerId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ verificationstatus: newStatus })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to update verification status');
+      }
+
+      // Update the local state
+      setEmployers(employers.map(employer =>
+        employer._id === employerId
+          ? { ...employer, verificationstatus: newStatus }
+          : employer
+      ));
+
+      setFilteredEmployers(filteredEmployers.map(employer =>
+        employer._id === employerId
+          ? { ...employer, verificationstatus: newStatus }
+          : employer
+      ));
+
+    } catch (err) {
+      console.error('Error updating verification status:', err);
+      setError(err.message);
+    }
+  };
   const viewEmployerDetails = (employer) => {
     setSelectedEmployer(employer);
     setShowDetails(true);
@@ -1006,7 +1006,7 @@ const OrganizationList = () => {
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-center">
                   <div>
-                    <h6 className="card-title mb-0">Total Employers</h6>
+                    <h6 className="card-title mb-0">Total Admins</h6>
                     <h3 className="mb-0">{employers.length}</h3>
                   </div>
                   <i className="fas fa-users fa-2x opacity-50"></i>
@@ -1055,8 +1055,8 @@ const OrganizationList = () => {
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-center">
                   <div>
-                    <h6 className="card-title mb-0">Rejected</h6>
-                    <h3 className="mb-0">{employers.filter(e => e.verificationstatus === 'rejected').length}</h3>
+                    <h6 className="card-title mb-0">Blocked</h6>
+                    <h3 className="mb-0">{employers.filter(e => e.blockstatus === 'block').length}</h3>
                   </div>
                   <i className="fas fa-times-circle fa-2x opacity-50"></i>
                 </div>
@@ -1083,47 +1083,46 @@ const OrganizationList = () => {
                         />
                       </div>
                     </th>
-                    <th>Emp ID</th>
-                    <th>Employer</th>
-                    <th>Type</th>
-                    <th>Contact</th>
+                    <th>Admin ID</th>
+                    <th>Admin Name</th>
+                    <th>Email</th>
+                    <th>Mobile</th>
                     <th>Created Date</th>
-                    <th>Subscription</th>
-                    <th>Status</th>
+                    <th>Verification Status</th>
                     <th>Block Status</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredEmployers.length > 0 ? (
-                    filteredEmployers.map((employer) => (
-                      <tr key={employer._id}>
+                    filteredEmployers.map((admin) => (
+                      <tr key={admin._id}>
                         <td>
                           <div className="form-check form-check-md">
                             <input
                               className="form-check-input"
                               type="checkbox"
-                              checked={selectedEmployers.includes(employer._id)}
-                              onChange={() => handleSelectEmployer(employer._id)}
+                              checked={selectedEmployers.includes(admin._id)}
+                              onChange={() => handleSelectEmployer(admin._id)}
                             />
                           </div>
                         </td>
-                        <td>Emp-{employer._id.substring(employer._id.length - 4)}</td>
+                        <td>Admin-{admin._id.substring(admin._id.length - 4)}</td>
                         <td>
                           <div className="d-flex align-items-center file-name-icon">
                             <a onClick={(e) => {
                               e.preventDefault();
-                              viewEmployerDetails(employer);
+                              viewEmployerDetails(admin);
                             }} className="avatar avatar-md">
-                              {employer.userProfilePic ? (
+                              {admin.employeradminProfilePic ? (
                                 <img
-                                  src={employer.userProfilePic}
+                                  src={admin.employeradminProfilePic}
                                   className="img-fluid rounded-circle"
                                   alt="img"
                                 />
                               ) : (
                                 <div className="avatar-text bg-primary text-white rounded-circle">
-                                  {(employer.schoolName || employer.firstName || 'E').charAt(0).toUpperCase()}
+                                  {(admin.employeradminUsername || 'A').charAt(0).toUpperCase()}
                                 </div>
                               )}
                             </a>
@@ -1131,39 +1130,24 @@ const OrganizationList = () => {
                               <h6 className="fw-medium">
                                 <a onClick={(e) => {
                                   e.preventDefault();
-                                  viewEmployerDetails(employer);
+                                  viewEmployerDetails(admin);
                                 }}>
-                                  {employer.schoolName || `${employer.firstName || ''} ${employer.lastName || ''}`.trim()}
+                                  {admin.employeradminUsername}
                                 </a>
                               </h6>
-                              <span className="d-block mt-1">
-                                <a href="#">{employer.city || 'N/A'}, {employer.state || 'N/A'}</a>
-                              </span>
                             </div>
                           </div>
                         </td>
+                        <td>{admin.employeradminEmail}</td>
+                        <td>{admin.employeradminMobile || 'N/A'}</td>
+                        <td>{formatDate(admin.createdAt)}</td>
                         <td>
-                          {employer.employerType || 'N/A'}
-                        </td>
-                        <td>
-                          <div className="action-icon d-inline-flex">
-                            <a href={`tel:${employer.userMobile}`} className="me-2">
-                              <i className="ti ti-phone text-success"></i>
-                            </a>
-                            <a href={`mailto:${employer.userEmail}`} className="me-2">
-                              <i className="ti ti-mail text-danger"></i>
-                            </a>
-                          </div>
-                        </td>
-                        <td>{formatDate(employer.createdAt)}</td>
-                        <td>
-                          <span className={`badge ${getSubscriptionBadge(employer.subscription, employer.trial)}`}>
-                            {getSubscriptionText(employer.subscription, employer.trial)}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={`badge ${getStatusBadge(employer.verificationstatus)}`}>
-                            {employer.verificationstatus || 'pending'}
+                          <span
+                            className={`badge ${getStatusBadge(admin.verificationstatus)}`}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleVerificationStatusToggle(admin._id, admin.verificationstatus)}
+                          >
+                            {admin.verificationstatus || 'pending'}
                           </span>
                         </td>
                         <td>
@@ -1172,11 +1156,11 @@ const OrganizationList = () => {
                               className="form-check-input"
                               type="checkbox"
                               role="switch"
-                              checked={employer.blockstatus === 'unblock'}
-                              onChange={() => handleBlockStatusToggle(employer._id, employer.blockstatus)}
+                              checked={admin.blockstatus === 'unblock'}
+                              onChange={() => handleBlockStatusToggle(admin._id, admin.blockstatus)}
                             />
                             <label className="form-check-label">
-                              {employer.blockstatus === 'unblock' ? 'Unblock' : 'Blocked'}
+                              {admin.blockstatus === 'unblock' ? 'Unblock' : 'Blocked'}
                             </label>
                           </div>
                         </td>
@@ -1184,13 +1168,13 @@ const OrganizationList = () => {
                           <div className="d-flex align-items-center">
                             <button
                               className="btn btn-sm btn-icon btn-primary-light me-2"
-                              onClick={() => handleEditClick(employer)}
+                              onClick={() => handleEditClick(admin)}
                             >
                               <i className="ti ti-edit"></i>
                             </button>
                             <button
                               className="btn btn-sm btn-icon btn-danger-light"
-                              onClick={() => handleDeleteClick(employer)}
+                              onClick={() => handleDeleteClick(admin)}
                             >
                               <i className="ti ti-trash"></i>
                             </button>
@@ -1200,8 +1184,8 @@ const OrganizationList = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="10" className="text-center py-4">
-                        No employers found matching your criteria
+                      <td colSpan="9" className="text-center py-4">
+                        No employer admins found
                       </td>
                     </tr>
                   )}
@@ -1722,102 +1706,64 @@ const OrganizationList = () => {
 
                   <form onSubmit={handleAddEmployer}>
                     <div className="row">
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Employer Type*</label>
-                        <select
-                          name="employerType"
-                          className="form-select"
-                          value={newEmployer.employerType}
+                      <div className="col-md-12 mb-3">
+                        <label className="form-label">Admin Username*</label>
+                        <input
+                          type="text"
+                          name="employeradminUsername"
+                          className="form-control"
+                          value={newEmployer.employeradminUsername}
                           onChange={handleNewEmployerChange}
                           required
-                        >
-                          <option value="">Select Type</option>
-                          <option value="School">School</option>
-                          <option value="College">College</option>
-                          <option value="University">University</option>
-                          <option value="Company">Company</option>
-                        </select>
-                      </div>
-
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">School/Company Name</label>
-                        <input
-                          type="text"
-                          name="schoolName"
-                          className="form-control"
-                          value={newEmployer.schoolName}
-                          onChange={handleNewEmployerChange}
                         />
                       </div>
 
                       <div className="col-md-6 mb-3">
-                        <label className="form-label">First Name</label>
-                        <input
-                          type="text"
-                          name="firstName"
-                          className="form-control"
-                          value={newEmployer.firstName}
-                          onChange={handleNewEmployerChange}
-                        />
-                      </div>
-
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Last Name</label>
-                        <input
-                          type="text"
-                          name="lastName"
-                          className="form-control"
-                          value={newEmployer.lastName}
-                          onChange={handleNewEmployerChange}
-                        />
-                      </div>
-
-                      <div className="col-md-6 mb-3">
-                        <label className="form-label">Email</label>
+                        <label className="form-label">Email*</label>
                         <input
                           type="email"
-                          name="userEmail"
+                          name="employeradminEmail"
                           className="form-control"
-                          value={newEmployer.userEmail}
+                          value={newEmployer.employeradminEmail}
                           onChange={handleNewEmployerChange}
+                          required
                         />
-                        <small className="text-muted">Email is required</small>
                       </div>
 
                       <div className="col-md-6 mb-3">
                         <label className="form-label">Mobile</label>
                         <input
                           type="tel"
-                          name="userMobile"
+                          name="employeradminMobile"
                           className="form-control"
-                          value={newEmployer.userMobile}
+                          value={newEmployer.employeradminMobile}
                           onChange={handleNewEmployerChange}
                         />
-                        <small className="text-muted">mobile is required</small>
                       </div>
 
                       <div className="col-md-6 mb-3">
                         <label className="form-label">Password*</label>
                         <input
                           type="password"
-                          name="userPassword"
+                          name="employeradminPassword"
                           className="form-control"
-                          value={newEmployer.userPassword}
+                          value={newEmployer.employeradminPassword}
                           onChange={handleNewEmployerChange}
                           required
                         />
                       </div>
 
-                      {/* <div className="col-md-6 mb-3">
-                        <label className="form-label">Referral Code (Optional)</label>
+                      <div className="col-md-6 mb-3">
+                        <label className="form-label">Confirm Password*</label>
                         <input
-                          type="text"
-                          name="referralCode"
+                          type="password"
+                          name="employerconfirmPassword"
                           className="form-control"
-                          value={newEmployer.referralCode}
+                          value={newEmployer.employerconfirmPassword}
                           onChange={handleNewEmployerChange}
+                          required
                         />
-                      </div> */}
+                      </div>
                     </div>
 
                     <div className="modal-footer">
@@ -1840,7 +1786,7 @@ const OrganizationList = () => {
                             Adding...
                           </>
                         ) : (
-                          'Add Employer'
+                          'Add Admin'
                         )}
                       </button>
                     </div>
@@ -1888,24 +1834,16 @@ const OrganizationList = () => {
                       </div>
                     )}
 
+                    {/* Inside your edit modal */}
                     <div className="modal-body">
                       <div className="row">
                         <div className="col-md-6 mb-3">
-                          <label className="form-label">First Name</label>
+                          <label className="form-label">Username</label>
                           <input
                             type="text"
                             className="form-control"
-                            value={editedEmployer?.firstName || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, firstName: e.target.value })}
-                          />
-                        </div>
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label">Last Name</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={editedEmployer?.lastName || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, lastName: e.target.value })}
+                            value={editedEmployer?.employeradminUsername || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, employeradminUsername: e.target.value })}
                           />
                         </div>
                         <div className="col-md-6 mb-3">
@@ -1913,113 +1851,82 @@ const OrganizationList = () => {
                           <input
                             type="email"
                             className="form-control"
-                            value={editedEmployer?.userEmail || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, userEmail: e.target.value })}
+                            value={editedEmployer?.employeradminEmail || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, employeradminEmail: e.target.value })}
                           />
                         </div>
                         <div className="col-md-6 mb-3">
-                          <label className="form-label">Phone</label>
+                          <label className="form-label">Mobile</label>
                           <input
                             type="tel"
                             className="form-control"
-                            value={editedEmployer?.userMobile || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, userMobile: e.target.value })}
+                            value={editedEmployer?.employeradminMobile || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, employeradminMobile: e.target.value })}
                           />
                         </div>
+
+                        {/* Profile Picture Upload */}
                         <div className="col-md-6 mb-3">
-                          <label className="form-label">School/Company Name</label>
+                          <label className="form-label">Profile Picture</label>
                           <input
-                            type="text"
+                            type="file"
                             className="form-control"
-                            value={editedEmployer?.schoolName || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, schoolName: e.target.value })}
+                            onChange={(e) => setEditedEmployer({
+                              ...editedEmployer,
+                              file: e.target.files[0]
+                            })}
+                          />
+                          {editedEmployer?.employeradminProfilePic && (
+                            <img
+                              src={editedEmployer.employeradminProfilePic}
+                              alt="Profile"
+                              className="img-thumbnail mt-2"
+                              style={{ width: '100px', height: '100px' }}
+                            />
+                          )}
+                        </div>
+
+                        {/* Password Fields (optional) */}
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">New Password (leave blank to keep current)</label>
+                          <input
+                            type="password"
+                            className="form-control"
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, employeradminPassword: e.target.value })}
                           />
                         </div>
                         <div className="col-md-6 mb-3">
-                          <label className="form-label">Employer Type</label>
+                          <label className="form-label">Confirm Password</label>
+                          <input
+                            type="password"
+                            className="form-control"
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, employerconfirmPassword: e.target.value })}
+                          />
+                        </div>
+
+                        {/* Status Fields */}
+                        <div className="col-md-6 mb-3">
+                          <label className="form-label">Verification Status</label>
                           <select
                             className="form-select"
-                            value={editedEmployer?.employerType || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, employerType: e.target.value })}
+                            value={editedEmployer?.verificationstatus || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, verificationstatus: e.target.value })}
                           >
-                            <option value="">Select Type</option>
-                            <option value="School">School</option>
-                            <option value="College">College</option>
-                            <option value="University">University</option>
-                            <option value="Company">Company</option>
+                            <option value="approved">Approved</option>
+                            <option value="pending">Pending</option>
+                            <option value="rejected">Rejected</option>
                           </select>
                         </div>
                         <div className="col-md-6 mb-3">
-                          <label className="form-label">Institution Type</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={editedEmployer?.institutionType || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, institutionType: e.target.value })}
-                          />
-                        </div>
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label">Organization ID</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={editedEmployer?.organizationid || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, organizationid: e.target.value })}
-                          />
-                        </div>
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label">State</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={editedEmployer?.state || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, state: e.target.value })}
-                          />
-                        </div>
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label">City</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={editedEmployer?.city || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, city: e.target.value })}
-                          />
-                        </div>
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label">Pincode</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={editedEmployer?.pincode || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, pincode: e.target.value })}
-                          />
-                        </div>
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label">Board</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={editedEmployer?.board || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, board: e.target.value })}
-                          />
-                        </div>
-                        <div className="col-md-6 mb-3">
-                          <label className="form-label">Website</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={editedEmployer?.website || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, website: e.target.value })}
-                          />
-                        </div>
-                        <div className="col-12 mb-3">
-                          <label className="form-label">Address</label>
-                          <textarea
-                            className="form-control"
-                            rows="3"
-                            value={editedEmployer?.address || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, address: e.target.value })}
-                          ></textarea>
+                          <label className="form-label">Block Status</label>
+                          <select
+                            className="form-select"
+                            value={editedEmployer?.blockstatus || ''}
+                            onChange={(e) => setEditedEmployer({ ...editedEmployer, blockstatus: e.target.value })}
+                          >
+                            <option value="unblock">Unblock</option>
+                            <option value="block">Block</option>
+                          </select>
                         </div>
                       </div>
                     </div>

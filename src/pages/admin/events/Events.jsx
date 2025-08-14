@@ -122,8 +122,8 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
-      const employerData = JSON.parse(localStorage.getItem('employerData'));
-      if (!employerData || !employerData._id) {
+      const adminData = JSON.parse(localStorage.getItem('adminData'));
+      if (!adminData || !adminData.adminid) {
         throw new Error('Organizer ID not found in localStorage');
       }
 
@@ -157,7 +157,7 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
       }
 
       // 6. Make the request WITHOUT setting Content-Type header
-      const response = await fetch(`https://edujobzbackend.onrender.com/employer/${employerData._id}/events?fileType=eventimage`, {
+      const response = await fetch(`https://edujobzbackend.onrender.com/employer/${adminData.adminid}/events?fileType=eventimage`, {
         method: 'POST',
         body: formData, // FormData will set the correct headers automatically
         // Don't set Content-Type header - the browser will set it with boundary

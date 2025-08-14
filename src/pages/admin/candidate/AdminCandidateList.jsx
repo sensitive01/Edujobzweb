@@ -465,6 +465,44 @@ const AdminCandidateList = () => {
     }
   };
 
+  const handleVerificationStatusToggle = async (candidateId, currentStatus) => {
+    try {
+      const newStatus = currentStatus === 'approved' ? 'pending' : 'approved';
+
+      const response = await fetch(
+        `https://edujobzbackend.onrender.com/admin/approveemployee/${candidateId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ verificationstatus: newStatus })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to update verification status');
+      }
+
+      // Update the local state
+      setCandidates(candidates.map(candidate =>
+        candidate._id === candidateId
+          ? { ...candidate, verificationstatus: newStatus }
+          : candidate
+      ));
+
+      setFilteredCandidates(filteredCandidates.map(candidate =>
+        candidate._id === candidateId
+          ? { ...candidate, verificationstatus: newStatus }
+          : candidate
+      ));
+
+    } catch (err) {
+      console.error('Error updating verification status:', err);
+      setError(err.message);
+    }
+  };
+
   const viewCandidateDetails = (candidate) => {
     setSelectedCandidate(candidate);
     setShowDetails(true);
@@ -482,7 +520,6 @@ const AdminCandidateList = () => {
         return 'border border-purple text-purple';
     }
   };
-
   useEffect(() => {
     applyFilters();
   }, [selectedRole, selectedStatus, searchTerm, dateRange]);
@@ -497,24 +534,24 @@ const AdminCandidateList = () => {
     });
   };
 
-const handleExport = (type) => {
-  // Prepare data for export
-  const exportData = filteredCandidates.map(candidate => ({
-    ID: `Cand-${candidate._id.substring(candidate._id.length - 4)}`,
-    Name: candidate.userName,
-    Email: candidate.userEmail,
-    Phone: candidate.userMobile,
-    Specialization: candidate.specialization || 'N/A',
-    Experience: `${candidate.totalExperience || 0} years`,
-    Location: candidate.currentCity || 'N/A',
-    Status: candidate.verificationstatus || 'pending',
-    'Created Date': formatDate(candidate.createdAt)
-  }));
+  const handleExport = (type) => {
+    // Prepare data for export
+    const exportData = filteredCandidates.map(candidate => ({
+      ID: `Cand-${candidate._id.substring(candidate._id.length - 4)}`,
+      Name: candidate.userName,
+      Email: candidate.userEmail,
+      Phone: candidate.userMobile,
+      Specialization: candidate.specialization || 'N/A',
+      Experience: `${candidate.totalExperience || 0} years`,
+      Location: candidate.currentCity || 'N/A',
+      Status: candidate.verificationstatus || 'pending',
+      'Created Date': formatDate(candidate.createdAt)
+    }));
 
-  if (type === 'pdf') {
-    // Simple PDF export using browser print
-    const printWindow = window.open('', '_blank');
-    const htmlContent = `
+    if (type === 'pdf') {
+      // Simple PDF export using browser print
+      const printWindow = window.open('', '_blank');
+      const htmlContent = `
       <html>
         <head>
           <title>Candidates Export</title>
@@ -543,27 +580,27 @@ const handleExport = (type) => {
         </body>
       </html>
     `;
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-    printWindow.print();
-  } else if (type === 'excel') {
-    // CSV export (works in Excel)
-    const headers = Object.keys(exportData[0]).join(',');
-    const csvContent = [
-      headers,
-      ...exportData.map(row => Object.values(row).join(','))
-    ].join('\n');
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      printWindow.print();
+    } else if (type === 'excel') {
+      // CSV export (works in Excel)
+      const headers = Object.keys(exportData[0]).join(',');
+      const csvContent = [
+        headers,
+        ...exportData.map(row => Object.values(row).join(','))
+      ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'candidates_export.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-};
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'candidates_export.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   if (loading) {
     return <div className="text-center py-5">Loading candidates...</div>;
@@ -1110,7 +1147,11 @@ const handleExport = (type) => {
                           </div>
                         </td>
                         <td>
-                          <span className={`badge ${getStatusBadge(candidate.verificationstatus)}`}>
+                          <span
+                            className={`badge ${getStatusBadge(candidate.verificationstatus)}`}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleVerificationStatusToggle(candidate._id, candidate.verificationstatus)}
+                          >
                             {candidate.verificationstatus || 'pending'}
                           </span>
                         </td>

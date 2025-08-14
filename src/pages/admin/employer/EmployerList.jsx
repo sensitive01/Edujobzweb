@@ -613,6 +613,44 @@ const EmployerList = () => {
     }
   };
 
+  const handleVerificationStatusToggle = async (employerId, currentStatus) => {
+    try {
+      const newStatus = currentStatus === 'approved' ? 'pending' : 'approved';
+
+      const response = await fetch(
+        `https://edujobzbackend.onrender.com/admin/approveemployer/${employerId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ verificationstatus: newStatus })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to update verification status');
+      }
+
+      // Update the local state
+      setEmployers(employers.map(employer =>
+        employer._id === employerId
+          ? { ...employer, verificationstatus: newStatus }
+          : employer
+      ));
+
+      setFilteredEmployers(filteredEmployers.map(employer =>
+        employer._id === employerId
+          ? { ...employer, verificationstatus: newStatus }
+          : employer
+      ));
+
+    } catch (err) {
+      console.error('Error updating verification status:', err);
+      setError(err.message);
+    }
+  };
+
   const viewEmployerDetails = (employer) => {
     setSelectedEmployer(employer);
     setShowDetails(true);
@@ -1162,7 +1200,11 @@ const EmployerList = () => {
                           </span>
                         </td>
                         <td>
-                          <span className={`badge ${getStatusBadge(employer.verificationstatus)}`}>
+                          <span
+                            className={`badge ${getStatusBadge(employer.verificationstatus)}`}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => handleVerificationStatusToggle(employer._id, employer.verificationstatus)}
+                          >
                             {employer.verificationstatus || 'pending'}
                           </span>
                         </td>

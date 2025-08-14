@@ -705,7 +705,45 @@ const JobsList = () => {
             setError(err.message);
         }
     };
+    const handleStatusToggle = async (jobId, currentStatus) => {
+        try {
+            const newStatus = currentStatus === 'approved' ? 'pending' : 'approved';
 
+            const response = await fetch(
+                `https://edujobzbackend.onrender.com/admin/updateapprovejobs/${jobId}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ postingstatus: newStatus })
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Failed to update job status');
+            }
+
+            const data = await response.json();
+
+            // Update local state with the new status
+            setJobs(jobs.map(job =>
+                job._id === jobId
+                    ? { ...job, postingstatus: newStatus }
+                    : job
+            ));
+
+            setFilteredJobs(filteredJobs.map(job =>
+                job._id === jobId
+                    ? { ...job, postingstatus: newStatus }
+                    : job
+            ));
+
+        } catch (err) {
+            console.error('Error updating job status:', err);
+            setError(err.message);
+        }
+    };
     const viewJobDetails = (job) => {
         setSelectedJob(job);
         setShowDetails(true);
@@ -1272,7 +1310,11 @@ const JobsList = () => {
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <span className={`badge ${getStatusBadge(job.postingstatus)}`}>
+                                                    <span
+                                                        className={`badge ${getStatusBadge(job.postingstatus)}`}
+                                                        style={{ cursor: 'pointer' }}
+                                                        onClick={() => handleStatusToggle(job._id, job.postingstatus)}
+                                                    >
                                                         {job.postingstatus || 'pending'}
                                                     </span>
                                                 </td>
