@@ -261,78 +261,165 @@ const EmployeeerEditProfile = () => {
     }));
   };
 
+  //   const handleProfilePicChange = async (e) => {
+  //   if (e.target.files && e.target.files[0]) {
+  //     const file = e.target.files[0];
+
+  //     // Client-side validation
+  //     if (!file.type.match('image.*')) {
+  //       setError('Please select an image file (JPEG, PNG)');
+  //       return;
+  //     }
+  //     if (file.size > 10 * 1024 * 1024) { // Match backend limit (10MB)
+  //       setError('Image size should be less than 10MB');
+  //       return;
+  //     }
+
+  //     // Show preview while uploading
+  //     const reader = new FileReader();
+  //     reader.onload = (event) => {
+  //       setEmployeeData(prev => ({
+  //         ...prev,
+  //         profileImage: event.target.result
+  //       }));
+  //     };
+  //     reader.readAsDataURL(file);
+
+  //     try {
+  //       const token = localStorage.getItem('authToken');
+  //       if (!token) {
+  //         navigate('/login');
+  //         return;
+  //       }
+
+  //       const formData = new FormData();
+  //       formData.append('file', file);
+
+  //       setUploading(prev => ({ ...prev, profileImage: true }));
+  //       setError(null);
+
+  //       // Make sure this matches your backend route exactly
+  //       const response = await axios.put(
+  //         `https://edujobzbackend.onrender.com/uploadfile/${id}`,
+  //         formData,
+  //         {
+  //           params: {
+  //             fileType: 'profileImage'
+  //           },
+  //           headers: {
+  //             'Content-Type': 'multipart/form-data',
+  //             'Authorization': `Bearer ${token}`
+  //           }
+  //         }
+  //       );
+
+  //       if (response.data && response.data.file && response.data.file.url) {
+  //         setEmployeeData(prev => ({
+  //           ...prev,
+  //           profileImage: response.data.file.url,
+  //           userProfilePic: response.data.file.url
+  //         }));
+  //       } else {
+  //         throw new Error('Invalid response from server');
+  //       }
+  //     } catch (err) {
+  //       console.error('Upload error:', err);
+  //       setError(err.response?.data?.message || 
+  //                err.message || 
+  //                'Failed to upload image. Please try again.');
+  //     } finally {
+  //       setUploading(prev => ({ ...prev, profileImage: false }));
+  //     }
+  //   }
+  // };
+  // Resume Upload Handler
+
   const handleProfilePicChange = async (e) => {
-  if (e.target.files && e.target.files[0]) {
-    const file = e.target.files[0];
-    
-    // Client-side validation
-    if (!file.type.match('image.*')) {
-      setError('Please select an image file (JPEG, PNG)');
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) { // Match backend limit (10MB)
-      setError('Image size should be less than 10MB');
-      return;
-    }
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
 
-    // Show preview while uploading
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setEmployeeData(prev => ({
-        ...prev,
-        profileImage: event.target.result
-      }));
-    };
-    reader.readAsDataURL(file);
+      // Clear any previous errors
+      setError(null);
 
-    try {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        navigate('/login');
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!allowedTypes.includes(file.type.toLowerCase())) {
+        setError('Invalid Image format - kindly upload JPG, JPEG or PNG format images only');
+        e.target.value = ''; // Reset file input
         return;
       }
 
-      const formData = new FormData();
-      formData.append('file', file);
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        setError('Image size should be less than 10MB');
+        e.target.value = ''; // Reset file input
+        return;
+      }
 
-      setUploading(prev => ({ ...prev, profileImage: true }));
-      setError(null);
-
-      // Make sure this matches your backend route exactly
-      const response = await axios.put(
-        `https://edujobzbackend.onrender.com/uploadfile/${id}`,
-        formData,
-        {
-          params: {
-            fileType: 'profileImage'
-          },
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-
-      if (response.data && response.data.file && response.data.file.url) {
+      // Show preview while uploading
+      const reader = new FileReader();
+      reader.onload = (event) => {
         setEmployeeData(prev => ({
           ...prev,
-          profileImage: response.data.file.url,
-          userProfilePic: response.data.file.url
+          profileImage: event.target.result
         }));
-      } else {
-        throw new Error('Invalid response from server');
+      };
+      reader.readAsDataURL(file);
+
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        setUploading(prev => ({ ...prev, profileImage: true }));
+
+        const response = await axios.put(
+          `https://edujobzbackend.onrender.com/uploadfile/${id}`,
+          formData,
+          {
+            params: {
+              fileType: 'profileImage'
+            },
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+
+        if (response.data?.file?.url) {
+          setEmployeeData(prev => ({
+            ...prev,
+            profileImage: response.data.file.url,
+            userProfilePic: response.data.file.url
+          }));
+        } else {
+          throw new Error('Invalid response from server');
+        }
+      } catch (err) {
+        console.error('Upload error:', err);
+        setError(err.response?.data?.message ||
+          err.message ||
+          'Failed to upload image. Please try again.');
+        // Revert to previous image if upload fails
+        setEmployeeData(prev => ({
+          ...prev,
+          profileImage: initialData?.profileImage || initialData?.userProfilePic || ''
+        }));
+        e.target.value = ''; // Reset file input
+      } finally {
+        setUploading(prev => ({ ...prev, profileImage: false }));
       }
-    } catch (err) {
-      console.error('Upload error:', err);
-      setError(err.response?.data?.message || 
-               err.message || 
-               'Failed to upload image. Please try again.');
-    } finally {
-      setUploading(prev => ({ ...prev, profileImage: false }));
     }
-  }
-};
-  // Resume Upload Handler
+  };
+
+
   const handleResumeChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -621,7 +708,7 @@ const EmployeeerEditProfile = () => {
                         alt={employeeData.userName}
                       />
                     </div>
-                    <label
+                    {/* <label
                       htmlFor="profilePicUpload"
                       className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
                     >
@@ -636,6 +723,25 @@ const EmployeeerEditProfile = () => {
                         className="d-none"
                         onChange={handleProfilePicChange}
                         accept="image/*"
+                        disabled={uploading.profileImage}
+                      />
+                    </label> */}
+
+                    <label
+                      htmlFor="profilePicUpload"
+                      className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
+                    >
+                      {uploading.profileImage ? (
+                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      ) : (
+                        <FaUpload />
+                      )}
+                      <input
+                        type="file"
+                        id="profilePicUpload"
+                        className="d-none"
+                        onChange={handleProfilePicChange}
+                        accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                         disabled={uploading.profileImage}
                       />
                     </label>

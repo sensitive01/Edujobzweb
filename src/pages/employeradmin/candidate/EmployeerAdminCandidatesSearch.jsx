@@ -28,6 +28,11 @@ const EmployeerAdminCandidatesSearch = () => {
   const [showChatSidebar, setShowChatSidebar] = useState(false);
   const [jobs, setJobs] = useState([]);
   const navigate = useNavigate();
+  // Pagination state
+  const [displayCount, setDisplayCount] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usePagination, setUsePagination] = useState(false);
+  const resultsPerPage = 10;
 
   // Filter state
   const [openSections, setOpenSections] = useState({
@@ -55,7 +60,35 @@ const EmployeerAdminCandidatesSearch = () => {
     'Last Month',
     'Last 7 Days'
   ];
+  // Handle load more functionality
+  const handleLoadMore = () => {
+    if (filteredCandidates.length > 5) {
+      if (displayCount + 5 >= filteredCandidates.length) {
+        setDisplayCount(filteredCandidates.length);
+      } else {
+        setDisplayCount(prev => prev + 5);
+      }
 
+      if (displayCount + 5 > 10) {
+        setUsePagination(true);
+        setCurrentPage(1);
+      }
+    }
+  };
+
+  // Get current candidates for pagination
+  const getCurrentCandidates = () => {
+    if (!usePagination) {
+      return filteredCandidates.slice(0, displayCount);
+    } else {
+      const indexOfLastCandidate = currentPage * resultsPerPage;
+      const indexOfFirstCandidate = indexOfLastCandidate - resultsPerPage;
+      return filteredCandidates.slice(indexOfFirstCandidate, indexOfLastCandidate);
+    }
+  };
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const getDynamicDateRangeOptions = () => {
     const today = new Date();
     const currentYear = today.getFullYear();
@@ -374,17 +407,23 @@ const EmployeerAdminCandidatesSearch = () => {
     setSelectedDateRange('This Year');
     setFiltersApplied(false);
     setSearchQuery('');
+    setDisplayCount(5);
+    setUsePagination(false);
+    setCurrentPage(1);
   };
 
   const handleSubmit = () => {
     setFiltersApplied(true);
     filterCandidates();
+    setDisplayCount(5);
+    setUsePagination(false);
+    setCurrentPage(1);
   };
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-         const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+        const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
         if (!employerAdminData) return;
 
         const response = await fetch(
@@ -442,100 +481,103 @@ const EmployeerAdminCandidatesSearch = () => {
     }
   };
 
- const filterCandidates = () => {
-  let results = [...candidates];
+  const filterCandidates = () => {
+    let results = [...candidates];
 
-  // Apply search filter first
-  if (searchQuery.trim()) {
-    const searchTerm = searchQuery.toLowerCase().trim();
-    results = results.filter(candidate => {
-      const searchFields = [
-        candidate.userName,
-        candidate.userEmail,
-        candidate.userMobile,
-        candidate.skills?.join(' '),
-        candidate.currentCity,
-        candidate.education?.map(edu => `${edu.degree} ${edu.institution}`).join(' '),
-      ].filter(Boolean).join(' ').toLowerCase();
-
-      return searchFields.includes(searchTerm);
-    });
-  }
-
-  // Apply other filters
-  if (filtersApplied) {
-    // Job category filter (skills)
-    if (filters.jobCategories.length > 0) {
-      results = results.filter(candidate => 
-        candidate.skills && 
-        candidate.skills.some(skill => 
-          filters.jobCategories.includes(skill)
-        )
-      );
-    }
-
-    // Gender filter
-    if (filters.gender) {
-      results = results.filter(candidate => 
-        candidate.gender && 
-        candidate.gender.toLowerCase() === filters.gender.toLowerCase()
-      );
-    }
-
-    // Location filter
-    if (filters.location) {
-      results = results.filter(candidate => 
-        candidate.currentCity && 
-        candidate.currentCity.toLowerCase().includes(filters.location.toLowerCase())
-      );
-    }
-
-    // Qualification filter
-    if (filters.qualification) {
-      results = results.filter(candidate => 
-        candidate.education && 
-        candidate.education.some(edu => 
-          edu.degree && 
-          edu.degree.toLowerCase().includes(filters.qualification.toLowerCase())
-        )
-      );
-    }
-
-    // Experience range filter
-    if (filters.experienceFrom || filters.experienceTo) {
-      const from = parseInt(filters.experienceFrom) || 0;
-      const to = parseInt(filters.experienceTo) || 100; // Set reasonable max
-
+    // Apply search filter first
+    if (searchQuery.trim()) {
+      const searchTerm = searchQuery.toLowerCase().trim();
       results = results.filter(candidate => {
-        const exp = parseInt(candidate.totalExperience) || 0;
-        return exp >= from && exp <= to;
+        const searchFields = [
+          candidate.userName,
+          candidate.userEmail,
+          candidate.userMobile,
+          candidate.skills?.join(' '),
+          candidate.currentCity,
+          candidate.education?.map(edu => `${edu.degree} ${edu.institution}`).join(' '),
+        ].filter(Boolean).join(' ').toLowerCase();
+
+        return searchFields.includes(searchTerm);
       });
     }
 
-    // Date range filter
-    if (dateRange.start && dateRange.end) {
-      const startDate = new Date(dateRange.start);
-      const endDate = new Date(dateRange.end);
+    // Apply other filters
+    if (filtersApplied) {
+      // Job category filter (skills)
+      if (filters.jobCategories.length > 0) {
+        results = results.filter(candidate =>
+          candidate.skills &&
+          candidate.skills.some(skill =>
+            filters.jobCategories.includes(skill)
+          )
+        );
+      }
 
-      results = results.filter(candidate => {
-        if (!candidate.createdAt) return false;
-        const createdDate = new Date(candidate.createdAt);
-        return createdDate >= startDate && createdDate <= endDate;
-      });
+      // Gender filter
+      if (filters.gender) {
+        results = results.filter(candidate =>
+          candidate.gender &&
+          candidate.gender.toLowerCase() === filters.gender.toLowerCase()
+        );
+      }
+
+      // Location filter
+      if (filters.location) {
+        results = results.filter(candidate =>
+          candidate.currentCity &&
+          candidate.currentCity.toLowerCase().includes(filters.location.toLowerCase())
+        );
+      }
+
+      // Qualification filter
+      if (filters.qualification) {
+        results = results.filter(candidate =>
+          candidate.education &&
+          candidate.education.some(edu =>
+            edu.degree &&
+            edu.degree.toLowerCase().includes(filters.qualification.toLowerCase())
+          )
+        );
+      }
+
+      // Experience range filter
+      if (filters.experienceFrom || filters.experienceTo) {
+        const from = parseInt(filters.experienceFrom) || 0;
+        const to = parseInt(filters.experienceTo) || 100; // Set reasonable max
+
+        results = results.filter(candidate => {
+          const exp = parseInt(candidate.totalExperience) || 0;
+          return exp >= from && exp <= to;
+        });
+      }
+
+      // Date range filter
+      if (dateRange.start && dateRange.end) {
+        const startDate = new Date(dateRange.start);
+        const endDate = new Date(dateRange.end);
+
+        results = results.filter(candidate => {
+          if (!candidate.createdAt) return false;
+          const createdDate = new Date(candidate.createdAt);
+          return createdDate >= startDate && createdDate <= endDate;
+        });
+      }
+
+      // Sorting
+      if (sortBy.includes('Recently Added')) {
+        results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      } else if (sortBy.includes('Ascending')) {
+        results.sort((a, b) => (a.userName || '').localeCompare(b.userName || ''));
+      } else if (sortBy.includes('Descending')) {
+        results.sort((a, b) => (b.userName || '').localeCompare(a.userName || ''));
+      }
     }
 
-    // Sorting
-    if (sortBy.includes('Recently Added')) {
-      results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    } else if (sortBy.includes('Ascending')) {
-      results.sort((a, b) => (a.userName || '').localeCompare(b.userName || ''));
-    } else if (sortBy.includes('Descending')) {
-      results.sort((a, b) => (b.userName || '').localeCompare(a.userName || ''));
-    }
-  }
-
-  setFilteredCandidates(results);
-};
+    setFilteredCandidates(results);
+    setDisplayCount(5);
+    setUsePagination(false);
+    setCurrentPage(1);
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -610,7 +652,7 @@ const EmployeerAdminCandidatesSearch = () => {
       alert(`Error: ${error.message}`);
     }
   };
-  
+
   const getStatusBadgeClass = (status) => {
     switch (status?.toLowerCase()) {
       case 'shortlisted':
@@ -631,7 +673,7 @@ const EmployeerAdminCandidatesSearch = () => {
   useEffect(() => {
     fetchCandidates();
   }, []);
-  
+
   const findJobIdForCandidate = (candidate) => {
     // Find the job that contains this candidate in its applications
     const job = jobs.find(job =>
@@ -644,7 +686,7 @@ const EmployeerAdminCandidatesSearch = () => {
 
     return job ? job._id : 'default-job-id';
   };
-  
+
   useEffect(() => {
     filterCandidates();
   }, [searchQuery, filtersApplied, sortBy, dateRange, filters]);
@@ -1156,8 +1198,10 @@ const EmployeerAdminCandidatesSearch = () => {
 
             {/* Candidates Grid */}
             <div className="row mt-4">
-              {filteredCandidates.length > 0 ? (
-                filteredCandidates.map(candidate => (
+              {/* {filteredCandidates.length > 0 ? (
+                filteredCandidates.map(candidate => ( */}
+              {getCurrentCandidates().length > 0 ? (
+                getCurrentCandidates().map(candidate => (
                   <div key={candidate._id} className="col-xxl-12 col-xl-4 col-md-6">
                     <div className="card">
                       <div className="card-body">
@@ -1228,24 +1272,24 @@ const EmployeerAdminCandidatesSearch = () => {
                             </a> */}
 
                             <a
-  href="#"
-  className="btn btn-light text-info btn-icon text-info btn-sm me-1"
-  onClick={(e) => {
-    e.preventDefault();
-    setSelectedCandidateForChat({
-      applicantId: candidate._id, // Use candidate._id as applicantId
-      firstName: candidate.userName,
-      avatar: candidate.userProfilePic,
-      email: candidate.userEmail,
-      phone: candidate.userMobile,
-      experience: candidate.totalExperience,
-      skills: candidate.skills
-    });
-    setShowChatSidebar(true);
-  }}
->
-  <i className="ti ti-brand-hipchat fs-16"></i>
-</a>
+                              href="#"
+                              className="btn btn-light text-info btn-icon text-info btn-sm me-1"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setSelectedCandidateForChat({
+                                  applicantId: candidate._id, // Use candidate._id as applicantId
+                                  firstName: candidate.userName,
+                                  avatar: candidate.userProfilePic,
+                                  email: candidate.userEmail,
+                                  phone: candidate.userMobile,
+                                  experience: candidate.totalExperience,
+                                  skills: candidate.skills
+                                });
+                                setShowChatSidebar(true);
+                              }}
+                            >
+                              <i className="ti ti-brand-hipchat fs-16"></i>
+                            </a>
 
                             <a
                               href="#"
@@ -1315,6 +1359,54 @@ const EmployeerAdminCandidatesSearch = () => {
                 </div>
               )}
             </div>
+            {/* Load More / Pagination Controls */}
+<div className="d-flex justify-content-center mt-4">
+  {!usePagination && filteredCandidates.length > 5 && displayCount < filteredCandidates.length && (
+    <button 
+      className="btn btn-primary"
+      onClick={handleLoadMore}
+    >
+      Load More
+    </button>
+  )}
+
+  {usePagination && filteredCandidates.length > resultsPerPage && (
+    <nav>
+      <ul className="pagination">
+        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+          <button 
+            className="page-link" 
+            onClick={() => paginate(currentPage - 1)}
+             style={{fontSize: "20px"}}
+          >
+            Previous
+          </button>
+        </li>
+        
+        {Array.from({ length: Math.ceil(filteredCandidates.length / resultsPerPage) }).map((_, index) => (
+          <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+            <button 
+              className="page-link" 
+              onClick={() => paginate(index + 1)}
+            >
+              {index + 1}
+            </button>
+          </li>
+        ))}
+        
+        <li className={`page-item ${currentPage === Math.ceil(filteredCandidates.length / resultsPerPage) ? 'disabled' : ''}`}>
+          <button 
+            className="page-link" 
+            onClick={() => paginate(currentPage + 1)}
+             style={{fontSize: "20px"}}
+          >
+            Next
+          </button>
+        </li>
+      </ul>
+    </nav>
+  )}
+</div>
           </div>
         </div>
       </div>

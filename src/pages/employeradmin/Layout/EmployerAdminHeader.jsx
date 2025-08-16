@@ -99,7 +99,7 @@ const EmployerAdminHeader = () => {
     const candidatesOptions = [
         { name: 'Search Candidates', path: '/employer-admin/search' },
         { name: 'Saved Candidates', path: '/employer-admin/saved-candidates' },
-        { name: 'List Candidates', path: '/employer-admin/new-candidate' },
+   
     ];
 
     const jobsOptions = [

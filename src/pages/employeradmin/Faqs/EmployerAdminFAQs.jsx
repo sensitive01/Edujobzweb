@@ -89,7 +89,11 @@ const EmployerAdminFAQs = () => {
                               <i className="ti ti-edit"></i>
                             </button>
                             <button 
-                              className="d-flex align-items-center collapsed collapse-arrow" 
+                              className="d-flex align-items-center collapsed collapse-arrow"   style={{
+          backgroundColor: 'white',
+          border: 'none',
+          padding: 0
+        }}
                               onClick={() => toggleAccordion('primaryBorderOne')}
                             >
                               <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorderOne ? 'rotate-180' : ''}`}></i>
@@ -123,7 +127,11 @@ const EmployerAdminFAQs = () => {
                               <i className="ti ti-edit"></i>
                             </button>
                             <button 
-                              className="d-flex align-items-center collapsed collapse-arrow" 
+                              className="d-flex align-items-center collapsed collapse-arrow"   style={{
+          backgroundColor: 'white',
+          border: 'none',
+          padding: 0
+        }}
                               onClick={() => toggleAccordion('primaryBorderTwo')}
                             >
                               <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorderTwo ? 'rotate-180' : ''}`}></i>
@@ -158,7 +166,11 @@ const EmployerAdminFAQs = () => {
                                 <i className="ti ti-edit"></i>
                               </button>
                               <button 
-                                className="d-flex align-items-center collapsed collapse-arrow" 
+                                className="d-flex align-items-center collapsed collapse-arrow"   style={{
+          backgroundColor: 'white',
+          border: 'none',
+          padding: 0
+        }}
                                 onClick={() => toggleAccordion('primaryBorderThree')}
                               >
                                 <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorderThree ? 'rotate-180' : ''}`}></i>
@@ -195,7 +207,11 @@ const EmployerAdminFAQs = () => {
                                   <i className="ti ti-edit"></i>
                                 </button>
                                 <button 
-                                  className="d-flex align-items-center collapsed collapse-arrow" 
+                                  className="d-flex align-items-center collapsed collapse-arrow"   style={{
+          backgroundColor: 'white',
+          border: 'none',
+          padding: 0
+        }}
                                   onClick={() => toggleAccordion('primaryBorderFour')}
                                 >
                                   <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorderFour ? 'rotate-180' : ''}`}></i>
@@ -233,7 +249,11 @@ const EmployerAdminFAQs = () => {
                                   <i className="ti ti-edit"></i>
                                 </button>
                                 <button 
-                                  className="d-flex align-items-center collapsed collapse-arrow" 
+                                  className="d-flex align-items-center collapsed collapse-arrow"   style={{
+          backgroundColor: 'white',
+          border: 'none',
+          padding: 0
+        }}
                                   onClick={() => toggleAccordion('primaryBorderFive')}
                                 >
                                   <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorderFive ? 'rotate-180' : ''}`}></i>
@@ -277,7 +297,11 @@ const EmployerAdminFAQs = () => {
                               <i className="ti ti-edit"></i>
                             </button>
                             <button 
-                              className="d-flex align-items-center collapsed collapse-arrow" 
+                              className="d-flex align-items-center collapsed collapse-arrow"   style={{
+          backgroundColor: 'white',
+          border: 'none',
+          padding: 0
+        }}
                               onClick={() => toggleAccordion('primaryBorder1')}
                             >
                               <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorder1 ? 'rotate-180' : ''}`}></i>
@@ -311,7 +335,11 @@ const EmployerAdminFAQs = () => {
                               <i className="ti ti-edit"></i>
                             </button>
                             <button 
-                              className="d-flex align-items-center collapsed collapse-arrow" 
+                              className="d-flex align-items-center collapsed collapse-arrow"   style={{
+          backgroundColor: 'white',
+          border: 'none',
+          padding: 0
+        }}
                               onClick={() => toggleAccordion('primaryBorder2')}
                             >
                               <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorder2 ? 'rotate-180' : ''}`}></i>
@@ -346,7 +374,11 @@ const EmployerAdminFAQs = () => {
                                 <i className="ti ti-edit"></i>
                               </button>
                               <button 
-                                className="d-flex align-items-center collapsed collapse-arrow" 
+                                className="d-flex align-items-center collapsed collapse-arrow"   style={{
+          backgroundColor: 'white',
+          border: 'none',
+          padding: 0
+        }}
                                 onClick={() => toggleAccordion('primaryBorder3')}
                               >
                                 <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorder3 ? 'rotate-180' : ''}`}></i>
@@ -383,7 +415,11 @@ const EmployerAdminFAQs = () => {
                                   <i className="ti ti-edit"></i>
                                 </button>
                                 <button 
-                                  className="d-flex align-items-center collapsed collapse-arrow" 
+                                  className="d-flex align-items-center collapsed collapse-arrow"   style={{
+          backgroundColor: 'white',
+          border: 'none',
+          padding: 0
+        }}
                                   onClick={() => toggleAccordion('primaryBorder4')}
                                 >
                                   <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorder4 ? 'rotate-180' : ''}`}></i>
@@ -421,7 +457,11 @@ const EmployerAdminFAQs = () => {
                                   <i className="ti ti-edit"></i>
                                 </button>
                                 <button 
-                                  className="d-flex align-items-center collapsed collapse-arrow" 
+                                  className="d-flex align-items-center collapsed collapse-arrow"   style={{
+          backgroundColor: 'white',
+          border: 'none',
+          padding: 0
+        }}
                                   onClick={() => toggleAccordion('primaryBorder5')}
                                 >
                                   <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorder5 ? 'rotate-180' : ''}`}></i>

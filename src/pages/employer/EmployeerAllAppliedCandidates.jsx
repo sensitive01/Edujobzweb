@@ -32,6 +32,43 @@ const EmployeerAllAppliedCandidates = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedCandidateForChat, setSelectedCandidateForChat] = useState(null);
   const navigate = useNavigate();
+  const [displayCount, setDisplayCount] = useState(5); // Initial display count
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usePagination, setUsePagination] = useState(false);
+  const resultsPerPage = 10; // Number of results per page when pagination is active
+
+  // Handle load more functionality
+  const handleLoadMore = () => {
+    if (filteredCandidates.length > 5) {
+      if (displayCount + 5 >= filteredCandidates.length) {
+        setDisplayCount(filteredCandidates.length);
+      } else {
+        setDisplayCount(prev => prev + 5);
+      }
+
+      // Switch to pagination if we're showing more than 10 results
+      if (displayCount + 5 > 10) {
+        setUsePagination(true);
+        setCurrentPage(1);
+      }
+    }
+  };
+
+  // Get current candidates for display
+  const getCurrentCandidates = () => {
+    if (!usePagination) {
+      // Show limited results (5 by default, or more if "Load More" was clicked)
+      return filteredCandidates.slice(0, displayCount);
+    } else {
+      // Pagination logic - show 10 per page
+      const indexOfLastCandidate = currentPage * resultsPerPage;
+      const indexOfFirstCandidate = indexOfLastCandidate - resultsPerPage;
+      return filteredCandidates.slice(indexOfFirstCandidate, indexOfLastCandidate);
+    }
+  };
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Extract roles dynamically from candidates data
   const getUniqueRoles = (candidates) => {
@@ -339,80 +376,47 @@ const EmployeerAllAppliedCandidates = () => {
     filterCandidates();
   }, [filters, candidates, selectedSort, dateRange]);
 
-  
+
   const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
-      try {
-        const token = localStorage.getItem('employerToken');
-        if (!token) {
-          navigate('/employer/login');
-          return;
+    try {
+      const token = localStorage.getItem('employerToken');
+      if (!token) {
+        navigate('/employer/login');
+        return;
+      }
+
+      const response = await fetch(
+        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            favourite: !currentStatus
+          })
         }
-  
-        const response = await fetch(
-          `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
-          {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              favourite: !currentStatus
-            })
-          }
-        );
-  
-        const data = await response.json();
-  
-        if (!response.ok || !data.success) {
-          throw new Error(data.message || 'Failed to update favorite status');
-        }
-  
-        // Show toast notification based on the new status
-        if (!currentStatus) {
-          toast.success('Candidate Saved to your list', {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          });
-        } else {
-          toast.info('Candidate Removed from Saved List', {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          });
-        }
-  
-        // Update state
-        setCandidates(prev => prev.map(candidate => {
-          if (candidate._id === applicationId) {
-            return {
-              ...candidate,
-              favourite: !currentStatus
-            };
-          }
-          return candidate;
-        }));
-  
-        setFilteredCandidates(prev => prev.map(candidate => {
-          if (candidate._id === applicationId) {
-            return {
-              ...candidate,
-              favourite: !currentStatus
-            };
-          }
-          return candidate;
-        }));
-  
-      } catch (error) {
-        console.error('Error updating favorite status:', error);
-        toast.error(`Error: ${error.message}`, {
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to update favorite status');
+      }
+
+      // Show toast notification based on the new status
+      if (!currentStatus) {
+        toast.success('Candidate Saved to your list', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      } else {
+        toast.info('Candidate Removed from Saved List', {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -421,7 +425,40 @@ const EmployeerAllAppliedCandidates = () => {
           draggable: true,
         });
       }
-    };
+
+      // Update state
+      setCandidates(prev => prev.map(candidate => {
+        if (candidate._id === applicationId) {
+          return {
+            ...candidate,
+            favourite: !currentStatus
+          };
+        }
+        return candidate;
+      }));
+
+      setFilteredCandidates(prev => prev.map(candidate => {
+        if (candidate._id === applicationId) {
+          return {
+            ...candidate,
+            favourite: !currentStatus
+          };
+        }
+        return candidate;
+      }));
+
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+      toast.error(`Error: ${error.message}`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  };
   const filterCandidates = () => {
     let result = [...candidates];
 
@@ -512,6 +549,9 @@ const EmployeerAllAppliedCandidates = () => {
     }
 
     setFilteredCandidates(result);
+    setDisplayCount(5);
+    setUsePagination(false);
+    setCurrentPage(1);
   };
 
   const getStatusBadgeClass = (status) => {
@@ -595,10 +635,16 @@ const EmployeerAllAppliedCandidates = () => {
     setSelectedRole('Role');
     setSelectedStatus('Select Status');
     setSelectedSort('Sort By: Last 7 Days');
+    setDisplayCount(5);
+    setUsePagination(false);
+    setCurrentPage(1);
   };
 
   const handleSubmit = () => {
     filterCandidates();
+    setDisplayCount(5);
+    setUsePagination(false);
+    setCurrentPage(1);
   };
 
   const toggleDropdown = (dropdownName) => {
@@ -889,7 +935,7 @@ const EmployeerAllAppliedCandidates = () => {
               </button>
               <ul
                 className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'export' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'export' ? 'block' : 'none',marginLeft: '-65px', }}
+                style={{ display: activeDropdown === 'export' ? 'block' : 'none', marginLeft: '-65px', }}
               >
                 {exportOptions.map((option) => (
                   <li key={option.label}>
@@ -1192,9 +1238,11 @@ const EmployeerAllAppliedCandidates = () => {
                 </div>
 
                 {/* Candidates Grid */}
+
+                {/* Candidates Grid */}
                 <div className="row">
-                  {filteredCandidates.length > 0 ? (
-                    filteredCandidates.map(candidate => (
+                  {getCurrentCandidates().length > 0 ? (
+                    getCurrentCandidates().map(candidate => (
                       <div key={candidate._id} className="col-xxl-12 col-xl-4 col-md-6">
                         <div className="card">
                           <div className="card-body">
@@ -1226,7 +1274,7 @@ const EmployeerAllAppliedCandidates = () => {
                                   </h6>
                                   <p className="fs-13">
                                     <b>Applied On:</b> {new Date(candidate.appliedDate).toLocaleDateString('en-GB')}
-                                    <span className={`badge ${getStatusBadgeClass(candidate.employapplicantstatus)}`}>
+                                    <span className={`badge ${getStatusBadgeClass(candidate.employapplicantstatus)} ms-2`}>
                                       {candidate.employapplicantstatus || 'Pending'}
                                     </span> &nbsp; | &nbsp;
                                     {candidate.resume?.url && (
@@ -1264,8 +1312,7 @@ const EmployeerAllAppliedCandidates = () => {
                                   className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
                                   onClick={(e) => {
                                     e.preventDefault();
-                                    const employerData = JSON.parse(localStorage.getItem('employerData'));
-                                    toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite || false);
+                                    toggleFavoriteStatus(candidate._id, candidate.favourite);
                                   }}
                                   style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
                                 >
@@ -1312,15 +1359,57 @@ const EmployeerAllAppliedCandidates = () => {
                       <p className="text-muted">Try adjusting your search filters</p>
                     </div>
                   )}
+                </div>
 
-                  {filteredCandidates.length > 0 && (
-                    <div className="col-md-12">
-                      <div align="right" className="mb-4">
-                        <a href="#" className="btn btn-secondary"><i className="ti ti-loader-3 me-1"></i>Load More</a>
-                      </div>
-                    </div>
+                {/* Pagination Controls */}
+                <div className="d-flex justify-content-center mt-4">
+                  {!usePagination && filteredCandidates.length > 5 && displayCount < filteredCandidates.length && (
+                    <button
+                      className="btn btn-secondary"
+                      onClick={handleLoadMore}
+                    >
+                      <i className="ti ti-loader-3 me-1"></i>Load More
+                    </button>
+                  )}
+
+                  {usePagination && filteredCandidates.length > resultsPerPage && (
+                    <nav>
+                      <ul className="pagination">
+                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                          <button
+                            className="page-link"
+                            onClick={() => paginate(currentPage - 1)}
+                          >
+                            Previous
+                          </button>
+                        </li>
+
+                        {Array.from({ length: Math.ceil(filteredCandidates.length / resultsPerPage) }).map((_, index) => (
+                          <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => paginate(index + 1)}
+                            >
+                              {index + 1}
+                            </button>
+                          </li>
+                        ))}
+
+                        <li className={`page-item ${currentPage === Math.ceil(filteredCandidates.length / resultsPerPage) ? 'disabled' : ''}`}>
+                          <button
+                            className="page-link"
+                            onClick={() => paginate(currentPage + 1)}
+                          >
+                            Next
+                          </button>
+                        </li>
+                      </ul>
+                    </nav>
                   )}
                 </div>
+
+
+
                 {/* /Candidates Grid */}
               </div>
             </div>
@@ -1343,17 +1432,17 @@ const EmployeerAllAppliedCandidates = () => {
           candidate={selectedCandidateForChat}
         />
       )}
-         <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-            />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <EmployerFooter />
     </>
   );

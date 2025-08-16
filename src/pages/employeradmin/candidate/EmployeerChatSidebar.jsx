@@ -41,7 +41,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
     const audioRef = useRef(null);
     const chatBodyRef = useRef(null);
 
-   const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+    const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -151,21 +151,21 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
         }
     };
 
-useEffect(() => {
-    let intervalId;
-    
-    if (isOpen && candidate) {
-        // Initial fetch
-        fetchChatMessages();
-        
-        // Set up polling every 2 seconds
-        intervalId = setInterval(fetchChatMessages, 2000);
-    }
-    
-    return () => {
-        if (intervalId) clearInterval(intervalId);
-    };
-}, [isOpen, candidate]);
+    useEffect(() => {
+        let intervalId;
+
+        if (isOpen && candidate) {
+            // Initial fetch
+            fetchChatMessages();
+
+            // Set up polling every 2 seconds
+            intervalId = setInterval(fetchChatMessages, 2000);
+        }
+
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
+    }, [isOpen, candidate]);
 
     // const fetchChatMessages = async () => {
     //     try {
@@ -220,58 +220,58 @@ useEffect(() => {
 
 
     const fetchChatMessages = async () => {
-    try {
-        if (!candidate?.applicantId || !employerAdminData?._id) return;
+        try {
+            if (!candidate?.applicantId || !employerAdminData?._id) return;
 
-        const token = localStorage.getItem('EmployerAdminToken');
-        const response = await axios.get(`https://edujobzbackend.onrender.com/employer/view`, {
-            params: {
-                employeeId: candidate.applicantId,
-                employerId: employerAdminData._id,
-                jobId: candidate.jobId || 'general' 
-            },
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+            const token = localStorage.getItem('EmployerAdminToken');
+            const response = await axios.get(`https://edujobzbackend.onrender.com/employer/view`, {
+                params: {
+                    employeeId: candidate.applicantId,
+                    employerId: employerAdminData._id,
+                    jobId: candidate.jobId || 'general'
+                },
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
 
-        if (response.data) {
-            const chat = response.data;
-            if (chat && chat.messages) {
-                // Only update if messages have changed
-                setMessages(prevMessages => {
-                    if (prevMessages.length !== chat.messages.length || 
-                        (prevMessages.length > 0 && 
-                         prevMessages[prevMessages.length-1].id !== chat.messages[chat.messages.length-1]._id)) {
-                        
-                        return chat.messages.map(msg => ({
-                            id: msg._id || Date.now(),
-                            sender: msg.sender === 'employer' ? 'You' : candidate.firstName || candidate.name || 'Candidate',
-                            avatar: msg.sender === 'employer'
-                                ? employerAdminData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg'
-                                : employeeDetails?.userProfilePic || candidate.avatar || 'employer/assets/img/profiles/avatar-29.jpg',
-                            time: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                            content: msg.message,
-                            isMe: msg.sender === 'employer',
-                            ...(msg.mediaUrl && { mediaUrl: msg.mediaUrl }),
-                            ...(msg.mediaType && { mediaType: msg.mediaType === 'video' ? 'audio' : msg.mediaType })
-                        }));
+            if (response.data) {
+                const chat = response.data;
+                if (chat && chat.messages) {
+                    // Only update if messages have changed
+                    setMessages(prevMessages => {
+                        if (prevMessages.length !== chat.messages.length ||
+                            (prevMessages.length > 0 &&
+                                prevMessages[prevMessages.length - 1].id !== chat.messages[chat.messages.length - 1]._id)) {
+
+                            return chat.messages.map(msg => ({
+                                id: msg._id || Date.now(),
+                                sender: msg.sender === 'employer' ? 'You' : candidate.firstName || candidate.name || 'Candidate',
+                                avatar: msg.sender === 'employer'
+                                    ? employerAdminData.profilePicture || 'employer/assets/img/profiles/avatar-14.jpg'
+                                    : employeeDetails?.userProfilePic || candidate.avatar || 'employer/assets/img/profiles/avatar-29.jpg',
+                                time: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                content: msg.message,
+                                isMe: msg.sender === 'employer',
+                                ...(msg.mediaUrl && { mediaUrl: msg.mediaUrl }),
+                                ...(msg.mediaType && { mediaType: msg.mediaType === 'video' ? 'audio' : msg.mediaType })
+                            }));
+                        }
+                        return prevMessages;
+                    });
+
+                    if (!chatId) {
+                        setChatId(chat._id);
                     }
-                    return prevMessages;
-                });
-                
-                if (!chatId) {
-                    setChatId(chat._id);
                 }
             }
+        } catch (err) {
+            console.error('Error fetching chat messages:', err);
+            if (err.response?.status !== 404) {
+                setError('Failed to load chat messages');
+            }
         }
-    } catch (err) {
-        console.error('Error fetching chat messages:', err);
-        if (err.response?.status !== 404) {
-            setError('Failed to load chat messages');
-        }
-    }
-};
+    };
     const handleSendMessage = async (e) => {
         if (e && e.preventDefault) e.preventDefault();
         if ((newMessage.trim() === '' && !fileInputRef.current?.files?.length) || !candidate) return;
@@ -817,6 +817,7 @@ useEffect(() => {
                             <Form.Label>Status</Form.Label>
                             <Form.Control
                                 as="select"
+                                className="form-select"
                                 value={selectedStatus}
                                 onChange={(e) => setSelectedStatus(e.target.value)}
                                 required
@@ -835,6 +836,7 @@ useEffect(() => {
                                 <Form.Label>Job Title</Form.Label>
                                 <Form.Control
                                     as="select"
+                                    className="form-select"
                                     value={selectedJobTitle}
                                     onChange={(e) => setSelectedJobTitle(e.target.value)}
                                     required
@@ -854,6 +856,7 @@ useEffect(() => {
                                     <Form.Label>Interview Type</Form.Label>
                                     <Form.Control
                                         as="select"
+                                        className="form-select"
                                         value={interviewType}
                                         onChange={(e) => setInterviewType(e.target.value)}
                                         required
@@ -945,7 +948,7 @@ useEffect(() => {
                     </div>
                     <div className="avatar avatar-lg online flex-shrink-0">
                         <img
-                            src={employeeDetails?.userProfilePic || candidate?.avatar ||  defaultEmployeeAvatar}
+                            src={employeeDetails?.userProfilePic || candidate?.avatar || defaultEmployeeAvatar}
                             className="rounded-circle"
                             alt="image"
                             style={{ width: '50px', height: '50px', objectFit: 'cover' }}

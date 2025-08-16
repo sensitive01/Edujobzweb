@@ -3,6 +3,7 @@ import Sidebar from '../../components/layout/Sidebar';
 import { FaArrowLeft, FaPowerOff, FaShare, FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { getEmployeeDetails } from '../../api/services/projectServices';
+import axios from 'axios';
 
 const UserDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -10,6 +11,11 @@ const UserDashboard = () => {
   const [employerData, setEmployerData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [stats, setStats] = useState({
+    matchingJobs: 0,
+    appliedJobs: 0,
+    shortlistedJobs: 0
+  });
   const navigate = useNavigate();
 
   // Check if the current viewport is mobile
@@ -28,9 +34,9 @@ const UserDashboard = () => {
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
 
-  // Fetch employer data
+  // Fetch employer data and stats
   useEffect(() => {
-    const fetchEmployerData = async () => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem('authToken');
         const userData = JSON.parse(localStorage.getItem('userData'));
@@ -40,16 +46,47 @@ const UserDashboard = () => {
           return;
         }
 
+        // Fetch employer data
         const data = await getEmployeeDetails(userData._id, token);
         setEmployerData(data);
+
+        // Fetch applied jobs
+        const appliedResponse = await axios.get(
+          `https://edujobzbackend.onrender.com/applicant/${userData._id}`
+        );
+        
+        // Fetch shortlisted jobs
+        const shortlistedResponse = await axios.get(
+          `https://edujobzbackend.onrender.com/fetchshorlitstedjobsemployee/${userData._id}`
+        );
+        
+        // Fetch all jobs (for matching jobs count)
+        const allJobsResponse = await axios.get(
+          'https://edujobzbackend.onrender.com/employer/fetchjobs'
+        );
+
+        // Calculate counts
+        const appliedCount = appliedResponse.data.length;
+        const shortlistedCount = shortlistedResponse.data.length;
+        
+        // For matching jobs, we'll count active jobs that match the user's profile
+        // This is a simplified version - you might want to add more sophisticated matching logic
+        const matchingCount = allJobsResponse.data.filter(job => job.isActive).length;
+
+        setStats({
+          matchingJobs: matchingCount,
+          appliedJobs: appliedCount,
+          shortlistedJobs: shortlistedCount
+        });
+
       } catch (err) {
-        setError(err.message || 'Failed to fetch employer data');
+        setError(err.message || 'Failed to fetch data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchEmployerData();
+    fetchData();
   }, [navigate]);
 
   const handleLogout = () => {
@@ -57,6 +94,7 @@ const UserDashboard = () => {
     localStorage.removeItem('userData');
     navigate('/login');
   };
+
   const calculateProfileCompletion = (data) => {
     if (!data) return 0;
 
@@ -88,6 +126,7 @@ const UserDashboard = () => {
     const percentage = Math.round((completedFields / fieldsToCheck.length) * 100);
     return percentage;
   };
+
   if (loading) {
     return <div className="text-center py-5">Loading...</div>;
   }
@@ -155,25 +194,12 @@ const UserDashboard = () => {
                         </address>
                       </div>
                     </div>
-                    {/* <div className="jobplugin__profile-intro__right">
-                      <div className="jobplugin__profile-intro__success">
-                        <div className="jobplugin__profile-intro__success-icon">
-                          <span className="rj-icon rj-crown"></span>
-                        </div>
-                        <div style={{ float: 'right' }}>
-                          <strong className="jobplugin__profile-intro__success-text">
-                            {calculateProfileCompletion(employerData)}% Profile Completion
-                          </strong>
-                        </div>
-                      </div>
-                    </div> */}
                     <button
                       onClick={handleLogout}
                       className="jobplugin__button border-dark shadow bg-primary hover:jobplugin__bg-secondary small"
                     >
                       <FaPowerOff /> &nbsp; Logout
                     </button>
-
                   </div>
                 </div>
 
@@ -188,7 +214,9 @@ const UserDashboard = () => {
                         <span className="jobplugin__dashboard-stats__subtitle">
                           Profile Score
                         </span>
-                        <strong className="jobplugin__dashboard-stats__number text-primary">94%</strong>
+                        <strong className="jobplugin__dashboard-stats__number text-primary">
+                          {calculateProfileCompletion(employerData)}%
+                        </strong>
                         <p style={{ textAlign: 'right' }}>(Based on input data)</p>
                       </div>
                     </div>
@@ -199,9 +227,11 @@ const UserDashboard = () => {
                           <span className="jobplugin__text-primary rj-icon rj-info"></span>
                         </i>
                         <span className="jobplugin__dashboard-stats__subtitle">
-                          Posted Jobs
+                          Matching Jobs
                         </span>
-                        <strong className="jobplugin__dashboard-stats__number text-primary">0</strong>
+                        <strong className="jobplugin__dashboard-stats__number text-primary">
+                          {stats.matchingJobs}
+                        </strong>
                         <p style={{ textAlign: 'right' }}>(Currently active)</p>
                       </div>
                     </div>
@@ -212,9 +242,11 @@ const UserDashboard = () => {
                           <span className="jobplugin__text-primary rj-icon rj-info"></span>
                         </i>
                         <span className="jobplugin__dashboard-stats__subtitle">
-                          Applications
+                          Applied jobs
                         </span>
-                        <strong className="jobplugin__dashboard-stats__number text-primary">0</strong>
+                        <strong className="jobplugin__dashboard-stats__number text-primary">
+                          {stats.appliedJobs}
+                        </strong>
                         <p style={{ textAlign: 'right' }}>(Total received)</p>
                       </div>
                     </div>
@@ -225,17 +257,19 @@ const UserDashboard = () => {
                           <span className="jobplugin__text-primary rj-icon rj-info"></span>
                         </i>
                         <span className="jobplugin__dashboard-stats__subtitle">
-                          Shortlisted
+                          Shortlisted Jobs
                         </span>
-                        <strong className="jobplugin__dashboard-stats__number text-primary">0</strong>
-                        <p style={{ textAlign: 'right' }}>(Candidates)</p>
+                        <strong className="jobplugin__dashboard-stats__number text-primary">
+                          {stats.shortlistedJobs}
+                        </strong>
+                        <p style={{ textAlign: 'right' }}>(Jobs)</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Profile Details Section */}
-                <div className="jobplugin__profile-container">
+                {/* <div className="jobplugin__profile-container">
                   <aside className="jobplugin__profile-aside">
                     <div className="jobplugin__profile-box border border-dark shadow">
                       <div className="jobplugin__profile-box__head">
@@ -374,7 +408,7 @@ const UserDashboard = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

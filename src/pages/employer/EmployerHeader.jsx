@@ -92,7 +92,7 @@ const EmployerHeader = () => {
     const candidatesOptions = [
         { name: 'Search Candidates', path: '/employer/search' },
         { name: 'Saved Candidates', path: '/employer/saved-candidates' },
-        { name: 'List Candidates', path: '/employer/new-candidate' },
+       
     ];
 
     const jobsOptions = [

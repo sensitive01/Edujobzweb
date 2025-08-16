@@ -76,7 +76,7 @@ const ResumeBuilder = () => {
                             <a href="#" className="jobplugin__button jobplugin__bg-primary hover:jobplugin__bg-secondary small shadow">
                               Generate Resume
                             </a>
-                            <a href="my-account.php" className="jobplugin__button button-white button-link hover:jobplugin__bg-primary hover:jobplugin__text-white small">
+                            <a href="employee-profile" className="jobplugin__button button-white button-link hover:jobplugin__bg-primary hover:jobplugin__text-white small">
                               Learn More / fill missing values
                             </a>
                           </div>

@@ -30,6 +30,44 @@ const EmployeerAdminAllAppliedCandidates = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedCandidateForChat, setSelectedCandidateForChat] = useState(null);
   const navigate = useNavigate();
+  // Pagination state
+  const [displayCount, setDisplayCount] = useState(5); // Initial display count
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usePagination, setUsePagination] = useState(false);
+  const resultsPerPage = 10; // Number of results per page when pagination is active
+
+  // Handle load more functionality
+  const handleLoadMore = () => {
+    if (filteredCandidates.length > 5) {
+      if (displayCount + 5 >= filteredCandidates.length) {
+        setDisplayCount(filteredCandidates.length);
+      } else {
+        setDisplayCount(prev => prev + 5);
+      }
+
+      // Switch to pagination if we're showing more than 10 results
+      if (displayCount + 5 > 10) {
+        setUsePagination(true);
+        setCurrentPage(1);
+      }
+    }
+  };
+
+  // Get current candidates for display
+  const getCurrentCandidates = () => {
+    if (!usePagination) {
+      // Show limited results (5 by default, or more if "Load More" was clicked)
+      return filteredCandidates.slice(0, displayCount);
+    } else {
+      // Pagination logic - show 10 per page
+      const indexOfLastCandidate = currentPage * resultsPerPage;
+      const indexOfFirstCandidate = indexOfLastCandidate - resultsPerPage;
+      return filteredCandidates.slice(indexOfFirstCandidate, indexOfLastCandidate);
+    }
+  };
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Extract roles dynamically from candidates data
   const getUniqueRoles = (candidates) => {
@@ -485,6 +523,9 @@ const EmployeerAdminAllAppliedCandidates = () => {
     }
 
     setFilteredCandidates(result);
+    setDisplayCount(5);
+    setUsePagination(false);
+    setCurrentPage(1);
   };
 
   const getStatusBadgeClass = (status) => {
@@ -568,10 +609,16 @@ const EmployeerAdminAllAppliedCandidates = () => {
     setSelectedRole('Role');
     setSelectedStatus('Select Status');
     setSelectedSort('Sort By: Last 7 Days');
+    setDisplayCount(5);
+    setUsePagination(false);
+    setCurrentPage(1);
   };
 
   const handleSubmit = () => {
     filterCandidates();
+    setDisplayCount(5);
+    setUsePagination(false);
+    setCurrentPage(1);
   };
 
   const toggleDropdown = (dropdownName) => {
@@ -1165,7 +1212,7 @@ const EmployeerAdminAllAppliedCandidates = () => {
                 </div>
 
                 {/* Candidates Grid */}
-                <div className="row">
+                {/* <div className="row">
                   {filteredCandidates.length > 0 ? (
                     filteredCandidates.map(candidate => (
                       <div key={candidate._id} className="col-xxl-12 col-xl-4 col-md-6">
@@ -1291,6 +1338,175 @@ const EmployeerAdminAllAppliedCandidates = () => {
                         <a href="#" className="btn btn-secondary"><i className="ti ti-loader-3 me-1"></i>Load More</a>
                       </div>
                     </div>
+                  )}
+                </div> */}
+
+                {/* Candidates Grid */}
+                <div className="row">
+                  {getCurrentCandidates().length > 0 ? (
+                    getCurrentCandidates().map(candidate => (
+                      <div key={candidate._id} className="col-xxl-12 col-xl-4 col-md-6">
+                        <div className="card">
+                          <div className="card-body">
+                            <div className="d-flex align-items-center justify-content-between mb-2">
+                              <div className="d-flex align-items-center">
+                                <a href="javascript:void(0);" className="avatar flex-shrink-0">
+                                  <img
+                                    src={candidate.profileurl || user13}
+                                    className="img-fluid h-auto w-auto"
+                                    alt="img"
+                                    onError={(e) => {
+                                      e.target.onerror = null;
+                                      e.target.src = user13;
+                                    }}
+                                  />
+                                </a>
+                                <div className="ms-2">
+                                  <h6 className="fs-14 fw-medium text-truncate text-primary mb-1">
+                                    <a className="text-secondary" href="#"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        viewCandidateDetails(candidate);
+                                      }}>
+                                      {candidate.firstName} {candidate.lastName || ''} &nbsp; | &nbsp;
+                                      <span className="text-dark">
+                                        <i className="ti ti-eye"></i> View Profile
+                                      </span>
+                                    </a>
+                                  </h6>
+                                  <p className="fs-13">
+                                    <b>Applied On:</b> {new Date(candidate.appliedDate).toLocaleDateString('en-GB')}
+                                    <span className={`badge ${getStatusBadgeClass(candidate.employapplicantstatus)} ms-2`}>
+                                      {candidate.employapplicantstatus || 'Pending'}
+                                    </span> &nbsp; | &nbsp;
+                                    {candidate.resume?.url && (
+                                      <a href={candidate.resume.url} className="fw-medium text-primary" target="_blank" rel="noopener noreferrer">
+                                        <i className="ti ti-download"></i> Download Resume
+                                      </a>
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="d-flex align-items-center">
+                                {candidate.phone && (
+                                  <a href={`tel:${candidate.phone}`} className="btn btn-light text-success btn-icon btn-sm me-1">
+                                    <i className="ti ti-phone fs-16"></i>
+                                  </a>
+                                )}
+                                {candidate.email && (
+                                  <a href={`mailto:${candidate.email}`} className="btn btn-light btn-icon text-danger btn-sm me-1">
+                                    <i className="ti ti-mail-bolt fs-16"></i>
+                                  </a>
+                                )}
+                                <a
+                                  href="#"
+                                  className="btn btn-light text-info btn-icon text-info btn-sm me-1"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setSelectedCandidateForChat(candidate);
+                                    setIsChatOpen(true);
+                                  }}
+                                >
+                                  <i className="ti ti-brand-hipchat fs-16"></i>
+                                </a>
+                                <a
+                                  href="#"
+                                  className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    toggleFavoriteStatus(candidate._id, candidate.favourite);
+                                  }}
+                                  style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
+                                >
+                                  <i
+                                    className={`ti ti-bookmark fs-16`}
+                                    style={candidate.favourite ? { color: 'white' } : {}}
+                                  ></i>
+                                </a>
+                              </div>
+                            </div>
+                            <div className="bg-light rounder p-2">
+                              <div className="d-flex align-items-center justify-content-between mb-2">
+                                <span><b>Experience</b> : {candidate.experience || '0'} Years</span>
+                                <span><b>Job Role</b> : {candidate.jobrole || 'Not specified'}</span>
+                              </div>
+                              <div className="d-flex align-items-center justify-content-between mb-2">
+                                <span><b>Gender</b> : {candidate.gender || 'Not specified'}</span>
+                                <span><b>Email</b> : {candidate.email || 'Not specified'}</span>
+                              </div>
+                              <div className="d-flex align-items-center justify-content-between mb-2">
+                                <span><b>Phone</b> : {candidate.phone || 'Not specified'}</span>
+                                <span><b>Qualification</b> : {candidate.qualification || 'Not specified'}</span>
+                              </div>
+                              <div className="d-flex align-items-center justify-content-between">
+                                <span><b>Current Location</b> : {candidate.currentcity || 'Not specified'}</span>
+                                <span>
+                                  <button
+                                    className="fs-10 fw-bold badge bg-warning"
+                                    onClick={() => viewCandidateDetails(candidate)}
+                                  >
+                                    <i className="ti ti-eye"></i> View Profile
+                                  </button>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-12 text-center py-5">
+                      <img src={defaultEmployeeAvatar} alt="No candidates found" width="150" className="mb-3" />
+                      <h4>No candidates found</h4>
+                      <p className="text-muted">Try adjusting your search filters</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Pagination Controls */}
+                <div className="d-flex justify-content-center mt-4">
+                  {!usePagination && filteredCandidates.length > 5 && displayCount < filteredCandidates.length && (
+                    <button
+                      className="btn btn-secondary"
+                      onClick={handleLoadMore}
+                    >
+                      <i className="ti ti-loader-3 me-1"></i>Load More
+                    </button>
+                  )}
+
+                  {usePagination && filteredCandidates.length > resultsPerPage && (
+                    <nav>
+                      <ul className="pagination">
+                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                          <button
+                            className="page-link"
+                            onClick={() => paginate(currentPage - 1)}
+                          >
+                            Previous
+                          </button>
+                        </li>
+
+                        {Array.from({ length: Math.ceil(filteredCandidates.length / resultsPerPage) }).map((_, index) => (
+                          <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => paginate(index + 1)}
+                            >
+                              {index + 1}
+                            </button>
+                          </li>
+                        ))}
+
+                        <li className={`page-item ${currentPage === Math.ceil(filteredCandidates.length / resultsPerPage) ? 'disabled' : ''}`}>
+                          <button
+                            className="page-link"
+                            onClick={() => paginate(currentPage + 1)}
+                          >
+                            Next
+                          </button>
+                        </li>
+                      </ul>
+                    </nav>
                   )}
                 </div>
                 {/* /Candidates Grid */}

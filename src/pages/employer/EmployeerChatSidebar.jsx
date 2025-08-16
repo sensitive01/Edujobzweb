@@ -2036,143 +2036,146 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
 
             {/* Status Update Modal */}
             <Modal show={showStatusModal} onHide={() => setShowStatusModal(false)}>
-                <ToastContainer
-                    position="top-right"
-                    autoClose={5000}
-                    hideProgressBar={false}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                />
-                <Modal.Header closeButton>
-                    <Modal.Title>Update Candidate Status</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
+    <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+    />
+    <Modal.Header closeButton>
+        <Modal.Title>Update Candidate Status</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+        <Form>
+            <Form.Group className="mb-3">
+                <Form.Label>Status</Form.Label>
+                <Form.Control
+                    as="select"
+                    className="form-select"
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                    required
+                >
+                    <option value="">Select Status</option>
+                    <option value="Selected">Mark as Selected</option>
+                    <option value="Rejected">Mark as Rejected</option>
+                    <option value="Hold">Mark as Hold</option>
+                    <option value="Interview Scheduled">Schedule Interview</option>
+                </Form.Control>
+            </Form.Group>
+
+            {/* Only show job title dropdown if candidate hasn't applied to any jobs */}
+            {!jobs.some(job => job.applications?.some(app => app.applicantId === candidate.applicantId)) && (
+                <Form.Group className="mb-3">
+                    <Form.Label>Job Title</Form.Label>
+                    <Form.Control
+                        as="select"
+                        className="form-select"
+                        value={selectedJobTitle}
+                        onChange={(e) => setSelectedJobTitle(e.target.value)}
+                        required
+                    >
+                        <option value="">Select Job Title</option>
+                        {jobs.map(job => (
+                            <option key={job._id} value={job.jobTitle}>
+                                {job.jobTitle}
+                            </option>
+                        ))}
+                    </Form.Control>
+                </Form.Group>
+            )}
+            {selectedStatus === "Interview Scheduled" && (
+                <>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Interview Type</Form.Label>
+                        <Form.Control
+                            as="select"
+                            className="form-select"
+                            value={interviewType}
+                            onChange={(e) => setInterviewType(e.target.value)}
+                            required
+                        >
+                            <option value="">Select Interview Type</option>
+                            <option value="online">Online</option>
+                            <option value="offline">Offline</option>
+                        </Form.Control>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Interview Date</Form.Label>
+                        <Form.Control
+                            type="date"
+                            value={interviewDate}
+                            onChange={(e) => setInterviewDate(e.target.value)}
+                            required
+                        />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                        <Form.Label>Interview Time</Form.Label>
+                        <Form.Control
+                            type="time"
+                            value={interviewTime}
+                            onChange={(e) => setInterviewTime(e.target.value)}
+                            required
+                        />
+                    </Form.Group>
+
+                    {interviewType === "online" && (
                         <Form.Group className="mb-3">
-                            <Form.Label>Status</Form.Label>
+                            <Form.Label>Online Meeting Link</Form.Label>
                             <Form.Control
-                                as="select"
-                                value={selectedStatus}
-                                onChange={(e) => setSelectedStatus(e.target.value)}
+                                type="text"
+                                placeholder="Enter meeting link (Zoom, Google Meet, etc.)"
+                                value={onlineLink}
+                                onChange={(e) => setOnlineLink(e.target.value)}
                                 required
-                            >
-                                <option value="">Select Status</option>
-                                <option value="Selected">Mark as Selected</option>
-                                <option value="Rejected">Mark as Rejected</option>
-                                <option value="Hold">Mark as Hold</option>
-                                <option value="Interview Scheduled">Schedule Interview</option>
-                            </Form.Control>
+                            />
                         </Form.Group>
+                    )}
 
-                        {/* Only show job title dropdown if candidate hasn't applied to any jobs */}
-                        {!jobs.some(job => job.applications?.some(app => app.applicantId === candidate.applicantId)) && (
-                            <Form.Group className="mb-3">
-                                <Form.Label>Job Title</Form.Label>
-                                <Form.Control
-                                    as="select"
-                                    value={selectedJobTitle}
-                                    onChange={(e) => setSelectedJobTitle(e.target.value)}
-                                    required
-                                >
-                                    <option value="">Select Job Title</option>
-                                    {jobs.map(job => (
-                                        <option key={job._id} value={job.jobTitle}>
-                                            {job.jobTitle}
-                                        </option>
-                                    ))}
-                                </Form.Control>
-                            </Form.Group>
-                        )}
-                        {selectedStatus === "Interview Scheduled" && (
-                            <>
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Interview Type</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        value={interviewType}
-                                        onChange={(e) => setInterviewType(e.target.value)}
-                                        required
-                                    >
-                                        <option value="">Select Interview Type</option>
-                                        <option value="online">Online</option>
-                                        <option value="offline">Offline</option>
-                                    </Form.Control>
-                                </Form.Group>
-
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Interview Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={interviewDate}
-                                        onChange={(e) => setInterviewDate(e.target.value)}
-                                        required
-                                    />
-                                </Form.Group>
-
-                                <Form.Group className="mb-3">
-                                    <Form.Label>Interview Time</Form.Label>
-                                    <Form.Control
-                                        type="time"
-                                        value={interviewTime}
-                                        onChange={(e) => setInterviewTime(e.target.value)}
-                                        required
-                                    />
-                                </Form.Group>
-
-                                {interviewType === "online" && (
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Online Meeting Link</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            placeholder="Enter meeting link (Zoom, Google Meet, etc.)"
-                                            value={onlineLink}
-                                            onChange={(e) => setOnlineLink(e.target.value)}
-                                            required
-                                        />
-                                    </Form.Group>
-                                )}
-
-                                {interviewType === "offline" && (
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Venue</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            rows={3}
-                                            placeholder="Enter venue address"
-                                            value={venue}
-                                            onChange={(e) => setVenue(e.target.value)}
-                                            required
-                                        />
-                                    </Form.Group>
-                                )}
-                            </>
-                        )}
-
+                    {interviewType === "offline" && (
                         <Form.Group className="mb-3">
-                            <Form.Label>Notes</Form.Label>
+                            <Form.Label>Venue</Form.Label>
                             <Form.Control
                                 as="textarea"
                                 rows={3}
-                                value={statusNotes}
-                                onChange={(e) => setStatusNotes(e.target.value)}
-                                placeholder="Enter notes about this status change..."
+                                placeholder="Enter venue address"
+                                value={venue}
+                                onChange={(e) => setVenue(e.target.value)}
+                                required
                             />
                         </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowStatusModal(false)}>
-                        Cancel
-                    </Button>
-                    <Button variant="primary" onClick={handleUpdateStatus}>
-                        Update Status
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+                    )}
+                </>
+            )}
+
+            <Form.Group className="mb-3">
+                <Form.Label>Notes</Form.Label>
+                <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={statusNotes}
+                    onChange={(e) => setStatusNotes(e.target.value)}
+                    placeholder="Enter notes about this status change..."
+                />
+            </Form.Group>
+        </Form>
+    </Modal.Body>
+    <Modal.Footer>
+        <Button variant="secondary" onClick={() => setShowStatusModal(false)}>
+            Cancel
+        </Button>
+        <Button variant="primary" onClick={handleUpdateStatus}>
+            Update Status
+        </Button>
+    </Modal.Footer>
+</Modal>
 
             {/* Chat Header */}
             <div className="chat-header" style={headerStyles}>

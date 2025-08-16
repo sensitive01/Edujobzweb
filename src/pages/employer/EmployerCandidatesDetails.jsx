@@ -226,7 +226,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
 
         return (
             <>
-                <div className="card">
+                <div className="card" >
                     <div className="card-header">
                         <h5>Personal Information</h5>
                     </div>
@@ -669,19 +669,22 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                     </div>
                 </div>
 
-                {candidateDetails.profilesummary && (
-                    <div className="card">
-                        <div className="card-header">
+                {/* {candidateDetails.profilesummary && (
+                    <div className="card" >
+                        <div className="card-header" >
                             <h5>Profile Summary</h5>
                         </div>
                         <div className="card-body">
-                            <p>{candidateDetails.profilesummary}</p>
+                            <p >{candidateDetails.profilesummary}</p>
                         </div>
                     </div>
-                )}
+                )} */}
+
             </>
         );
     };
+
+   
     const renderPipelineTab = () => {
         const currentStageIndex = pipelineStages.indexOf(selectedStatus);
         return (
@@ -723,10 +726,22 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                             <div className="col-md-3">
                                 <div className="mb-3">
                                     <p className="mb-1">Current Status</p>
-                                    <span className={`badge ${getStatusBadgeClass(selectedStatus)} d-inline-flex align-items-center`}>
-                                        <i className="ti ti-point-filled me-1"></i>
-                                        {selectedStatus}
-                                    </span>
+                                    <div>
+                                        <span className={`badge ${getStatusBadgeClass(candidate?.employapplicantstatus || 'Pending')}`}>
+                                            {candidate?.employapplicantstatus || 'Pending'}
+                                        </span>
+                                        {candidate?.statusHistory?.length > 0 && (
+                                            <small className="text-muted d-block mt-1">
+                                                {new Date(candidate.statusHistory[0].updatedAt).toLocaleString('en-GB', {
+                                                    day: '2-digit',
+                                                    month: '2-digit',
+                                                    year: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
+                                            </small>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                             <div className="col-md-3">
@@ -1017,7 +1032,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                                                     <div className="mb-3">
                                                         <p className="mb-1">Candidate Name</p>
                                                         <h6 className="fw-normal">
-                                                            {candidateDetails.firstName} {candidateDetails.lastName || ''}
+                                                            {candidateDetails.userName} {candidateDetails.lastName || ''}
                                                         </h6>
                                                     </div>
                                                 </div>
@@ -1049,15 +1064,36 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                                                         </h6>
                                                     </div>
                                                 </div>
-                                                <div className="col-md-4">
+                                                {/* <div className="col-md-4">
                                                     <div className="mb-3">
                                                         <p className="mb-1">Current Status</p>
                                                         <span className={`badge ${getStatusBadgeClass(candidate?.employapplicantstatus || 'Pending')}`}>
                                                             {candidate?.employapplicantstatus || 'Pending'}
                                                         </span>
                                                     </div>
-                                                </div>
-                                            </div>
+                                                </div> */}
+
+                                                <div className="col-md-4">
+                                                    <div className="mb-3">
+                                                        <p className="mb-1">Current Status</p>
+                                                        <div>
+                                                            <span className={`badge ${getStatusBadgeClass(candidate?.employapplicantstatus || 'Pending')}`}>
+                                                                {candidate?.employapplicantstatus || 'Pending'}
+                                                            </span>
+                                                            {candidate?.statusHistory?.length > 0 && (
+                                                                <small className="text-muted d-block mt-1">
+                                                                    {new Date(candidate.statusHistory[0].updatedAt).toLocaleString('en-GB', {
+                                                                        day: '2-digit',
+                                                                        month: '2-digit',
+                                                                        year: 'numeric',
+                                                                        hour: '2-digit',
+                                                                        minute: '2-digit'
+                                                                    })}
+                                                                </small>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>                                            </div>
                                         </div>
                                     </div>
                                 </div>
