@@ -214,7 +214,7 @@ function App() {
           <Route path='/employer-admin/shortlisted-candidate-byjob/:id' element={<EmployeerAdminJobIdShortlistedCandidates />} />
           <Route path='/employer-admin/search' element={<EmployeerAdminCandidatesSearch />} />
 
-          <Route path='/employer-admin/post-jobs' element={<EmployeerAdminPostJob />} />3
+          <Route path='/employer-admin/post-jobs' element={<EmployeerAdminPostJob />} />
           <Route path='/employer-admin/view-job/:id' element={<EmployerAdminobDetailsPage />} />
           <Route path='/employer-admin/jobs' element={<EmployeerAdminJobList />} />
           <Route path='/employer-admin/unit-jobs' element={<EmployeerAdminGridJobUnit />} />

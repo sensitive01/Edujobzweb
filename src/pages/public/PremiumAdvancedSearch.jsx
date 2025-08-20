@@ -1793,7 +1793,7 @@ const CombinedJobsPage = () => {
                               width: '2px',
                               height: '10px',
                               backgroundColor: '#333',
-                              transform: 'translate(-50%, -50%)',
+                              // transform: 'translate(-50%, -50%)',
                               transition: 'transform 0.3s ease',
                               transform: openAccordions.category ? 'translate(-50%, -50%) rotate(90deg)' : 'translate(-50%, -50%) rotate(0deg)'
                             }}

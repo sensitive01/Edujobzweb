@@ -698,7 +698,7 @@ const PostJob = () => {
         };
 
         const response = await schoolregister(employerData);
-        employid = response.data.employid; // Assuming the API returns the employid
+        employid = response.data.employid||response.data.id; // Assuming the API returns the employid
         localStorage.setItem('employid', employid);
       } catch (err) {
         setError(err.message || 'Failed to create employer profile');
