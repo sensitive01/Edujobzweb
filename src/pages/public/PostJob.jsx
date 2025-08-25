@@ -69,7 +69,7 @@
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
 //     setLoading(true);
-    
+
 //     const employid = localStorage.getItem('employid');
 //     if(!employid){
 //       alert('unable to create the job, Please login first');
@@ -331,7 +331,7 @@
 //                       </select>
 //                     </div>
 //                   </div>
-                  
+
 //                   {/* Openings */}
 //                   <label htmlFor="openings">&nbsp;&nbsp;Number of Openings</label>
 //                   <div className="jobplugin__form-row">
@@ -570,13 +570,13 @@
 //           display: flex;
 //           align-items: center;
 //         }
-        
+
 //         .skills-tags {
 //           display: flex;
 //           flex-wrap: wrap;
 //           gap: 5px;
 //         }
-        
+
 //         .skill-tag {
 //           background-color: #e0e0e0;
 //           padding: 3px 8px;
@@ -584,7 +584,7 @@
 //           display: flex;
 //           align-items: center;
 //         }
-        
+
 //         .skill-remove {
 //           background: none;
 //           border: none;
@@ -592,7 +592,7 @@
 //           margin-left: 5px;
 //           color: #666;
 //         }
-        
+
 //         .skill-remove:hover {
 //           color: #f00;
 //         }
@@ -600,59 +600,70 @@
 //     </div>
 //   );
 // };
-
-
-// export default PostJob;
-
-// without login
-
-import React, { useState } from 'react';
-import { postJob } from '../../api/services/projectServices';
-import { useNavigate } from 'react-router-dom';
-import { useEmployeeRegistration } from '../../hooks/useEmployeeRegistration';
-
+import React, { useState } from "react";
+import { postJob } from "../../api/services/projectServices";
+import { useNavigate } from "react-router-dom";
+import { useEmployeeRegistration } from "../../hooks/useEmployeeRegistration";
+import axios from "axios";
 
 const PostJob = () => {
   const [formData, setFormData] = useState({
-    companyName: '',
-    jobTitle: '',
-    description: '',
-    category: '',
-    salaryFrom: '',
-    salaryTo: '',
-    salaryType: '',
-    jobType: '',
-    experienceLevel: '',
-    educationLevel: '',
-    openings: '',
+    companyName: "",
+    jobTitle: "",
+    description: "",
+    category: "",
+    salaryFrom: "",
+    salaryTo: "",
+    salaryType: "",
+    jobType: "",
+    experienceLevel: "",
+    educationLevel: "",
+    openings: "",
     locationTypes: [],
-    location: '',
+    location: "",
     isRemote: false,
     skills: [],
-    benefits: '',
-    contactEmail: '',
-    contactPhone: '',
-    companyUrl: '',
-    applicationInstructions: '',
-    deadline: '',
-    priority: '',
-    status: 'Active'
+    benefits: "",
+    contactEmail: "",
+    contactPhone: "",
+    companyUrl: "",
+    applicationInstructions: "",
+    deadline: "",
+    priority: "",
+    status: "Active",
   });
 
-  const [skillsInput, setSkillsInput] = useState('');
+  const [skillsInput, setSkillsInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+
+  // OTP state
+  const [otp, setOtp] = useState("");
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+
   const navigate = useNavigate();
   const { schoolregister } = useEmployeeRegistration();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
+
+    // Reset OTP verification if email changes
+    if (name === "contactEmail") {
+      setIsOtpSent(false);
+      setIsOtpVerified(false);
+      setOtp("");
+      setOtpError("");
+    }
   };
 
   const handleSkillsChange = (e) => {
@@ -661,47 +672,122 @@ const PostJob = () => {
 
   const addSkill = () => {
     if (skillsInput.trim() && !formData.skills.includes(skillsInput.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        skills: [...prev.skills, skillsInput.trim()]
+        skills: [...prev.skills, skillsInput.trim()],
       }));
-      setSkillsInput('');
+      setSkillsInput("");
     }
   };
 
   const removeSkill = (skillToRemove) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      skills: prev.skills.filter(skill => skill !== skillToRemove)
+      skills: prev.skills.filter((skill) => skill !== skillToRemove),
     }));
+  };
+
+  // Send OTP function
+  const sendOtp = async () => {
+    if (!formData.contactEmail) {
+      setOtpError("Please enter your email address");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.contactEmail)) {
+      setOtpError("Please enter a valid email address");
+      return;
+    }
+
+    setIsSendingOtp(true);
+    setOtpError("");
+
+    try {
+      const response = await axios.post(
+        "https://edujobemailverification.onrender.com/api/send-otp",
+        {
+          email: formData.contactEmail,
+        }
+      );
+
+      if (response.status===200) {
+        setIsOtpSent(true);
+        setOtpError("");
+      } else {
+        setOtpError(response.data.error || "Failed to send OTP");
+      }
+    } catch (error) {
+      setOtpError(error.response?.data?.error || "Failed to send OTP");
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  // Verify OTP function
+  const verifyOtp = async () => {
+    if (!otp || otp.length !== 6) {
+      setOtpError("Please enter a 6-digit OTP");
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    setOtpError("");
+
+    try {
+      const response = await axios.post(
+        "https://edujobemailverification.onrender.com/api/verify-otp",
+        {
+          email: formData.contactEmail,
+          otp,
+        }
+      );
+
+      if (response.data.success) {
+        setIsOtpVerified(true);
+        setOtpError("");
+      } else {
+        setOtpError(response.data.error || "Invalid OTP");
+        setIsOtpVerified(false);
+      }
+    } catch (error) {
+      setOtpError(error.response?.data?.error || "Verification failed");
+      setIsOtpVerified(false);
+    } finally {
+      setIsVerifyingOtp(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isOtpVerified) {
+      setError("Please verify your email address first");
+      return;
+    }
+
     setLoading(true);
-    
-    let employid = localStorage.getItem('employid');
-    
+
+    let employid = localStorage.getItem("employid");
+
     if (!employid) {
-      // If no employid exists, create a new employer profile
       try {
         const employerData = {
           schoolName: formData.companyName,
-          firstName: 'Admin', // Default values since these aren't in the form
-          lastName: 'User',
+          firstName: "Admin",
+          lastName: "User",
           userEmail: formData.contactEmail,
-          userMobile: formData.contactPhone || '0000000000',
-          userPassword: 'defaultPassword123', // Default password
-          employerType: 'company',
+          userMobile: formData.contactPhone || "0000000000",
+          userPassword: "defaultPassword123",
+          employerType: "company",
           sendEmails: false,
-          agreeTerms: true
+          agreeTerms: true,
         };
 
         const response = await schoolregister(employerData);
-        employid = response.data.employid||response.data.id; // Assuming the API returns the employid
-        localStorage.setItem('employid', employid);
+        employid = response.data.employid || response.data.id;
       } catch (err) {
-        setError(err.message || 'Failed to create employer profile');
+        setError(err.message || "Failed to create employer profile");
         setLoading(false);
         return;
       }
@@ -711,31 +797,36 @@ const PostJob = () => {
       await postJob({ ...formData, employid });
       setSuccess(true);
       setFormData({
-        companyName: '',
-        jobTitle: '',
-        description: '',
-        category: '',
-        salaryFrom: '',
-        salaryTo: '',
-        salaryType: '',
-        jobType: '',
-        experienceLevel: '',
-        educationLevel: '',
-        openings: '',
+        companyName: "",
+        jobTitle: "",
+        description: "",
+        category: "",
+        salaryFrom: "",
+        salaryTo: "",
+        salaryType: "",
+        jobType: "",
+        experienceLevel: "",
+        educationLevel: "",
+        openings: "",
         locationTypes: [],
-        location: '',
+        location: "",
         isRemote: false,
         skills: [],
-        benefits: '',
-        contactEmail: '',
-        contactPhone: '',
-        companyUrl: '',
-        applicationInstructions: '',
-        deadline: '',
-        priority: '',
-        status: 'Active'
+        benefits: "",
+        contactEmail: "",
+        contactPhone: "",
+        companyUrl: "",
+        applicationInstructions: "",
+        deadline: "",
+        priority: "",
+        status: "Active",
       });
-      navigate('/job-vacancies');
+      // Reset OTP states
+      setIsOtpSent(false);
+      setIsOtpVerified(false);
+      setOtp("");
+      setOtpError("");
+      navigate("/job-vacancies");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -751,7 +842,9 @@ const PostJob = () => {
           <div className="row">
             <div className="col-12">
               <div className="subvisual-textbox">
-                <h1 className="text-primary mb-0">Post a Job Vacancy for FREE</h1>
+                <h1 className="text-primary mb-0">
+                  Post a Job Vacancy for FREE
+                </h1>
                 <p>Feel free to get in touch with us. Need Help?</p>
               </div>
             </div>
@@ -769,26 +862,18 @@ const PostJob = () => {
           </div>
           <br />
           <div className="jobplugin__container">
-            {/* User Box */}
             <div className="jobplugin__userbox bg-light shadow">
               <span className="jobplugin__userbox-bar jobplugin__bg-primary"></span>
               <h1 className="text-secondary h3">Job Details</h1>
 
-              {/* Success message */}
               {success && (
                 <div className="alert alert-success">
                   Job posted successfully!
                 </div>
               )}
 
-              {/* Error message */}
-              {error && (
-                <div className="alert alert-danger">
-                  {error}
-                </div>
-              )}
+              {error && <div className="alert alert-danger">{error}</div>}
 
-              {/* User Box Form */}
               <form onSubmit={handleSubmit}>
                 <div className="jobplugin__form">
                   {/* Company Name */}
@@ -799,7 +884,7 @@ const PostJob = () => {
                         type="text"
                         id="companyName"
                         name="companyName"
-                        style={{ padding: '5px 30px' }}
+                        style={{ padding: "5px 30px" }}
                         className="form-control"
                         placeholder="Company Name"
                         value={formData.companyName}
@@ -817,7 +902,7 @@ const PostJob = () => {
                         type="text"
                         name="jobTitle"
                         className="form-control"
-                        style={{ padding: '5px 30px' }}
+                        style={{ padding: "5px 30px" }}
                         placeholder="Job Title"
                         value={formData.jobTitle}
                         onChange={handleChange}
@@ -827,7 +912,9 @@ const PostJob = () => {
                   </div>
 
                   {/* Job Description */}
-                  <label htmlFor="description">&nbsp;&nbsp;Job Description</label>
+                  <label htmlFor="description">
+                    &nbsp;&nbsp;Job Description
+                  </label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <textarea
@@ -847,7 +934,7 @@ const PostJob = () => {
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <select
-                        name='category'
+                        name="category"
                         className="form-control"
                         value={formData.category}
                         onChange={handleChange}
@@ -884,7 +971,9 @@ const PostJob = () => {
                   </div>
 
                   {/* Experience Level */}
-                  <label htmlFor="experienceLevel">&nbsp;&nbsp;Experience Level</label>
+                  <label htmlFor="experienceLevel">
+                    &nbsp;&nbsp;Experience Level
+                  </label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <select
@@ -903,7 +992,9 @@ const PostJob = () => {
                   </div>
 
                   {/* Education Level */}
-                  <label htmlFor="educationLevel">&nbsp;&nbsp;Education Level</label>
+                  <label htmlFor="educationLevel">
+                    &nbsp;&nbsp;Education Level
+                  </label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <select
@@ -931,7 +1022,7 @@ const PostJob = () => {
                         type="text"
                         name="salaryFrom"
                         className="form-control"
-                        style={{ padding: '5px 30px' }}
+                        style={{ padding: "5px 30px" }}
                         placeholder="From"
                         value={formData.salaryFrom}
                         onChange={handleChange}
@@ -942,7 +1033,7 @@ const PostJob = () => {
                         type="text"
                         name="salaryTo"
                         className="form-control"
-                        style={{ padding: '5px 30px' }}
+                        style={{ padding: "5px 30px" }}
                         placeholder="To"
                         value={formData.salaryTo}
                         onChange={handleChange}
@@ -961,16 +1052,18 @@ const PostJob = () => {
                       </select>
                     </div>
                   </div>
-                  
+
                   {/* Openings */}
-                  <label htmlFor="openings">&nbsp;&nbsp;Number of Openings</label>
+                  <label htmlFor="openings">
+                    &nbsp;&nbsp;Number of Openings
+                  </label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <input
                         type="text"
                         name="openings"
                         className="form-control"
-                        style={{ padding: '5px 30px' }}
+                        style={{ padding: "5px 30px" }}
                         placeholder="Number of positions available"
                         value={formData.openings}
                         onChange={handleChange}
@@ -986,7 +1079,7 @@ const PostJob = () => {
                         type="text"
                         name="location"
                         className="form-control"
-                        style={{ padding: '5px 30px' }}
+                        style={{ padding: "5px 30px" }}
                         placeholder="Location (e.g., City, State)"
                         value={formData.location}
                         onChange={handleChange}
@@ -999,7 +1092,8 @@ const PostJob = () => {
                           name="isRemote"
                           checked={formData.isRemote}
                           onChange={handleChange}
-                        /> Remote Work Available
+                        />{" "}
+                        Remote Work Available
                       </label>
                     </div>
                   </div>
@@ -1014,7 +1108,7 @@ const PostJob = () => {
                           value={skillsInput}
                           onChange={handleSkillsChange}
                           className="form-control"
-                          style={{ padding: '5px 30px' }}
+                          style={{ padding: "5px 30px" }}
                           placeholder="Add skills (press Enter or click Add)"
                         />
                         <button
@@ -1057,28 +1151,103 @@ const PostJob = () => {
                     </div>
                   </div>
 
-                  {/* Contact Information */}
+                  {/* Contact Information with OTP - FIXED LAYOUT */}
                   <label>&nbsp;&nbsp;Contact Information</label>
-                  <div className="jobplugin__form-row">
-                    <div className="jobplugin__form-field">
+                  
+                  {/* Email and OTP row */}
+                  <div className="jobplugin__form-row" style={{ marginBottom: "15px" }}>
+                    <div className="jobplugin__form-field" style={{ flex: "2" }}>
                       <input
                         type="email"
                         name="contactEmail"
                         className="form-control"
-                        style={{ padding: '5px 30px' }}
+                        style={{ padding: "10px 15px" }}
                         placeholder="Contact Email"
                         value={formData.contactEmail}
                         onChange={handleChange}
+                        disabled={isOtpSent}
                         required
                       />
                     </div>
+                    <div className="jobplugin__form-field" style={{ flex: "1" }}>
+                      <input
+                        type="text"
+                        placeholder="Enter OTP"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        className="form-control"
+                        style={{ padding: "10px 15px" }}
+                        disabled={!isOtpSent}
+                        maxLength="6"
+                      />
+                    </div>
+                    <div className="jobplugin__form-field" style={{ flex: "0 0 auto" }}>
+                      {!isOtpSent ? (
+                        <button
+                          type="button"
+                          onClick={sendOtp}
+                          className="btn btn-secondary"
+                          style={{
+                            whiteSpace: "nowrap",
+                            padding: "10px 15px",
+                            fontSize: "14px",
+                          }}
+                          disabled={isSendingOtp || !formData.contactEmail}
+                        >
+                          {isSendingOtp ? "Sending..." : "Send OTP"}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={verifyOtp}
+                          className={`btn ${
+                            isOtpVerified ? "btn-success" : "btn-primary"
+                          }`}
+                          style={{
+                            whiteSpace: "nowrap",
+                            padding: "10px 15px",
+                            fontSize: "14px",
+                          }}
+                          disabled={isVerifyingOtp || isOtpVerified}
+                        >
+                          {isVerifyingOtp
+                            ? "Verifying..."
+                            : isOtpVerified
+                            ? "✓ Verified"
+                            : "Verify"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Status messages */}
+                  <div style={{ marginBottom: "15px" }}>
+                    {isOtpSent && !isOtpVerified && (
+                      <small className="text-muted" style={{ display: "block", marginBottom: "5px" }}>
+                        📧 OTP sent to your email
+                      </small>
+                    )}
+                    {isOtpVerified && (
+                      <small className="text-success" style={{ display: "block", marginBottom: "5px" }}>
+                        ✅ Email verified successfully!
+                      </small>
+                    )}
+                    {otpError && (
+                      <div className="text-danger small" style={{ marginBottom: "5px" }}>
+                        ❌ {otpError}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Phone number field */}
+                  <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <input
                         type="text"
                         name="contactPhone"
                         className="form-control"
-                        style={{ padding: '5px 30px' }}
-                        placeholder="Contact Phone"
+                        style={{ padding: "10px 15px" }}
+                        placeholder="Contact Phone Number"
                         value={formData.contactPhone}
                         onChange={handleChange}
                       />
@@ -1086,14 +1255,16 @@ const PostJob = () => {
                   </div>
 
                   {/* Company URL */}
-                  <label htmlFor="companyUrl">&nbsp;&nbsp;Company Website</label>
+                  <label htmlFor="companyUrl">
+                    &nbsp;&nbsp;Company Website
+                  </label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <input
                         type="url"
                         name="companyUrl"
                         className="form-control"
-                        style={{ padding: '5px 30px' }}
+                        style={{ padding: "5px 30px" }}
                         placeholder="Company Website URL"
                         value={formData.companyUrl}
                         onChange={handleChange}
@@ -1102,7 +1273,9 @@ const PostJob = () => {
                   </div>
 
                   {/* Application Instructions */}
-                  <label htmlFor="applicationInstructions">&nbsp;&nbsp;Application Instructions</label>
+                  <label htmlFor="applicationInstructions">
+                    &nbsp;&nbsp;Application Instructions
+                  </label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <textarea
@@ -1117,14 +1290,16 @@ const PostJob = () => {
                   </div>
 
                   {/* Deadline */}
-                  <label htmlFor="deadline">&nbsp;&nbsp;Application Deadline</label>
+                  <label htmlFor="deadline">
+                    &nbsp;&nbsp;Application Deadline
+                  </label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <input
                         type="date"
                         name="deadline"
                         className="form-control"
-                        style={{ padding: '5px 30px' }}
+                        style={{ padding: "5px 30px" }}
                         value={formData.deadline}
                         onChange={handleChange}
                       />
@@ -1172,16 +1347,22 @@ const PostJob = () => {
                   <button
                     type="submit"
                     className="jobplugin__button large jobplugin__bg-primary hover:jobplugin__bg-secondary"
-                    disabled={loading}
+                    disabled={loading || !isOtpVerified}
                   >
                     {loading ? (
                       <>
-                        <i className="icon icon-spinner spinner" style={{ fontSize: '14px' }}></i>
+                        <i
+                          className="icon icon-spinner spinner"
+                          style={{ fontSize: "14px" }}
+                        ></i>
                         &nbsp;Posting Job...
                       </>
                     ) : (
                       <>
-                        <i className="icon icon-check-circle text-primary" style={{ fontSize: '14px' }}></i>
+                        <i
+                          className="icon icon-check-circle text-primary"
+                          style={{ fontSize: "14px" }}
+                        ></i>
                         &nbsp;Post Job
                       </>
                     )}
@@ -1194,19 +1375,19 @@ const PostJob = () => {
         </div>
       </main>
 
-      {/* Add some CSS for the skills tags */}
+      {/* CSS for styling */}
       <style jsx>{`
         .skills-input-container {
           display: flex;
           align-items: center;
         }
-        
+
         .skills-tags {
           display: flex;
           flex-wrap: wrap;
           gap: 5px;
         }
-        
+
         .skill-tag {
           background-color: #e0e0e0;
           padding: 3px 8px;
@@ -1214,7 +1395,7 @@ const PostJob = () => {
           display: flex;
           align-items: center;
         }
-        
+
         .skill-remove {
           background: none;
           border: none;
@@ -1222,7 +1403,7 @@ const PostJob = () => {
           margin-left: 5px;
           color: #666;
         }
-        
+
         .skill-remove:hover {
           color: #f00;
         }

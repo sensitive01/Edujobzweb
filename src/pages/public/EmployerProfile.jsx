@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { FaArrowLeft, FaPowerOff, FaEdit, FaLink, FaFilePdf } from 'react-icons/fa';
+import { FaArrowLeft, FaPowerOff, FaEdit, FaLink, FaFilePdf, FaKey, FaTimes } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-import { getEmployeeDetails } from '../../api/services/projectServices';
+import { getEmployeeDetails, 
+  changePassword
+ } from '../../api/services/projectServices';
 
 const EmployeProfile = () => {
   const [employeeData, setEmployeeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
@@ -37,6 +46,71 @@ const EmployeProfile = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
     navigate('/login');
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setPasswordError('');
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validation
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      setPasswordError('All fields are required');
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError('New password and confirm password do not match');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError('New password must be at least 6 characters long');
+      return;
+    }
+
+    try {
+      setPasswordLoading(true);
+      const token = localStorage.getItem('authToken');
+      const userData = JSON.parse(localStorage.getItem('userData'));
+
+      await changePassword({
+        userId: userData._id,
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
+
+      // Success - close modal and show success message
+      setShowPasswordModal(false);
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+      alert('Password changed successfully!');
+      
+    } catch (err) {
+      setPasswordError(err.message || 'Failed to change password');
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const closePasswordModal = () => {
+    setShowPasswordModal(false);
+    setPasswordData({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    setPasswordError('');
   };
 
   const formatDate = (dateString) => {
@@ -115,6 +189,12 @@ const EmployeProfile = () => {
                     <FaArrowLeft /> &nbsp; Back to Dashboard
                   </Link>
                   <button
+                    onClick={() => setShowPasswordModal(true)}
+                    className="jobplugin__button border-dark shadow bg-warning hover:jobplugin__bg-warning-dark small"
+                  >
+                    <FaKey /> &nbsp; Change Password
+                  </button>
+                  <button
                     onClick={handleLogout}
                     className="jobplugin__button border-dark shadow bg-primary hover:jobplugin__bg-secondary small"
                   >
@@ -122,6 +202,117 @@ const EmployeProfile = () => {
                   </button>
                 </div>
               </div>
+
+              {/* Password Change Modal */}
+              {showPasswordModal && (
+                <div 
+                  className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
+                  style={{zIndex: 1050, backgroundColor: 'rgba(0,0,0,0.5)'}}
+                >
+                  <div 
+                    className="bg-white shadow-lg" 
+                    style={{
+                      maxWidth: '380px', 
+                      width: '90%',
+                      borderRadius: '8px'
+                    }}
+                  >
+                    {/* Modal Header */}
+                    <div className="px-3 py-3 border-bottom d-flex justify-content-between align-items-center">
+                      <h5 className="mb-0 fw-bold">Change Password</h5>
+                      <button 
+                        type="button" 
+                        className="border-0 bg-transparent"
+                        onClick={closePasswordModal}
+                        style={{cursor: 'pointer'}}
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+
+                    {/* Modal Body */}
+                    <div className="px-3 py-3">
+                      <form onSubmit={handlePasswordSubmit}>
+                        <div className="mb-3">
+                          <label htmlFor="currentPassword" className="form-label mb-1" style={{fontSize: '14px'}}>
+                            Current Password
+                          </label>
+                          <input
+                            type="password"
+                            className="form-control form-control-sm"
+                            id="currentPassword"
+                            name="currentPassword"
+                            value={passwordData.currentPassword}
+                            onChange={handlePasswordChange}
+                            style={{borderRadius: '6px', padding: '8px 12px'}}
+                            required
+                          />
+                        </div>
+
+                        <div className="mb-3">
+                          <label htmlFor="newPassword" className="form-label mb-1" style={{fontSize: '14px'}}>
+                            New Password
+                          </label>
+                          <input
+                            type="password"
+                            className="form-control form-control-sm"
+                            id="newPassword"
+                            name="newPassword"
+                            value={passwordData.newPassword}
+                            onChange={handlePasswordChange}
+                            minLength="6"
+                            style={{borderRadius: '6px', padding: '8px 12px'}}
+                            required
+                          />
+                        </div>
+
+                        <div className="mb-3">
+                          <label htmlFor="confirmPassword" className="form-label mb-1" style={{fontSize: '14px'}}>
+                            Confirm Password
+                          </label>
+                          <input
+                            type="password"
+                            className="form-control form-control-sm"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            value={passwordData.confirmPassword}
+                            onChange={handlePasswordChange}
+                            style={{borderRadius: '6px', padding: '8px 12px'}}
+                            required
+                          />
+                        </div>
+
+                        {passwordError && (
+                          <div className="alert alert-danger py-2 mb-3" style={{fontSize: '13px'}}>
+                            {passwordError}
+                          </div>
+                        )}
+
+                        {/* Modal Footer */}
+                        <div className="d-flex gap-2 justify-content-end">
+                          <button 
+                            type="button" 
+                            className="btn btn-sm btn-secondary"
+                            onClick={closePasswordModal}
+                            disabled={passwordLoading}
+                            style={{padding: '6px 16px'}}
+                          >
+                            Cancel
+                          </button>
+                          <button 
+                            type="submit" 
+                            className="btn btn-sm btn-primary"
+                            disabled={passwordLoading}
+                            style={{padding: '6px 16px'}}
+                          >
+                            {passwordLoading ? 'Changing...' : 'Change'}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="jobplugin__profile-container">
                 <aside className="jobplugin__profile-aside">
@@ -237,7 +428,6 @@ const EmployeProfile = () => {
                       <div>
                         <h6 className="fw-medium mb-3">Video Profile</h6>
                         {employeeData.profileVideo?.url ? (
-                          // <div className="bg-light rounded-lg overflow-hidden">
                           <div className="rounded-lg overflow-hidden">
                             <div className="p-3">
                               <div className="d-flex align-items-center mb-2">
