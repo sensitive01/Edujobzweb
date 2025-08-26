@@ -286,6 +286,7 @@ function App() {
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path='/signup' element={<SignupPage />} />
               <Route path='/employee-registration' element={<EmployeeRegistration />} />
+
               <Route path='/school-registration' element={<SchoolRegistration />} />
               <Route path='*' element={<NotFoundPage />} />
             </Routes>

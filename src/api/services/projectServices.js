@@ -333,7 +333,11 @@ export const fetchEmployerAdminProfile = async (id) => {
   }
 };
 
-export const changePassword = async ({userId, currentPassword, newPassword}) => {
+export const changePassword = async ({
+  userId,
+  currentPassword,
+  newPassword,
+}) => {
   try {
     const response = await projectServices.put(
       `/employeee-change-password/${userId}`,
@@ -341,6 +345,17 @@ export const changePassword = async ({userId, currentPassword, newPassword}) => 
         currentPassword,
         newPassword,
       }
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};
+
+export const verifyTheUserExistOrNot = async (email) => {
+  try {
+    const response = await projectServices.get(
+      `/verify-the-candidate-register-or-not/${email}`
     );
     return response.data;
   } catch (error) {

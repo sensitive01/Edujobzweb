@@ -38,7 +38,7 @@
 //       ...prev,
 //       [name]: type === 'checkbox' ? checked : value
 //     }));
-    
+
 //     if (errors[name]) {
 //       setErrors(prev => ({
 //         ...prev,
@@ -60,20 +60,20 @@
 //     e.preventDefault();
 //     setApiError(null);
 //     setRegistrationSuccess(false);
-    
+
 //     const validationErrors = validationsEmployeer(formData);
 //     if (Object.keys(validationErrors).length > 0) {
 //       setErrors(validationErrors);
 //       return;
 //     }
-    
+
 //     if (!formData.agreeTerms) {
 //       setApiError('You must agree to the terms and privacy policy');
 //       return;
 //     }
 
 //     setIsSubmitting(true);
-    
+
 //     try {
 //       const payload = {
 //         schoolName: formData.schoolName,
@@ -82,9 +82,9 @@
 //         userPassword: formData.userPassword,
 //         sendEmails: formData.sendEmails
 //       };
-      
+
 //       const response = await registerSchool(payload);
-      
+
 //       if (response.data && response.data.success) {
 //         setRegistrationSuccess(true);
 //         // Clear form on successful registration
@@ -104,7 +104,7 @@
 //       console.error('Registration error:', err);
 //       const errorMessage = err.response?.data?.message || 'An error occurred during registration';
 //       setApiError(errorMessage);
-      
+
 //       if (err.response?.data?.errors) {
 //         setErrors(err.response.data.errors);
 //       }
@@ -159,8 +159,8 @@
 //                               <div className="d-flex flex-column">
 //                                 <span>Registration successful!</span>
 //                                 <div className="mt-2">
-//                                   <Link 
-//                                     to="/employer/login" 
+//                                   <Link
+//                                     to="/employer/login"
 //                                     className="btn btn-sm btn-success"
 //                                   >
 //                                     Proceed to Login
@@ -334,9 +334,9 @@
 //                               </div>
 //                               {errors.agreeTerms && <div className="text-danger mb-3">{errors.agreeTerms}</div>}
 //                               <div className="mb-3">
-//                                 <button 
-//                                   type="submit" 
-//                                   className="btn btn-primary w-100" 
+//                                 <button
+//                                   type="submit"
+//                                   className="btn btn-primary w-100"
 //                                   disabled={!formData.agreeTerms || isSubmitting}
 //                                 >
 //                                   {isSubmitting ? (
@@ -430,34 +430,33 @@
 
 // export default EmployeeRegister;
 
-
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { registerSchool } from '../../api/services/projectServices';
-import { validationsEmployeer } from '../../utils/validationsEmployeer';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import axios from 'axios';
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { registerSchool } from "../../api/services/projectServices";
+import { validationsEmployeer } from "../../utils/validationsEmployeer";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import axios from "axios";
 
 // Import images
-import logo from '../../assets/employer/assets/img/logo.svg';
-import bg1 from '../../assets/employer/assets/img/bg/bg-01.webp';
-import bg2 from '../../assets/employer/assets/img/bg/bg-02.png';
-import bg3 from '../../assets/employer/assets/img/bg/bg-03.webp';
-import authBg from '../../assets/employer/assets/img/bg/authentication-bg-01.webp';
-import facebookLogo from '../../assets/employer/assets/img/icons/facebook-logo.svg';
-import googleLogo from '../../assets/employer/assets/img/icons/google-logo.svg';
-import appleLogo from '../../assets/employer/assets/img/icons/apple-logo.svg';
+import logo from "../../assets/employer/assets/img/logo.svg";
+import bg1 from "../../assets/employer/assets/img/bg/bg-01.webp";
+import bg2 from "../../assets/employer/assets/img/bg/bg-02.png";
+import bg3 from "../../assets/employer/assets/img/bg/bg-03.webp";
+import authBg from "../../assets/employer/assets/img/bg/authentication-bg-01.webp";
+import facebookLogo from "../../assets/employer/assets/img/icons/facebook-logo.svg";
+import googleLogo from "../../assets/employer/assets/img/icons/google-logo.svg";
+import appleLogo from "../../assets/employer/assets/img/icons/apple-logo.svg";
 
 const EmployeeRegister = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    schoolName: '',
-    userEmail: '',
-    userMobile: '',
-    userPassword: '',
-    confirmPassword: '',
+    schoolName: "",
+    userEmail: "",
+    userMobile: "",
+    userPassword: "",
+    confirmPassword: "",
     sendEmails: false,
-    agreeTerms: false
+    agreeTerms: false,
   });
   const [errors, setErrors] = useState({});
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -467,24 +466,24 @@ const EmployeeRegister = () => {
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   // State for OTP functionality
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState("");
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
-  const [otpError, setOtpError] = useState('');
+  const [otpError, setOtpError] = useState("");
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
-    
+
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
     if (apiError) setApiError(null);
@@ -501,32 +500,35 @@ const EmployeeRegister = () => {
   // Send OTP to backend
   const sendOtp = async () => {
     if (!formData.userEmail) {
-      setOtpError('Please enter your email address first');
+      setOtpError("Please enter your email address first");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.userEmail)) {
-      setOtpError('Please enter a valid email address');
+      setOtpError("Please enter a valid email address");
       return;
     }
 
     setIsSendingOtp(true);
-    setOtpError('');
+    setOtpError("");
 
     try {
-      const response = await axios.post('https://edujobemailverification.onrender.com/api/send-otp', {
-        email: formData.userEmail
-      });
+      const response = await axios.post(
+        "https://edujobemailverification.onrender.com/api/send-otp",
+        {
+          email: formData.userEmail,
+        }
+      );
 
       if (response.data.success) {
         setIsOtpSent(true);
-        setOtpError('');
+        setOtpError("");
       } else {
-        setOtpError(response.data.error || 'Failed to send OTP');
+        setOtpError(response.data.error || "Failed to send OTP");
       }
     } catch (error) {
-      setOtpError(error.response?.data?.error || 'Failed to send OTP');
+      setOtpError(error.response?.data?.error || "Failed to send OTP");
     } finally {
       setIsSendingOtp(false);
     }
@@ -535,28 +537,31 @@ const EmployeeRegister = () => {
   // Verify OTP with backend
   const verifyOtp = async () => {
     if (!otp || otp.length !== 6) {
-      setOtpError('Please enter a 6-digit OTP');
+      setOtpError("Please enter a 6-digit OTP");
       return;
     }
 
     setIsVerifyingOtp(true);
-    setOtpError('');
+    setOtpError("");
 
     try {
-      const response = await axios.post('https://edujobemailverification.onrender.com/api/verify-otp', {
-        email: formData.userEmail,
-        otp
-      });
+      const response = await axios.post(
+        "https://edujobemailverification.onrender.com/api/verify-otp",
+        {
+          email: formData.userEmail,
+          otp,
+        }
+      );
 
       if (response.data.success) {
         setIsOtpVerified(true);
-        setOtpError('');
+        setOtpError("");
       } else {
-        setOtpError(response.data.error || 'Invalid OTP');
+        setOtpError(response.data.error || "Invalid OTP");
         setIsOtpVerified(false);
       }
     } catch (error) {
-      setOtpError(error.response?.data?.error || 'Verification failed');
+      setOtpError(error.response?.data?.error || "Verification failed");
       setIsOtpVerified(false);
     } finally {
       setIsVerifyingOtp(false);
@@ -567,7 +572,7 @@ const EmployeeRegister = () => {
   //   e.preventDefault();
   //   setApiError(null);
   //   setRegistrationSuccess(false);
-    
+
   //   // Validate OTP verification
   //   if (!isOtpVerified) {
   //     setApiError('Please verify your email with OTP');
@@ -579,14 +584,14 @@ const EmployeeRegister = () => {
   //     setErrors(validationErrors);
   //     return;
   //   }
-    
+
   //   if (!formData.agreeTerms) {
   //     setApiError('You must agree to the terms and privacy policy');
   //     return;
   //   }
 
   //   setIsSubmitting(true);
-    
+
   //   try {
   //     const payload = {
   //       schoolName: formData.schoolName,
@@ -595,9 +600,9 @@ const EmployeeRegister = () => {
   //       userPassword: formData.userPassword,
   //       sendEmails: formData.sendEmails
   //     };
-      
+
   //     const response = await registerSchool(payload);
-      
+
   //     if (response.data && response.data.success) {
   //       setRegistrationSuccess(true);
   //       // Clear form on successful registration
@@ -617,7 +622,7 @@ const EmployeeRegister = () => {
   //     console.error('Registration error:', err);
   //     const errorMessage = err.response?.data?.message || 'An error occurred during registration';
   //     setApiError(errorMessage);
-      
+
   //     if (err.response?.data?.errors) {
   //       setErrors(err.response.data.errors);
   //     }
@@ -626,107 +631,110 @@ const EmployeeRegister = () => {
   //   }
   // };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setApiError(null);
-  setRegistrationSuccess(false);
-  
-  // Validate OTP verification
-  if (!isOtpVerified) {
-    setApiError('Please verify your email with OTP');
-    return;
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setApiError(null);
+    setRegistrationSuccess(false);
 
-  const validationErrors = validationsEmployeer(formData);
-  if (Object.keys(validationErrors).length > 0) {
-    setErrors(validationErrors);
-    return;
-  }
-  
-  if (!formData.agreeTerms) {
-    setApiError('You must agree to the terms and privacy policy');
-    return;
-  }
-
-  setIsSubmitting(true);
-  
-  try {
-    const payload = {
-      schoolName: formData.schoolName,
-      userEmail: formData.userEmail,
-      userMobile: formData.userMobile,
-      userPassword: formData.userPassword,
-      sendEmails: formData.sendEmails
-    };
-    
-    const response = await registerSchool(payload);
-    
-    if (response.data && response.data.success) {
-      setRegistrationSuccess(true);
-      // Clear form on successful registration
-      setFormData({
-        schoolName: '',
-        userEmail: '',
-        userMobile: '',
-        userPassword: '',
-        confirmPassword: '',
-        sendEmails: false,
-        agreeTerms: false
-      });
-    } else {
-      setApiError(response.data.message || 'Registration failed. Please try again.');
+    // Validate OTP verification
+    if (!isOtpVerified) {
+      setApiError("Please verify your email with OTP");
+      return;
     }
-  } catch (err) {
-    console.error('Registration error:', err);
-    const errorMessage = err.response?.data?.message || 'An error occurred during registration';
-    
-    // Handle duplicate email/mobile errors
-    if (err.response?.data?.errors) {
-      const errorData = err.response.data.errors;
-      
-      // Check for duplicate email error
-      if (errorData.some(e => e.path === 'userEmail')) {
-        setApiError('Email address is already registered');
-        setErrors(prev => ({
-          ...prev,
-          userEmail: 'This email is already registered'
-        }));
+
+    const validationErrors = validationsEmployeer(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    if (!formData.agreeTerms) {
+      setApiError("You must agree to the terms and privacy policy");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
+        schoolName: formData.schoolName,
+        userEmail: formData.userEmail,
+        userMobile: formData.userMobile,
+        userPassword: formData.userPassword,
+        sendEmails: formData.sendEmails,
+      };
+
+      const response = await registerSchool(payload);
+
+      if (response.data && response.data.success) {
+        setRegistrationSuccess(true);
+        // Clear form on successful registration
+        setFormData({
+          schoolName: "",
+          userEmail: "",
+          userMobile: "",
+          userPassword: "",
+          confirmPassword: "",
+          sendEmails: false,
+          agreeTerms: false,
+        });
+      } else {
+        setApiError(
+          response.data.message || "Registration failed. Please try again."
+        );
       }
-      // Check for duplicate mobile error
-      else if (errorData.some(e => e.path === 'userMobile')) {
-        setApiError('Mobile number is already registered');
-        setErrors(prev => ({
-          ...prev,
-          userMobile: 'This mobile number is already registered'
-        }));
+    } catch (err) {
+      console.error("Registration error:", err);
+      const errorMessage =
+        err.response?.data?.message || "An error occurred during registration";
+
+      // Handle duplicate email/mobile errors
+      if (err.response?.data?.errors) {
+        const errorData = err.response.data.errors;
+
+        // Check for duplicate email error
+        if (errorData.some((e) => e.path === "userEmail")) {
+          setApiError("Email address is already registered");
+          setErrors((prev) => ({
+            ...prev,
+            userEmail: "This email is already registered",
+          }));
+        }
+        // Check for duplicate mobile error
+        else if (errorData.some((e) => e.path === "userMobile")) {
+          setApiError("Mobile number is already registered");
+          setErrors((prev) => ({
+            ...prev,
+            userMobile: "This mobile number is already registered",
+          }));
+        } else {
+          setApiError(errorMessage);
+        }
+      }
+      // Handle generic duplicate errors from error message
+      else if (errorMessage.includes("already exists")) {
+        if (errorMessage.includes("email")) {
+          setApiError("Email address is already registered");
+          setErrors((prev) => ({
+            ...prev,
+            userEmail: "This email is already registered",
+          }));
+        } else if (errorMessage.includes("mobile")) {
+          setApiError("Mobile number is already registered");
+          setErrors((prev) => ({
+            ...prev,
+            userMobile: "This mobile number is already registered",
+          }));
+        } else {
+          setApiError(errorMessage);
+        }
       } else {
         setApiError(errorMessage);
       }
-    } 
-    // Handle generic duplicate errors from error message
-    else if (errorMessage.includes('already exists')) {
-      if (errorMessage.includes('email')) {
-        setApiError('Email address is already registered');
-        setErrors(prev => ({
-          ...prev,
-          userEmail: 'This email is already registered'
-        }));
-      } else if (errorMessage.includes('mobile')) {
-        setApiError('Mobile number is already registered');
-        setErrors(prev => ({
-          ...prev,
-          userMobile: 'This mobile number is already registered'
-        }));
-      } else {
-        setApiError(errorMessage);
-      }
-    } else {
-      setApiError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+  };
 
   return (
     <div className="bg-white">
@@ -744,7 +752,10 @@ const handleSubmit = async (e) => {
                   </div>
                   <div className="authentication-card w-100">
                     <div className="authen-overlay-item border w-100">
-                      <h1 className="text-white display-1" style={{ textAlign: 'center' }}>
+                      <h1
+                        className="text-white display-1"
+                        style={{ textAlign: "center" }}
+                      >
                         Empowering Schools through seamless Staff management.
                       </h1>
                       <div className="my-4 mx-auto authen-overlay-img">
@@ -752,7 +763,8 @@ const handleSubmit = async (e) => {
                       </div>
                       <div>
                         <p className="text-white fs-20 fw-semibold text-center">
-                          Efficiently manage your workforce, streamline <br /> operations effortlessly.
+                          Efficiently manage your workforce, streamline <br />{" "}
+                          operations effortlessly.
                         </p>
                       </div>
                     </div>
@@ -765,17 +777,25 @@ const handleSubmit = async (e) => {
                     <form onSubmit={handleSubmit} className="vh-100" noValidate>
                       <div className="vh-100 d-flex flex-column justify-content-between p-4 pb-0">
                         <div className="mx-auto mb-4 text-center">
-                          <img src={logo} width="240px" className="img-fluid" alt="Logo" />
+                          <img
+                            src={logo}
+                            width="240px"
+                            className="img-fluid"
+                            alt="Logo"
+                          />
                         </div>
                         <div>
                           {/* Success and Error Messages */}
                           {registrationSuccess && (
-                            <div className="alert alert-success mb-3" role="alert">
+                            <div
+                              className="alert alert-success mb-3"
+                              role="alert"
+                            >
                               <div className="d-flex flex-column">
                                 <span>Registration successful!</span>
                                 <div className="mt-2">
-                                  <Link 
-                                    to="/employer/login" 
+                                  <Link
+                                    to="/employer/login"
                                     className="btn btn-sm btn-success"
                                   >
                                     Proceed to Login
@@ -785,7 +805,10 @@ const handleSubmit = async (e) => {
                             </div>
                           )}
                           {apiError && (
-                            <div className="alert alert-danger mb-3" role="alert">
+                            <div
+                              className="alert alert-danger mb-3"
+                              role="alert"
+                            >
                               {apiError}
                             </div>
                           )}
@@ -794,41 +817,59 @@ const handleSubmit = async (e) => {
                             <>
                               <div className="text-center mb-3">
                                 <h2 className="mb-2">Sign Up</h2>
-                                <p className="mb-0">Please enter your details to sign up</p>
+                                <p className="mb-0">
+                                  Please enter your details to sign up
+                                </p>
                               </div>
                               <div className="mb-3">
-                                <label className="form-label">School Name</label>
+                                <label className="form-label">
+                                  School Name
+                                </label>
                                 <div className="input-group">
                                   <input
                                     type="text"
                                     name="schoolName"
                                     value={formData.schoolName}
                                     onChange={handleChange}
-                                    className={`form-control border-end-0 ${errors.schoolName ? 'is-invalid' : ''}`}
+                                    className={`form-control border-end-0 ${
+                                      errors.schoolName ? "is-invalid" : ""
+                                    }`}
                                     required
                                   />
                                   <span className="input-group-text border-start-0">
                                     <i className="ti ti-school"></i>
                                   </span>
-                                  {errors.schoolName && <div className="invalid-feedback">{errors.schoolName}</div>}
+                                  {errors.schoolName && (
+                                    <div className="invalid-feedback">
+                                      {errors.schoolName}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                               <div className="mb-3">
-                                <label className="form-label">Email Address</label>
+                                <label className="form-label">
+                                  Email Address
+                                </label>
                                 <div className="input-group">
                                   <input
                                     type="email"
                                     name="userEmail"
                                     value={formData.userEmail}
                                     onChange={handleChange}
-                                    className={`form-control border-end-0 ${errors.userEmail ? 'is-invalid' : ''}`}
+                                    className={`form-control border-end-0 ${
+                                      errors.userEmail ? "is-invalid" : ""
+                                    }`}
                                     required
                                     disabled={isOtpSent}
                                   />
                                   <span className="input-group-text border-start-0">
                                     <i className="ti ti-mail"></i>
                                   </span>
-                                  {errors.userEmail && <div className="invalid-feedback">{errors.userEmail}</div>}
+                                  {errors.userEmail && (
+                                    <div className="invalid-feedback">
+                                      {errors.userEmail}
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="d-flex align-items-center mt-2">
                                   <input
@@ -837,7 +878,7 @@ const handleSubmit = async (e) => {
                                     value={otp}
                                     onChange={(e) => setOtp(e.target.value)}
                                     className="form-control me-2"
-                                    style={{ width: '150px' }}
+                                    style={{ width: "150px" }}
                                     disabled={!isOtpSent}
                                     maxLength="6"
                                   />
@@ -846,111 +887,169 @@ const handleSubmit = async (e) => {
                                       type="button"
                                       onClick={sendOtp}
                                       className="btn btn-outline-primary"
-                                      disabled={isSendingOtp || !formData.userEmail || errors.userEmail}
+                                      disabled={
+                                        isSendingOtp ||
+                                        !formData.userEmail ||
+                                        errors.userEmail
+                                      }
                                     >
-                                      {isSendingOtp ? 'Sending...' : 'Send OTP'}
+                                      {isSendingOtp ? "Sending..." : "Send OTP"}
                                     </button>
                                   ) : (
                                     <button
                                       type="button"
                                       onClick={verifyOtp}
-                                      className={`btn ${isOtpVerified ? 'btn-success' : 'btn-primary'}`}
+                                      className={`btn ${
+                                        isOtpVerified
+                                          ? "btn-success"
+                                          : "btn-primary"
+                                      }`}
                                       disabled={isVerifyingOtp || isOtpVerified}
                                     >
-                                      {isVerifyingOtp ? 'Verifying...' : isOtpVerified ? 'Verified' : 'Verify'}
+                                      {isVerifyingOtp
+                                        ? "Verifying..."
+                                        : isOtpVerified
+                                        ? "Verified"
+                                        : "Verify"}
                                     </button>
                                   )}
                                 </div>
                                 {isOtpSent && !isOtpVerified && (
-                                  <small className="text-muted">OTP sent to your email</small>
+                                  <small className="text-muted">
+                                    OTP sent to your email
+                                  </small>
                                 )}
                                 {isOtpVerified && (
-                                  <small className="text-success">Email verified successfully!</small>
+                                  <small className="text-success">
+                                    Email verified successfully!
+                                  </small>
                                 )}
                                 {otpError && (
-                                  <div className="text-danger small mt-1">{otpError}</div>
+                                  <div className="text-danger small mt-1">
+                                    {otpError}
+                                  </div>
                                 )}
                               </div>
                               <div className="mb-3">
-                                <label className="form-label">Mobile Number</label>
+                                <label className="form-label">
+                                  Mobile Number
+                                </label>
                                 <div className="input-group">
                                   <input
                                     type="tel"
                                     name="userMobile"
                                     value={formData.userMobile}
                                     onChange={handleChange}
-                                    className={`form-control border-end-0 ${errors.userMobile ? 'is-invalid' : ''}`}
+                                    className={`form-control border-end-0 ${
+                                      errors.userMobile ? "is-invalid" : ""
+                                    }`}
                                     required
                                     placeholder="Enter your 10-digit mobile number"
                                   />
                                   <span className="input-group-text border-start-0">
                                     <i className="ti ti-phone"></i>
                                   </span>
-                                  {errors.userMobile && <div className="invalid-feedback">{errors.userMobile}</div>}
+                                  {errors.userMobile && (
+                                    <div className="invalid-feedback">
+                                      {errors.userMobile}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                               <div className="mb-3">
                                 <label className="form-label">Password</label>
-                                <div className="pass-group" style={{ position: 'relative' }}>
+                                <div
+                                  className="pass-group"
+                                  style={{ position: "relative" }}
+                                >
                                   <input
                                     type={passwordVisible ? "text" : "password"}
                                     name="userPassword"
                                     value={formData.userPassword}
                                     onChange={handleChange}
-                                    className={`form-control ${errors.userPassword ? 'is-invalid' : ''}`}
+                                    className={`form-control ${
+                                      errors.userPassword ? "is-invalid" : ""
+                                    }`}
                                     required
-                                    style={{ paddingRight: '40px' }}
+                                    style={{ paddingRight: "40px" }}
                                   />
                                   <button
                                     type="button"
                                     onClick={togglePasswordVisibility}
                                     style={{
-                                      position: 'absolute',
-                                      right: '10px',
-                                      top: '50%',
-                                      transform: 'translateY(-50%)',
-                                      background: 'none',
-                                      border: 'none',
-                                      cursor: 'pointer',
-                                      color: '#6c757d',
-                                      padding: '5px'
+                                      position: "absolute",
+                                      right: "10px",
+                                      top: "50%",
+                                      transform: "translateY(-50%)",
+                                      background: "none",
+                                      border: "none",
+                                      cursor: "pointer",
+                                      color: "#6c757d",
+                                      padding: "5px",
                                     }}
                                   >
-                                    {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+                                    {passwordVisible ? (
+                                      <FaEyeSlash />
+                                    ) : (
+                                      <FaEye />
+                                    )}
                                   </button>
-                                  {errors.userPassword && <div className="invalid-feedback">{errors.userPassword}</div>}
+                                  {errors.userPassword && (
+                                    <div className="invalid-feedback">
+                                      {errors.userPassword}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                               <div className="mb-3">
-                                <label className="form-label">Confirm Password</label>
-                                <div className="pass-group" style={{ position: 'relative' }}>
+                                <label className="form-label">
+                                  Confirm Password
+                                </label>
+                                <div
+                                  className="pass-group"
+                                  style={{ position: "relative" }}
+                                >
                                   <input
-                                    type={confirmPasswordVisible ? "text" : "password"}
+                                    type={
+                                      confirmPasswordVisible
+                                        ? "text"
+                                        : "password"
+                                    }
                                     name="confirmPassword"
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
-                                    className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
+                                    className={`form-control ${
+                                      errors.confirmPassword ? "is-invalid" : ""
+                                    }`}
                                     required
-                                    style={{ paddingRight: '40px' }}
+                                    style={{ paddingRight: "40px" }}
                                   />
                                   <button
                                     type="button"
                                     onClick={toggleConfirmPasswordVisibility}
                                     style={{
-                                      position: 'absolute',
-                                      right: '10px',
-                                      top: '50%',
-                                      transform: 'translateY(-50%)',
-                                      background: 'none',
-                                      border: 'none',
-                                      cursor: 'pointer',
-                                      color: '#6c757d',
-                                      padding: '5px'
+                                      position: "absolute",
+                                      right: "10px",
+                                      top: "50%",
+                                      transform: "translateY(-50%)",
+                                      background: "none",
+                                      border: "none",
+                                      cursor: "pointer",
+                                      color: "#6c757d",
+                                      padding: "5px",
                                     }}
                                   >
-                                    {confirmPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                                    {confirmPasswordVisible ? (
+                                      <FaEyeSlash />
+                                    ) : (
+                                      <FaEye />
+                                    )}
                                   </button>
-                                  {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
+                                  {errors.confirmPassword && (
+                                    <div className="invalid-feedback">
+                                      {errors.confirmPassword}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                               <div className="d-flex align-items-center justify-content-between mb-3">
@@ -964,7 +1063,10 @@ const handleSubmit = async (e) => {
                                       checked={formData.sendEmails}
                                       onChange={handleChange}
                                     />
-                                    <label htmlFor="sendEmails" className="form-check-label text-dark mt-0">
+                                    <label
+                                      htmlFor="sendEmails"
+                                      className="form-check-label text-dark mt-0"
+                                    >
                                       Send me helpful emails
                                     </label>
                                   </div>
@@ -982,33 +1084,60 @@ const handleSubmit = async (e) => {
                                       onChange={handleChange}
                                       required
                                     />
-                                    <label htmlFor="agreeTerms" className="form-check-label text-dark mt-0">
-                                      Agree to <span className="text-primary">Terms & Privacy</span>
+                                    <label
+                                      htmlFor="agreeTerms"
+                                      className="form-check-label text-dark mt-0"
+                                    >
+                                      Agree to{" "}
+                                      <span className="text-primary">
+                                        Terms & Privacy
+                                      </span>
                                     </label>
                                   </div>
                                 </div>
                               </div>
-                              {errors.agreeTerms && <div className="text-danger mb-3">{errors.agreeTerms}</div>}
+                              {errors.agreeTerms && (
+                                <div className="text-danger mb-3">
+                                  {errors.agreeTerms}
+                                </div>
+                              )}
                               <div className="mb-3">
-                                <button 
-                                  type="submit" 
-                                  className="btn btn-primary w-100" 
-                                  disabled={!formData.agreeTerms || isSubmitting || !isOtpVerified}
+                                <button
+                                  type="submit"
+                                  className="btn btn-primary w-100"
+                                  disabled={
+                                    !formData.agreeTerms ||
+                                    isSubmitting ||
+                                    !isOtpVerified
+                                  }
                                 >
                                   {isSubmitting ? (
                                     <>
-                                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                      <span
+                                        className="spinner-border spinner-border-sm me-2"
+                                        role="status"
+                                        aria-hidden="true"
+                                      ></span>
                                       Processing...
                                     </>
-                                  ) : 'Sign Up'}
+                                  ) : (
+                                    "Sign Up"
+                                  )}
                                 </button>
                               </div>
                             </>
                           ) : (
                             <div className="text-center">
-                              <h4 className="text-success mb-3">Registration Complete!</h4>
-                              <p className="mb-4">Your account has been successfully created.</p>
-                              <Link to="/employer/login" className="btn btn-primary">
+                              <h4 className="text-success mb-3">
+                                Registration Complete!
+                              </h4>
+                              <p className="mb-4">
+                                Your account has been successfully created.
+                              </p>
+                              <Link
+                                to="/employer/login"
+                                className="btn btn-primary"
+                              >
                                 Continue to Login
                               </Link>
                             </div>
@@ -1019,10 +1148,15 @@ const handleSubmit = async (e) => {
                               <div className="text-center">
                                 <h6 className="fw-normal text-dark mb-0">
                                   Already have an account?
-                                  <Link to="/employer/login" className="hover-a">Sign In</Link>
+                                  <Link
+                                    to="/employer/login"
+                                    className="hover-a"
+                                  >
+                                    Sign In
+                                  </Link>
                                 </h6>
                               </div>
-                              <div className="login-or">
+                              {/* <div className="login-or">
                                 <span className="span-or">Or</span>
                               </div>
                               <div className="mt-2">
@@ -1064,12 +1198,14 @@ const handleSubmit = async (e) => {
                                     </button>
                                   </div>
                                 </div>
-                              </div>
+                              </div> */}
                             </>
                           )}
                         </div>
                         <div className="mt-5 pb-4 text-center">
-                          <p className="mb-0 text-gray-9">Copyright &copy; 2025 - EduJobz</p>
+                          <p className="mb-0 text-gray-9">
+                            Copyright &copy; 2025 - EduJobz
+                          </p>
                         </div>
                       </div>
                     </form>

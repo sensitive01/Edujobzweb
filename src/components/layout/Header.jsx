@@ -173,7 +173,7 @@ const Header = () => {
                   </ul>
                 </li>
 
-                <li style={{ padding: '0px 15px' }} className="dropdown">
+                {/* <li style={{ padding: '0px 15px' }} className="dropdown">
                   <a className="dropdown-toggle" href="#" role="button" id="candidatesDropdown"
                     data-bs-toggle="dropdown" aria-expanded="false">
                     <FaUsers /> &nbsp; Candidates
@@ -197,7 +197,7 @@ const Header = () => {
                       </Link>
                     </li>
                   </ul>
-                </li>
+                </li> */}
 
                 <li style={{ padding: '0px 15px' }} className="dropdown">
                   <a className="dropdown-toggle" href="#" role="button" id="aboutDropdown"
@@ -272,7 +272,7 @@ const Header = () => {
                     ) : (
                       <>
                         <i className="icon icon-users" style={{ fontSize: '14px', color: '#fff' }}></i>
-                        Login
+                       Candidate Login
                       </>
                     )}
                   </button>

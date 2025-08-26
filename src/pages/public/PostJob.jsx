@@ -629,7 +629,7 @@ const PostJob = () => {
     companyUrl: "",
     applicationInstructions: "",
     deadline: "",
-    priority: "",
+    priority: "Medium",
     status: "Active",
   });
 
@@ -1307,7 +1307,7 @@ const PostJob = () => {
                   </div>
 
                   {/* Priority */}
-                  <label htmlFor="priority">&nbsp;&nbsp;Priority</label>
+                  {/* <label htmlFor="priority">&nbsp;&nbsp;Priority</label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <select
@@ -1322,10 +1322,10 @@ const PostJob = () => {
                         <option value="Low">Low</option>
                       </select>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Status */}
-                  <label htmlFor="status">&nbsp;&nbsp;Status</label>
+                  {/* <label htmlFor="status">&nbsp;&nbsp;Status</label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <select
@@ -1339,7 +1339,7 @@ const PostJob = () => {
                         <option value="Draft">Draft</option>
                       </select>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Submit Button */}

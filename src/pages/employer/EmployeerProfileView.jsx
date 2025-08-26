@@ -395,9 +395,9 @@ const EmployeerProfileView = () => {
               <button className="btn btn-warning" onClick={showModal}>
                 <i className="ti ti-edit me-1"></i>Edit School
               </button>
-              <button className="btn btn-secondary align-items-center ms-2">
+              {/* <button className="btn btn-secondary align-items-center ms-2">
                 <i className="ti ti-circle-plus me-2"></i>Bank & Statutory
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
