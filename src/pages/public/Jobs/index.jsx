@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Jobsbreadcrumb from './jobsbreadcrumb';
+import Jobsbreadcrumb from './Jobsbreadcrumb';
 import { Search } from 'lucide-react';
 import JobsFilter from './JobsFilter';
 import { useLocation } from 'react-router-dom';
