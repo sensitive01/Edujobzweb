@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import JobsFilter from './JobsFilter';
-import Jobsbreadcrumb from './jobsbreadcrumb';
+import Jobsbreadcrumb from './Jobsbreadcrumb';
 import { Filter, Search, X, Bookmark, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import defaultEmployeeAvatar from '../../../assets/employer-admin/assets/img/profiles/avatar-12.jpg';
