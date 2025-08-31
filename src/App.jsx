@@ -19,7 +19,7 @@ import Shortlisted from './pages/public/Shortlisted';
 import CertificatesTrainings from './pages/public/CertificatesTrainings';
 import Events from './pages/public/Events';
 import ReferAndEarn from './pages/public/ReferAndEarn';
-import Notifications from './pages/public/notifications';
+import Notifications from './pages/public/Notifications';
 import Inbox from './pages/public/Inbox';
 import UserDashboard from './pages/public/UserDashboard';
 import LoginPage from './pages/public/Login/Login';
