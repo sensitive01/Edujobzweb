@@ -68,7 +68,7 @@ import FAQs from './pages/employer/Faqs/FAQs';
 import AdminLoginPage from './pages/admin/login/login';
 import AdminRegister from './pages/admin/register/register';
 import EmployerAdminLoginPage from './pages/employeradmin/login/EmployerAdminLoginPage';
-import EmployerAdminRegister from './pages/employeradmin/Register/Register';
+import EmployerAdminRegister from './pages/employeradmin/register/EmployerAdminRegister';
 import EmployerAdminForgotPassword from './pages/employeradmin/forgotpassword/EmployerAdminForgotPassword';
 import EmployerAdminChangePassword from './pages/employeradmin/forgotpassword/EmployerAdminChangePassword';
 import EmployerAdminVerifyOTP from './pages/employeradmin/forgotpassword/EmployerAdminVerifyOTP';
