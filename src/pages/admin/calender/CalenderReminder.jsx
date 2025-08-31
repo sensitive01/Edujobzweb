@@ -4,8 +4,8 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import AdminHeader from '../Layout/AdminHeader';
-import AdminFooter from '../Layout/AdminFooter';
+import AdminHeader from '../layout/AdminHeader';
+import AdminFooter from '../layout/AdminFooter';
 
 const API_BASE_URL = 'https://edujobzbackend.onrender.com';
 
