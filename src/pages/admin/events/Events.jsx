@@ -5,8 +5,8 @@ import { FaUniversity } from 'react-icons/fa';
 import { TiPlus } from 'react-icons/ti';
 import { useNavigate } from 'react-router-dom';
 import { FaComments, FaPaperclip } from 'react-icons/fa6';
-import AdminHeader from '../Layout/AdminHeader';
-import AdminFooter from '../Layout/AdminFooter';
+import AdminHeader from '../layout/AdminHeader';
+import AdminFooter from '../layout/AdminFooter';
 import { getAllEvents } from '../../../api/services/projectServices';
 
 const AdminEvents = () => {
