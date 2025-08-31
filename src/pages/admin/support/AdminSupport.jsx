@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import defaultEmployeeAvatar from '../../../assets/employer-admin/assets/img/profiles/avatar-01.jpg';
 import defaultEmployerAvatar from '../../../assets/employer-admin/assets/img/profiles/avatar-14.jpg';
-import AdminHeader from '../Layout/AdminHeader';
-import AdminFooter from '../Layout/AdminFooter';
+import AdminHeader from '../layout/AdminHeader';
+import AdminFooter from '../layout/AdminFooter';
 
 const AdminSupport = () => {
   const VITE_BASE_URL = 'https://edujobzbackend.onrender.com';
