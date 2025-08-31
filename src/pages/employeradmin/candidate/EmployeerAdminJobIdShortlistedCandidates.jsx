@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import user13 from '../../../assets/employer-admin/assets/img/users/user-13.jpg';
-import AddNewCandidate from '../../../components/common/AddNewCAndidate';
+// import AddNewCandidate from '../../../components/common/AddNewCAndidate';
 import EmployerCandidatesDetails from './EmployerCandidatesDetails';
 import { FaArrowCircleUp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
