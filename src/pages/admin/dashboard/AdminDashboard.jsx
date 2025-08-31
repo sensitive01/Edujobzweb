@@ -48,8 +48,8 @@ import appleIcon from '../../../assets/employer-admin/assets/img/icons/apple.svg
 import phpIcon from '../../../assets/employer-admin/assets/img/icons/php.svg';
 import reactIcon from '../../../assets/employer-admin/assets/img/icons/react.svg';
 import laravelIcon from '../../../assets/employer-admin/assets/img/icons/laravel-icon.svg';
-import AdminHeader from '../Layout/AdminHeader';
-import AdminFooter from '../Layout/AdminFooter';
+import AdminHeader from '../layout/AdminHeader';
+import AdminFooter from '../layout/AdminFooter';
 
 const AdminDashboard = () => {
     const [showTodotModal, setShowTodoModal] = useState(false);
