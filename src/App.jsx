@@ -15,7 +15,7 @@ import PremiumAdvancedSearch from './pages/public/PremiumAdvancedSearch';
 import JobVacanciesListWthMap from './pages/public/Jobs/JobVacanciesListWthMap';
 import JobAlert from './pages/public/JobAlert';
 import AppliedJobs from './pages/public/AppliedJobs';
-import Shortlisted from './pages/public/shortlisted';
+import Shortlisted from './pages/public/Shortlisted';
 import CertificatesTrainings from './pages/public/CertificatesTrainings';
 import Events from './pages/public/Events';
 import ReferAndEarn from './pages/public/ReferAndEarn';
