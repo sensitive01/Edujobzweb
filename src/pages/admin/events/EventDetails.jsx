@@ -7,8 +7,8 @@ import {
 } from 'lucide-react';
 
 import { getEventDetails } from '../../../api/services/projectServices';
-import AdminHeader from '../Layout/AdminHeader';
-import AdminFooter from '../Layout/AdminFooter';
+import AdminHeader from '../layout/AdminHeader';
+import AdminFooter from '../layout/AdminFooter';
 
 const AdminEventDetails = () => {
   const { eventId } = useParams();
