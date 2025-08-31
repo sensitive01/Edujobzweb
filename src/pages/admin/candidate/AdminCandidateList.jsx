@@ -7,8 +7,8 @@ import defaultEmployeesuccess from '../../../assets/employer-admin/assets/img/re
 import defaultEmployeeinfo from '../../../assets/employer-admin/assets/img/reports-img/employee-report-info.svg';
 import defaultEmployeedanger from '../../../assets/employer-admin/assets/img/reports-img/employee-report-danger.svg';
 import user13 from '../../../assets/employer-admin/assets/img/users/user-13.jpg';
-import AdminFooter from '../Layout/AdminFooter';
-import AdminHeader from '../Layout/AdminHeader';
+import AdminFooter from '../layout/AdminFooter';
+import AdminHeader from '../layout/AdminHeader';
 
 const AdminCandidateList = () => {
   const navigate = useNavigate();
