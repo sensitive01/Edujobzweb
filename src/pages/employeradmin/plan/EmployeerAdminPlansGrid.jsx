@@ -39,7 +39,7 @@
 
 //   const fetchPlans = async () => {
 //     try {
-//       const response = await fetch('https://edujobzbackend.onrender.com/admin/getallplans');
+//       const response = await fetch('https://api.edprofio.com/admin/getallplans');
 //       if (!response.ok) {
 //         throw new Error('Failed to fetch plans');
 //       }
@@ -69,10 +69,10 @@
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
 //     try {
-//       const url = currentPlan 
-//         ? `https://edujobzbackend.onrender.com/admin/updateplan/${currentPlan._id}`
-//         : 'https://edujobzbackend.onrender.com/admin/addplan';
-      
+//       const url = currentPlan
+//         ? `https://api.edprofio.com/admin/updateplan/${currentPlan._id}`
+//         : 'https://api.edprofio.com/admin/addplan';
+
 //       const method = currentPlan ? 'PUT' : 'POST';
 
 //       const response = await fetch(url, {
@@ -217,9 +217,9 @@
 //               <div className="d-flex align-items-center">
 //                 <p className="mb-0 me-2">Standard Plans</p>
 //                 <div className="form-check form-switch">
-//                   <input 
-//                     className="form-check-input" 
-//                     type="checkbox" 
+//                   <input
+//                     className="form-check-input"
+//                     type="checkbox"
 //                     id="flexSwitchCheckDefault"
 //                     checked={isPremium}
 //                     onChange={togglePlanType}
@@ -227,7 +227,7 @@
 //                 </div>
 //                 <p className="mb-0">Premium Plans</p>
 //               </div>
-//               <button 
+//               <button
 //                 className="btn btn-primary"
 //                 onClick={() => {
 //                   setCurrentPlan(null);
@@ -237,7 +237,7 @@
 //                 <i className="ti ti-plus me-1"></i> Add New Plan
 //               </button>
 //             </div>
-            
+
 //             <div className="row justify-content-center">
 //               {plans.map((plan, index) => (
 //                 <div className="col-lg-3 col-md-6 col-sm-12 d-flex mb-4" key={plan._id}>
@@ -257,7 +257,7 @@
 //                               )}
 //                               <p className="text-muted small">{calculateTotalPrice(plan.price, plan.gstPercentage)}</p>
 //                             </div>
-//                             <button 
+//                             <button
 //                               className="btn btn-sm btn-outline-primary"
 //                               onClick={() => openEditModal(plan)}
 //                             >
@@ -295,9 +295,9 @@
 //               <div className="modal-content">
 //                 <div className="modal-header">
 //                   <h4 className="modal-title">Add New Plan</h4>
-//                   <button 
-//                     type="button" 
-//                     className="btn-close custom-btn-close" 
+//                   <button
+//                     type="button"
+//                     className="btn-close custom-btn-close"
 //                     onClick={() => setShowAddModal(false)}
 //                   >
 //                     <i className="ti ti-x"></i>
@@ -441,7 +441,7 @@
 //                           </select>
 //                         </div>
 //                       </div>
-                      
+
 //                       {/* Toggle Features */}
 //                       <div className="col-md-12 mt-3">
 //                         <h6>Plan Features</h6>
@@ -547,9 +547,9 @@
 //                     </div>
 //                   </div>
 //                   <div className="modal-footer">
-//                     <button 
-//                       type="button" 
-//                       className="btn btn-light me-2" 
+//                     <button
+//                       type="button"
+//                       className="btn btn-light me-2"
 //                       onClick={() => setShowAddModal(false)}
 //                     >
 //                       Cancel
@@ -569,9 +569,9 @@
 //               <div className="modal-content">
 //                 <div className="modal-header">
 //                   <h4 className="modal-title">Edit Plan</h4>
-//                   <button 
-//                     type="button" 
-//                     className="btn-close custom-btn-close" 
+//                   <button
+//                     type="button"
+//                     className="btn-close custom-btn-close"
 //                     onClick={() => setShowEditModal(false)}
 //                   >
 //                     <i className="ti ti-x"></i>
@@ -715,7 +715,7 @@
 //                           </select>
 //                         </div>
 //                       </div>
-                      
+
 //                       {/* Toggle Features */}
 //                       <div className="col-md-12 mt-3">
 //                         <h6>Plan Features</h6>
@@ -821,9 +821,9 @@
 //                     </div>
 //                   </div>
 //                   <div className="modal-footer">
-//                     <button 
-//                       type="button" 
-//                       className="btn btn-light me-2" 
+//                     <button
+//                       type="button"
+//                       className="btn btn-light me-2"
 //                       onClick={() => setShowEditModal(false)}
 //                     >
 //                       Cancel
@@ -843,10 +843,9 @@
 
 // export default EmployeerAdminPlansGrid;
 
-
-import React, { useState, useEffect } from 'react';
-import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
-import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
+import React, { useState, useEffect } from "react";
+import EmployerAdminFooter from "../Layout/EmployerAdminFooter";
+import EmployerAdminHeader from "../Layout/EmployerAdminHeader";
 
 const EmployeerAdminPlansGrid = () => {
   const [isPremium, setIsPremium] = useState(false);
@@ -857,9 +856,11 @@ const EmployeerAdminPlansGrid = () => {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const response = await fetch('https://edujobzbackend.onrender.com/admin/getallplans');
+        const response = await fetch(
+          "https://api.edprofio.com/admin/getallplans"
+        );
         if (!response.ok) {
-          throw new Error('Failed to fetch plans');
+          throw new Error("Failed to fetch plans");
         }
         const data = await response.json();
         if (data.success) {
@@ -894,12 +895,12 @@ const EmployeerAdminPlansGrid = () => {
       { text: "Live Chat", included: plan.candidatesLiveChat },
       { text: "Webinar Access", included: plan.accessToWebinars },
       { text: "Recruitment Fair", included: plan.accessToRecruitmentFair },
-      { text: "Ad-Free Experience", included: !plan.hasAds } // Inverted for hasAds
+      { text: "Ad-Free Experience", included: !plan.hasAds }, // Inverted for hasAds
     ];
   };
 
   const calculateTotalPrice = (price, gstPercentage) => {
-    if (price === 0) return '₹0';
+    if (price === 0) return "₹0";
     const gstAmount = (price * gstPercentage) / 100;
     const total = price + gstAmount;
     return `₹${total.toFixed(2)} (incl. GST)`;
@@ -908,7 +909,7 @@ const EmployeerAdminPlansGrid = () => {
   if (loading) {
     return (
       <>
-        <EmployerAdminHeader/>
+        <EmployerAdminHeader />
         <div className="content">
           <div className="card">
             <div className="card-body text-center py-5">
@@ -919,7 +920,7 @@ const EmployeerAdminPlansGrid = () => {
             </div>
           </div>
         </div>
-        <EmployerAdminFooter/>
+        <EmployerAdminFooter />
       </>
     );
   }
@@ -927,14 +928,14 @@ const EmployeerAdminPlansGrid = () => {
   if (error) {
     return (
       <>
-        <EmployerAdminHeader/>
+        <EmployerAdminHeader />
         <div className="content">
           <div className="card">
             <div className="card-body text-center py-5 text-danger">
               <i className="ti ti-alert-circle fs-1"></i>
               <p className="mt-2">Error: {error}</p>
-              <button 
-                className="btn btn-primary" 
+              <button
+                className="btn btn-primary"
                 onClick={() => window.location.reload()}
               >
                 Retry
@@ -942,23 +943,23 @@ const EmployeerAdminPlansGrid = () => {
             </div>
           </div>
         </div>
-        <EmployerAdminFooter/>
+        <EmployerAdminFooter />
       </>
     );
   }
 
   return (
     <>
-      <EmployerAdminHeader/>
+      <EmployerAdminHeader />
       <div className="content">
         <div className="card">
           <div className="card-body">
             <div className="d-flex justify-content-center align-items-center mb-4">
               <p className="mb-0 me-2">Standard Plans</p>
               <div className="form-check form-switch">
-                <input 
-                  className="form-check-input" 
-                  type="checkbox" 
+                <input
+                  className="form-check-input"
+                  type="checkbox"
                   id="flexSwitchCheckDefault"
                   checked={isPremium}
                   onChange={togglePlanType}
@@ -966,41 +967,75 @@ const EmployeerAdminPlansGrid = () => {
               </div>
               <p className="mb-0">Premium Plans</p>
             </div>
-            
+
             <div className="row justify-content-center">
               {plans.map((plan, index) => (
-                <div className="col-lg-3 col-md-6 col-sm-12 d-flex mb-4" key={plan._id}>
-                  <div className={`card flex-fill ${isPremium && plan.price >= 6999 ? 'border border-primary' : ''}`}>
+                <div
+                  className="col-lg-3 col-md-6 col-sm-12 d-flex mb-4"
+                  key={plan._id}
+                >
+                  <div
+                    className={`card flex-fill ${
+                      isPremium && plan.price >= 6999
+                        ? "border border-primary"
+                        : ""
+                    }`}
+                  >
                     <div className="card-body bg-light shadow">
                       <div className="card shadow">
                         <div className="card-body">
-                          <h4>{index + 1}. {plan.name}</h4>
+                          <h4>
+                            {index + 1}. {plan.name}
+                          </h4>
                           <h1 className="text-primary">
-                            {plan.price === 0 ? '₹0' : `₹${plan.price}`}
-                            <span className="fs-14 fw-normal text-gray">/{plan.validityDays} days</span>
+                            {plan.price === 0 ? "₹0" : `₹${plan.price}`}
+                            <span className="fs-14 fw-normal text-gray">
+                              /{plan.validityDays} days
+                            </span>
                           </h1>
                           {plan.price > 0 && (
-                            <p className="text-muted small mb-0">GST: {plan.gstPercentage}%</p>
+                            <p className="text-muted small mb-0">
+                              GST: {plan.gstPercentage}%
+                            </p>
                           )}
-                          <p className="text-muted small">{calculateTotalPrice(plan.price, plan.gstPercentage)}</p>
+                          <p className="text-muted small">
+                            {calculateTotalPrice(
+                              plan.price,
+                              plan.gstPercentage
+                            )}
+                          </p>
                         </div>
                       </div>
                       <div className="pricing-content rounded bg-white border border-grey shadow mb-3">
                         <div className="price-hdr">
-                          <h6 className="fs-14 fw-medium text-primary w-100">Features Includes</h6>
+                          <h6 className="fs-14 fw-medium text-primary w-100">
+                            Features Includes
+                          </h6>
                         </div>
-                        <div className="features-list" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                        <div
+                          className="features-list"
+                          style={{ maxHeight: "300px", overflowY: "auto" }}
+                        >
                           {getFeatureList(plan).map((feature, idx) => (
-                            <div className="text-dark d-flex align-items-center mb-2" key={idx}>
-                              <i 
-                                className={`ti ${feature.included ? 'ti-discount-check-filled text-success' : 'ti-circle-x-filled text-danger'} me-2`}
+                            <div
+                              className="text-dark d-flex align-items-center mb-2"
+                              key={idx}
+                            >
+                              <i
+                                className={`ti ${
+                                  feature.included
+                                    ? "ti-discount-check-filled text-success"
+                                    : "ti-circle-x-filled text-danger"
+                                } me-2`}
                               ></i>
                               <span>{feature.text}</span>
                             </div>
                           ))}
                         </div>
                       </div>
-                      <a href="#" className="btn btn-secondary w-100">Choose Plan</a>
+                      <a href="#" className="btn btn-secondary w-100">
+                        Choose Plan
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -1009,7 +1044,7 @@ const EmployeerAdminPlansGrid = () => {
           </div>
         </div>
       </div>
-      <EmployerAdminFooter/>
+      <EmployerAdminFooter />
     </>
   );
 };

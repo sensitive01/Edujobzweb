@@ -63,7 +63,7 @@ const UserDashboard = () => {
         try {
           // Fetch applied jobs with better error handling
           const appliedResponse = await axios.get(
-            `https://edujobzbackend.onrender.com/applicant/${userData._id}`
+            `https://api.edprofio.com/applicant/${userData._id}`
           );
           appliedCount = appliedResponse.data?.length || 0;
         } catch (appliedError) {
@@ -77,7 +77,7 @@ const UserDashboard = () => {
         try {
           // Fetch shortlisted jobs with better error handling
           const shortlistedResponse = await axios.get(
-            `https://edujobzbackend.onrender.com/fetchshorlitstedjobsemployee/${userData._id}`
+            `https://api.edprofio.com/fetchshorlitstedjobsemployee/${userData._id}`
           );
           shortlistedCount = shortlistedResponse.data?.length || 0;
         } catch (shortlistedError) {
@@ -91,7 +91,7 @@ const UserDashboard = () => {
         try {
           // Fetch all jobs (for matching jobs count)
           const allJobsResponse = await axios.get(
-            "https://edujobzbackend.onrender.com/employer/fetchjobs"
+            "https://api.edprofio.com/employer/fetchjobs"
           );
           matchingCount =
             allJobsResponse.data?.filter((job) => job.isActive)?.length || 0;

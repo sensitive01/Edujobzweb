@@ -125,9 +125,9 @@
 //           <div className="jobplugin__container">
 //             <div className="jobplugin__slider-container" style={{ overflow: 'hidden', position: 'relative' }}>
 //               {/* Slider Grid */}
-//               <div 
+//               <div
 //                 className="jobplugin__slider-grid"
-//                 style={{ 
+//                 style={{
 //                   display: 'grid',
 //                   gridTemplateColumns: 'repeat(4, 1fr)',
 //                   gap: '20px',
@@ -136,7 +136,7 @@
 //                 }}
 //               >
 //                 {getCurrentSlideItems().map((item, index) => (
-//                   <div 
+//                   <div
 //                     key={`${item.id}-${currentSlide}-${index}`}
 //                     className="jobplugin__slider-slide"
 //                   >
@@ -176,8 +176,8 @@
 //               </div>
 
 //               {/* Slider navigation lines */}
-//               <div style={{ 
-//                 textAlign: 'center', 
+//               <div style={{
+//                 textAlign: 'center',
 //                 marginTop: '20px',
 //                 display: 'flex',
 //                 justifyContent: 'center',
@@ -252,16 +252,16 @@
 //                 <div className="jobplugin__catalog-projects">
 //                   <div className="jobplugin__catalog-gallery">
 //                     <div className="gallery-main-slide">
-//                       <img 
-//                         src={galleryImages[currentGallerySlide]} 
-//                         alt="Course preview" 
+//                       <img
+//                         src={galleryImages[currentGallerySlide]}
+//                         alt="Course preview"
 //                         style={{ width: '100%', height: 'auto' }}
 //                       />
 //                     </div>
 //                   </div>
 //                   <div className="gallery-thumbnails" style={{ display: 'flex', marginTop: '10px' }}>
 //                     {galleryImages.map((img, index) => (
-//                       <div 
+//                       <div
 //                         key={index}
 //                         onClick={() => goToGallerySlide(index)}
 //                         style={{
@@ -272,9 +272,9 @@
 //                           transition: 'all 0.3s ease'
 //                         }}
 //                       >
-//                         <img 
-//                           src={img} 
-//                           alt={`Thumbnail ${index + 1}`} 
+//                         <img
+//                           src={img}
+//                           alt={`Thumbnail ${index + 1}`}
 //                           style={{ width: '60px', height: '40px', objectFit: 'cover' }}
 //                         />
 //                       </div>
@@ -329,7 +329,7 @@
 
 //                 {/* Starter Tier */}
 //                 <div className={`jobplugin__results-aside__box ${activeTier === 'Starter - $36' ? 'active' : ''}`}>
-//                   <div 
+//                   <div
 //                     className="jobplugin__results-aside__head jobplugin__results-aside__boxopener"
 //                     onClick={() => toggleTier('Starter - $36')}
 //                     style={{ cursor: 'pointer' }}
@@ -337,7 +337,7 @@
 //                     <h3 className="h6">Starter - $36</h3>
 //                     <span className="jobplugin__results-aside__button"></span>
 //                   </div>
-//                   <div 
+//                   <div
 //                     className="jobplugin__results-aside__drop"
 //                     style={{ display: activeTier === 'Starter - $36' ? 'block' : 'none' }}
 //                   >
@@ -403,7 +403,7 @@
 
 //                 {/* Standard Tier */}
 //                 <div className={`jobplugin__results-aside__box ${activeTier === 'Standard - $59' ? 'active' : ''}`}>
-//                   <div 
+//                   <div
 //                     className="jobplugin__results-aside__head jobplugin__results-aside__boxopener"
 //                     onClick={() => toggleTier('Standard - $59')}
 //                     style={{ cursor: 'pointer' }}
@@ -411,7 +411,7 @@
 //                     <h3 className="h6">Standard - $59</h3>
 //                     <span className="jobplugin__results-aside__button"></span>
 //                   </div>
-//                   <div 
+//                   <div
 //                     className="jobplugin__results-aside__drop"
 //                     style={{ display: activeTier === 'Standard - $59' ? 'block' : 'none' }}
 //                   >
@@ -477,7 +477,7 @@
 
 //                 {/* Advanced Tier */}
 //                 <div className={`jobplugin__results-aside__box ${activeTier === 'Advanced - $90' ? 'active' : ''}`}>
-//                   <div 
+//                   <div
 //                     className="jobplugin__results-aside__head jobplugin__results-aside__boxopener"
 //                     onClick={() => toggleTier('Advanced - $90')}
 //                     style={{ cursor: 'pointer' }}
@@ -485,7 +485,7 @@
 //                     <h3 className="h6">Advanced - $90</h3>
 //                     <span className="jobplugin__results-aside__button"></span>
 //                   </div>
-//                   <div 
+//                   <div
 //                     className="jobplugin__results-aside__drop"
 //                     style={{ display: activeTier === 'Advanced - $90' ? 'block' : 'none' }}
 //                   >
@@ -559,22 +559,20 @@
 
 // export default CertificatesTrainings;
 
-
 //when carosel clicked below section willl changed absed upon the carosel data
 
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 
 // Import all images
-import event1 from '../../../public/images/event1.jpg';
-import roboImage from '../../../public/images/robo.avif';
-import edujobzImage from '../../../public/images/edujobz.avif';
-import certificateImage from '../../../public/images/certificate.avif';
-import errorImage from '../../../public/images/404.avif';
-import avatar1 from '../../../public/images/img-avatar-01.png';
-import avatar2 from '../../../public/images/img-avatar-02.png';
-import avatar3 from '../../../public/images/img-avatar-03.png';
-import userImage from '../../../public/images/img-user01.png';
+import event1 from "../../../public/images/event1.jpg";
+import roboImage from "../../../public/images/robo.avif";
+import edujobzImage from "../../../public/images/edujobz.avif";
+import certificateImage from "../../../public/images/certificate.avif";
+import errorImage from "../../../public/images/404.avif";
+import avatar1 from "../../../public/images/img-avatar-01.png";
+import avatar2 from "../../../public/images/img-avatar-02.png";
+import avatar3 from "../../../public/images/img-avatar-03.png";
+import userImage from "../../../public/images/img-user01.png";
 
 const CertificatesTrainings = () => {
   // State for training data from API
@@ -599,15 +597,21 @@ const CertificatesTrainings = () => {
   useEffect(() => {
     const fetchTrainings = async () => {
       try {
-        const response = await fetch('https://edujobzbackend.onrender.com/employer/fetchtraining');
+        const response = await fetch(
+          "https://api.edprofio.com/employer/fetchtraining"
+        );
         if (!response.ok) {
-          throw new Error('Failed to fetch trainings');
+          throw new Error("Failed to fetch trainings");
         }
         const data = await response.json();
         setTrainings(data);
         if (data.length > 0) {
           setSelectedTraining(data[0]);
-          setActiveTier(data[0].paymentStatus === 'paid' ? `Premium - $${data[0].paidAmount}` : 'Free Tier');
+          setActiveTier(
+            data[0].paymentStatus === "paid"
+              ? `Premium - $${data[0].paidAmount}`
+              : "Free Tier"
+          );
         }
         setLoading(false);
       } catch (err) {
@@ -626,11 +630,13 @@ const CertificatesTrainings = () => {
     title: training.title,
     description: training.description,
     duration: `${training.subCategories?.length || 0} Modules`,
-    price: training.paymentStatus === 'paid' ? `$${training.paidAmount}` : 'Free',
+    price:
+      training.paymentStatus === "paid" ? `$${training.paidAmount}` : "Free",
     avatar: [avatar1, avatar2, avatar3][index % 3],
     name: "EduJobz Instructor",
-    rating: "4." + (index % 5 + 1) + ` (${training.enrollerList?.length || 0})`,
-    trainingData: training
+    rating:
+      "4." + ((index % 5) + 1) + ` (${training.enrollerList?.length || 0})`,
+    trainingData: training,
   }));
 
   // Infinite loop carousel logic
@@ -673,8 +679,11 @@ const CertificatesTrainings = () => {
     if (!training?.trainingData) return;
 
     setSelectedTraining(training.trainingData);
-    setActiveTier(training.trainingData.paymentStatus === 'paid' ?
-      `Premium - $${training.trainingData.paidAmount}` : 'Free Tier');
+    setActiveTier(
+      training.trainingData.paymentStatus === "paid"
+        ? `Premium - $${training.trainingData.paidAmount}`
+        : "Free Tier"
+    );
     setCurrentGallerySlide(0);
   };
 
@@ -692,60 +701,60 @@ const CertificatesTrainings = () => {
   const generatePricingTiers = (training) => {
     if (!training) return [];
 
-    if (training.paymentStatus === 'Free') {
+    if (training.paymentStatus === "Free") {
       return [
         {
-          name: 'Free Tier',
-          price: 'Free',
-          duration: 'Lifetime access',
+          name: "Free Tier",
+          price: "Free",
+          duration: "Lifetime access",
           features: [
-            'Full course access',
+            "Full course access",
             `${training.subCategories?.length || 0} modules`,
-            'Community support',
-            'Email assistance',
-            'Basic certificate'
-          ]
-        }
+            "Community support",
+            "Email assistance",
+            "Basic certificate",
+          ],
+        },
       ];
     } else {
       return [
         {
-          name: 'Basic',
+          name: "Basic",
           price: `$${Math.floor(parseInt(training.paidAmount || 0) * 0.5)}`,
-          duration: '3 months access',
+          duration: "3 months access",
           features: [
-            'Full course access',
+            "Full course access",
             `${training.subCategories?.length || 0} modules`,
-            'Community support',
-            'Email assistance'
-          ]
+            "Community support",
+            "Email assistance",
+          ],
         },
         {
-          name: 'Standard',
+          name: "Standard",
           price: `$${training.paidAmount || 0}`,
-          duration: '6 months access',
+          duration: "6 months access",
           features: [
-            'Full course access',
+            "Full course access",
             `${training.subCategories?.length || 0} modules`,
-            'Priority support',
-            'Practice exercises',
-            'Basic certificate'
-          ]
+            "Priority support",
+            "Practice exercises",
+            "Basic certificate",
+          ],
         },
         {
-          name: 'Premium',
+          name: "Premium",
           price: `$${Math.floor(parseInt(training.paidAmount || 0) * 1.5)}`,
-          duration: 'Lifetime access',
+          duration: "Lifetime access",
           features: [
-            'Full course access',
+            "Full course access",
             `${training.subCategories?.length || 0} modules`,
-            'Priority support',
-            'Practice exercises',
-            'Premium certificate',
-            '1-on-1 mentoring session',
-            'Course materials download'
-          ]
-        }
+            "Priority support",
+            "Practice exercises",
+            "Premium certificate",
+            "1-on-1 mentoring session",
+            "Course materials download",
+          ],
+        },
       ];
     }
   };
@@ -781,20 +790,23 @@ const CertificatesTrainings = () => {
         </div>
       </div>
 
-      <main className="jobplugin__main" style={{ padding: '0px 100px' }}>
+      <main className="jobplugin__main" style={{ padding: "0px 100px" }}>
         {/* Carousel Section */}
         <section className="jobplugin__section jobplugin__section-white jobplugin__section-trending">
           <div className="jobplugin__container">
-            <div className="jobplugin__slider-container" style={{ overflow: 'hidden', position: 'relative' }}>
+            <div
+              className="jobplugin__slider-container"
+              style={{ overflow: "hidden", position: "relative" }}
+            >
               {/* Slider Grid */}
               <div
                 className="jobplugin__slider-grid"
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
-                  gap: '20px',
-                  padding: '20px 0',
-                  transition: 'transform 0.5s ease'
+                  display: "grid",
+                  gridTemplateColumns: "repeat(4, 1fr)",
+                  gap: "20px",
+                  padding: "20px 0",
+                  transition: "transform 0.5s ease",
                 }}
                 ref={sliderRef}
               >
@@ -803,11 +815,15 @@ const CertificatesTrainings = () => {
                     key={`${item.id}-${currentSlide}-${index}`}
                     className="jobplugin__slider-slide"
                     onClick={() => selectTraining(item)}
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: "pointer" }}
                   >
                     <article className="jobplugin__article-box bg-light">
                       <div className="jobplugin__article-image border-dark shadow">
-                        <img src={item.image} alt={item.title} style={{ width: '100%', height: 'auto' }} />
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          style={{ width: "100%", height: "auto" }}
+                        />
                       </div>
                       <div className="jobplugin__article-textbox">
                         <strong className="jobplugin__article-title hover:jobplugin__text-primary">
@@ -815,10 +831,15 @@ const CertificatesTrainings = () => {
                         </strong>
                         <div className="jobplugin__article-duration">
                           <span className="jobplugin__article-duration__icon jobplugin__text-primary rj-icon rj-clock"></span>
-                          <span className="jobplugin__article-duration__text">{item.duration}</span>
+                          <span className="jobplugin__article-duration__text">
+                            {item.duration}
+                          </span>
                         </div>
                         <strong className="jobplugin__article-pricing">
-                          From <span className="jobplugin__article-pricing__text">{item.price}</span>
+                          From{" "}
+                          <span className="jobplugin__article-pricing__text">
+                            {item.price}
+                          </span>
                         </strong>
                       </div>
                       <div className="jobplugin__article-foot bg-white">
@@ -827,12 +848,16 @@ const CertificatesTrainings = () => {
                             <img src={item.avatar} alt={item.name} />
                           </div>
                           <div className="jobplugin__article-subtext">
-                            <strong className="jobplugin__article-username">{item.name}</strong>
+                            <strong className="jobplugin__article-username">
+                              {item.name}
+                            </strong>
                           </div>
                         </div>
                         <span className="jobplugin__section-box__ratings jobplugin__bg-primary">
                           <span className="rj-icon rj-star"></span>
-                          <span className="jobplugin__section-box__ratings-points">{item.rating}</span>
+                          <span className="jobplugin__section-box__ratings-points">
+                            {item.rating}
+                          </span>
                         </span>
                       </div>
                     </article>
@@ -841,23 +866,26 @@ const CertificatesTrainings = () => {
               </div>
 
               {/* Navigation dots - fixed to 5 */}
-              <div style={{
-                textAlign: 'center',
-                marginTop: '20px',
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '8px'
-              }}>
+              <div
+                style={{
+                  textAlign: "center",
+                  marginTop: "20px",
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: "8px",
+                }}
+              >
                 {Array.from({ length: totalSlides }, (_, index) => (
                   <div
                     key={index}
                     onClick={() => goToSlide(index)}
                     style={{
-                      width: '40px',
-                      height: '4px',
-                      backgroundColor: currentSlide === index ? '#007bff' : '#ccc',
-                      cursor: 'pointer',
-                      transition: 'background-color 0.3s ease'
+                      width: "40px",
+                      height: "4px",
+                      backgroundColor:
+                        currentSlide === index ? "#007bff" : "#ccc",
+                      cursor: "pointer",
+                      transition: "background-color 0.3s ease",
                     }}
                   ></div>
                 ))}
@@ -876,18 +904,28 @@ const CertificatesTrainings = () => {
                     <span className="rj-icon rj-home text-secondary"></span>
                   </a>
                 </li>
-                <li><a className="hover:jobplugin__text-primary" href="#">Online</a></li>
+                <li>
+                  <a className="hover:jobplugin__text-primary" href="#">
+                    Online
+                  </a>
+                </li>
                 <li>{selectedTraining.title}</li>
               </ul>
               <ul className="jobplugin__shares">
                 <li>
-                  <a className="hover:jobplugin__bg-primary hover:jobplugin__border-primary" href="#">
+                  <a
+                    className="hover:jobplugin__bg-primary hover:jobplugin__border-primary"
+                    href="#"
+                  >
                     <span className="jobplugin__shares-icon rj-icon rj-heart"></span>
                     <span className="jobplugin__shares-text">Save</span>
                   </a>
                 </li>
                 <li>
-                  <a className="hover:jobplugin__bg-primary hover:jobplugin__border-primary" href="#">
+                  <a
+                    className="hover:jobplugin__bg-primary hover:jobplugin__border-primary"
+                    href="#"
+                  >
                     <span className="jobplugin__shares-icon rj-icon rj-share1"></span>
                     <span className="jobplugin__shares-text">Share</span>
                   </a>
@@ -904,7 +942,9 @@ const CertificatesTrainings = () => {
                     <div className="jobplugin__catalog-admin__img">
                       <img src={userImage} alt="Training Instructor" />
                     </div>
-                    <strong className="jobplugin__catalog-admin__name">EduJobz Instructor</strong>
+                    <strong className="jobplugin__catalog-admin__name">
+                      EduJobz Instructor
+                    </strong>
                   </div>
                   <span className="jobplugin__section-box__ratings jobplugin__bg-primary">
                     <span className="rj-icon rj-star"></span>
@@ -914,7 +954,8 @@ const CertificatesTrainings = () => {
                   </span>
                   <span className="jobplugin__article-toprated">Top Rated</span>
                   <span className="jobplugin__catalog-inprogress">
-                    {enrollmentCount} {enrollmentCount === 1 ? 'enrollment' : 'enrollments'}
+                    {enrollmentCount}{" "}
+                    {enrollmentCount === 1 ? "enrollment" : "enrollments"}
                   </span>
                 </div>
 
@@ -925,27 +966,37 @@ const CertificatesTrainings = () => {
                       <img
                         src={galleryImages[currentGallerySlide]}
                         alt="Course preview"
-                        style={{ width: '100%', height: 'auto' }}
+                        style={{ width: "100%", height: "auto" }}
                       />
                     </div>
                   </div>
-                  <div className="gallery-thumbnails" style={{ display: 'flex', marginTop: '10px' }}>
+                  <div
+                    className="gallery-thumbnails"
+                    style={{ display: "flex", marginTop: "10px" }}
+                  >
                     {galleryImages.map((img, index) => (
                       <div
                         key={index}
                         onClick={() => goToGallerySlide(index)}
                         style={{
-                          margin: '0 5px',
-                          cursor: 'pointer',
-                          border: currentGallerySlide === index ? '2px solid #007bff' : '1px solid #ddd',
+                          margin: "0 5px",
+                          cursor: "pointer",
+                          border:
+                            currentGallerySlide === index
+                              ? "2px solid #007bff"
+                              : "1px solid #ddd",
                           opacity: currentGallerySlide === index ? 1 : 0.7,
-                          transition: 'all 0.3s ease'
+                          transition: "all 0.3s ease",
                         }}
                       >
                         <img
                           src={img}
                           alt={`Thumbnail ${index + 1}`}
-                          style={{ width: '60px', height: '40px', objectFit: 'cover' }}
+                          style={{
+                            width: "60px",
+                            height: "40px",
+                            objectFit: "cover",
+                          }}
                         />
                       </div>
                     ))}
@@ -960,7 +1011,9 @@ const CertificatesTrainings = () => {
                   </div>
                   <p>{selectedTraining.description}</p>
 
-                  <strong className="jobplugin__catalog-block__subtitle text-secondary">Course Modules</strong>
+                  <strong className="jobplugin__catalog-block__subtitle text-secondary">
+                    Course Modules
+                  </strong>
                   <ul className="jobplugin__catalog-block__list">
                     {selectedTraining.subCategories.map((module, index) => (
                       <li key={index}>
@@ -969,21 +1022,38 @@ const CertificatesTrainings = () => {
                     ))}
                   </ul>
 
-                  <strong className="jobplugin__catalog-block__subtitle text-secondary">Enrollment Information</strong>
-                  <p>This course has {enrollmentCount} enrolled participants:</p>
+                  <strong className="jobplugin__catalog-block__subtitle text-secondary">
+                    Enrollment Information
+                  </strong>
+                  <p>
+                    This course has {enrollmentCount} enrolled participants:
+                  </p>
                   <ul className="jobplugin__catalog-block__list">
-                    {selectedTraining.enrollerList.slice(0, 3).map((enroller, index) => (
-                      <li key={index}>
-                        {enroller.employername} ({enroller.paidAmount === '0' ? 'Free' : `Paid $${enroller.paidAmount}`})
-                      </li>
-                    ))}
-                    {enrollmentCount > 3 && <li>...and {enrollmentCount - 3} more</li>}
+                    {selectedTraining.enrollerList
+                      .slice(0, 3)
+                      .map((enroller, index) => (
+                        <li key={index}>
+                          {enroller.employername} (
+                          {enroller.paidAmount === "0"
+                            ? "Free"
+                            : `Paid $${enroller.paidAmount}`}
+                          )
+                        </li>
+                      ))}
+                    {enrollmentCount > 3 && (
+                      <li>...and {enrollmentCount - 3} more</li>
+                    )}
                   </ul>
 
-                  <strong className="jobplugin__catalog-block__subtitle text-secondary">Course Status</strong>
-                  <p>Status: {selectedTraining?.status ?
-                    selectedTraining.status.charAt(0).toUpperCase() + selectedTraining.status.slice(1) :
-                    'Status not available'}
+                  <strong className="jobplugin__catalog-block__subtitle text-secondary">
+                    Course Status
+                  </strong>
+                  <p>
+                    Status:{" "}
+                    {selectedTraining?.status
+                      ? selectedTraining.status.charAt(0).toUpperCase() +
+                        selectedTraining.status.slice(1)
+                      : "Status not available"}
                   </p>
                   <p>Last updated: {lastUpdated}</p>
                 </div>
@@ -992,16 +1062,32 @@ const CertificatesTrainings = () => {
                 <div className="jobplugin__catalog-block no-padding">
                   <div className="jobplugin__row jobplugin__three-column">
                     <div className="jobplugin__column">
-                      <strong className="jobplugin__catalog-block__subtitle text-secondary">Payment Type</strong>
-                      <p>{selectedTraining.paymentStatus === 'paid' ? 'Paid Course' : 'Free Course'}</p>
+                      <strong className="jobplugin__catalog-block__subtitle text-secondary">
+                        Payment Type
+                      </strong>
+                      <p>
+                        {selectedTraining.paymentStatus === "paid"
+                          ? "Paid Course"
+                          : "Free Course"}
+                      </p>
                     </div>
                     <div className="jobplugin__column">
-                      <strong className="jobplugin__catalog-block__subtitle text-secondary">Course Fee</strong>
-                      <p>{selectedTraining.paymentStatus === 'paid' ? `$${selectedTraining.paidAmount}` : 'Free'}</p>
+                      <strong className="jobplugin__catalog-block__subtitle text-secondary">
+                        Course Fee
+                      </strong>
+                      <p>
+                        {selectedTraining.paymentStatus === "paid"
+                          ? `$${selectedTraining.paidAmount}`
+                          : "Free"}
+                      </p>
                     </div>
                     <div className="jobplugin__column">
-                      <strong className="jobplugin__catalog-block__subtitle text-secondary">Modules</strong>
-                     <p>{selectedTraining?.subCategories?.length || 0} modules</p>
+                      <strong className="jobplugin__catalog-block__subtitle text-secondary">
+                        Modules
+                      </strong>
+                      <p>
+                        {selectedTraining?.subCategories?.length || 0} modules
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1009,21 +1095,37 @@ const CertificatesTrainings = () => {
 
               {/* Pricing Tiers */}
               <aside className="jobplugin__catalog-aside">
-                <strong className="jobplugin__catalog-aside__title">Select service tier</strong>
+                <strong className="jobplugin__catalog-aside__title">
+                  Select service tier
+                </strong>
 
                 {pricingTiers.map((tier, index) => (
-                  <div key={index} className={`jobplugin__results-aside__box ${activeTier === tier.name + ' - ' + tier.price ? 'active' : ''}`}>
+                  <div
+                    key={index}
+                    className={`jobplugin__results-aside__box ${
+                      activeTier === tier.name + " - " + tier.price
+                        ? "active"
+                        : ""
+                    }`}
+                  >
                     <div
                       className="jobplugin__results-aside__head jobplugin__results-aside__boxopener"
-                      onClick={() => toggleTier(tier.name + ' - ' + tier.price)}
-                      style={{ cursor: 'pointer' }}
+                      onClick={() => toggleTier(tier.name + " - " + tier.price)}
+                      style={{ cursor: "pointer" }}
                     >
-                      <h3 className="h6">{tier.name} - {tier.price}</h3>
+                      <h3 className="h6">
+                        {tier.name} - {tier.price}
+                      </h3>
                       <span className="jobplugin__results-aside__button"></span>
                     </div>
                     <div
                       className="jobplugin__results-aside__drop"
-                      style={{ display: activeTier === tier.name + ' - ' + tier.price ? 'block' : 'none' }}
+                      style={{
+                        display:
+                          activeTier === tier.name + " - " + tier.price
+                            ? "block"
+                            : "none",
+                      }}
                     >
                       <div className="jobplugin__catalog-aside__duration">
                         <span className="rj-icon rj-time"></span>
@@ -1032,7 +1134,9 @@ const CertificatesTrainings = () => {
                       <ul className="jobplugin__checkout-services">
                         {tier.features.map((feature, featIndex) => (
                           <li key={featIndex}>
-                            <span className="jobplugin__checkout-services__subtitle">{feature}</span>
+                            <span className="jobplugin__checkout-services__subtitle">
+                              {feature}
+                            </span>
                             <span className="jobplugin__checkout-services__text">
                               <i className="jobplugin__checkout-services__check jobplugin__text-primary rj-icon rj-check"></i>
                             </span>
@@ -1040,10 +1144,18 @@ const CertificatesTrainings = () => {
                         ))}
                       </ul>
                       <div className="jobplugin__catalog-aside__buttons">
-                        <a href="#" className="jobplugin__button jobplugin__bg-primary hover:jobplugin__bg-secondary">
-                          {tier.price === 'Free' ? 'Enroll Now' : `Proceed to Pay (${tier.price})`}
+                        <a
+                          href="#"
+                          className="jobplugin__button jobplugin__bg-primary hover:jobplugin__bg-secondary"
+                        >
+                          {tier.price === "Free"
+                            ? "Enroll Now"
+                            : `Proceed to Pay (${tier.price})`}
                         </a>
-                        <a href="#" className="jobplugin__button jobplugin__bg-white jobplugin__border-primary hover:jobplugin__bg-white">
+                        <a
+                          href="#"
+                          className="jobplugin__button jobplugin__bg-white jobplugin__border-primary hover:jobplugin__bg-white"
+                        >
                           <span className="rj-icon rj-message"></span>
                           Send Message
                         </a>

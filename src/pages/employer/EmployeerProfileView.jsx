@@ -46,7 +46,7 @@ const EmployeerProfileView = () => {
         }
 
         const response = await fetch(
-          `https://edujobzbackend.onrender.com/employer/fetchemployer/${employerData._id}`,
+          `https://api.edprofio.com/employer/fetchemployer/${employerData._id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -149,7 +149,7 @@ const EmployeerProfileView = () => {
 
     try {
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/employer/uploadprofilepic/${employerData._id}?fileType=profileImage`,
+        `https://api.edprofio.com/employer/uploadprofilepic/${employerData._id}?fileType=profileImage`,
         {
           method: "PUT",
           headers: {
@@ -205,7 +205,7 @@ const EmployeerProfileView = () => {
 
       // Update other profile data
       const updateResponse = await fetch(
-        `https://edujobzbackend.onrender.com/employer/updateemployer/${employerData._id}`,
+        `https://api.edprofio.com/employer/updateemployer/${employerData._id}`,
         {
           method: "PUT",
           headers: {
@@ -299,7 +299,7 @@ const EmployeerProfileView = () => {
       const employerData = JSON.parse(localStorage.getItem("employerData"));
 
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/employer/changeMyPassword/${employerData._id}`,
+        `https://api.edprofio.com/employer/changeMyPassword/${employerData._id}`,
 
         {
           method: "PUT",

@@ -1,42 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { MessageSquare, Paperclip, MoreVertical, Trash2, Edit, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
-import { TfiSearch } from 'react-icons/tfi';
-import { FaUniversity } from 'react-icons/fa';
-import { TiPlus } from 'react-icons/ti';
-import { useNavigate } from 'react-router-dom';
-import { FaComments, FaPaperclip } from 'react-icons/fa6';
-import AdminHeader from '../layout/AdminHeader';
-import AdminFooter from '../layout/AdminFooter';
-import { getAllEvents } from '../../../api/services/projectServices';
+import React, { useState, useEffect } from "react";
+import {
+  MessageSquare,
+  Paperclip,
+  MoreVertical,
+  Trash2,
+  Edit,
+  Calendar,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
+import { TfiSearch } from "react-icons/tfi";
+import { FaUniversity } from "react-icons/fa";
+import { TiPlus } from "react-icons/ti";
+import { useNavigate } from "react-router-dom";
+import { FaComments, FaPaperclip } from "react-icons/fa6";
+import AdminHeader from "../layout/AdminHeader";
+import AdminFooter from "../layout/AdminFooter";
+import { getAllEvents } from "../../../api/services/projectServices";
 
 const AdminEvents = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('pills-home');
+  const [activeTab, setActiveTab] = useState("pills-home");
   const [showAddEventModal, setShowAddEventModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [eventToDelete, setEventToDelete] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [organizerFilter, setOrganizerFilter] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
-  const [toast, setToast] = useState({ show: false, message: '', type: '' });
-const [showExportDropdown, setShowExportDropdown] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [organizerFilter, setOrganizerFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [toast, setToast] = useState({ show: false, message: "", type: "" });
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
   // New event form state
   const [newEvent, setNewEvent] = useState({
-    title: '',
-    description: '',
-    category: '',
-    eventDate: '',
-    startTime: '',
-    endTime: '',
-    venue: '',
-    coordinator: '',
-    entryfee: '0',
-    bannerImage: null
+    title: "",
+    description: "",
+    category: "",
+    eventDate: "",
+    startTime: "",
+    endTime: "",
+    venue: "",
+    coordinator: "",
+    entryfee: "0",
+    bannerImage: null,
   });
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
@@ -44,27 +53,27 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
     const fetchEvents = async () => {
       try {
         const response = await getAllEvents();
-        const processedEvents = response.map(event => {
+        const processedEvents = response.map((event) => {
           const eventDate = new Date(event.eventDate);
           const today = new Date();
-          let status = 'Upcoming';
+          let status = "Upcoming";
 
           if (eventDate < today) {
-            status = 'Completed';
+            status = "Completed";
           } else if (eventDate.toDateString() === today.toDateString()) {
-            status = 'Current';
+            status = "Current";
           }
 
           if (event._id === "68564338f6e1e50b7331fa57") {
-            status = 'On-hold';
+            status = "On-hold";
           } else if (event._id === "6856433af6e1e50b7331fa59") {
-            status = 'Cancelled';
+            status = "Cancelled";
           }
 
           return {
             ...event,
             status,
-            type: event.category || 'Workshop'
+            type: event.category || "Workshop",
           };
         });
         setEvents(processedEvents);
@@ -78,77 +87,92 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
     fetchEvents();
   }, []);
 
-  const filteredEvents = events.filter(event => {
+  const filteredEvents = events.filter((event) => {
     const matchesSearch =
-      (event.title?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (event.venue?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+      (event.title?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (event.venue?.toLowerCase() || "").includes(searchTerm.toLowerCase());
 
-    const matchesOrganizer = organizerFilter === 'All' ||
-      (event.organizerId === "665fd983d7e1f2a70b89e5e7" ? 'Edujobz' : 'Other') === organizerFilter;
+    const matchesOrganizer =
+      organizerFilter === "All" ||
+      (event.organizerId === "665fd983d7e1f2a70b89e5e7"
+        ? "Edujobz"
+        : "Other") === organizerFilter;
 
-    const matchesStatus = statusFilter === 'All' || event.status === statusFilter;
+    const matchesStatus =
+      statusFilter === "All" || event.status === statusFilter;
 
     const eventDate = new Date(event.eventDate);
-    const matchesDate = (!fromDate || eventDate >= new Date(fromDate)) &&
+    const matchesDate =
+      (!fromDate || eventDate >= new Date(fromDate)) &&
       (!toDate || eventDate <= new Date(toDate));
 
     return matchesSearch && matchesOrganizer && matchesStatus && matchesDate;
   });
 
-  const currentEvents = filteredEvents.filter(event => event.status === 'Current');
-  const upcomingEvents = filteredEvents.filter(event => event.status === 'Upcoming');
-  const onHoldEvents = filteredEvents.filter(event => event.status === 'On-hold' || event.status === 'Cancelled');
-  const completedEvents = filteredEvents.filter(event => event.status === 'Completed');
+  const currentEvents = filteredEvents.filter(
+    (event) => event.status === "Current"
+  );
+  const upcomingEvents = filteredEvents.filter(
+    (event) => event.status === "Upcoming"
+  );
+  const onHoldEvents = filteredEvents.filter(
+    (event) => event.status === "On-hold" || event.status === "Cancelled"
+  );
+  const completedEvents = filteredEvents.filter(
+    (event) => event.status === "Completed"
+  );
 
-  const workshops = filteredEvents.filter(event => event.type === 'Workshop');
-  const webinars = filteredEvents.filter(event => event.type === 'Online Webinar');
-  const seminars = filteredEvents.filter(event => event.type === 'Seminar');
+  const workshops = filteredEvents.filter((event) => event.type === "Workshop");
+  const webinars = filteredEvents.filter(
+    (event) => event.type === "Online Webinar"
+  );
+  const seminars = filteredEvents.filter((event) => event.type === "Seminar");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewEvent(prev => ({
+    setNewEvent((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleFileChange = (e) => {
-    setNewEvent(prev => ({
+    setNewEvent((prev) => ({
       ...prev,
-      bannerImage: e.target.files[0]
+      bannerImage: e.target.files[0],
     }));
   };
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
-      const adminData = JSON.parse(localStorage.getItem('adminData'));
+      const adminData = JSON.parse(localStorage.getItem("adminData"));
       if (!adminData || !adminData.adminid) {
-        throw new Error('Organizer ID not found in localStorage');
+        throw new Error("Organizer ID not found in localStorage");
       }
 
       // 1. Create FormData object
       const formData = new FormData();
 
       // 2. Append all text fields
-      formData.append('title', newEvent.title);
-      formData.append('description', newEvent.description);
-      formData.append('category', newEvent.category);
-      formData.append('eventDate', newEvent.eventDate);
-      formData.append('startTime', newEvent.startTime);
-      formData.append('endTime', newEvent.endTime);
-      formData.append('venue', newEvent.venue);
-      formData.append('coordinator', newEvent.coordinator);
+      formData.append("title", newEvent.title);
+      formData.append("description", newEvent.description);
+      formData.append("category", newEvent.category);
+      formData.append("eventDate", newEvent.eventDate);
+      formData.append("startTime", newEvent.startTime);
+      formData.append("endTime", newEvent.endTime);
+      formData.append("venue", newEvent.venue);
+      formData.append("coordinator", newEvent.coordinator);
 
       // 3. Append default values for required backend fields
-      formData.append('totalattendes', '100'); // Default value
-      formData.append('entryfee', '0'); // Default value
-      formData.append('eventendDate', newEvent.eventDate); // Same as start date
+      formData.append("totalattendes", "100"); // Default value
+      formData.append("entryfee", "0"); // Default value
+      formData.append("eventendDate", newEvent.eventDate); // Same as start date
 
       // 4. Critical: Append the file with the correct field name
       if (newEvent.bannerImage) {
-        formData.append('file', newEvent.bannerImage); // Must be 'file' to match multer
-        formData.append('fileType', 'eventimage'); // Tell backend which storage to use
+        formData.append("file", newEvent.bannerImage); // Must be 'file' to match multer
+        formData.append("fileType", "eventimage"); // Tell backend which storage to use
       }
 
       // 5. Log FormData contents for debugging
@@ -157,15 +181,18 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
       }
 
       // 6. Make the request WITHOUT setting Content-Type header
-      const response = await fetch(`https://edujobzbackend.onrender.com/employer/${adminData.adminid}/events?fileType=eventimage`, {
-        method: 'POST',
-        body: formData, // FormData will set the correct headers automatically
-        // Don't set Content-Type header - the browser will set it with boundary
-      });
+      const response = await fetch(
+        `https://api.edprofio.com/employer/${adminData.adminid}/events?fileType=eventimage`,
+        {
+          method: "POST",
+          body: formData, // FormData will set the correct headers automatically
+          // Don't set Content-Type header - the browser will set it with boundary
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create event');
+        throw new Error(errorData.message || "Failed to create event");
       }
 
       const createdEvent = await response.json();
@@ -174,46 +201,53 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
       // Process and add the new event to state
       const eventDate = new Date(createdEvent.eventDate);
       const today = new Date();
-      let status = 'Upcoming';
+      let status = "Upcoming";
 
       if (eventDate < today) {
-        status = 'Completed';
+        status = "Completed";
       } else if (eventDate.toDateString() === today.toDateString()) {
-        status = 'Current';
+        status = "Current";
       }
 
-      setEvents(prevEvents => [
+      setEvents((prevEvents) => [
         ...prevEvents,
         {
           ...createdEvent,
           status,
-          type: createdEvent.category || 'Workshop',
+          type: createdEvent.category || "Workshop",
           registrations: createdEvent.registrations || [],
           totalRegistrations: createdEvent.totalRegistrations || 0,
-        }
+        },
       ]);
 
       // Reset form and close modal
       setNewEvent({
-        title: '',
-        description: '',
-        category: '',
-        eventDate: '',
-        startTime: '',
-        endTime: '',
-        venue: '',
-        coordinator: '',
+        title: "",
+        description: "",
+        category: "",
+        eventDate: "",
+        startTime: "",
+        endTime: "",
+        venue: "",
+        coordinator: "",
         bannerImage: null,
       });
       setFileInputKey(Date.now());
       setShowAddEventModal(false);
-      setToast({ show: true, message: 'Event created successfully', type: 'success' });
+      setToast({
+        show: true,
+        message: "Event created successfully",
+        type: "success",
+      });
     } catch (err) {
-      console.error('Error creating event:', err);
-      setToast({ show: true, message: err.message || 'Failed to create event', type: 'error' });
+      console.error("Error creating event:", err);
+      setToast({
+        show: true,
+        message: err.message || "Failed to create event",
+        type: "error",
+      });
     }
   };
-
 
   const handleViewEvent = (event) => {
     setSelectedEvent(event);
@@ -228,42 +262,58 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
     if (!eventToDelete) return;
 
     try {
-      const response = await fetch(`https://edujobzbackend.onrender.com/employer/removeevents/${eventToDelete}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `https://api.edprofio.com/employer/removeevents/${eventToDelete}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to delete event');
+        throw new Error("Failed to delete event");
       }
 
-      setEvents(events.filter(event => event._id !== eventToDelete));
+      setEvents(events.filter((event) => event._id !== eventToDelete));
       setShowDeleteModal(false);
       setEventToDelete(null);
-      setToast({ show: true, message: 'Event deleted successfully', type: 'danger' });
+      setToast({
+        show: true,
+        message: "Event deleted successfully",
+        type: "danger",
+      });
     } catch (err) {
-      setToast({ show: true, message: err.message, type: 'error' });
+      setToast({ show: true, message: err.message, type: "error" });
       setError(err.message);
     }
   };
   const exportToExcel = () => {
     // Prepare data
-    const headers = ['Title', 'Type', 'Date', 'Venue', 'Status', 'Registrations'];
-    const data = filteredEvents.map(event => [
+    const headers = [
+      "Title",
+      "Type",
+      "Date",
+      "Venue",
+      "Status",
+      "Registrations",
+    ];
+    const data = filteredEvents.map((event) => [
       event.title,
       event.type,
       new Date(event.eventDate).toLocaleDateString(),
       event.venue,
       event.status,
-      event.registrations?.length || 0
+      event.registrations?.length || 0,
     ]);
 
     // Convert to CSV
-    let csvContent = "data:text/csv;charset=utf-8,"
-      + headers.join(",") + "\n"
-      + data.map(row => row.join(",")).join("\n");
+    let csvContent =
+      "data:text/csv;charset=utf-8," +
+      headers.join(",") +
+      "\n" +
+      data.map((row) => row.join(",")).join("\n");
 
     // Create download link
     const encodedUri = encodeURI(csvContent);
@@ -290,7 +340,9 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
         </tr>
       </thead>
       <tbody>
-        ${filteredEvents.map(event => `
+        ${filteredEvents
+          .map(
+            (event) => `
           <tr>
             <td>${event.title}</td>
             <td>${event.type}</td>
@@ -299,13 +351,15 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
             <td>${event.status}</td>
             <td>${event.registrations?.length || 0}</td>
           </tr>
-        `).join('')}
+        `
+          )
+          .join("")}
       </tbody>
     </table>
   `;
 
     // Open print dialog
-    const printWindow = window.open('', '_blank');
+    const printWindow = window.open("", "_blank");
     printWindow.document.write(`
     <html>
       <head>
@@ -336,7 +390,7 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
   useEffect(() => {
     if (toast.show) {
       const timer = setTimeout(() => {
-        setToast({ show: false, message: '', type: '' });
+        setToast({ show: false, message: "", type: "" });
       }, 1000); // 1000ms = 1 second
 
       return () => clearTimeout(timer); // Cleanup on unmount
@@ -348,16 +402,37 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
   return (
     <>
       <AdminHeader />
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+      >
         {/* Fixed Header Card */}
-        <div className="card" style={{ marginTop: '49px', position: 'fixed', width: '100%', zIndex: 9 }}>
+        <div
+          className="card"
+          style={{
+            marginTop: "49px",
+            position: "fixed",
+            width: "100%",
+            zIndex: 9,
+          }}
+        >
           <div className="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-2">
-            <h4><FaUniversity className="text-primary" /> Events</h4>
+            <h4>
+              <FaUniversity className="text-primary" /> Events
+            </h4>
             <div className="d-flex align-items-center flex-wrap row-gap-2">
               <div className="d-flex align-items-center me-3">
-                <p className="mb-0 me-3 pe-3 border-end fs-14 text-primary">Total Events: <span className="text-dark"> {events.length}</span></p>
-                <p className="mb-0 me-3 pe-3 border-end fs-14 text-primary">Upcoming: <span className="text-dark"> {upcomingEvents.length}</span></p>
-                <p className="mb-0 fs-14 text-primary">Completed: <span className="text-dark"> {completedEvents.length}</span></p>
+                <p className="mb-0 me-3 pe-3 border-end fs-14 text-primary">
+                  Total Events:{" "}
+                  <span className="text-dark"> {events.length}</span>
+                </p>
+                <p className="mb-0 me-3 pe-3 border-end fs-14 text-primary">
+                  Upcoming:{" "}
+                  <span className="text-dark"> {upcomingEvents.length}</span>
+                </p>
+                <p className="mb-0 fs-14 text-primary">
+                  Completed:{" "}
+                  <span className="text-dark"> {completedEvents.length}</span>
+                </p>
               </div>
               <div className="input-icon-start position-relative me-2">
                 <span className="input-icon-addon">
@@ -382,14 +457,25 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
                   <i className="ti ti-file-export me-2"></i>
                   Export
                 </button>
-                <ul className={`dropdown-menu dropdown-menu-end p-3 ${showExportDropdown ? 'show' : ''}`}>
+                <ul
+                  className={`dropdown-menu dropdown-menu-end p-3 ${
+                    showExportDropdown ? "show" : ""
+                  }`}
+                >
                   <li>
-                    <button className="dropdown-item rounded-1" onClick={exportToExcel}>
-                      <i className="ti ti-file-type-xls me-1"></i>Export as Excel
+                    <button
+                      className="dropdown-item rounded-1"
+                      onClick={exportToExcel}
+                    >
+                      <i className="ti ti-file-type-xls me-1"></i>Export as
+                      Excel
                     </button>
                   </li>
                   <li>
-                    <button className="dropdown-item rounded-1" onClick={exportToPDF}>
+                    <button
+                      className="dropdown-item rounded-1"
+                      onClick={exportToPDF}
+                    >
                       <i className="ti ti-file-type-pdf me-1"></i>Export as PDF
                     </button>
                   </li>
@@ -409,43 +495,74 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
                 <div className="d-flex align-items-center flex-wrap row-gap-2">
                   <div className="dropdown me-2">
                     <button className="dropdown-toggle btn btn-white d-inline-flex align-items-center">
-                      {organizerFilter === 'All' ? 'Organizer' : organizerFilter}
+                      {organizerFilter === "All"
+                        ? "Organizer"
+                        : organizerFilter}
                     </button>
                     <ul className="dropdown-menu dropdown-menu-end p-3">
-                      <li><button className="dropdown-item rounded-1" onClick={() => setOrganizerFilter('All')}>All</button></li>
-                      <li><button className="dropdown-item rounded-1" onClick={() => setOrganizerFilter('Edujobz')}>Edujobz</button></li>
-                      <li><button className="dropdown-item rounded-1" onClick={() => setOrganizerFilter('Other')}>Other</button></li>
+                      <li>
+                        <button
+                          className="dropdown-item rounded-1"
+                          onClick={() => setOrganizerFilter("All")}
+                        >
+                          All
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item rounded-1"
+                          onClick={() => setOrganizerFilter("Edujobz")}
+                        >
+                          Edujobz
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item rounded-1"
+                          onClick={() => setOrganizerFilter("Other")}
+                        >
+                          Other
+                        </button>
+                      </li>
                     </ul>
                   </div>
                   <ul className="nav nav-pills border d-inline-flex rounded bg-light todo-tabs">
                     <li className="nav-item">
                       <button
-                        className={`nav-link btn btn-sm btn-icon py-3 d-flex align-items-center justify-content-center w-auto ${activeTab === 'pills-home' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('pills-home')}
+                        className={`nav-link btn btn-sm btn-icon py-3 d-flex align-items-center justify-content-center w-auto ${
+                          activeTab === "pills-home" ? "active" : ""
+                        }`}
+                        onClick={() => setActiveTab("pills-home")}
                       >
                         All Events
                       </button>
                     </li>
                     <li className="nav-item">
                       <button
-                        className={`nav-link btn btn-sm btn-icon py-3 d-flex align-items-center justify-content-center w-auto ${activeTab === 'pills-contact' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('pills-contact')}
+                        className={`nav-link btn btn-sm btn-icon py-3 d-flex align-items-center justify-content-center w-auto ${
+                          activeTab === "pills-contact" ? "active" : ""
+                        }`}
+                        onClick={() => setActiveTab("pills-contact")}
                       >
                         Workshops
                       </button>
                     </li>
                     <li className="nav-item">
                       <button
-                        className={`nav-link btn btn-sm btn-icon py-3 d-flex align-items-center justify-content-center w-auto ${activeTab === 'pills-medium' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('pills-medium')}
+                        className={`nav-link btn btn-sm btn-icon py-3 d-flex align-items-center justify-content-center w-auto ${
+                          activeTab === "pills-medium" ? "active" : ""
+                        }`}
+                        onClick={() => setActiveTab("pills-medium")}
                       >
                         Webinars
                       </button>
                     </li>
                     <li className="nav-item">
                       <button
-                        className={`nav-link btn btn-sm btn-icon py-3 d-flex align-items-center justify-content-center w-auto ${activeTab === 'pills-low' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('pills-low')}
+                        className={`nav-link btn btn-sm btn-icon py-3 d-flex align-items-center justify-content-center w-auto ${
+                          activeTab === "pills-low" ? "active" : ""
+                        }`}
+                        onClick={() => setActiveTab("pills-low")}
                       >
                         Seminars
                       </button>
@@ -481,15 +598,57 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
                   </div>
                   <div className="dropdown me-2">
                     <button className="dropdown-toggle btn btn-white d-inline-flex align-items-center">
-                      {statusFilter === 'All' ? 'Select Status' : statusFilter}
+                      {statusFilter === "All" ? "Select Status" : statusFilter}
                     </button>
                     <ul className="dropdown-menu dropdown-menu-end p-3">
-                      <li><button className="dropdown-item rounded-1" onClick={() => setStatusFilter('All')}>All</button></li>
-                      <li><button className="dropdown-item rounded-1" onClick={() => setStatusFilter('Current')}>Current</button></li>
-                      <li><button className="dropdown-item rounded-1" onClick={() => setStatusFilter('Upcoming')}>Upcoming</button></li>
-                      <li><button className="dropdown-item rounded-1" onClick={() => setStatusFilter('On-hold')}>On-hold</button></li>
-                      <li><button className="dropdown-item rounded-1" onClick={() => setStatusFilter('Cancelled')}>Cancelled</button></li>
-                      <li><button className="dropdown-item rounded-1" onClick={() => setStatusFilter('Completed')}>Completed</button></li>
+                      <li>
+                        <button
+                          className="dropdown-item rounded-1"
+                          onClick={() => setStatusFilter("All")}
+                        >
+                          All
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item rounded-1"
+                          onClick={() => setStatusFilter("Current")}
+                        >
+                          Current
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item rounded-1"
+                          onClick={() => setStatusFilter("Upcoming")}
+                        >
+                          Upcoming
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item rounded-1"
+                          onClick={() => setStatusFilter("On-hold")}
+                        >
+                          On-hold
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item rounded-1"
+                          onClick={() => setStatusFilter("Cancelled")}
+                        >
+                          Cancelled
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item rounded-1"
+                          onClick={() => setStatusFilter("Completed")}
+                        >
+                          Completed
+                        </button>
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -499,12 +658,12 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
         </div>
 
         {/* Main Content */}
-        <div className="content" style={{ marginTop: '230px', flex: 1 }}>
+        <div className="content" style={{ marginTop: "230px", flex: 1 }}>
           <div className="card">
             <div className="card-body">
               <div className="tab-content">
                 {/* All Events Tab */}
-                {activeTab === 'pills-home' && (
+                {activeTab === "pills-home" && (
                   <div className="tab-pane fade show active">
                     <div className="d-flex align-items-start overflow-auto project-status pb-4">
                       <EventColumn
@@ -547,13 +706,15 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
                 )}
 
                 {/* Workshops Tab */}
-                {activeTab === 'pills-contact' && (
+                {activeTab === "pills-contact" && (
                   <div className="tab-pane fade">
                     <div className="d-flex align-items-start overflow-auto project-status pb-4">
                       <EventColumn
                         title="Current Workshops"
-                        count={workshops.filter(e => e.status === 'Current').length}
-                        events={workshops.filter(e => e.status === 'Current')}
+                        count={
+                          workshops.filter((e) => e.status === "Current").length
+                        }
+                        events={workshops.filter((e) => e.status === "Current")}
                         color="pink"
                         onView={handleViewEvent}
                         onDelete={handleDeleteClick}
@@ -561,8 +722,13 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
 
                       <EventColumn
                         title="Upcoming Workshops"
-                        count={workshops.filter(e => e.status === 'Upcoming').length}
-                        events={workshops.filter(e => e.status === 'Upcoming')}
+                        count={
+                          workshops.filter((e) => e.status === "Upcoming")
+                            .length
+                        }
+                        events={workshops.filter(
+                          (e) => e.status === "Upcoming"
+                        )}
                         color="skyblue"
                         onView={handleViewEvent}
                         onDelete={handleDeleteClick}
@@ -570,8 +736,16 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
 
                       <EventColumn
                         title="On-hold / Cancelled"
-                        count={workshops.filter(e => e.status === 'On-hold' || e.status === 'Cancelled').length}
-                        events={workshops.filter(e => e.status === 'On-hold' || e.status === 'Cancelled')}
+                        count={
+                          workshops.filter(
+                            (e) =>
+                              e.status === "On-hold" || e.status === "Cancelled"
+                          ).length
+                        }
+                        events={workshops.filter(
+                          (e) =>
+                            e.status === "On-hold" || e.status === "Cancelled"
+                        )}
                         color="danger"
                         onView={handleViewEvent}
                         onDelete={handleDeleteClick}
@@ -579,8 +753,13 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
 
                       <EventColumn
                         title="Completed Workshops"
-                        count={workshops.filter(e => e.status === 'Completed').length}
-                        events={workshops.filter(e => e.status === 'Completed')}
+                        count={
+                          workshops.filter((e) => e.status === "Completed")
+                            .length
+                        }
+                        events={workshops.filter(
+                          (e) => e.status === "Completed"
+                        )}
                         color="success"
                         onView={handleViewEvent}
                         onDelete={handleDeleteClick}
@@ -590,13 +769,15 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
                 )}
 
                 {/* Webinars Tab */}
-                {activeTab === 'pills-medium' && (
+                {activeTab === "pills-medium" && (
                   <div className="tab-pane fade">
                     <div className="d-flex align-items-start overflow-auto project-status pb-4">
                       <EventColumn
                         title="Current Webinars"
-                        count={webinars.filter(e => e.status === 'Current').length}
-                        events={webinars.filter(e => e.status === 'Current')}
+                        count={
+                          webinars.filter((e) => e.status === "Current").length
+                        }
+                        events={webinars.filter((e) => e.status === "Current")}
                         color="pink"
                         onView={handleViewEvent}
                         onDelete={handleDeleteClick}
@@ -604,8 +785,10 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
 
                       <EventColumn
                         title="Upcoming Webinars"
-                        count={webinars.filter(e => e.status === 'Upcoming').length}
-                        events={webinars.filter(e => e.status === 'Upcoming')}
+                        count={
+                          webinars.filter((e) => e.status === "Upcoming").length
+                        }
+                        events={webinars.filter((e) => e.status === "Upcoming")}
                         color="skyblue"
                         onView={handleViewEvent}
                         onDelete={handleDeleteClick}
@@ -613,8 +796,16 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
 
                       <EventColumn
                         title="On-hold / Cancelled"
-                        count={webinars.filter(e => e.status === 'On-hold' || e.status === 'Cancelled').length}
-                        events={webinars.filter(e => e.status === 'On-hold' || e.status === 'Cancelled')}
+                        count={
+                          webinars.filter(
+                            (e) =>
+                              e.status === "On-hold" || e.status === "Cancelled"
+                          ).length
+                        }
+                        events={webinars.filter(
+                          (e) =>
+                            e.status === "On-hold" || e.status === "Cancelled"
+                        )}
                         color="danger"
                         onView={handleViewEvent}
                         onDelete={handleDeleteClick}
@@ -622,8 +813,13 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
 
                       <EventColumn
                         title="Completed Webinars"
-                        count={webinars.filter(e => e.status === 'Completed').length}
-                        events={webinars.filter(e => e.status === 'Completed')}
+                        count={
+                          webinars.filter((e) => e.status === "Completed")
+                            .length
+                        }
+                        events={webinars.filter(
+                          (e) => e.status === "Completed"
+                        )}
                         color="success"
                         onView={handleViewEvent}
                         onDelete={handleDeleteClick}
@@ -633,13 +829,15 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
                 )}
 
                 {/* Seminars Tab */}
-                {activeTab === 'pills-low' && (
+                {activeTab === "pills-low" && (
                   <div className="tab-pane fade">
                     <div className="d-flex align-items-start overflow-auto project-status pb-4">
                       <EventColumn
                         title="Current Seminars"
-                        count={seminars.filter(e => e.status === 'Current').length}
-                        events={seminars.filter(e => e.status === 'Current')}
+                        count={
+                          seminars.filter((e) => e.status === "Current").length
+                        }
+                        events={seminars.filter((e) => e.status === "Current")}
                         color="pink"
                         onView={handleViewEvent}
                         onDelete={handleDeleteClick}
@@ -647,8 +845,10 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
 
                       <EventColumn
                         title="Upcoming Seminars"
-                        count={seminars.filter(e => e.status === 'Upcoming').length}
-                        events={seminars.filter(e => e.status === 'Upcoming')}
+                        count={
+                          seminars.filter((e) => e.status === "Upcoming").length
+                        }
+                        events={seminars.filter((e) => e.status === "Upcoming")}
                         color="skyblue"
                         onView={handleViewEvent}
                         onDelete={handleDeleteClick}
@@ -656,8 +856,16 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
 
                       <EventColumn
                         title="On-hold / Cancelled"
-                        count={seminars.filter(e => e.status === 'On-hold' || e.status === 'Cancelled').length}
-                        events={seminars.filter(e => e.status === 'On-hold' || e.status === 'Cancelled')}
+                        count={
+                          seminars.filter(
+                            (e) =>
+                              e.status === "On-hold" || e.status === "Cancelled"
+                          ).length
+                        }
+                        events={seminars.filter(
+                          (e) =>
+                            e.status === "On-hold" || e.status === "Cancelled"
+                        )}
                         color="danger"
                         onView={handleViewEvent}
                         onDelete={handleDeleteClick}
@@ -665,8 +873,13 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
 
                       <EventColumn
                         title="Completed Seminars"
-                        count={seminars.filter(e => e.status === 'Completed').length}
-                        events={seminars.filter(e => e.status === 'Completed')}
+                        count={
+                          seminars.filter((e) => e.status === "Completed")
+                            .length
+                        }
+                        events={seminars.filter(
+                          (e) => e.status === "Completed"
+                        )}
                         color="success"
                         onView={handleViewEvent}
                         onDelete={handleDeleteClick}
@@ -681,12 +894,31 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
 
         {/* Add New Event Modal */}
         {showAddEventModal && (
-          <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1050 }}>
-            <div className="modal-dialog modal-dialog-centered" style={{ zIndex: 1051 }}>
+          <div
+            className="modal fade show"
+            style={{
+              display: "block",
+              backgroundColor: "rgba(0,0,0,0.5)",
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 1050,
+            }}
+          >
+            <div
+              className="modal-dialog modal-dialog-centered"
+              style={{ zIndex: 1051 }}
+            >
               <div className="modal-content">
                 <div className="modal-header">
                   <h4 className="modal-title text-primary">Add New Event</h4>
-                  <button type="button" className="btn-close" onClick={() => setShowAddEventModal(false)}>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowAddEventModal(false)}
+                  >
                     <MoreVertical />
                   </button>
                 </div>
@@ -747,9 +979,9 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
                             key={fileInputKey}
                             onChange={(e) => {
                               if (e.target.files && e.target.files[0]) {
-                                setNewEvent(prev => ({
+                                setNewEvent((prev) => ({
                                   ...prev,
-                                  bannerImage: e.target.files[0] // Store the File object directly
+                                  bannerImage: e.target.files[0], // Store the File object directly
                                 }));
                               }
                             }}
@@ -817,7 +1049,7 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
                             type="number"
                             className="form-control"
                             name="entryfee"
-                            value={newEvent.entryfee || ''}
+                            value={newEvent.entryfee || ""}
                             onChange={handleInputChange}
                             placeholder="0 for free"
                           />
@@ -838,7 +1070,9 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
                       </div>
                       <div className="col-12">
                         <div className="mb-3">
-                          <label className="form-label">Coordinator Details</label>
+                          <label className="form-label">
+                            Coordinator Details
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -853,8 +1087,16 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-light me-2" onClick={() => setShowAddEventModal(false)}>Cancel</button>
-                    <button type="submit" className="btn btn-primary">Create Event</button>
+                    <button
+                      type="button"
+                      className="btn btn-light me-2"
+                      onClick={() => setShowAddEventModal(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn btn-primary">
+                      Create Event
+                    </button>
                   </div>
                 </form>
               </div>
@@ -864,7 +1106,19 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && (
-          <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1050 }}>
+          <div
+            className="modal fade show"
+            style={{
+              display: "block",
+              backgroundColor: "rgba(0,0,0,0.5)",
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 1050,
+            }}
+          >
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content">
                 <div className="modal-body text-center">
@@ -872,7 +1126,10 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
                     <Trash2 className="text-danger fs-4" />
                   </span>
                   <h4 className="mb-1">Confirm Delete</h4>
-                  <p className="mb-3">You want to delete this event. This can't be undone once you delete.</p>
+                  <p className="mb-3">
+                    You want to delete this event. This can't be undone once you
+                    delete.
+                  </p>
                   <div className="d-flex justify-content-center">
                     <button
                       className="btn btn-light me-3"
@@ -896,15 +1153,17 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
         {/* Toast Notification */}
         {toast.show && (
           <div
-            className={`toast show position-fixed top-0 end-0 m-3 ${toast.type === 'success' ? 'bg-success' : 'bg-danger'}`}
+            className={`toast show position-fixed top-0 end-0 m-3 ${
+              toast.type === "success" ? "bg-success" : "bg-danger"
+            }`}
             style={{
               zIndex: 9999,
-              transition: 'opacity 0.5s ease-out',
-              opacity: toast.show ? 1 : 0
+              transition: "opacity 0.5s ease-out",
+              opacity: toast.show ? 1 : 0,
             }}
           >
             <div className="toast-body text-white d-flex align-items-center">
-              {toast.type === 'success' ? (
+              {toast.type === "success" ? (
                 <CheckCircle className="me-2" />
               ) : (
                 <AlertCircle className="me-2" />
@@ -922,19 +1181,26 @@ const [showExportDropdown, setShowExportDropdown] = useState(false);
 // Reusable Event Column Component
 const EventColumn = ({ title, count, events, color, onView, onDelete }) => {
   const colorClasses = {
-    pink: { bg: 'bg-soft-pink', dot: 'bg-pink' },
-    skyblue: { bg: 'bg-soft-skyblue', dot: 'bg-skyblue' },
-    danger: { bg: 'bg-soft-danger', dot: 'bg-danger' },
-    success: { bg: 'bg-soft-success', dot: 'bg-success' }
+    pink: { bg: "bg-soft-pink", dot: "bg-pink" },
+    skyblue: { bg: "bg-soft-skyblue", dot: "bg-skyblue" },
+    danger: { bg: "bg-soft-danger", dot: "bg-danger" },
+    success: { bg: "bg-soft-success", dot: "bg-success" },
   };
 
   return (
     <div className="p-3 rounded bg-transparent-secondary w-100 me-4 border border-dark shadow">
       <div className={`bg-secondary p-2 rounded mb-2`}>
         <div className="d-flex align-items-center">
-          <div className="d-flex align-items-center" style={{ margin: '0px auto' }}>
-            <span className={`${colorClasses[color].bg} p-1 d-flex rounded-circle me-2`}>
-              <span className={`${colorClasses[color].dot} rounded-circle d-block p-1`}></span>
+          <div
+            className="d-flex align-items-center"
+            style={{ margin: "0px auto" }}
+          >
+            <span
+              className={`${colorClasses[color].bg} p-1 d-flex rounded-circle me-2`}
+            >
+              <span
+                className={`${colorClasses[color].dot} rounded-circle d-block p-1`}
+              ></span>
             </span>
             <h5 className="me-2 text-white">{title}</h5>
             <span className="badge bg-light rounded-pill">{count}</span>
@@ -943,7 +1209,12 @@ const EventColumn = ({ title, count, events, color, onView, onDelete }) => {
       </div>
       <div className="kanban-drag-wrap">
         {events.map((event, index) => (
-          <EventCard key={index} event={event} onView={() => onView(event)} onDelete={onDelete} />
+          <EventCard
+            key={index}
+            event={event}
+            onView={() => onView(event)}
+            onDelete={onDelete}
+          />
         ))}
       </div>
     </div>
@@ -956,23 +1227,24 @@ const EventCard = ({ event, onView, onDelete }) => {
   const navigate = useNavigate();
 
   // Add null checks for event properties
-  const eventTitle = event?.title || 'Untitled Event';
-  const eventVenue = event?.venue || 'Venue not specified';
-  const eventDate = event?.eventDate ? new Date(event.eventDate).toLocaleDateString() : 'Date not specified';
-  const bannerImage = event?.bannerImage || 'default-image-url';
+  const eventTitle = event?.title || "Untitled Event";
+  const eventVenue = event?.venue || "Venue not specified";
+  const eventDate = event?.eventDate
+    ? new Date(event.eventDate).toLocaleDateString()
+    : "Date not specified";
+  const bannerImage = event?.bannerImage || "default-image-url";
   const registrations = event?.registrations || [];
   const totalRegistrations = event?.totalRegistrations || 0;
-  const maxParticipants = event?.maxParticipants || '∞';
-  const organizer = event?.organizerId === "665fd983d7e1f2a70b89e5e7" ? 'Edujobz' : 'Other';
+  const maxParticipants = event?.maxParticipants || "∞";
+  const organizer =
+    event?.organizerId === "665fd983d7e1f2a70b89e5e7" ? "Edujobz" : "Other";
 
   return (
     <div className="card kanban-card mb-2">
       <div className="card-body">
         <div className="d-flex align-items-center justify-content-between mb-3">
           <div className="d-flex align-items-center">
-            <span className="badge bg-outline-dark me-2">
-              {organizer}
-            </span>
+            <span className="badge bg-outline-dark me-2">{organizer}</span>
           </div>
           <div className="dropdown">
             <button
@@ -982,7 +1254,10 @@ const EventCard = ({ event, onView, onDelete }) => {
               <MoreVertical />
             </button>
             {showDropdown && (
-              <div className="dropdown-menu show" style={{ position: 'absolute', right: 0, zIndex: 1000 }}>
+              <div
+                className="dropdown-menu show"
+                style={{ position: "absolute", right: 0, zIndex: 1000 }}
+              >
                 <button
                   className="dropdown-item rounded-1"
                   onClick={() => {
@@ -1005,7 +1280,8 @@ const EventCard = ({ event, onView, onDelete }) => {
                     setShowDropdown(false);
                   }}
                 >
-                  <Trash2 className="text-danger me-2" />Delete
+                  <Trash2 className="text-danger me-2" />
+                  Delete
                 </button>
               </div>
             )}
@@ -1020,7 +1296,15 @@ const EventCard = ({ event, onView, onDelete }) => {
             />
           </span>
           <h6 className="align-items-center text-primary">
-            <button onClick={onView} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+            <button
+              onClick={onView}
+              style={{
+                background: "none",
+                border: "none",
+                padding: 0,
+                cursor: "pointer",
+              }}
+            >
               {eventTitle}
             </button>
             <br />
@@ -1034,7 +1318,9 @@ const EventCard = ({ event, onView, onDelete }) => {
           </div>
           <div className="me-3 pe-3 border-end">
             <span className="fw-bold fs-12 d-block">Participants</span>
-            <p className="fs-12 text-dark">{totalRegistrations}/{maxParticipants}</p>
+            <p className="fs-12 text-dark">
+              {totalRegistrations}/{maxParticipants}
+            </p>
           </div>
           <div className="">
             <span className="fw-bold fs-12 d-block">Event on</span>
@@ -1044,8 +1330,13 @@ const EventCard = ({ event, onView, onDelete }) => {
         <div className="d-flex align-items-center justify-content-between">
           <div className="avatar-list-stacked avatar-group-sm me-3">
             {registrations.slice(0, 3).map((reg, index) => (
-              <span key={index} className="avatar avatar-rounded bg-secondary fs-12 text-white">
-                {reg?.participantName ? reg.participantName.charAt(0).toUpperCase() : 'A'}
+              <span
+                key={index}
+                className="avatar avatar-rounded bg-secondary fs-12 text-white"
+              >
+                {reg?.participantName
+                  ? reg.participantName.charAt(0).toUpperCase()
+                  : "A"}
               </span>
             ))}
             {registrations.length > 3 && (

@@ -1,48 +1,76 @@
-import React, { useState, useEffect } from 'react';
-import { Briefcase, ChevronDown, PlusCircle, Users, Eye, ArrowUp, MapPin, IndianRupee, Calendar, Bus, Settings, PieChart, X, Check, ArrowUpRight, RotateCw, CheckCircle2 } from 'lucide-react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
-import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
-import appleIcon from '../../../assets/employer-admin/assets/img/icons/apple.svg';
+import React, { useState, useEffect } from "react";
+import {
+  Briefcase,
+  ChevronDown,
+  PlusCircle,
+  Users,
+  Eye,
+  ArrowUp,
+  MapPin,
+  IndianRupee,
+  Calendar,
+  Bus,
+  Settings,
+  PieChart,
+  X,
+  Check,
+  ArrowUpRight,
+  RotateCw,
+  CheckCircle2,
+} from "lucide-react";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import EmployerAdminHeader from "../Layout/EmployerAdminHeader";
+import EmployerAdminFooter from "../Layout/EmployerAdminFooter";
+import appleIcon from "../../../assets/employer-admin/assets/img/icons/apple.svg";
 
 // Main Jobs Component
 const EmployeerAdminGridJobUnit = () => {
-  const [activeTab, setActiveTab] = useState('basic-info');
+  const [activeTab, setActiveTab] = useState("basic-info");
   const [showAddPostModal, setShowAddPostModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [dateRange, setDateRange] = useState({
-    start: '',
-    end: ''
+    start: "",
+    end: "",
   });
-  const [selectedDateRange, setSelectedDateRange] = useState('This Year');
+  const [selectedDateRange, setSelectedDateRange] = useState("This Year");
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [filters, setFilters] = useState({
     category: [],
     type: [],
     status: [],
-    role: 'All',
-    sortBy: 'Recently Added',
-    gender: '',
-    salaryRange: { from: '', to: '' },
-    location: '',
-    qualification: '',
-    experienceRange: { from: '', to: '' }
+    role: "All",
+    sortBy: "Recently Added",
+    gender: "",
+    salaryRange: { from: "", to: "" },
+    location: "",
+    qualification: "",
+    experienceRange: { from: "", to: "" },
   });
 
   // Extract unique values from jobs for filters
-  const jobCategories = [...new Set(jobs.map(job => job.category))].filter(Boolean);
-  const jobTypes = [...new Set(jobs.map(job => job.type))].filter(Boolean);
-  const statusOptions = [...new Set(jobs.map(job => job.status))].filter(Boolean);
-  const jobRoles = ['All', ...new Set(jobs.map(job => job.title))].filter(Boolean);
+  const jobCategories = [...new Set(jobs.map((job) => job.category))].filter(
+    Boolean
+  );
+  const jobTypes = [...new Set(jobs.map((job) => job.type))].filter(Boolean);
+  const statusOptions = [...new Set(jobs.map((job) => job.status))].filter(
+    Boolean
+  );
+  const jobRoles = ["All", ...new Set(jobs.map((job) => job.title))].filter(
+    Boolean
+  );
 
   const sortOptions = [
-    "Recently Added", "Ascending", "Descending", "Last Month", "Last 7 Days"
+    "Recently Added",
+    "Ascending",
+    "Descending",
+    "Last Month",
+    "Last 7 Days",
   ];
 
   const getDynamicDateRangeOptions = () => {
@@ -53,60 +81,81 @@ const EmployeerAdminGridJobUnit = () => {
 
     return [
       {
-        label: 'Today',
-        value: 'today',
-        dateLabel: `${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`
+        label: "Today",
+        value: "today",
+        dateLabel: `${currentDate.toString().padStart(2, "0")}/${currentMonth
+          .toString()
+          .padStart(2, "0")}/${currentYear}`,
       },
       {
-        label: 'Yesterday',
-        value: 'yesterday',
+        label: "Yesterday",
+        value: "yesterday",
         dateLabel: (() => {
           const yesterday = new Date(today);
           yesterday.setDate(yesterday.getDate() - 1);
-          return `${yesterday.getDate().toString().padStart(2, '0')}/${(yesterday.getMonth() + 1).toString().padStart(2, '0')}/${yesterday.getFullYear()}`;
-        })()
+          return `${yesterday.getDate().toString().padStart(2, "0")}/${(
+            yesterday.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${yesterday.getFullYear()}`;
+        })(),
       },
       {
-        label: 'Last 7 Days',
-        value: 'last7days',
+        label: "Last 7 Days",
+        value: "last7days",
         dateLabel: (() => {
           const week = new Date(today);
           week.setDate(week.getDate() - 7);
-          return `${week.getDate().toString().padStart(2, '0')}/${(week.getMonth() + 1).toString().padStart(2, '0')}/${week.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
-        })()
+          return `${week.getDate().toString().padStart(2, "0")}/${(
+            week.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${week.getFullYear()} - ${currentDate
+            .toString()
+            .padStart(2, "0")}/${currentMonth
+            .toString()
+            .padStart(2, "0")}/${currentYear}`;
+        })(),
       },
       {
-        label: 'Last 30 Days',
-        value: 'last30days',
+        label: "Last 30 Days",
+        value: "last30days",
         dateLabel: (() => {
           const month = new Date(today);
           month.setDate(month.getDate() - 30);
-          return `${month.getDate().toString().padStart(2, '0')}/${(month.getMonth() + 1).toString().padStart(2, '0')}/${month.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
-        })()
+          return `${month.getDate().toString().padStart(2, "0")}/${(
+            month.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${month.getFullYear()} - ${currentDate
+            .toString()
+            .padStart(2, "0")}/${currentMonth
+            .toString()
+            .padStart(2, "0")}/${currentYear}`;
+        })(),
       },
       {
-        label: 'This Year',
-        value: 'thisyear',
-        dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`
+        label: "This Year",
+        value: "thisyear",
+        dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`,
       },
       {
-        label: 'Last Year',
-        value: 'lastyear',
-        dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`
+        label: "Last Year",
+        value: "lastyear",
+        dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`,
       },
       {
-        label: 'Next Year',
-        value: 'nextyear',
-        dateLabel: `01/01/${currentYear + 1} - 31/12/${currentYear + 1}`
+        label: "Next Year",
+        value: "nextyear",
+        dateLabel: `01/01/${currentYear + 1} - 31/12/${currentYear + 1}`,
       },
       {
-        label: 'Custom Range',
-        value: 'custom',
-        dateLabel: 'Select dates'
-      }
+        label: "Custom Range",
+        value: "custom",
+        dateLabel: "Select dates",
+      },
     ];
   };
-
 
   const exportToPDF = () => {
     try {
@@ -126,15 +175,27 @@ const EmployeerAdminGridJobUnit = () => {
         <tbody>
     `;
 
-      filteredJobs.forEach(job => {
+      filteredJobs.forEach((job) => {
         htmlContent += `
         <tr>
-          <td style="border: 1px solid #ddd; padding: 8px;">${job.title || 'N/A'}</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${job.category || 'N/A'}</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${job.type || 'N/A'}</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${job.location || 'N/A'}</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${job.salary || 'N/A'}</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${job.status || 'N/A'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            job.title || "N/A"
+          }</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            job.category || "N/A"
+          }</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            job.type || "N/A"
+          }</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            job.location || "N/A"
+          }</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            job.salary || "N/A"
+          }</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            job.status || "N/A"
+          }</td>
         </tr>
       `;
       });
@@ -147,7 +208,7 @@ const EmployeerAdminGridJobUnit = () => {
       </p>
     `;
 
-      const win = window.open('', '_blank');
+      const win = window.open("", "_blank");
       win.document.write(`
       <html>
         <head>
@@ -172,36 +233,41 @@ const EmployeerAdminGridJobUnit = () => {
       </html>
     `);
       win.document.close();
-
     } catch (error) {
-      console.error('Error exporting to PDF:', error);
-      alert('Failed to export PDF: ' + error.message);
+      console.error("Error exporting to PDF:", error);
+      alert("Failed to export PDF: " + error.message);
     }
   };
 
   const exportToExcel = () => {
     try {
-      let csvContent = "Job Title,Category,Type,Location,Salary,Status,Applicants\n";
+      let csvContent =
+        "Job Title,Category,Type,Location,Salary,Status,Applicants\n";
 
-      filteredJobs.forEach(job => {
-        csvContent += `"${job.title || ''}","${job.category || ''}","${job.type || ''}",` +
-          `"${job.location || ''}","${job.salary || ''}","${job.status || ''}",` +
+      filteredJobs.forEach((job) => {
+        csvContent +=
+          `"${job.title || ""}","${job.category || ""}","${job.type || ""}",` +
+          `"${job.location || ""}","${job.salary || ""}","${
+            job.status || ""
+          }",` +
           `"${job.applicants || 0}"\n`;
       });
 
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `jobs_${new Date().toISOString().slice(0, 10)}.csv`);
-      link.style.visibility = 'hidden';
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        `jobs_${new Date().toISOString().slice(0, 10)}.csv`
+      );
+      link.style.visibility = "hidden";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
     } catch (error) {
-      console.error('Error exporting to Excel:', error);
-      alert('Failed to export Excel: ' + error.message);
+      console.error("Error exporting to Excel:", error);
+      alert("Failed to export Excel: " + error.message);
     }
   };
 
@@ -213,81 +279,93 @@ const EmployeerAdminGridJobUnit = () => {
     filterAndSortJobs();
   }, [jobs, filters, searchTerm]);
 
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+      const employerAdminData = JSON.parse(
+        localStorage.getItem("EmployerAdminData") || "{}"
+      );
 
-   const fetchJobs = async () => {
-  try {
-    setLoading(true);
-    const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
+      if (!employerAdminData || !employerAdminData._id) {
+        throw new Error("Employer not logged in or missing ID");
+      }
 
-    if (!employerAdminData || !employerAdminData._id) {
-      throw new Error('Employer not logged in or missing ID');
-    }
+      const response = await axios.get(
+        `https://api.edprofio.com/employeradmin/getjobsbyorg/${employerAdminData._id}`
+      );
 
-    const response = await axios.get(
-      `https://edujobzbackend.onrender.com/employeradmin/getjobsbyorg/${employerAdminData._id}`
-    );
+      // Handle case when no jobs are found (empty array)
+      if (
+        !response.data ||
+        !response.data.data ||
+        response.data.data.length === 0
+      ) {
+        setJobs([]);
+        setFilteredJobs([]);
+        setLoading(false);
+        return; // Exit early
+      }
 
-    // Handle case when no jobs are found (empty array)
-    if (!response.data || !response.data.data || response.data.data.length === 0) {
-      setJobs([]);
-      setFilteredJobs([]);
-      setLoading(false);
-      return; // Exit early
-    }
-
-    const formattedJobs = response.data.data.map(job => ({
+      const formattedJobs = response.data.data.map((job) => ({
         id: job._id,
         title: job.jobTitle,
         employerProfilePic: job.employerProfilePic,
         applicants: job.applications?.length || 0,
-        shortlisted: job.applications?.filter(app => app.employapplicantstatus === 'Shortlisted').length || 0,
+        shortlisted:
+          job.applications?.filter(
+            (app) => app.employapplicantstatus === "Shortlisted"
+          ).length || 0,
         location: job.location,
         salaryFrom: job.salaryFrom || 0,
         salaryTo: job.salaryTo || 0,
-        salary: `${job.salaryFrom || 'N/A'} - ${job.salaryTo || 'N/A'} ${job.salaryType || ''}`,
-        experience: job.experienceLevel || 'Not specified',
-        type: job.jobType || 'Not specified',
-        category: job.category || 'Not specified',
+        salary: `${job.salaryFrom || "N/A"} - ${job.salaryTo || "N/A"} ${
+          job.salaryType || ""
+        }`,
+        experience: job.experienceLevel || "Not specified",
+        type: job.jobType || "Not specified",
+        category: job.category || "Not specified",
         accommodation: job.benefits || "Not specified",
         skills: job.skills || [],
         postedDate: formatDate(job.createdAt),
         icon: job.employerProfilePic || "default.svg",
-        description: job.description || '',
+        description: job.description || "",
         remote: job.isRemote || false,
         applications: job.applications || [],
-        status: job.isActive ? 'Active' : 'Inactive',
+        status: job.isActive ? "Active" : "Inactive",
         createdDate: new Date(job.createdAt),
-        priority: job.priority || 'null',
-        educationLevel: job.educationLevel || ''
-         }));
+        priority: job.priority || "null",
+        educationLevel: job.educationLevel || "",
+      }));
 
-    setJobs(formattedJobs);
-    setFilteredJobs(formattedJobs); // Initialize filteredJobs with all jobs
-    setLoading(false);
-    setError(null);
-  } catch (err) {
-    // Handle 404 specifically
-    if (err.response && err.response.status === 404) {
-      setJobs([]);
-      setFilteredJobs([]);
-    } else {
-      console.error('Error fetching jobs:', err);
-      setError(err.message || 'Failed to load jobs. Please try again later.');
+      setJobs(formattedJobs);
+      setFilteredJobs(formattedJobs); // Initialize filteredJobs with all jobs
+      setLoading(false);
+      setError(null);
+    } catch (err) {
+      // Handle 404 specifically
+      if (err.response && err.response.status === 404) {
+        setJobs([]);
+        setFilteredJobs([]);
+      } else {
+        console.error("Error fetching jobs:", err);
+        setError(err.message || "Failed to load jobs. Please try again later.");
+      }
+      setLoading(false);
     }
-    setLoading(false);
-  }
-};
+  };
 
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
-      return isNaN(date) ? 'Invalid Date' : date.toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-      });
+      return isNaN(date)
+        ? "Invalid Date"
+        : date.toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          });
     } catch (e) {
-      return 'Invalid Date';
+      return "Invalid Date";
     }
   };
 
@@ -302,7 +380,7 @@ const EmployeerAdminGridJobUnit = () => {
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
 
-      result = result.filter(job => {
+      result = result.filter((job) => {
         if (!job.createdDate) return false;
         const createdDate = new Date(job.createdDate);
         return createdDate >= startDate && createdDate <= endDate;
@@ -311,97 +389,113 @@ const EmployeerAdminGridJobUnit = () => {
     // Apply search term filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(job =>
-        job.title.toLowerCase().includes(term) ||
-        job.description.toLowerCase().includes(term) ||
-        (job.skills && job.skills.some(skill => skill.toLowerCase().includes(term))) ||
-        job.category.toLowerCase().includes(term) ||
-        job.type.toLowerCase().includes(term)
+      result = result.filter(
+        (job) =>
+          job.title.toLowerCase().includes(term) ||
+          job.description.toLowerCase().includes(term) ||
+          (job.skills &&
+            job.skills.some((skill) => skill.toLowerCase().includes(term))) ||
+          job.category.toLowerCase().includes(term) ||
+          job.type.toLowerCase().includes(term)
       );
     }
 
     // Apply category filter
     if (filters.category.length > 0) {
-      result = result.filter(job =>
-        job.category && filters.category.includes(job.category)
+      result = result.filter(
+        (job) => job.category && filters.category.includes(job.category)
       );
     }
 
     // Apply type filter
     if (filters.type.length > 0) {
-      result = result.filter(job =>
-        job.type && filters.type.includes(job.type)
+      result = result.filter(
+        (job) => job.type && filters.type.includes(job.type)
       );
     }
 
     // Apply status filter
     if (filters.status.length > 0) {
-      result = result.filter(job =>
-        job.status && filters.status.includes(job.status)
+      result = result.filter(
+        (job) => job.status && filters.status.includes(job.status)
       );
     }
 
     // Apply role filter
-    if (filters.role !== 'All') {
-      result = result.filter(job =>
-        job.title && job.title.includes(filters.role)
+    if (filters.role !== "All") {
+      result = result.filter(
+        (job) => job.title && job.title.includes(filters.role)
       );
     }
 
     // Apply salary range filter
     if (filters.salaryRange.from || filters.salaryRange.to) {
-      result = result.filter(job => {
-        const from = filters.salaryRange.from ? Number(filters.salaryRange.from) : 0;
-        const to = filters.salaryRange.to ? Number(filters.salaryRange.to) : Infinity;
+      result = result.filter((job) => {
+        const from = filters.salaryRange.from
+          ? Number(filters.salaryRange.from)
+          : 0;
+        const to = filters.salaryRange.to
+          ? Number(filters.salaryRange.to)
+          : Infinity;
         return job.salaryFrom >= from && job.salaryTo <= to;
       });
     }
 
     // Apply location filter
     if (filters.location) {
-      result = result.filter(job =>
-        job.location && job.location.toLowerCase().includes(filters.location.toLowerCase())
+      result = result.filter(
+        (job) =>
+          job.location &&
+          job.location.toLowerCase().includes(filters.location.toLowerCase())
       );
     }
 
     // Apply qualification filter
     if (filters.qualification) {
-      result = result.filter(job =>
-        job.educationLevel && job.educationLevel.toLowerCase().includes(filters.qualification.toLowerCase())
+      result = result.filter(
+        (job) =>
+          job.educationLevel &&
+          job.educationLevel
+            .toLowerCase()
+            .includes(filters.qualification.toLowerCase())
       );
     }
 
     // Apply experience filter
     if (filters.experienceRange.from || filters.experienceRange.to) {
-      result = result.filter(job => {
+      result = result.filter((job) => {
         const expValue = getExperienceValue(job.experience);
-        const from = filters.experienceRange.from ? Number(filters.experienceRange.from) : 0;
-        const to = filters.experienceRange.to ? Number(filters.experienceRange.to) : Infinity;
+        const from = filters.experienceRange.from
+          ? Number(filters.experienceRange.from)
+          : 0;
+        const to = filters.experienceRange.to
+          ? Number(filters.experienceRange.to)
+          : Infinity;
         return expValue >= from && expValue <= to;
       });
     }
 
     // Apply sorting
     switch (filters.sortBy) {
-      case 'Recently Added':
+      case "Recently Added":
         result.sort((a, b) => b.createdDate - a.createdDate);
         break;
-      case 'Ascending':
+      case "Ascending":
         result.sort((a, b) => a.title.localeCompare(b.title));
         break;
-      case 'Descending':
+      case "Descending":
         result.sort((a, b) => b.title.localeCompare(a.title));
         break;
-      case 'Last Month': {
+      case "Last Month": {
         const lastMonth = new Date();
         lastMonth.setMonth(lastMonth.getMonth() - 1);
-        result = result.filter(job => new Date(job.createdDate) > lastMonth);
+        result = result.filter((job) => new Date(job.createdDate) > lastMonth);
         break;
       }
-      case 'Last 7 Days': {
+      case "Last 7 Days": {
         const lastWeek = new Date();
         lastWeek.setDate(lastWeek.getDate() - 7);
-        result = result.filter(job => new Date(job.createdDate) > lastWeek);
+        result = result.filter((job) => new Date(job.createdDate) > lastWeek);
         break;
       }
       default:
@@ -448,22 +542,29 @@ const EmployeerAdminGridJobUnit = () => {
   };
 
   const handleFilterChange = (filterType, value) => {
-    if (filterType === 'category' || filterType === 'type' || filterType === 'status') {
-      setFilters(prev => ({
+    if (
+      filterType === "category" ||
+      filterType === "type" ||
+      filterType === "status"
+    ) {
+      setFilters((prev) => ({
         ...prev,
         [filterType]: prev[filterType].includes(value)
-          ? prev[filterType].filter(item => item !== value)
-          : [...prev[filterType], value]
+          ? prev[filterType].filter((item) => item !== value)
+          : [...prev[filterType], value],
       }));
-    } else if (filterType === 'salaryRange' || filterType === 'experienceRange') {
-      setFilters(prev => ({
+    } else if (
+      filterType === "salaryRange" ||
+      filterType === "experienceRange"
+    ) {
+      setFilters((prev) => ({
         ...prev,
-        [filterType]: { ...prev[filterType], ...value }
+        [filterType]: { ...prev[filterType], ...value },
       }));
     } else {
-      setFilters(prev => ({
+      setFilters((prev) => ({
         ...prev,
-        [filterType]: value
+        [filterType]: value,
       }));
     }
   };
@@ -473,34 +574,34 @@ const EmployeerAdminGridJobUnit = () => {
       category: [],
       type: [],
       status: [],
-      role: 'All',
-      sortBy: 'Recently Added',
-      gender: '',
-      salaryRange: { from: '', to: '' },
-      location: '',
-      qualification: '',
-      experienceRange: { from: '', to: '' }
+      role: "All",
+      sortBy: "Recently Added",
+      gender: "",
+      salaryRange: { from: "", to: "" },
+      location: "",
+      qualification: "",
+      experienceRange: { from: "", to: "" },
     });
-    setSearchTerm('');
+    setSearchTerm("");
   };
 
   const handleJobStatusChange = (jobId, newStatus) => {
-    setJobs(prevJobs =>
-      prevJobs.map(job =>
+    setJobs((prevJobs) =>
+      prevJobs.map((job) =>
         job.id === jobId ? { ...job, status: newStatus } : job
       )
     );
-    setFilteredJobs(prevJobs =>
-      prevJobs.map(job =>
+    setFilteredJobs((prevJobs) =>
+      prevJobs.map((job) =>
         job.id === jobId ? { ...job, status: newStatus } : job
       )
     );
   };
 
   const handleDateRangeSelect = (option) => {
-    if (option.value === 'custom') {
-      setSelectedDateRange('Custom Range');
-      setActiveDropdown('customRange');
+    if (option.value === "custom") {
+      setSelectedDateRange("Custom Range");
+      setActiveDropdown("customRange");
       return;
     }
     setSelectedDateRange(option.dateLabel);
@@ -508,35 +609,35 @@ const EmployeerAdminGridJobUnit = () => {
     let startDate, endDate;
 
     switch (option.value) {
-      case 'today':
-        startDate = endDate = today.toISOString().split('T')[0];
+      case "today":
+        startDate = endDate = today.toISOString().split("T")[0];
         break;
-      case 'yesterday':
+      case "yesterday":
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
-        startDate = endDate = yesterday.toISOString().split('T')[0];
+        startDate = endDate = yesterday.toISOString().split("T")[0];
         break;
-      case 'last7days':
+      case "last7days":
         const week = new Date(today);
         week.setDate(week.getDate() - 7);
-        startDate = week.toISOString().split('T')[0];
-        endDate = today.toISOString().split('T')[0];
+        startDate = week.toISOString().split("T")[0];
+        endDate = today.toISOString().split("T")[0];
         break;
-      case 'last30days':
+      case "last30days":
         const month = new Date(today);
         month.setDate(month.getDate() - 30);
-        startDate = month.toISOString().split('T')[0];
-        endDate = today.toISOString().split('T')[0];
+        startDate = month.toISOString().split("T")[0];
+        endDate = today.toISOString().split("T")[0];
         break;
-      case 'thisyear':
+      case "thisyear":
         startDate = `${today.getFullYear()}-01-01`;
         endDate = `${today.getFullYear()}-12-31`;
         break;
-      case 'lastyear':
+      case "lastyear":
         startDate = `${today.getFullYear() - 1}-01-01`;
         endDate = `${today.getFullYear() - 1}-12-31`;
         break;
-      case 'nextyear':
+      case "nextyear":
         startDate = `${today.getFullYear() + 1}-01-01`;
         endDate = `${today.getFullYear() + 1}-12-31`;
         break;
@@ -563,27 +664,42 @@ const EmployeerAdminGridJobUnit = () => {
         {/* Header Section */}
         <div className="d-flex align-items-center justify-content-between mb-3">
           <div className="my-auto">
-            <h2>&nbsp; <Briefcase className="text-primary" /> Jobs</h2>
+            <h2>
+              &nbsp; <Briefcase className="text-primary" /> Jobs
+            </h2>
           </div>
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
             <div className="dropdown me-2">
               <button
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                onClick={() => toggleDropdown('dateRange')}
+                onClick={() => toggleDropdown("dateRange")}
               >
-                <i className="ti ti-calendar me-1"></i>{selectedDateRange}
+                <i className="ti ti-calendar me-1"></i>
+                {selectedDateRange}
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'dateRange' || activeDropdown === 'customRange' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'dateRange' || activeDropdown === 'customRange' ? 'block' : 'none', minWidth: '280px' }}
+                className={`dropdown-menu dropdown-menu-end p-3 ${
+                  activeDropdown === "dateRange" ||
+                  activeDropdown === "customRange"
+                    ? "show"
+                    : ""
+                }`}
+                style={{
+                  display:
+                    activeDropdown === "dateRange" ||
+                    activeDropdown === "customRange"
+                      ? "block"
+                      : "none",
+                  minWidth: "280px",
+                }}
               >
-                {activeDropdown === 'customRange' ? (
+                {activeDropdown === "customRange" ? (
                   <li className="p-2">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <h6 className="mb-0">Select Date Range</h6>
                       <button
                         className="btn btn-sm btn-outline-secondary"
-                        onClick={() => setActiveDropdown('dateRange')}
+                        onClick={() => setActiveDropdown("dateRange")}
                       >
                         <i className="ti ti-arrow-left"></i> Back
                       </button>
@@ -592,12 +708,14 @@ const EmployeerAdminGridJobUnit = () => {
                       <input
                         type="date"
                         className="form-control me-2"
-                        style={{ fontSize: '12px' }}
+                        style={{ fontSize: "12px" }}
                         value={dateRange.start}
                         onChange={(e) => {
                           setDateRange({ ...dateRange, start: e.target.value });
                           if (dateRange.end && e.target.value) {
-                            setSelectedDateRange(`${e.target.value} - ${dateRange.end}`);
+                            setSelectedDateRange(
+                              `${e.target.value} - ${dateRange.end}`
+                            );
                           }
                         }}
                         placeholder="Start Date"
@@ -606,12 +724,14 @@ const EmployeerAdminGridJobUnit = () => {
                       <input
                         type="date"
                         className="form-control"
-                        style={{ fontSize: '12px' }}
+                        style={{ fontSize: "12px" }}
                         value={dateRange.end}
                         onChange={(e) => {
                           setDateRange({ ...dateRange, end: e.target.value });
                           if (dateRange.start && e.target.value) {
-                            setSelectedDateRange(`${dateRange.start} - ${e.target.value}`);
+                            setSelectedDateRange(
+                              `${dateRange.start} - ${e.target.value}`
+                            );
                           }
                         }}
                         min={dateRange.start}
@@ -622,8 +742,8 @@ const EmployeerAdminGridJobUnit = () => {
                       <button
                         className="btn btn-sm btn-outline-secondary"
                         onClick={() => {
-                          setDateRange({ start: '', end: '' });
-                          setSelectedDateRange('This Year');
+                          setDateRange({ start: "", end: "" });
+                          setSelectedDateRange("This Year");
                           closeAllDropdowns();
                         }}
                       >
@@ -651,7 +771,9 @@ const EmployeerAdminGridJobUnit = () => {
                           onClick={() => handleDateRangeSelect(option)}
                         >
                           <span>{option.label}</span>
-                          <small className="text-muted">{option.dateLabel}</small>
+                          <small className="text-muted">
+                            {option.dateLabel}
+                          </small>
                         </button>
                       </li>
                     ))}
@@ -662,46 +784,57 @@ const EmployeerAdminGridJobUnit = () => {
             <Dropdown
               title={filters.role}
               options={jobRoles}
-              onSelect={(value) => handleFilterChange('role', value)}
+              onSelect={(value) => handleFilterChange("role", value)}
             />
             <Dropdown
               title="Status"
               options={statusOptions}
               selected={filters.status}
               multiSelect
-              onSelect={(value) => handleFilterChange('status', value)}
+              onSelect={(value) => handleFilterChange("status", value)}
             />
             <Dropdown
               title={`Sort By: ${filters.sortBy}`}
               options={sortOptions}
-              onSelect={(value) => handleFilterChange('sortBy', value)}
+              onSelect={(value) => handleFilterChange("sortBy", value)}
             />
 
             <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
               <a href="unit-listjobs" className="btn btn-icon btn-sm me-1">
                 <i className="ti ti-list-tree"></i>
               </a>
-              <a href="unit-jobs" className="btn btn-icon btn-sm active bg-secondary text-white">
+              <a
+                href="unit-jobs"
+                className="btn btn-icon btn-sm active bg-secondary text-white"
+              >
                 <i className="ti ti-layout-grid"></i>
               </a>
             </div>
 
             <div className="dropdown me-2">
-              <a href="javascript:void(0);" className="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+              <a
+                href="javascript:void(0);"
+                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                data-bs-toggle="dropdown"
+              >
                 <i className="ti ti-file-export me-1"></i>Export
               </a>
               <ul className="dropdown-menu dropdown-menu-end p-3">
                 <li>
-                  <a href="javascript:void(0);"
+                  <a
+                    href="javascript:void(0);"
                     className="dropdown-item rounded-1"
-                    onClick={exportToPDF}>
+                    onClick={exportToPDF}
+                  >
                     <i className="ti ti-file-type-pdf me-1"></i>Export as PDF
                   </a>
                 </li>
                 <li>
-                  <a href="javascript:void(0);"
+                  <a
+                    href="javascript:void(0);"
                     className="dropdown-item rounded-1"
-                    onClick={exportToExcel}>
+                    onClick={exportToExcel}
+                  >
                     <i className="ti ti-file-type-xls me-1"></i>Export as Excel
                   </a>
                 </li>
@@ -712,14 +845,18 @@ const EmployeerAdminGridJobUnit = () => {
               onClick={handleAddPost}
               className="btn btn-primary d-flex align-items-center"
             >
-              <PlusCircle className="me-2" />Post Job
+              <PlusCircle className="me-2" />
+              Post Job
             </button>
           </div>
         </div>
 
         {/* Main Content */}
         {loading ? (
-          <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ height: "50vh" }}
+          >
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
@@ -740,13 +877,23 @@ const EmployeerAdminGridJobUnit = () => {
                 location={filters.location}
                 qualification={filters.qualification}
                 experienceRange={filters.experienceRange}
-                onCategoryChange={(value) => handleFilterChange('category', value)}
-                onTypeChange={(value) => handleFilterChange('type', value)}
-                onGenderChange={(value) => handleFilterChange('gender', value)}
-                onSalaryRangeChange={(value) => handleFilterChange('salaryRange', value)}
-                onLocationChange={(value) => handleFilterChange('location', value)}
-                onQualificationChange={(value) => handleFilterChange('qualification', value)}
-                onExperienceRangeChange={(value) => handleFilterChange('experienceRange', value)}
+                onCategoryChange={(value) =>
+                  handleFilterChange("category", value)
+                }
+                onTypeChange={(value) => handleFilterChange("type", value)}
+                onGenderChange={(value) => handleFilterChange("gender", value)}
+                onSalaryRangeChange={(value) =>
+                  handleFilterChange("salaryRange", value)
+                }
+                onLocationChange={(value) =>
+                  handleFilterChange("location", value)
+                }
+                onQualificationChange={(value) =>
+                  handleFilterChange("qualification", value)
+                }
+                onExperienceRangeChange={(value) =>
+                  handleFilterChange("experienceRange", value)
+                }
                 onReset={resetFilters}
               />
             </div>
@@ -764,7 +911,13 @@ const EmployeerAdminGridJobUnit = () => {
                         value={searchTerm}
                         onChange={handleSearchInputChange}
                       />
-                      <button type="submit" className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }}>Search</button>
+                      <button
+                        type="submit"
+                        className="btn btn-secondary"
+                        style={{ whiteSpace: "nowrap" }}
+                      >
+                        Search
+                      </button>
                     </div>
                   </form>
                 </div>
@@ -780,8 +933,12 @@ const EmployeerAdminGridJobUnit = () => {
               ) : (
                 <>
                   <div className="row">
-                    {filteredJobs.map(job => (
-                      <JobCard key={job.id} job={job} onStatusChange={handleJobStatusChange} />
+                    {filteredJobs.map((job) => (
+                      <JobCard
+                        key={job.id}
+                        job={job}
+                        onStatusChange={handleJobStatusChange}
+                      />
                     ))}
                   </div>
 
@@ -819,7 +976,11 @@ const EmployeerAdminGridJobUnit = () => {
 const Dropdown = ({ title, options, selected, multiSelect, onSelect }) => {
   return (
     <div className="dropdown me-2">
-      <a href="javascript:void(0);" className="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+      <a
+        href="javascript:void(0);"
+        className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+        data-bs-toggle="dropdown"
+      >
         {title}
       </a>
       <ul className="dropdown-menu dropdown-menu-end p-3">
@@ -827,11 +988,15 @@ const Dropdown = ({ title, options, selected, multiSelect, onSelect }) => {
           <li key={index}>
             <a
               href="javascript:void(0);"
-              className={`dropdown-item rounded-1 ${multiSelect && selected?.includes(option) ? 'active' : ''}`}
+              className={`dropdown-item rounded-1 ${
+                multiSelect && selected?.includes(option) ? "active" : ""
+              }`}
               onClick={() => onSelect(option)}
             >
               {option}
-              {multiSelect && selected?.includes(option) && <Check className="ms-2 float-end" size={16} />}
+              {multiSelect && selected?.includes(option) && (
+                <Check className="ms-2 float-end" size={16} />
+              )}
             </a>
           </li>
         ))}
@@ -857,7 +1022,7 @@ const FilterSidebar = ({
   onLocationChange,
   onQualificationChange,
   onExperienceRangeChange,
-  onReset
+  onReset,
 }) => {
   // State to track which accordion items are open
   const [openAccordions, setOpenAccordions] = useState({
@@ -867,20 +1032,23 @@ const FilterSidebar = ({
     salaryFilter: true,
     locationFilter: true,
     qualificationFilter: true,
-    experienceFilter: true
+    experienceFilter: true,
   });
 
   // Toggle accordion open/close state
   const toggleAccordion = (accordionId) => {
-    setOpenAccordions(prev => ({
+    setOpenAccordions((prev) => ({
       ...prev,
-      [accordionId]: !prev[accordionId]
+      [accordionId]: !prev[accordionId],
     }));
   };
 
   return (
     <div className="themesettings-inner offcanvas-body">
-      <div className="accordion accordion-customicon1 accordions-items-seperate" id="settingtheme">
+      <div
+        className="accordion accordion-customicon1 accordions-items-seperate"
+        id="settingtheme"
+      >
         <h3 className="mb-1 text-secondary">Filter Jobs</h3>
         <p className="text-dark">Search & Filter</p>
 
@@ -890,7 +1058,7 @@ const FilterSidebar = ({
             <button
               className="accordion-button text-dark fs-16 align-items-center justify-content-between"
               type="button"
-              onClick={() => toggleAccordion('layoutsetting')}
+              onClick={() => toggleAccordion("layoutsetting")}
             >
               Select Job Category
               {openAccordions.layoutsetting ? (
@@ -902,7 +1070,9 @@ const FilterSidebar = ({
           </h2>
           <div
             id="layoutsetting"
-            className={`accordion-collapse collapse ${openAccordions.layoutsetting ? 'show' : ''}`}
+            className={`accordion-collapse collapse ${
+              openAccordions.layoutsetting ? "show" : ""
+            }`}
           >
             <div className="accordion-body">
               <div className="row gx-3">
@@ -936,7 +1106,7 @@ const FilterSidebar = ({
             <button
               className="accordion-button text-dark fs-16 align-items-center justify-content-between"
               type="button"
-              onClick={() => toggleAccordion('layoutsetting1')}
+              onClick={() => toggleAccordion("layoutsetting1")}
             >
               Select Job Type
               {openAccordions.layoutsetting1 ? (
@@ -948,7 +1118,9 @@ const FilterSidebar = ({
           </h2>
           <div
             id="layoutsetting1"
-            className={`accordion-collapse collapse ${openAccordions.layoutsetting1 ? 'show' : ''}`}
+            className={`accordion-collapse collapse ${
+              openAccordions.layoutsetting1 ? "show" : ""
+            }`}
           >
             <div className="accordion-body">
               <div className="row">
@@ -982,7 +1154,7 @@ const FilterSidebar = ({
             <button
               className="accordion-button text-dark fs-16 align-items-center justify-content-between"
               type="button"
-              onClick={() => toggleAccordion('salaryFilter')}
+              onClick={() => toggleAccordion("salaryFilter")}
             >
               Salary Range
               {openAccordions.salaryFilter ? (
@@ -994,7 +1166,9 @@ const FilterSidebar = ({
           </h2>
           <div
             id="salaryFilter"
-            className={`accordion-collapse collapse ${openAccordions.salaryFilter ? 'show' : ''}`}
+            className={`accordion-collapse collapse ${
+              openAccordions.salaryFilter ? "show" : ""
+            }`}
           >
             <div className="accordion-body pb-0">
               <div className="row gx-3">
@@ -1005,14 +1179,24 @@ const FilterSidebar = ({
                       className="form-control me-3"
                       placeholder="From"
                       value={salaryRange.from}
-                      onChange={(e) => onSalaryRangeChange({ ...salaryRange, from: e.target.value })}
+                      onChange={(e) =>
+                        onSalaryRangeChange({
+                          ...salaryRange,
+                          from: e.target.value,
+                        })
+                      }
                     />
                     <input
                       type="number"
                       className="form-control"
                       placeholder="To"
                       value={salaryRange.to}
-                      onChange={(e) => onSalaryRangeChange({ ...salaryRange, to: e.target.value })}
+                      onChange={(e) =>
+                        onSalaryRangeChange({
+                          ...salaryRange,
+                          to: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -1027,7 +1211,7 @@ const FilterSidebar = ({
             <button
               className="accordion-button text-dark fs-16 align-items-center justify-content-between"
               type="button"
-              onClick={() => toggleAccordion('locationFilter')}
+              onClick={() => toggleAccordion("locationFilter")}
             >
               Location
               {openAccordions.locationFilter ? (
@@ -1039,7 +1223,9 @@ const FilterSidebar = ({
           </h2>
           <div
             id="locationFilter"
-            className={`accordion-collapse collapse ${openAccordions.locationFilter ? 'show' : ''}`}
+            className={`accordion-collapse collapse ${
+              openAccordions.locationFilter ? "show" : ""
+            }`}
           >
             <div className="accordion-body">
               <div className="d-flex align-items-center">
@@ -1061,12 +1247,17 @@ const FilterSidebar = ({
                 onClick={onReset}
                 className="btn btn-light close-theme w-100"
               >
-                <RotateCw className="me-1" />Reset
+                <RotateCw className="me-1" />
+                Reset
               </button>
             </div>
             <div className="col-6">
-              <button className="btn btn-secondary w-100" data-bs-dismiss="offcanvas">
-                <CheckCircle2 className="me-1" />Apply
+              <button
+                className="btn btn-secondary w-100"
+                data-bs-dismiss="offcanvas"
+              >
+                <CheckCircle2 className="me-1" />
+                Apply
               </button>
             </div>
           </div>
@@ -1077,47 +1268,45 @@ const FilterSidebar = ({
 };
 
 const JobCard = ({ job, onStatusChange }) => {
-  const [isActive, setIsActive] = useState(job.status === 'Active');
+  const [isActive, setIsActive] = useState(job.status === "Active");
   const [isUpdating, setIsUpdating] = useState(false);
-
-
 
   const handleStatusChange = async () => {
     try {
       setIsUpdating(true);
       const newStatus = !isActive;
 
-      const token = localStorage.getItem('EmployerAdminToken');
+      const token = localStorage.getItem("EmployerAdminToken");
 
       if (!token) {
-        throw new Error('Authentication required');
+        throw new Error("Authentication required");
       }
 
       if (!job.id) {
-        throw new Error('Job ID is missing');
+        throw new Error("Job ID is missing");
       }
 
       const response = await axios.put(
-        `https://edujobzbackend.onrender.com/employer/updatejobstatus/${job.id}`,
+        `https://api.edprofio.com/employer/updatejobstatus/${job.id}`,
         { isActive: newStatus },
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
       );
 
       if (response.data.message) {
         setIsActive(newStatus);
-        onStatusChange(job.id, newStatus ? 'Active' : 'Inactive');
+        onStatusChange(job.id, newStatus ? "Active" : "Inactive");
         // You can add a toast notification here if you want
         console.log(response.data.message);
       } else {
-        throw new Error('Failed to update status');
+        throw new Error("Failed to update status");
       }
     } catch (error) {
-      console.error('Error updating job status:', error);
+      console.error("Error updating job status:", error);
       // Revert the toggle if the request failed
       setIsActive(!isActive);
       alert(`Error: ${error.message}`);
@@ -1128,25 +1317,28 @@ const JobCard = ({ job, onStatusChange }) => {
 
   return (
     <div className="col-xl-6 col-lg-6 col-md-6">
-      <div className="card job" style={{
-        transition: 'all 0.3s ease',
-        cursor: 'pointer'
-      }}
+      <div
+        className="card job"
+        style={{
+          transition: "all 0.3s ease",
+          cursor: "pointer",
+        }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
-          e.currentTarget.style.border = '2px solid #000';
-          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.boxShadow = "0 8px 25px rgba(0, 0, 0, 0.15)";
+          e.currentTarget.style.border = "2px solid #000";
+          e.currentTarget.style.transform = "translateY(-2px)";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.boxShadow = '';
-          e.currentTarget.style.border = '';
-          e.currentTarget.style.transform = '';
-        }}>
+          e.currentTarget.style.boxShadow = "";
+          e.currentTarget.style.border = "";
+          e.currentTarget.style.transform = "";
+        }}
+      >
         <div className="card-body mb-1 pb-1">
           {/* Add status toggle at the top right */}
           <div className="d-flex justify-content-between align-items-center mb-2">
             <span className="badge bg-light text-dark">
-              Status: {isActive ? 'Active' : 'Inactive'}
+              Status: {isActive ? "Active" : "Inactive"}
             </span>
             <div className="form-check form-switch">
               <input
@@ -1157,12 +1349,14 @@ const JobCard = ({ job, onStatusChange }) => {
                 onChange={handleStatusChange}
                 disabled={isUpdating}
               />
-              <label className="form-check-label" htmlFor={`status-toggle-${job.id}`}>
-                {isUpdating ? 'Updating...' : (isActive ? 'Active' : 'Inactive')}
+              <label
+                className="form-check-label"
+                htmlFor={`status-toggle-${job.id}`}
+              >
+                {isUpdating ? "Updating..." : isActive ? "Active" : "Inactive"}
               </label>
             </div>
           </div>
-
 
           <div className="card bg-light mb-3">
             <div className="card-body p-3">
@@ -1172,15 +1366,15 @@ const JobCard = ({ job, onStatusChange }) => {
                     <img
                       src={job.employerProfilePic || appleIcon}
                       style={{
-                        width: '48px',
-                        height: '48px',
-                        objectFit: 'cover',
-                        borderRadius: '4px'
+                        width: "48px",
+                        height: "48px",
+                        objectFit: "cover",
+                        borderRadius: "4px",
                       }}
                       alt="employer"
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = 'employeer/assets/img/icons/default.svg'
+                        e.target.src = "employeer/assets/img/icons/default.svg";
                       }}
                     />
                   </span>
@@ -1189,7 +1383,9 @@ const JobCard = ({ job, onStatusChange }) => {
                   <h6 className="fs-17 fw-medium mb-0 text-truncate">
                     <a href="view-job">{job.title}</a>
                   </h6>
-                  <p className="fs-13 text-primary fw-normal">{job.applicants} Applications</p>
+                  <p className="fs-13 text-primary fw-normal">
+                    {job.applicants} Applications
+                  </p>
                 </div>
               </div>
             </div>
@@ -1197,32 +1393,53 @@ const JobCard = ({ job, onStatusChange }) => {
 
           <div className="fs-16 d-flex flex-column mb-3">
             <p className="text-dark d-inline-flex align-items-center mb-1">
-              <MapPin className="text-primary me-2" style={{ width: '14px', height: '14px' }} />
+              <MapPin
+                className="text-primary me-2"
+                style={{ width: "14px", height: "14px" }}
+              />
               {job.location}
             </p>
             <p className="text-dark d-inline-flex align-items-center mb-1">
-              <IndianRupee className="text-primary me-2" style={{ width: '14px', height: '14px' }} />
+              <IndianRupee
+                className="text-primary me-2"
+                style={{ width: "14px", height: "14px" }}
+              />
               {job.salary}
             </p>
             <p className="text-dark d-inline-flex align-items-center mb-1">
-              <Calendar className="text-primary me-2" style={{ width: '14px', height: '14px' }} />
+              <Calendar
+                className="text-primary me-2"
+                style={{ width: "14px", height: "14px" }}
+              />
               {job.experience}
             </p>
             <p className="text-dark d-inline-flex align-items-center mb-1">
-              <Briefcase className="text-primary me-2" style={{ width: '14px', height: '14px' }} />
+              <Briefcase
+                className="text-primary me-2"
+                style={{ width: "14px", height: "14px" }}
+              />
               {job.type}
             </p>
             <p className="text-dark d-inline-flex align-items-center">
-              <Bus className="text-primary me-2" style={{ width: '14px', height: '14px' }} />
+              <Bus
+                className="text-primary me-2"
+                style={{ width: "14px", height: "14px" }}
+              />
               {job.accommodation}
             </p>
           </div>
 
           {job.skills && job.skills.length > 0 && (
             <div className="mb-3">
-              <Settings className="text-primary me-2" style={{ width: '14px', height: '14px' }} />Skillset:
+              <Settings
+                className="text-primary me-2"
+                style={{ width: "14px", height: "14px" }}
+              />
+              Skillset:
               {job.skills.map((skill, index) => (
-                <span key={index} className="badge bg-light ms-1">{skill}</span>
+                <span key={index} className="badge bg-light ms-1">
+                  {skill}
+                </span>
               ))}
             </div>
           )}
@@ -1231,7 +1448,11 @@ const JobCard = ({ job, onStatusChange }) => {
             <div
               className="progress-bar bg-secondary"
               role="progressbar"
-              style={{ width: `${(job.shortlisted / Math.max(job.applicants, 1)) * 100}%` }}
+              style={{
+                width: `${
+                  (job.shortlisted / Math.max(job.applicants, 1)) * 100
+                }%`,
+              }}
             ></div>
           </div>
 
@@ -1246,11 +1467,22 @@ const JobCard = ({ job, onStatusChange }) => {
             <b className="text-secondary">Date Posted:</b> {job.postedDate}
           </span>
           <div className="d-flex">
-            <Link to={`/employer-admin/applied-candidates/${job.id}`} className="badge bg-warning fs-12 fw-medium me-2">
-              <Users className="me-1" style={{ width: '12px', height: '12px' }} /> Applied Candidates
+            <Link
+              to={`/employer-admin/applied-candidates/${job.id}`}
+              className="badge bg-warning fs-12 fw-medium me-2"
+            >
+              <Users
+                className="me-1"
+                style={{ width: "12px", height: "12px" }}
+              />{" "}
+              Applied Candidates
             </Link>
-            <Link to={`/employer-admin/view-job/${job.id}`} className="badge bg-secondary fs-12 fw-medium">
-              <Eye className="me-1" style={{ width: '12px', height: '12px' }} /> View Job Details
+            <Link
+              to={`/employer-admin/view-job/${job.id}`}
+              className="badge bg-secondary fs-12 fw-medium"
+            >
+              <Eye className="me-1" style={{ width: "12px", height: "12px" }} />{" "}
+              View Job Details
             </Link>
           </div>
         </div>
@@ -1262,10 +1494,24 @@ const StatsSection = ({ jobs }) => {
   const totalJobs = jobs.length;
   const totalApplicants = jobs.reduce((sum, job) => sum + job.applicants, 0);
   const pendingApplicants = jobs.reduce((sum, job) => {
-    return sum + (job.applications ? job.applications.filter(app => app.employapplicantstatus === 'Pending').length : 0);
+    return (
+      sum +
+      (job.applications
+        ? job.applications.filter(
+            (app) => app.employapplicantstatus === "Pending"
+          ).length
+        : 0)
+    );
   }, 0);
   const shortlistedApplicants = jobs.reduce((sum, job) => {
-    return sum + (job.applications ? job.applications.filter(app => app.employapplicantstatus === 'Shortlisted').length : 0);
+    return (
+      sum +
+      (job.applications
+        ? job.applications.filter(
+            (app) => app.employapplicantstatus === "Shortlisted"
+          ).length
+        : 0)
+    );
   }, 0);
 
   const stats = [
@@ -1275,7 +1521,7 @@ const StatsSection = ({ jobs }) => {
       progress: (totalJobs / Math.max(totalJobs, 1)) * 100,
       trend: "+10.54%",
       trendPositive: true,
-      color: "bg-pink"
+      color: "bg-pink",
     },
     {
       title: "Shortlisted Candidates",
@@ -1283,7 +1529,7 @@ const StatsSection = ({ jobs }) => {
       progress: (shortlistedApplicants / Math.max(totalApplicants, 1)) * 100,
       trend: "+12.84%",
       trendPositive: true,
-      color: "bg-success"
+      color: "bg-success",
     },
     {
       title: "Pending Candidates",
@@ -1291,20 +1537,27 @@ const StatsSection = ({ jobs }) => {
       progress: (pendingApplicants / Math.max(totalApplicants, 1)) * 100,
       trend: "-10.75%",
       trendPositive: false,
-      color: "bg-warning"
+      color: "bg-warning",
     },
     {
       title: "New Candidates",
       value: jobs.reduce((sum, job) => {
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        return sum + (job.applications ? job.applications.filter(app => new Date(app.appliedDate) > oneWeekAgo).length : 0);
+        return (
+          sum +
+          (job.applications
+            ? job.applications.filter(
+                (app) => new Date(app.appliedDate) > oneWeekAgo
+              ).length
+            : 0)
+        );
       }, 0),
       progress: 60,
       trend: "+15.74%",
       trendPositive: true,
-      color: "bg-purple"
-    }
+      color: "bg-purple",
+    },
   ];
 
   return (
@@ -1316,7 +1569,9 @@ const StatsSection = ({ jobs }) => {
               <div className="card-body">
                 <div>
                   <div className="mb-2">
-                    <span className="fs-14 fw-bold text-secondary mb-1">{stat.title}</span>
+                    <span className="fs-14 fw-bold text-secondary mb-1">
+                      {stat.title}
+                    </span>
                     <h5>{stat.value}</h5>
                   </div>
                   <div
@@ -1332,8 +1587,11 @@ const StatsSection = ({ jobs }) => {
                 </div>
                 <div className="d-flex mt-2">
                   <p className="fs-12 fw-normal d-flex align-items-center text-truncate">
-                    <span className={`fs-12 d-flex align-items-center me-1 ${stat.trendPositive ? "text-success" : "text-danger"
-                      }`}>
+                    <span
+                      className={`fs-12 d-flex align-items-center me-1 ${
+                        stat.trendPositive ? "text-success" : "text-danger"
+                      }`}
+                    >
                       <ArrowUpRight className="me-1" />
                       {stat.trend}
                     </span>
@@ -1351,10 +1609,10 @@ const StatsSection = ({ jobs }) => {
 
 const JobsByStatusChart = ({ jobs }) => {
   const statusCounts = {
-    active: jobs.filter(job => job.status === 'Active').length,
-    inactive: jobs.filter(job => job.status === 'Inactive').length,
-    new: jobs.filter(job => job.status === 'New').length,
-    onHold: jobs.filter(job => job.status === 'On Hold').length,
+    active: jobs.filter((job) => job.status === "Active").length,
+    inactive: jobs.filter((job) => job.status === "Inactive").length,
+    new: jobs.filter((job) => job.status === "New").length,
+    onHold: jobs.filter((job) => job.status === "On Hold").length,
   };
 
   const totalJobs = jobs.length;
@@ -1380,13 +1638,28 @@ const JobsByStatusChart = ({ jobs }) => {
               </a>
               <ul className="dropdown-menu dropdown-menu-end p-2">
                 <li>
-                  <a href="javascript:void(0);" className="dropdown-item rounded-1">Karnataka</a>
+                  <a
+                    href="javascript:void(0);"
+                    className="dropdown-item rounded-1"
+                  >
+                    Karnataka
+                  </a>
                 </li>
                 <li>
-                  <a href="javascript:void(0);" className="dropdown-item rounded-1">Tamilnadu</a>
+                  <a
+                    href="javascript:void(0);"
+                    className="dropdown-item rounded-1"
+                  >
+                    Tamilnadu
+                  </a>
                 </li>
                 <li>
-                  <a href="javascript:void(0);" className="dropdown-item rounded-1">Andhra Pradesh</a>
+                  <a
+                    href="javascript:void(0);"
+                    className="dropdown-item rounded-1"
+                  >
+                    Andhra Pradesh
+                  </a>
                 </li>
               </ul>
             </div>
@@ -1400,25 +1673,42 @@ const JobsByStatusChart = ({ jobs }) => {
             <div className="col-md-6">
               <div className="row gy-4">
                 <div className="col-md-6">
-                  <p className="fs-16 project-report-badge-blue fw-normal mb-0 text-gray-5">Pending jobs</p>
+                  <p className="fs-16 project-report-badge-blue fw-normal mb-0 text-gray-5">
+                    Pending jobs
+                  </p>
                   <p className="fs-20 fw-bold text-dark">
-                    {totalJobs > 0 ? Math.round((statusCounts.inactive / totalJobs) * 100) : 0}%
+                    {totalJobs > 0
+                      ? Math.round((statusCounts.inactive / totalJobs) * 100)
+                      : 0}
+                    %
                   </p>
                 </div>
                 <div className="col-md-6">
-                  <p className="fs-16 project-report-badge-purple mb-0 fw-normal text-gray-5">On Hold</p>
+                  <p className="fs-16 project-report-badge-purple mb-0 fw-normal text-gray-5">
+                    On Hold
+                  </p>
                   <p className="fs-20 fw-bold text-dark">
-                    {totalJobs > 0 ? Math.round((statusCounts.onHold / totalJobs) * 100) : 0}%
+                    {totalJobs > 0
+                      ? Math.round((statusCounts.onHold / totalJobs) * 100)
+                      : 0}
+                    %
                   </p>
                 </div>
                 <div className="col-md-6">
-                  <p className="fs-16 project-report-badge-warning mb-0 fw-normal text-gray-5">Inprogress</p>
+                  <p className="fs-16 project-report-badge-warning mb-0 fw-normal text-gray-5">
+                    Inprogress
+                  </p>
                   <p className="fs-20 fw-bold text-dark">20%</p>
                 </div>
                 <div className="col-md-6">
-                  <p className="fs-16 project-report-badge-success mb-0 fw-normal text-gray-5">Active Jobs</p>
+                  <p className="fs-16 project-report-badge-success mb-0 fw-normal text-gray-5">
+                    Active Jobs
+                  </p>
                   <p className="fs-20 fw-bold text-dark">
-                    {totalJobs > 0 ? Math.round((statusCounts.active / totalJobs) * 100) : 0}%
+                    {totalJobs > 0
+                      ? Math.round((statusCounts.active / totalJobs) * 100)
+                      : 0}
+                    %
                   </p>
                 </div>
               </div>
@@ -1430,53 +1720,62 @@ const JobsByStatusChart = ({ jobs }) => {
   );
 };
 
-const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }) => {
+const AddPostModal = ({
+  activeTab,
+  onTabChange,
+  onClose,
+  onSubmit,
+  refreshJobs,
+}) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    employid: '',
-    companyName: '',
-    jobTitle: '',
-    description: '',
-    category: '',
-    salaryFrom: '',
-    salaryTo: '',
-    salaryType: 'month',
+    employid: "",
+    companyName: "",
+    jobTitle: "",
+    description: "",
+    category: "",
+    salaryFrom: "",
+    salaryTo: "",
+    salaryType: "month",
     locationTypes: [],
     skills: [],
-    benefits: '',
-    jobType: 'Full Time',
-    experienceLevel: '',
-    educationLevel: '',
-    deadline: '',
-    openings: '',
-    contactEmail: '',
-    contactPhone: '',
-    location: '',
+    benefits: "",
+    jobType: "Full Time",
+    experienceLevel: "",
+    educationLevel: "",
+    deadline: "",
+    openings: "",
+    contactEmail: "",
+    contactPhone: "",
+    location: "",
     isRemote: false,
-    companyUrl: '',
-    applicationInstructions: '',
-    priority: ''
+    companyUrl: "",
+    applicationInstructions: "",
+    priority: "",
   });
 
   const fetchEmployerData = async () => {
     try {
-      const employerData = JSON.parse(localStorage.getItem('employerData'));
+      const employerData = JSON.parse(localStorage.getItem("employerData"));
 
       if (!employerData || !employerData._id) {
-        throw new Error('Employer not logged in or missing ID');
+        throw new Error("Employer not logged in or missing ID");
       }
 
-      const token = localStorage.getItem('authToken');
-      const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchemployer/${employerData._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const token = localStorage.getItem("authToken");
+      const response = await axios.get(
+        `https://api.edprofio.com/employer/fetchemployer/${employerData._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching employer data:', error);
+      console.error("Error fetching employer data:", error);
       throw error;
     }
   };
@@ -1488,17 +1787,18 @@ const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }
         // Prefill form with employer data
         const newFormData = {
           ...formData,
-          companyName: employerData.schoolName || employerData.companyName || '',
-          contactEmail: employerData.userEmail || '',
-          contactPhone: employerData.userMobile || '',
-          location: employerData.city || employerData.address || '',
-          companyUrl: employerData.website || '',
+          companyName:
+            employerData.schoolName || employerData.companyName || "",
+          contactEmail: employerData.userEmail || "",
+          contactPhone: employerData.userMobile || "",
+          location: employerData.city || employerData.address || "",
+          companyUrl: employerData.website || "",
           // Add other fields as needed
         };
 
         setFormData(newFormData);
       } catch (error) {
-        console.error('Error pre-filling form:', error);
+        console.error("Error pre-filling form:", error);
       } finally {
         setLoading(false);
       }
@@ -1513,46 +1813,50 @@ const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
   const handleAddSkill = (skill) => {
     if (skill && !formData.skills.includes(skill)) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        skills: [...prev.skills, skill]
+        skills: [...prev.skills, skill],
       }));
     }
   };
 
   const handleRemoveSkill = (skillToRemove) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      skills: prev.skills.filter(skill => skill !== skillToRemove)
+      skills: prev.skills.filter((skill) => skill !== skillToRemove),
     }));
   };
-
 
   const handleSubmit = async () => {
     try {
       // Get employerId the same way as in AddPositionsModal
-      const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData') || '{}');
-      const employid = employerAdminData._id || '';
-      
+      const employerAdminData = JSON.parse(
+        localStorage.getItem("EmployerAdminData") || "{}"
+      );
+      const employid = employerAdminData._id || "";
+
       if (!employid) {
-        throw new Error('Employer ID not found');
+        throw new Error("Employer ID not found");
       }
 
       const submitData = {
-        applydatetime: new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true
-        }),
-        employid: employid,  // Using the same employer ID as in AddPositionsModal
+        applydatetime:
+          new Date().toLocaleDateString("en-GB") +
+          " " +
+          new Date().toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }),
+        employid: employid, // Using the same employer ID as in AddPositionsModal
         companyName: formData.companyName,
         jobTitle: formData.jobTitle,
         description: formData.description,
@@ -1566,7 +1870,9 @@ const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }
         jobType: formData.jobType,
         experienceLevel: formData.experienceLevel,
         educationLevel: formData.educationLevel,
-        deadline: formData.deadline ? new Date(formData.deadline).toISOString() : null,
+        deadline: formData.deadline
+          ? new Date(formData.deadline).toISOString()
+          : null,
         openings: formData.openings,
         contactEmail: formData.contactEmail,
         contactPhone: formData.contactPhone,
@@ -1577,20 +1883,26 @@ const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }
         priority: formData.priority,
       };
 
-      const response = await axios.post('https://edujobzbackend.onrender.com/employer/postjob', submitData);
+      const response = await axios.post(
+        "https://api.edprofio.com/employer/postjob",
+        submitData
+      );
 
       if (response.data) {
         onSubmit();
         refreshJobs();
       }
     } catch (error) {
-      console.error('Error posting job:', error);
-      alert('Failed to post job. Please try again.');
+      console.error("Error posting job:", error);
+      alert("Failed to post job. Please try again.");
     }
   };
-  
+
   return (
-    <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+    <div
+      className="modal fade show"
+      style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+    >
       <div className="modal-dialog modal-dialog-centered modal-lg">
         <div className="modal-content">
           <div className="modal-header">
@@ -1610,16 +1922,20 @@ const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }
                 <ul className="nav nav-underline" id="myTab" role="tablist">
                   <li className="nav-item" role="presentation">
                     <button
-                      className={`nav-link ${activeTab === 'basic-info' ? 'active' : ''}`}
-                      onClick={() => onTabChange('basic-info')}
+                      className={`nav-link ${
+                        activeTab === "basic-info" ? "active" : ""
+                      }`}
+                      onClick={() => onTabChange("basic-info")}
                     >
                       Basic Information
                     </button>
                   </li>
                   <li className="nav-item" role="presentation">
                     <button
-                      className={`nav-link ${activeTab === 'address' ? 'active' : ''}`}
-                      onClick={() => onTabChange('address')}
+                      className={`nav-link ${
+                        activeTab === "address" ? "active" : ""
+                      }`}
+                      onClick={() => onTabChange("address")}
                     >
                       Location
                     </button>
@@ -1628,7 +1944,7 @@ const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }
               </div>
 
               <div className="tab-content" id="myTabContent">
-                {activeTab === 'basic-info' && (
+                {activeTab === "basic-info" && (
                   <BasicInfoTab
                     selectedFile={selectedFile}
                     onFileChange={handleFileChange}
@@ -1639,7 +1955,7 @@ const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }
                   />
                 )}
 
-                {activeTab === 'address' && (
+                {activeTab === "address" && (
                   <AddressTab
                     formData={formData}
                     onInputChange={handleInputChange}
@@ -1660,9 +1976,13 @@ const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }
             <button
               type="button"
               className="btn btn-primary"
-              onClick={activeTab === 'basic-info' ? () => onTabChange('address') : handleSubmit}
+              onClick={
+                activeTab === "basic-info"
+                  ? () => onTabChange("address")
+                  : handleSubmit
+              }
             >
-              {activeTab === 'basic-info' ? 'Save & Next' : 'Post'}
+              {activeTab === "basic-info" ? "Save & Next" : "Post"}
             </button>
           </div>
         </div>
@@ -1671,14 +1991,21 @@ const AddPostModal = ({ activeTab, onTabChange, onClose, onSubmit, refreshJobs }
   );
 };
 
-const BasicInfoTab = ({ selectedFile, onFileChange, formData, onInputChange, onAddSkill, onRemoveSkill }) => {
-  const [newSkill, setNewSkill] = useState('');
+const BasicInfoTab = ({
+  selectedFile,
+  onFileChange,
+  formData,
+  onInputChange,
+  onAddSkill,
+  onRemoveSkill,
+}) => {
+  const [newSkill, setNewSkill] = useState("");
 
   const handleSkillKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       onAddSkill(newSkill);
-      setNewSkill('');
+      setNewSkill("");
     }
   };
 
@@ -1687,7 +2014,9 @@ const BasicInfoTab = ({ selectedFile, onFileChange, formData, onInputChange, onA
       <div className="row">
         <div className="col-md-6">
           <div className="mb-3">
-            <label className="form-label">Company Name <span className="text-danger">*</span></label>
+            <label className="form-label">
+              Company Name <span className="text-danger">*</span>
+            </label>
             <input
               type="text"
               className="form-control"
@@ -1701,7 +2030,9 @@ const BasicInfoTab = ({ selectedFile, onFileChange, formData, onInputChange, onA
 
         <div className="col-md-6">
           <div className="mb-3">
-            <label className="form-label">Job Title <span className="text-danger">*</span></label>
+            <label className="form-label">
+              Job Title <span className="text-danger">*</span>
+            </label>
 
             <input
               type="text"
@@ -1716,7 +2047,9 @@ const BasicInfoTab = ({ selectedFile, onFileChange, formData, onInputChange, onA
         {/* Job Description */}
         <div className="col-md-12">
           <div className="mb-3">
-            <label className="form-label">Job Description <span className="text-danger">*</span></label>
+            <label className="form-label">
+              Job Description <span className="text-danger">*</span>
+            </label>
             <textarea
               rows="4"
               className="form-control"
@@ -1730,7 +2063,9 @@ const BasicInfoTab = ({ selectedFile, onFileChange, formData, onInputChange, onA
         {/* Category */}
         <div className="col-md-6">
           <div className="mb-3">
-            <label className="form-label">Category <span className="text-danger">*</span></label>
+            <label className="form-label">
+              Category <span className="text-danger">*</span>
+            </label>
             <select
               className="form-select"
               name="category"
@@ -1808,7 +2143,9 @@ const BasicInfoTab = ({ selectedFile, onFileChange, formData, onInputChange, onA
         {/* Salary Range */}
         <div className="col-md-4">
           <div className="mb-3">
-            <label className="form-label">Salary From <span className="text-danger">*</span></label>
+            <label className="form-label">
+              Salary From <span className="text-danger">*</span>
+            </label>
             <input
               type="number"
               className="form-control"
@@ -1822,7 +2159,9 @@ const BasicInfoTab = ({ selectedFile, onFileChange, formData, onInputChange, onA
 
         <div className="col-md-4">
           <div className="mb-3">
-            <label className="form-label">Salary To <span className="text-danger">*</span></label>
+            <label className="form-label">
+              Salary To <span className="text-danger">*</span>
+            </label>
             <input
               type="number"
               className="form-control"
@@ -1897,7 +2236,7 @@ const BasicInfoTab = ({ selectedFile, onFileChange, formData, onInputChange, onA
                 className="btn btn-primary"
                 onClick={() => {
                   onAddSkill(newSkill);
-                  setNewSkill('');
+                  setNewSkill("");
                 }}
               >
                 Add
@@ -1911,7 +2250,7 @@ const BasicInfoTab = ({ selectedFile, onFileChange, formData, onInputChange, onA
                     type="button"
                     className="btn-close btn-close-white ms-1"
                     onClick={() => onRemoveSkill(skill)}
-                    style={{ fontSize: '0.5rem' }}
+                    style={{ fontSize: "0.5rem" }}
                   />
                 </span>
               ))}
@@ -1997,43 +2336,50 @@ const BasicInfoTab = ({ selectedFile, onFileChange, formData, onInputChange, onA
 
 // Fixed AddressTab
 const AddressTab = ({ formData, onInputChange }) => {
-  const [newLocationType, setNewLocationType] = useState('');
+  const [newLocationType, setNewLocationType] = useState("");
 
   const handleAddLocationType = (type) => {
     if (type && !formData.locationTypes.includes(type)) {
       onInputChange({
         target: {
-          name: 'locationTypes',
-          value: [...formData.locationTypes, type]
-        }
+          name: "locationTypes",
+          value: [...formData.locationTypes, type],
+        },
       });
-      setNewLocationType('');
+      setNewLocationType("");
     }
   };
 
   const handleRemoveLocationType = (typeToRemove) => {
     onInputChange({
       target: {
-        name: 'locationTypes',
-        value: formData.locationTypes.filter(type => type !== typeToRemove)
-      }
+        name: "locationTypes",
+        value: formData.locationTypes.filter((type) => type !== typeToRemove),
+      },
     });
   };
 
   const handleLocationTypeKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleAddLocationType(newLocationType);
     }
   };
 
   return (
-    <div className="tab-pane fade show active" id="address" role="tabpanel" aria-labelledby="address-tab">
+    <div
+      className="tab-pane fade show active"
+      id="address"
+      role="tabpanel"
+      aria-labelledby="address-tab"
+    >
       <div className="row">
         {/* Location Input */}
         <div className="col-md-12">
           <div className="mb-3">
-            <label className="form-label">Location <span className="text-danger">*</span></label>
+            <label className="form-label">
+              Location <span className="text-danger">*</span>
+            </label>
             <input
               type="text"
               className="form-control"
@@ -2075,7 +2421,7 @@ const AddressTab = ({ formData, onInputChange }) => {
                     type="button"
                     className="btn-close btn-close-white ms-1"
                     onClick={() => handleRemoveLocationType(type)}
-                    style={{ fontSize: '0.5rem' }}
+                    style={{ fontSize: "0.5rem" }}
                   />
                 </span>
               ))}
@@ -2108,7 +2454,10 @@ const AddressTab = ({ formData, onInputChange }) => {
 
 const SuccessModal = ({ onClose }) => {
   return (
-    <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+    <div
+      className="modal fade show"
+      style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+    >
       <div className="modal-dialog modal-dialog-centered modal-xm">
         <div className="modal-content">
           <div className="modal-body">

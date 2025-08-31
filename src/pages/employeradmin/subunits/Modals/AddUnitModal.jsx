@@ -184,7 +184,7 @@
 
 //     try {
 //       const token = localStorage.getItem('EmployerAdminToken');
-//       const response = await axios.post('https://edujobzbackend.onrender.com/employeradmin/createemployer', formData, {
+//       const response = await axios.post('https://api.edprofio.com/employeradmin/createemployer', formData, {
 //         headers: {
 //           'Authorization': `Bearer ${token}`,
 //           'Content-Type': 'application/json'
@@ -563,9 +563,9 @@
 //                     <button type="button" className="btn btn-light me-2" onClick={onClose} disabled={isSubmitting}>
 //                       Cancel
 //                     </button>
-//                     <button 
-//                       type="button" 
-//                       className="btn btn-primary" 
+//                     <button
+//                       type="button"
+//                       className="btn btn-primary"
 //                       onClick={handleNext}
 //                       disabled={isSubmitting}
 //                     >
@@ -722,7 +722,7 @@
 //           setShowPositionsModal(true);
 //         }}
 //       />
-//       <ToastContainer 
+//       <ToastContainer
 //         position="top-right"
 //         autoClose={5000}
 //         hideProgressBar={false}
@@ -739,22 +739,22 @@
 
 // export default AddUnitModal;
 
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import AddPositionsModal from './AddPositionsModal';
-import AddAccessModal from './AddAccessModal';
-import EditAccessModal from './EditAccessModal';
-import AccessModal from './AccessModal';
-import EditStageModal from './EditStageModal';
-import AddStageModal from './AddStageModal ';
-import AddUserModal from './AddUserModal';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import AddPositionsModal from "./AddPositionsModal";
+import AddAccessModal from "./AddAccessModal";
+import EditAccessModal from "./EditAccessModal";
+import AccessModal from "./AccessModal";
+import EditStageModal from "./EditStageModal";
+import AddStageModal from "./AddStageModal ";
+import AddUserModal from "./AddUserModal";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 const AddUnitModal = ({ show, onClose }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('basic-info');
+  const [activeTab, setActiveTab] = useState("basic-info");
   const [showPositionsModal, setShowPositionsModal] = useState(false);
   const [showAccessModal, setShowAccessModal] = useState(false);
   const [showAddAccessModal, setShowAddAccessModal] = useState(false);
@@ -766,10 +766,10 @@ const AddUnitModal = ({ show, onClose }) => {
   const [error, setError] = useState(null);
 
   // OTP Verification State
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState("");
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
-  const [otpError, setOtpError] = useState('');
+  const [otpError, setOtpError] = useState("");
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
@@ -780,36 +780,41 @@ const AddUnitModal = ({ show, onClose }) => {
   const [existingPhones, setExistingPhones] = useState([]);
 
   // Get organization ID from localStorage
-  const employerAdminData = JSON.parse(localStorage.getItem('EmployerAdminData')) || '{}';
-  const organizationid = employerAdminData._id || '';
+  const employerAdminData =
+    JSON.parse(localStorage.getItem("EmployerAdminData")) || "{}";
+  const organizationid = employerAdminData._id || "";
 
   const [formData, setFormData] = useState({
-    schoolName: '',
-    firstName: '',
-    lastName: '',
-    address: '',
+    schoolName: "",
+    firstName: "",
+    lastName: "",
+    address: "",
     organizationid: organizationid,
-    city: '',
-    state: '',
-    pincode: '',
-    institutionName: '',
-    board: '',
-    institutionType: '',
-    website: '',
-    userEmail: '',
-    userMobile: '',
-    userPassword: '',
-    userProfilePic: '',
-    employerType: '',
-    country: ''
+    city: "",
+    state: "",
+    pincode: "",
+    institutionName: "",
+    board: "",
+    institutionType: "",
+    website: "",
+    userEmail: "",
+    userMobile: "",
+    userPassword: "",
+    userProfilePic: "",
+    employerType: "",
+    country: "",
   });
 
   // Mock data for existing emails and phone numbers
   useEffect(() => {
     // In a real app, you would fetch this from your backend
     const mockExistingData = {
-      emails: ['existing1@example.com', 'existing2@example.com', 'admin@school.com'],
-      phones: ['9876543210', '1234567890', '5555555555']
+      emails: [
+        "existing1@example.com",
+        "existing2@example.com",
+        "admin@school.com",
+      ],
+      phones: ["9876543210", "1234567890", "5555555555"],
     };
     setExistingEmails(mockExistingData.emails);
     setExistingPhones(mockExistingData.phones);
@@ -817,64 +822,66 @@ const AddUnitModal = ({ show, onClose }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
 
     // Check for email duplication
-    if (name === 'userEmail') {
+    if (name === "userEmail") {
       const exists = existingEmails.includes(value);
       setEmailExists(exists);
       if (exists) {
         setIsOtpSent(false);
         setIsOtpVerified(false);
-        setOtp('');
+        setOtp("");
       }
     }
-    if (name === 'userMobile') {
+    if (name === "userMobile") {
       // Remove any non-digit characters before checking
-      const cleanPhone = value.replace(/\D/g, '');
+      const cleanPhone = value.replace(/\D/g, "");
       const exists = existingPhones.includes(cleanPhone);
       setPhoneExists(exists);
     }
   };
 
-
   // Send OTP to backend
   const sendOtp = async () => {
     if (!formData.userEmail) {
-      setOtpError('Please enter your email address first');
+      setOtpError("Please enter your email address first");
       return;
     }
 
     if (emailExists) {
-      setOtpError('This email is already registered');
+      setOtpError("This email is already registered");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.userEmail)) {
-      setOtpError('Please enter a valid email address');
+      setOtpError("Please enter a valid email address");
       return;
     }
 
     setIsSendingOtp(true);
-    setOtpError('');
+    setOtpError("");
 
     try {
-      const response = await axios.post('https://edujobemailverification.onrender.com/api/send-otp', {
-        email: formData.userEmail
-      });
+      const response = await axios.post(
+        "https://edujobemailverification.onrender.com/api/send-otp",
+        {
+          email: formData.userEmail,
+        }
+      );
 
       if (response.data.success) {
         setIsOtpSent(true);
-        setOtpError('');
+        setOtpError("");
       } else {
-        setOtpError(response.data.error || 'Failed to send OTP');
+        setOtpError(response.data.error || "Failed to send OTP");
       }
     } catch (error) {
-      setOtpError(error.response?.data?.error || 'Failed to send OTP');
+      setOtpError(error.response?.data?.error || "Failed to send OTP");
     } finally {
       setIsSendingOtp(false);
     }
@@ -883,28 +890,31 @@ const AddUnitModal = ({ show, onClose }) => {
   // Verify OTP with backend
   const verifyOtp = async () => {
     if (!otp || otp.length !== 6) {
-      setOtpError('Please enter a 6-digit OTP');
+      setOtpError("Please enter a 6-digit OTP");
       return;
     }
 
     setIsVerifyingOtp(true);
-    setOtpError('');
+    setOtpError("");
 
     try {
-      const response = await axios.post('https://edujobemailverification.onrender.com/api/verify-otp', {
-        email: formData.userEmail,
-        otp
-      });
+      const response = await axios.post(
+        "https://edujobemailverification.onrender.com/api/verify-otp",
+        {
+          email: formData.userEmail,
+          otp,
+        }
+      );
 
       if (response.data.success) {
         setIsOtpVerified(true);
-        setOtpError('');
+        setOtpError("");
       } else {
-        setOtpError(response.data.error || 'Invalid OTP');
+        setOtpError(response.data.error || "Invalid OTP");
         setIsOtpVerified(false);
       }
     } catch (error) {
-      setOtpError(error.response?.data?.error || 'Verification failed');
+      setOtpError(error.response?.data?.error || "Verification failed");
       setIsOtpVerified(false);
     } finally {
       setIsVerifyingOtp(false);
@@ -924,24 +934,24 @@ const AddUnitModal = ({ show, onClose }) => {
       !formData.userPassword ||
       !formData.employerType
     ) {
-      setError('Please fill all required fields');
+      setError("Please fill all required fields");
       return;
     }
 
     // Check for phone number duplication
     if (phoneExists) {
-      setError('Phone number is already registered');
+      setError("Phone number is already registered");
       return;
     }
 
     // If email is provided, require OTP verification
     if (formData.userEmail && !isOtpVerified) {
-      setError('Please verify your email with OTP');
+      setError("Please verify your email with OTP");
       return;
     }
 
     setError(null);
-    setActiveTab('address');
+    setActiveTab("address");
   };
 
   const handleSubmit = async (e) => {
@@ -957,66 +967,70 @@ const AddUnitModal = ({ show, onClose }) => {
       !formData.city ||
       !formData.pincode
     ) {
-      setError('Please fill all address fields');
+      setError("Please fill all address fields");
       setIsSubmitting(false);
       return;
     }
 
     // Check for phone number duplication
     if (phoneExists) {
-      setError('Phone number is already registered');
+      setError("Phone number is already registered");
       setIsSubmitting(false);
       return;
     }
 
     // If email is provided, require OTP verification
     if (formData.userEmail && !isOtpVerified) {
-      setError('Please verify your email with OTP');
+      setError("Please verify your email with OTP");
       setIsSubmitting(false);
       return;
     }
 
     try {
-      const token = localStorage.getItem('EmployerAdminToken');
-      const response = await axios.post('https://edujobzbackend.onrender.com/employeradmin/createemployer', formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const token = localStorage.getItem("EmployerAdminToken");
+      const response = await axios.post(
+        "https://api.edprofio.com/employeradmin/createemployer",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
 
-      console.log('Employer created successfully:', response.data);
-      toast.success('Unit created successfully!');
+      console.log("Employer created successfully:", response.data);
+      toast.success("Unit created successfully!");
 
       // Call the onSave prop with the response data
-      if (typeof onSave === 'function') {
+      if (typeof onSave === "function") {
         onSave(response.data.data);
       }
 
       // Reset form data
       setFormData({
-        schoolName: '',
-        firstName: '',
-        lastName: '',
-        address: '',
+        schoolName: "",
+        firstName: "",
+        lastName: "",
+        address: "",
         organizationid: organizationid,
-        city: '',
-        state: '',
-        pincode: '',
-        institutionName: '',
-        board: '',
-        institutionType: '',
-        website: '',
-        userEmail: '',
-        userMobile: '',
-        userPassword: '',
-        userProfilePic: '',
-        employerType: '',
-        country: ''
+        city: "",
+        state: "",
+        pincode: "",
+        institutionName: "",
+        board: "",
+        institutionType: "",
+        website: "",
+        userEmail: "",
+        userMobile: "",
+        userPassword: "",
+        userProfilePic: "",
+        employerType: "",
+        country: "",
       });
 
       // Reset OTP state
-      setOtp('');
+      setOtp("");
       setIsOtpSent(false);
       setIsOtpVerified(false);
 
@@ -1024,11 +1038,13 @@ const AddUnitModal = ({ show, onClose }) => {
       setTimeout(() => {
         onClose();
       }, 1000);
-
     } catch (err) {
-      console.error('Error creating employer:', err);
-      setError(err.response?.data?.message || 'Failed to create unit. Please try again.');
-      toast.error('Failed to create unit. Please try again.');
+      console.error("Error creating employer:", err);
+      setError(
+        err.response?.data?.message ||
+          "Failed to create unit. Please try again."
+      );
+      toast.error("Failed to create unit. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -1040,7 +1056,10 @@ const AddUnitModal = ({ show, onClose }) => {
 
   return (
     <>
-      <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+      <div
+        className="modal fade show"
+        style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+      >
         <div className="modal-dialog modal-dialog-centered modal-lg">
           <div className="modal-content">
             <div className="modal-header">
@@ -1060,8 +1079,10 @@ const AddUnitModal = ({ show, onClose }) => {
                 <ul className="nav nav-underline" id="myTab" role="tablist">
                   <li className="nav-item" role="presentation">
                     <button
-                      className={`nav-link ${activeTab === 'basic-info' ? 'active' : ''}`}
-                      onClick={() => setActiveTab('basic-info')}
+                      className={`nav-link ${
+                        activeTab === "basic-info" ? "active" : ""
+                      }`}
+                      onClick={() => setActiveTab("basic-info")}
                       type="button"
                     >
                       Basic Information
@@ -1069,8 +1090,10 @@ const AddUnitModal = ({ show, onClose }) => {
                   </li>
                   <li className="nav-item" role="presentation">
                     <button
-                      className={`nav-link ${activeTab === 'address' ? 'active' : ''}`}
-                      onClick={() => setActiveTab('address')}
+                      className={`nav-link ${
+                        activeTab === "address" ? "active" : ""
+                      }`}
+                      onClick={() => setActiveTab("address")}
                       type="button"
                     >
                       Address
@@ -1080,14 +1103,16 @@ const AddUnitModal = ({ show, onClose }) => {
               </div>
 
               {error && (
-                <div className="alert alert-danger mx-3 mt-3">
-                  {error}
-                </div>
+                <div className="alert alert-danger mx-3 mt-3">{error}</div>
               )}
 
               <div className="tab-content" id="myTabContent">
                 {/* Basic Info Tab */}
-                <div className={`tab-pane fade ${activeTab === 'basic-info' ? 'show active' : ''}`}>
+                <div
+                  className={`tab-pane fade ${
+                    activeTab === "basic-info" ? "show active" : ""
+                  }`}
+                >
                   <div className="modal-body pb-0">
                     <div className="row">
                       <div className="col-md-12">
@@ -1097,7 +1122,7 @@ const AddUnitModal = ({ show, onClose }) => {
                               src={formData.userProfilePic}
                               alt="Profile Preview"
                               className="avatar avatar-xxl rounded-circle border border-dashed me-2 flex-shrink-0"
-                              style={{ objectFit: 'cover' }}
+                              style={{ objectFit: "cover" }}
                             />
                           ) : (
                             <div className="d-flex align-items-center justify-content-center avatar avatar-xxl rounded-circle border border-dashed me-2 flex-shrink-0 text-dark frames">
@@ -1107,7 +1132,9 @@ const AddUnitModal = ({ show, onClose }) => {
                           <div className="profile-upload">
                             <div className="mb-2">
                               <h6 className="mb-1">Upload Profile Image</h6>
-                              <p className="fs-12">Image should be below 4 mb</p>
+                              <p className="fs-12">
+                                Image should be below 4 mb
+                              </p>
                             </div>
                             <div className="profile-uploader d-flex align-items-center">
                               <div className="drag-upload-btn btn btn-sm btn-primary me-2">
@@ -1117,9 +1144,11 @@ const AddUnitModal = ({ show, onClose }) => {
                                   className="form-control image-sign"
                                   onChange={(e) => {
                                     if (e.target.files && e.target.files[0]) {
-                                      setFormData(prev => ({
+                                      setFormData((prev) => ({
                                         ...prev,
-                                        userProfilePic: URL.createObjectURL(e.target.files[0])
+                                        userProfilePic: URL.createObjectURL(
+                                          e.target.files[0]
+                                        ),
                                       }));
                                     }
                                   }}
@@ -1128,7 +1157,12 @@ const AddUnitModal = ({ show, onClose }) => {
                               <button
                                 type="button"
                                 className="btn btn-light btn-sm"
-                                onClick={() => setFormData(prev => ({ ...prev, userProfilePic: '' }))}
+                                onClick={() =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    userProfilePic: "",
+                                  }))
+                                }
                               >
                                 Cancel
                               </button>
@@ -1138,7 +1172,9 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">School Name <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            School Name <span className="text-danger">*</span>
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -1151,7 +1187,9 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">First Name <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            First Name <span className="text-danger">*</span>
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -1164,7 +1202,9 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Last Name <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            Last Name <span className="text-danger">*</span>
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -1177,7 +1217,10 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Institution Name <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            Institution Name{" "}
+                            <span className="text-danger">*</span>
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -1190,7 +1233,9 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Board <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            Board <span className="text-danger">*</span>
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -1203,7 +1248,10 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Institution Type <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            Institution Type{" "}
+                            <span className="text-danger">*</span>
+                          </label>
                           <select
                             className="form-select"
                             name="institutionType"
@@ -1231,7 +1279,9 @@ const AddUnitModal = ({ show, onClose }) => {
                             disabled={isOtpSent}
                           />
                           {emailExists && (
-                            <div className="text-danger small mt-1">Email already registered</div>
+                            <div className="text-danger small mt-1">
+                              Email already registered
+                            </div>
                           )}
                           {formData.userEmail && !emailExists && (
                             <div className="d-flex align-items-center mt-2">
@@ -1241,7 +1291,7 @@ const AddUnitModal = ({ show, onClose }) => {
                                 value={otp}
                                 onChange={(e) => setOtp(e.target.value)}
                                 className="form-control me-2"
-                                style={{ width: '150px' }}
+                                style={{ width: "150px" }}
                                 disabled={!isOtpSent}
                                 maxLength="6"
                               />
@@ -1252,50 +1302,72 @@ const AddUnitModal = ({ show, onClose }) => {
                                   className="btn btn-outline-primary"
                                   disabled={isSendingOtp || !formData.userEmail}
                                 >
-                                  {isSendingOtp ? 'Sending...' : 'Send OTP'}
+                                  {isSendingOtp ? "Sending..." : "Send OTP"}
                                 </button>
                               ) : (
                                 <button
                                   type="button"
                                   onClick={verifyOtp}
-                                  className={`btn ${isOtpVerified ? 'btn-success' : 'btn-primary'}`}
+                                  className={`btn ${
+                                    isOtpVerified
+                                      ? "btn-success"
+                                      : "btn-primary"
+                                  }`}
                                   disabled={isVerifyingOtp || isOtpVerified}
                                 >
-                                  {isVerifyingOtp ? 'Verifying...' : isOtpVerified ? 'Verified' : 'Verify'}
+                                  {isVerifyingOtp
+                                    ? "Verifying..."
+                                    : isOtpVerified
+                                    ? "Verified"
+                                    : "Verify"}
                                 </button>
                               )}
                             </div>
                           )}
                           {isOtpSent && !isOtpVerified && (
-                            <small className="text-muted">OTP sent to your email</small>
+                            <small className="text-muted">
+                              OTP sent to your email
+                            </small>
                           )}
                           {isOtpVerified && (
-                            <small className="text-success">Email verified successfully!</small>
+                            <small className="text-success">
+                              Email verified successfully!
+                            </small>
                           )}
                           {otpError && (
-                            <div className="text-danger small mt-1">{otpError}</div>
+                            <div className="text-danger small mt-1">
+                              {otpError}
+                            </div>
                           )}
                         </div>
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Mobile Number <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            Mobile Number <span className="text-danger">*</span>
+                          </label>
                           <input
                             type="tel"
-                            className={`form-control ${phoneExists ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              phoneExists ? "is-invalid" : ""
+                            }`}
                             name="userMobile"
                             value={formData.userMobile}
                             onChange={handleChange}
                             required
                           />
                           {phoneExists && (
-                            <div className="invalid-feedback">Phone number already registered</div>
+                            <div className="invalid-feedback">
+                              Phone number already registered
+                            </div>
                           )}
                         </div>
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Password <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            Password <span className="text-danger">*</span>
+                          </label>
                           <input
                             type="password"
                             className="form-control"
@@ -1320,7 +1392,9 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Employer Type <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            Employer Type <span className="text-danger">*</span>
+                          </label>
                           <select
                             className="form-select"
                             name="employerType"
@@ -1336,31 +1410,42 @@ const AddUnitModal = ({ show, onClose }) => {
                         </div>
                       </div>
                       <div className="col-md-6 d-flex justify-content-between align-items-center mb-2">
-                        <label className="col-form-label p-0">Positions <span className="text-danger">*</span></label>
+                        <label className="col-form-label p-0">
+                          Positions <span className="text-danger">*</span>
+                        </label>
                         <button
                           type="button"
                           className="add-new text-primary"
                           onClick={() => setShowPositionsModal(true)}
-                          style={{ border: 'none', backgroundColor: 'white' }}
+                          style={{ border: "none", backgroundColor: "white" }}
                         >
-                          <i className="ti ti-plus text-primary me-1"></i>Add New
+                          <i className="ti ti-plus text-primary me-1"></i>Add
+                          New
                         </button>
                       </div>
                       <div className="col-md-12 d-flex justify-content-between align-items-center mb-2">
-                        <label className="col-form-label p-0">User <span className="text-danger">*</span></label>
+                        <label className="col-form-label p-0">
+                          User <span className="text-danger">*</span>
+                        </label>
                         <button
                           type="button"
                           className="add-new text-primary"
                           onClick={() => setShowAddUserModal(true)}
-                          style={{ border: 'none', backgroundColor: 'white' }}
+                          style={{ border: "none", backgroundColor: "white" }}
                         >
-                          <i className="ti ti-plus text-primary me-1"></i>Add New
+                          <i className="ti ti-plus text-primary me-1"></i>Add
+                          New
                         </button>
                       </div>
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-light me-2" onClick={onClose} disabled={isSubmitting}>
+                    <button
+                      type="button"
+                      className="btn btn-light me-2"
+                      onClick={onClose}
+                      disabled={isSubmitting}
+                    >
                       Cancel
                     </button>
                     <button
@@ -1375,12 +1460,18 @@ const AddUnitModal = ({ show, onClose }) => {
                 </div>
 
                 {/* Address Tab */}
-                <div className={`tab-pane fade ${activeTab === 'address' ? 'show active' : ''}`}>
+                <div
+                  className={`tab-pane fade ${
+                    activeTab === "address" ? "show active" : ""
+                  }`}
+                >
                   <div className="modal-body pb-0">
                     <div className="row">
                       <div className="col-md-12">
                         <div className="mb-3">
-                          <label className="form-label">Address <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            Address <span className="text-danger">*</span>
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -1393,7 +1484,9 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Country <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            Country <span className="text-danger">*</span>
+                          </label>
                           <select
                             className="form-select"
                             name="country"
@@ -1411,7 +1504,9 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">State <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            State <span className="text-danger">*</span>
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -1424,7 +1519,9 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">City <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            City <span className="text-danger">*</span>
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -1437,7 +1534,9 @@ const AddUnitModal = ({ show, onClose }) => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Pincode <span className="text-danger">*</span></label>
+                          <label className="form-label">
+                            Pincode <span className="text-danger">*</span>
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -1451,11 +1550,24 @@ const AddUnitModal = ({ show, onClose }) => {
                     </div>
                   </div>
                   <div className="modal-footer">
-                    <button type="button" className="btn btn-light me-2" onClick={onClose} disabled={isSubmitting}>
+                    <button
+                      type="button"
+                      className="btn btn-light me-2"
+                      onClick={onClose}
+                      disabled={isSubmitting}
+                    >
                       Cancel
                     </button>
-                    <button type="submit" className="btn btn-primary" disabled={isSubmitting || (formData.userEmail && !isOtpVerified) || phoneExists}>
-                      {isSubmitting ? 'Saving...' : 'Save'}
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      disabled={
+                        isSubmitting ||
+                        (formData.userEmail && !isOtpVerified) ||
+                        phoneExists
+                      }
+                    >
+                      {isSubmitting ? "Saving..." : "Save"}
                     </button>
                   </div>
                 </div>
@@ -1537,4 +1649,4 @@ const AddUnitModal = ({ show, onClose }) => {
   );
 };
 
-export default AddUnitModal;  
+export default AddUnitModal;

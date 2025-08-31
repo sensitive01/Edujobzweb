@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import JobsFilter from './JobsFilter';
-import Jobsbreadcrumb from './Jobsbreadcrumb';
-import { Filter, Search, X, Bookmark, CheckCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import defaultEmployeeAvatar from '../../../assets/employer-admin/assets/img/profiles/avatar-12.jpg';
+import React, { useState, useEffect } from "react";
+import JobsFilter from "./JobsFilter";
+import Jobsbreadcrumb from "./Jobsbreadcrumb";
+import { Filter, Search, X, Bookmark, CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import defaultEmployeeAvatar from "../../../assets/employer-admin/assets/img/profiles/avatar-12.jpg";
 
 const JobVacanciesListWthMap = () => {
   const [allJobListings, setAllJobListings] = useState([]);
@@ -18,48 +18,60 @@ const JobVacanciesListWthMap = () => {
     locations: [],
     experienceLevels: [],
     categories: [],
-    specializations: []
+    specializations: [],
   });
   const navigate = useNavigate();
 
   const [filters, setFilters] = useState({
-    jobType: '',
-    location: '',
-    experienceLevel: '',
-    category: '',
-    searchQuery: '',
-    sort: '',
-    salaryFrom: '',
-    salaryTo: ''
+    jobType: "",
+    location: "",
+    experienceLevel: "",
+    category: "",
+    searchQuery: "",
+    sort: "",
+    salaryFrom: "",
+    salaryTo: "",
   });
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://edujobzbackend.onrender.com/employer/fetchjobs');
+        const response = await fetch(
+          "https://api.edprofio.com/employer/fetchjobs"
+        );
         if (!response.ok) {
-          throw new Error('Failed to fetch jobs');
+          throw new Error("Failed to fetch jobs");
         }
         const data = await response.json();
         setAllJobListings(data);
         setFilteredJobListings(data);
 
         // Extract filter options from data
-        const uniqueJobTypes = [...new Set(data.map(job => job.jobType))].filter(Boolean);
-        const uniqueLocations = [...new Set(data.flatMap(job =>
-          job.isRemote ? ['Remote'] : [job.location]
-        ))].filter(Boolean);
-        const uniqueExperienceLevels = [...new Set(data.map(job => job.experienceLevel))].filter(Boolean);
-        const uniqueCategories = [...new Set(data.map(job => job.category))].filter(Boolean);
-        const uniqueSpecializations = [...new Set(data.map(job => job.category))].filter(Boolean);
+        const uniqueJobTypes = [
+          ...new Set(data.map((job) => job.jobType)),
+        ].filter(Boolean);
+        const uniqueLocations = [
+          ...new Set(
+            data.flatMap((job) => (job.isRemote ? ["Remote"] : [job.location]))
+          ),
+        ].filter(Boolean);
+        const uniqueExperienceLevels = [
+          ...new Set(data.map((job) => job.experienceLevel)),
+        ].filter(Boolean);
+        const uniqueCategories = [
+          ...new Set(data.map((job) => job.category)),
+        ].filter(Boolean);
+        const uniqueSpecializations = [
+          ...new Set(data.map((job) => job.category)),
+        ].filter(Boolean);
 
         setFilterOptions({
           jobTypes: uniqueJobTypes,
           locations: uniqueLocations,
           experienceLevels: uniqueExperienceLevels,
           categories: uniqueCategories,
-          specializations: uniqueSpecializations
+          specializations: uniqueSpecializations,
         });
       } catch (err) {
         setError(err.message);
@@ -78,11 +90,11 @@ const JobVacanciesListWthMap = () => {
       // Apply search query filter
       if (filters.searchQuery) {
         const query = filters.searchQuery.toLowerCase();
-        filteredJobs = filteredJobs.filter(job => {
-          const jobTitle = job.jobTitle?.toLowerCase() || '';
-          const companyName = job.companyName?.toLowerCase() || '';
-          const category = job.category?.toLowerCase() || '';
-          const skillsRequired = job.skills?.join(' ')?.toLowerCase() || '';
+        filteredJobs = filteredJobs.filter((job) => {
+          const jobTitle = job.jobTitle?.toLowerCase() || "";
+          const companyName = job.companyName?.toLowerCase() || "";
+          const category = job.category?.toLowerCase() || "";
+          const skillsRequired = job.skills?.join(" ")?.toLowerCase() || "";
 
           return (
             jobTitle.includes(query) ||
@@ -95,33 +107,41 @@ const JobVacanciesListWthMap = () => {
 
       // Apply other filters
       if (filters.jobType) {
-        filteredJobs = filteredJobs.filter(job => job.jobType === filters.jobType);
+        filteredJobs = filteredJobs.filter(
+          (job) => job.jobType === filters.jobType
+        );
       }
       if (filters.location) {
-        if (filters.location === 'Remote') {
-          filteredJobs = filteredJobs.filter(job => job.isRemote);
+        if (filters.location === "Remote") {
+          filteredJobs = filteredJobs.filter((job) => job.isRemote);
         } else {
-          filteredJobs = filteredJobs.filter(job => job.location === filters.location);
+          filteredJobs = filteredJobs.filter(
+            (job) => job.location === filters.location
+          );
         }
       }
       if (filters.experienceLevel) {
-        filteredJobs = filteredJobs.filter(job => job.experienceLevel === filters.experienceLevel);
+        filteredJobs = filteredJobs.filter(
+          (job) => job.experienceLevel === filters.experienceLevel
+        );
       }
       if (filters.category) {
-        filteredJobs = filteredJobs.filter(job => job.category === filters.category);
+        filteredJobs = filteredJobs.filter(
+          (job) => job.category === filters.category
+        );
       }
 
       // Apply sorting
       if (filters.sort) {
         filteredJobs = [...filteredJobs].sort((a, b) => {
           switch (filters.sort) {
-            case 'newest':
+            case "newest":
               return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-            case 'oldest':
+            case "oldest":
               return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
-            case 'salary-high':
+            case "salary-high":
               return (b.salaryTo || 0) - (a.salaryTo || 0);
-            case 'salary-low':
+            case "salary-low":
               return (a.salaryFrom || 0) - (b.salaryFrom || 0);
             default:
               return 0;
@@ -131,7 +151,7 @@ const JobVacanciesListWthMap = () => {
 
       // Apply salary range filter
       if (filters.salaryFrom || filters.salaryTo) {
-        filteredJobs = filteredJobs.filter(job => {
+        filteredJobs = filteredJobs.filter((job) => {
           const salaryFrom = job.salaryFrom || 0;
           const salaryTo = job.salaryTo || Infinity;
           return (
@@ -152,58 +172,61 @@ const JobVacanciesListWthMap = () => {
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prevFilters => ({
+    setFilters((prevFilters) => ({
       ...prevFilters,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
     const searchQuery = e.target.search.value;
-    setFilters(prevFilters => ({
+    setFilters((prevFilters) => ({
       ...prevFilters,
-      searchQuery
+      searchQuery,
     }));
   };
 
   const clearFilters = () => {
     setFilters({
-      jobType: '',
-      location: '',
-      experienceLevel: '',
-      searchQuery: '',
-      sort: '',
-      category: '',
-      salaryFrom: '',
-      salaryTo: ''
+      jobType: "",
+      location: "",
+      experienceLevel: "",
+      searchQuery: "",
+      sort: "",
+      category: "",
+      salaryFrom: "",
+      salaryTo: "",
     });
     const searchInput = document.querySelector('input[name="search"]');
     if (searchInput) {
-      searchInput.value = '';
+      searchInput.value = "";
     }
   };
 
   const handleApplyFilters = (newFilters) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      ...newFilters
+      ...newFilters,
     }));
     setShowFilters(false);
   };
 
   const handleBreadcrumbFilter = ({ keyword, location }) => {
-    setFilters(prevFilters => ({
+    setFilters((prevFilters) => ({
       ...prevFilters,
-      searchQuery: keyword || '',
-      location: location || ''
+      searchQuery: keyword || "",
+      location: location || "",
     }));
   };
 
   // Pagination logic
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = filteredJobListings.slice(indexOfFirstJob, indexOfLastJob);
+  const currentJobs = filteredJobListings.slice(
+    indexOfFirstJob,
+    indexOfLastJob
+  );
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   if (loading) {
@@ -246,10 +269,12 @@ const JobVacanciesListWthMap = () => {
               <div className="col-12 col-lg-7 pt-35 pt-md-50 pt-lg-75 pb-35 pb-md-50 pb-xl-75">
                 {/* Page subheader */}
                 <header className="page-subheader mb-30 mb-md-40 d-xxl-flex align-items-center justify-content-between">
-                  <h3 className="h6 mb-25 mb-xxl-0 text-secondary">{filteredJobListings.length} jobs found</h3>
+                  <h3 className="h6 mb-25 mb-xxl-0 text-secondary">
+                    {filteredJobListings.length} jobs found
+                  </h3>
                   <div className="subhead-filters d-xxl-flex align-items-center justify-content-between">
                     <div className="subhead-filters-item">
-                      <div style={{ marginLeft: '10px' }}>
+                      <div style={{ marginLeft: "10px" }}>
                         <select
                           name="sort"
                           className="form-select"
@@ -265,11 +290,29 @@ const JobVacanciesListWthMap = () => {
                       </div>
                     </div>
                     <div className="grid-buttons">
-                      <a href="job-vacancies-list-with-map" className="btn btn-list active" type="button">
-                        <img src="/images/list-icon.svg" width="20" height="20" alt="List" />
+                      <a
+                        href="job-vacancies-list-with-map"
+                        className="btn btn-list active"
+                        type="button"
+                      >
+                        <img
+                          src="/images/list-icon.svg"
+                          width="20"
+                          height="20"
+                          alt="List"
+                        />
                       </a>
-                      <a href="job-vacancies-grid-with-map" className="btn btn-grid bg-light" type="button">
-                        <img src="/images/grid-icon.svg" width="22" height="22" alt="Grid" />
+                      <a
+                        href="job-vacancies-grid-with-map"
+                        className="btn btn-grid bg-light"
+                        type="button"
+                      >
+                        <img
+                          src="/images/grid-icon.svg"
+                          width="22"
+                          height="22"
+                          alt="Grid"
+                        />
                       </a>
                       <button
                         className="btn btn-filters filters-opener bg-light"
@@ -278,8 +321,17 @@ const JobVacanciesListWthMap = () => {
                       >
                         <Filter size={18} />
                       </button>
-                      <a href="job-vacancies-list" className="btn btn-grid active" type="button">
-                        <img src="/images/icons8-place-marker.gif" width="22" height="22" alt="Grid" />
+                      <a
+                        href="job-vacancies-list"
+                        className="btn btn-grid active"
+                        type="button"
+                      >
+                        <img
+                          src="/images/icons8-place-marker.gif"
+                          width="22"
+                          height="22"
+                          alt="Grid"
+                        />
                       </a>
                     </div>
                   </div>
@@ -297,7 +349,10 @@ const JobVacanciesListWthMap = () => {
                     <button className="btn btn-primary" type="submit">
                       <Search size={18} />
                     </button>
-                    {(filters.jobType || filters.location || filters.experienceLevel || filters.category) && (
+                    {(filters.jobType ||
+                      filters.location ||
+                      filters.experienceLevel ||
+                      filters.category) && (
                       <button
                         type="button"
                         className="btn btn-outline-secondary"
@@ -311,16 +366,23 @@ const JobVacanciesListWthMap = () => {
 
                 <div className="row justify-content-center">
                   {currentJobs.length > 0 ? (
-                    currentJobs.map(job => (
+                    currentJobs.map((job) => (
                       <div key={job._id} className="col-12 mb-40 mb-md-40">
                         <JobCard job={job} navigate={navigate} />
                       </div>
                     ))
                   ) : (
                     <div className="col-12 text-center py-5">
-                      <img src={defaultEmployeeAvatar} alt="No jobs found" width="150" className="mb-3" />
+                      <img
+                        src={defaultEmployeeAvatar}
+                        alt="No jobs found"
+                        width="150"
+                        className="mb-3"
+                      />
                       <h4>No jobs found matching your criteria</h4>
-                      <p className="text-muted">Try adjusting your search filters</p>
+                      <p className="text-muted">
+                        Try adjusting your search filters
+                      </p>
                       <button
                         className="btn btn-primary mt-2"
                         onClick={clearFilters}
@@ -336,7 +398,11 @@ const JobVacanciesListWthMap = () => {
                   <div className="pagination-block pt-20 pt-lg-30 pt-xl-50 pb-0">
                     <div className="container d-flex align-items-center justify-content-center">
                       <ul className="pagination">
-                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <li
+                          className={`page-item ${
+                            currentPage === 1 ? "disabled" : ""
+                          }`}
+                        >
                           <button
                             className="page-link"
                             onClick={() => paginate(currentPage - 1)}
@@ -345,10 +411,16 @@ const JobVacanciesListWthMap = () => {
                             <i className="icon-arrow-left1"></i>
                           </button>
                         </li>
-                        {[...Array(Math.ceil(filteredJobListings.length / jobsPerPage)).keys()].map(number => (
+                        {[
+                          ...Array(
+                            Math.ceil(filteredJobListings.length / jobsPerPage)
+                          ).keys(),
+                        ].map((number) => (
                           <li
                             key={number + 1}
-                            className={`page-item ${currentPage === number + 1 ? 'active' : ''}`}
+                            className={`page-item ${
+                              currentPage === number + 1 ? "active" : ""
+                            }`}
                           >
                             <button
                               className="page-link"
@@ -358,11 +430,23 @@ const JobVacanciesListWthMap = () => {
                             </button>
                           </li>
                         ))}
-                        <li className={`page-item ${currentPage === Math.ceil(filteredJobListings.length / jobsPerPage) ? 'disabled' : ''}`}>
+                        <li
+                          className={`page-item ${
+                            currentPage ===
+                            Math.ceil(filteredJobListings.length / jobsPerPage)
+                              ? "disabled"
+                              : ""
+                          }`}
+                        >
                           <button
                             className="page-link"
                             onClick={() => paginate(currentPage + 1)}
-                            disabled={currentPage === Math.ceil(filteredJobListings.length / jobsPerPage)}
+                            disabled={
+                              currentPage ===
+                              Math.ceil(
+                                filteredJobListings.length / jobsPerPage
+                              )
+                            }
                           >
                             <i className="icon-arrow-right"></i>
                           </button>
@@ -374,9 +458,22 @@ const JobVacanciesListWthMap = () => {
               </div>
               <div className="col-12 col-lg-5">
                 <div className="aside-map">
-                  <div id="map" style={{ height: '100%', backgroundColor: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div
+                    id="map"
+                    style={{
+                      height: "100%",
+                      backgroundColor: "#f5f5f5",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
                     <div className="text-center">
-                      <img src="/images/map-placeholder.png" alt="Map view" style={{ maxWidth: '100%' }} />
+                      <img
+                        src="/images/map-placeholder.png"
+                        alt="Map view"
+                        style={{ maxWidth: "100%" }}
+                      />
                       <p className="mt-3">Map view will be displayed here</p>
                     </div>
                   </div>
@@ -390,7 +487,10 @@ const JobVacanciesListWthMap = () => {
       {/* Filter Sidebar */}
       {showFilters && (
         <div className="filter-overlay" onClick={() => setShowFilters(false)}>
-          <div className="filter-container" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="filter-container"
+            onClick={(e) => e.stopPropagation()}
+          >
             <JobsFilter
               filterOptions={filterOptions}
               currentFilters={filters}
@@ -439,14 +539,14 @@ const JobCard = ({ job, navigate }) => {
   const [saveError, setSaveError] = useState(null);
 
   // Get applicant ID from localStorage
-  const userData = JSON.parse(localStorage.getItem('userData'));
+  const userData = JSON.parse(localStorage.getItem("userData"));
   const applicantId = userData?._id;
 
   useEffect(() => {
     // Check if job is already saved by this applicant
     if (job.saved && applicantId) {
       const isJobSaved = job.saved.some(
-        save => String(save.applicantId) === String(applicantId)
+        (save) => String(save.applicantId) === String(applicantId)
       );
       setIsSaved(isJobSaved);
     }
@@ -455,10 +555,10 @@ const JobCard = ({ job, navigate }) => {
   const handleSaveJob = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!applicantId) {
       // Redirect to login if user is not logged in
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
@@ -466,19 +566,22 @@ const JobCard = ({ job, navigate }) => {
     setSaveError(null);
 
     try {
-      const response = await fetch('https://edujobzbackend.onrender.com/employer/toggleSaveJob', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          applicantId,
-          jobId: job._id
-        }),
-      });
+      const response = await fetch(
+        "https://api.edprofio.com/employer/toggleSaveJob",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            applicantId,
+            jobId: job._id,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to toggle save job');
+        throw new Error("Failed to toggle save job");
       }
 
       const result = await response.json();
@@ -486,14 +589,13 @@ const JobCard = ({ job, navigate }) => {
 
       // Show success message
       if (result.isSaved) {
-        alert('Job saved successfully!');
+        alert("Job saved successfully!");
       } else {
-        alert('Job removed from saved jobs.');
+        alert("Job removed from saved jobs.");
       }
-
     } catch (err) {
       setSaveError(err.message);
-      console.error('Error saving job:', err);
+      console.error("Error saving job:", err);
     } finally {
       setIsSaving(false);
     }
@@ -503,7 +605,7 @@ const JobCard = ({ job, navigate }) => {
     <article className="popular-jobs-box">
       <div className="box-holder border border-grey shadow">
         <div className="job-info shadow">
-          <div className="img-holder" style={{ position: 'relative' }}>
+          <div className="img-holder" style={{ position: "relative" }}>
             <img
               src={job.companyLogo || "/images/default-company-logo.jpg"}
               width="78"
@@ -511,47 +613,49 @@ const JobCard = ({ job, navigate }) => {
               alt={job.companyName}
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = '/images/default-company-logo.jpg';
+                e.target.src = "/images/default-company-logo.jpg";
               }}
-              style={{ borderRadius: '8px' }}
+              style={{ borderRadius: "8px" }}
             />
             {job.employerProfilePic && (
-              <div style={{
-                position: 'absolute',
-                bottom: '0px',
-                right: '0px',
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                border: '2px solid white',
-                overflow: 'hidden',
-                backgroundColor: 'white',
-                zIndex: 1
-              }}>
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "0px",
+                  right: "0px",
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: "50%",
+                  border: "2px solid white",
+                  overflow: "hidden",
+                  backgroundColor: "white",
+                  zIndex: 1,
+                }}
+              >
                 <img
                   src={job.employerProfilePic}
                   width="40"
                   height="40"
                   alt="Employer"
                   style={{
-                    objectFit: 'cover',
-                    width: '100%',
-                    height: '100%'
+                    objectFit: "cover",
+                    width: "100%",
+                    height: "100%",
                   }}
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = '/images/default-profile-pic.jpg';
+                    e.target.src = "/images/default-profile-pic.jpg";
                   }}
                 />
               </div>
             )}
           </div>
           <div className="textbox">
-            <button 
+            <button
               onClick={handleSaveJob}
               className="btn-bookmark"
               disabled={isSaving}
-              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{ background: "none", border: "none", cursor: "pointer" }}
             >
               <Bookmark
                 className={isSaved ? "text-secondary" : "text-primary"}
@@ -561,37 +665,51 @@ const JobCard = ({ job, navigate }) => {
             </button>
             <h3 className="h5 mb-0">{job.jobTitle}</h3>
             <ul className="meta-list">
-              <li><span className="text">{job.companyName}</span></li>
+              <li>
+                <span className="text">{job.companyName}</span>
+              </li>
               <li>
                 <i className="icon-map-pin"></i>
                 <span className="text">
-                  {job.isRemote ? 'Remote' : job.location}
-                  {job.isRemote && job.location ? ` (${job.location})` : ''}
+                  {job.isRemote ? "Remote" : job.location}
+                  {job.isRemote && job.location ? ` (${job.location})` : ""}
                 </span>
               </li>
             </ul>
             <ul className="tags-list">
-              <li><span className="tag">{job.jobType}</span></li>
-              <li><span className="tag">{job.experienceLevel}</span></li>
-              {job.isRemote && <li><span className="tag">Remote</span></li>}
-              {job.category && <li><span className="tag">{job.category}</span></li>}
+              <li>
+                <span className="tag">{job.jobType}</span>
+              </li>
+              <li>
+                <span className="tag">{job.experienceLevel}</span>
+              </li>
+              {job.isRemote && (
+                <li>
+                  <span className="tag">Remote</span>
+                </li>
+              )}
+              {job.category && (
+                <li>
+                  <span className="tag">{job.category}</span>
+                </li>
+              )}
             </ul>
           </div>
         </div>
         <footer className="jobs-foot">
           <strong className="amount">
-            ₹{job.salaryFrom || 'NA'} to ₹{job.salaryTo || 'NA'}<span>/{job.salaryType || 'month'}</span>
+            ₹{job.salaryFrom || "NA"} to ₹{job.salaryTo || "NA"}
+            <span>/{job.salaryType || "month"}</span>
           </strong>
           <a href={`/job-details/${job._id}`} className="btn btn-green btn-sm">
             <span className="btn-text">
-              <CheckCircle className="text-primary" size={18} /> &nbsp; Apply Now
+              <CheckCircle className="text-primary" size={18} /> &nbsp; Apply
+              Now
             </span>
           </a>
         </footer>
         {saveError && (
-          <div className="alert alert-danger mt-2">
-            {saveError}
-          </div>
+          <div className="alert alert-danger mt-2">{saveError}</div>
         )}
       </div>
     </article>

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import EmployerHeader from './EmployerHeader';
-import EmployerFooter from './EmployerFooter';
-import EmployerCandidatesDetails from './EmployerCandidatesDetails';
-import AddCandidateModal from './addcandidatemodal/AddCandidateModal';
-import EditCandidateModal from './addcandidatemodal/EditCandidatemodal';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import EmployerHeader from "./EmployerHeader";
+import EmployerFooter from "./EmployerFooter";
+import EmployerCandidatesDetails from "./EmployerCandidatesDetails";
+import AddCandidateModal from "./addcandidatemodal/AddCandidateModal";
+import EditCandidateModal from "./addcandidatemodal/EditCandidatemodal";
 
 const CandidatesList = () => {
   const navigate = useNavigate();
@@ -12,12 +12,12 @@ const CandidatesList = () => {
   const [filteredCandidates, setFilteredCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedRole, setSelectedRole] = useState('All');
-  const [selectedStatus, setSelectedStatus] = useState('All');
-  const [sortBy, setSortBy] = useState('Last 7 Days');
-  const [dateRange, setDateRange] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedYear, setSelectedYear] = useState('This Year');
+  const [selectedRole, setSelectedRole] = useState("All");
+  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [sortBy, setSortBy] = useState("Last 7 Days");
+  const [dateRange, setDateRange] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedYear, setSelectedYear] = useState("This Year");
   const [selectedCandidates, setSelectedCandidates] = useState([]);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -30,42 +30,42 @@ const CandidatesList = () => {
   // Dynamic filter states
   const [jobCategories, setJobCategories] = useState({});
   const [jobTypes, setJobTypes] = useState({});
-  const [gender, setGender] = useState('All');
-  const [salaryRange, setSalaryRange] = useState({ min: '', max: '' });
-  const [location, setLocation] = useState('');
-  const [qualification, setQualification] = useState('');
-  const [experienceRange, setExperienceRange] = useState({ min: '', max: '' });
+  const [gender, setGender] = useState("All");
+  const [salaryRange, setSalaryRange] = useState({ min: "", max: "" });
+  const [location, setLocation] = useState("");
+  const [qualification, setQualification] = useState("");
+  const [experienceRange, setExperienceRange] = useState({ min: "", max: "" });
 
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('employerToken');
-        const employerData = JSON.parse(localStorage.getItem('employerData'));
+        const token = localStorage.getItem("employerToken");
+        const employerData = JSON.parse(localStorage.getItem("employerData"));
 
         if (!token || !employerData) {
-          navigate('/employer/login');
+          navigate("/employer/login");
           return;
         }
 
         const response = await fetch(
-          `https://edujobzbackend.onrender.com/employer/viewallappliedcandi/${employerData._id}`,
+          `https://api.edprofio.com/employer/viewallappliedcandi/${employerData._id}`,
           {
             headers: {
-              'Authorization': `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch candidates');
+          throw new Error("Failed to fetch candidates");
         }
 
         const data = await response.json();
         setCandidates(data.data || []);
         setFilteredCandidates(data.data || []);
       } catch (err) {
-        console.error('Fetch error:', err);
+        console.error("Fetch error:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -79,8 +79,8 @@ const CandidatesList = () => {
   useEffect(() => {
     if (candidates.length > 0) {
       // Get unique job categories
-      const categories = [...new Set(
-        candidates.map(c => c.jobCategory).filter(Boolean))
+      const categories = [
+        ...new Set(candidates.map((c) => c.jobCategory).filter(Boolean)),
       ];
       const initialCategories = categories.reduce((acc, category) => {
         acc[category] = false;
@@ -88,9 +88,9 @@ const CandidatesList = () => {
       }, {});
 
       // Get unique job types
-      const types = [...new Set(
-        candidates.map(c => c.jobType).filter(Boolean)
-      )];
+      const types = [
+        ...new Set(candidates.map((c) => c.jobType).filter(Boolean)),
+      ];
       const initialTypes = types.reduce((acc, type) => {
         acc[type] = false;
         return acc;
@@ -106,49 +106,59 @@ const CandidatesList = () => {
     let filtered = [...candidates];
 
     // Role filter
-    if (selectedRole !== 'All') {
-      filtered = filtered.filter(candidate => candidate.jobrole === selectedRole);
+    if (selectedRole !== "All") {
+      filtered = filtered.filter(
+        (candidate) => candidate.jobrole === selectedRole
+      );
     }
 
     // Status filter
-    if (selectedStatus !== 'All') {
-      filtered = filtered.filter(candidate => candidate.employapplicantstatus === selectedStatus);
+    if (selectedStatus !== "All") {
+      filtered = filtered.filter(
+        (candidate) => candidate.employapplicantstatus === selectedStatus
+      );
     }
 
     // Search term filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(candidate =>
-        candidate.firstName?.toLowerCase().includes(term) ||
-        candidate.email?.toLowerCase().includes(term) ||
-        candidate.jobTitle?.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (candidate) =>
+          candidate.firstName?.toLowerCase().includes(term) ||
+          candidate.email?.toLowerCase().includes(term) ||
+          candidate.jobTitle?.toLowerCase().includes(term)
       );
     }
 
-     // Job Category filter
-    const selectedCategories = Object.keys(jobCategories).filter(cat => jobCategories[cat]);
+    // Job Category filter
+    const selectedCategories = Object.keys(jobCategories).filter(
+      (cat) => jobCategories[cat]
+    );
     if (selectedCategories.length > 0) {
-      filtered = filtered.filter(candidate => 
+      filtered = filtered.filter((candidate) =>
         selectedCategories.includes(candidate.jobCategory)
       );
     }
 
     // Job Type filter
-    const selectedJobTypes = Object.keys(jobTypes).filter(type => jobTypes[type]);
+    const selectedJobTypes = Object.keys(jobTypes).filter(
+      (type) => jobTypes[type]
+    );
     if (selectedJobTypes.length > 0) {
-      filtered = filtered.filter(candidate =>
-        candidate.jobType && selectedJobTypes.includes(candidate.jobType)
+      filtered = filtered.filter(
+        (candidate) =>
+          candidate.jobType && selectedJobTypes.includes(candidate.jobType)
       );
     }
 
     // Gender filter
-    if (gender !== 'All') {
-      filtered = filtered.filter(candidate => candidate.gender === gender);
+    if (gender !== "All") {
+      filtered = filtered.filter((candidate) => candidate.gender === gender);
     }
 
     // Salary Range filter
     if (salaryRange.min || salaryRange.max) {
-      filtered = filtered.filter(candidate => {
+      filtered = filtered.filter((candidate) => {
         const candidateSalary = candidate.salary || 0;
         const min = salaryRange.min ? parseInt(salaryRange.min) : 0;
         const max = salaryRange.max ? parseInt(salaryRange.max) : Infinity;
@@ -158,24 +168,28 @@ const CandidatesList = () => {
 
     // Location filter
     if (location) {
-      filtered = filtered.filter(candidate =>
+      filtered = filtered.filter((candidate) =>
         candidate.location?.toLowerCase().includes(location.toLowerCase())
       );
     }
 
     // Qualification filter
     if (qualification) {
-      filtered = filtered.filter(candidate =>
-        candidate.qualification?.toLowerCase().includes(qualification.toLowerCase())
+      filtered = filtered.filter((candidate) =>
+        candidate.qualification
+          ?.toLowerCase()
+          .includes(qualification.toLowerCase())
       );
     }
 
     // Experience Range filter
     if (experienceRange.min || experienceRange.max) {
-      filtered = filtered.filter(candidate => {
+      filtered = filtered.filter((candidate) => {
         const candidateExp = candidate.experience || 0;
         const min = experienceRange.min ? parseInt(experienceRange.min) : 0;
-        const max = experienceRange.max ? parseInt(experienceRange.max) : Infinity;
+        const max = experienceRange.max
+          ? parseInt(experienceRange.max)
+          : Infinity;
         return candidateExp >= min && candidateExp <= max;
       });
     }
@@ -187,10 +201,13 @@ const CandidatesList = () => {
   // Reset all filters
   const resetFilters = () => {
     // Reset job categories
-    const resetCategories = Object.keys(jobCategories).reduce((acc, category) => {
-      acc[category] = false;
-      return acc;
-    }, {});
+    const resetCategories = Object.keys(jobCategories).reduce(
+      (acc, category) => {
+        acc[category] = false;
+        return acc;
+      },
+      {}
+    );
 
     // Reset job types
     const resetTypes = Object.keys(jobTypes).reduce((acc, type) => {
@@ -200,27 +217,27 @@ const CandidatesList = () => {
 
     setJobCategories(resetCategories);
     setJobTypes(resetTypes);
-    setGender('All');
-    setSalaryRange({ min: '', max: '' });
-    setLocation('');
-    setQualification('');
-    setExperienceRange({ min: '', max: '' });
+    setGender("All");
+    setSalaryRange({ min: "", max: "" });
+    setLocation("");
+    setQualification("");
+    setExperienceRange({ min: "", max: "" });
     setFilteredCandidates(candidates);
   };
 
   // Handle job category checkbox change
   const handleJobCategoryChange = (category) => {
-    setJobCategories(prev => ({
+    setJobCategories((prev) => ({
       ...prev,
-      [category]: !prev[category]
+      [category]: !prev[category],
     }));
   };
 
   // Handle job type checkbox change
   const handleJobTypeChange = (type) => {
-    setJobTypes(prev => ({
+    setJobTypes((prev) => ({
       ...prev,
-      [type]: !prev[type]
+      [type]: !prev[type],
     }));
   };
 
@@ -243,20 +260,23 @@ const CandidatesList = () => {
   const filterCandidates = (role, status, searchTerm) => {
     let filtered = [...candidates];
 
-    if (role !== 'All') {
-      filtered = filtered.filter(candidate => candidate.jobrole === role);
+    if (role !== "All") {
+      filtered = filtered.filter((candidate) => candidate.jobrole === role);
     }
 
-    if (status !== 'All') {
-      filtered = filtered.filter(candidate => candidate.employapplicantstatus === status);
+    if (status !== "All") {
+      filtered = filtered.filter(
+        (candidate) => candidate.employapplicantstatus === status
+      );
     }
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(candidate =>
-        candidate.firstName.toLowerCase().includes(term) ||
-        candidate.email.toLowerCase().includes(term) ||
-        candidate.jobTitle.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (candidate) =>
+          candidate.firstName.toLowerCase().includes(term) ||
+          candidate.email.toLowerCase().includes(term) ||
+          candidate.jobTitle.toLowerCase().includes(term)
       );
     }
 
@@ -265,7 +285,9 @@ const CandidatesList = () => {
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedCandidates(filteredCandidates.map(candidate => candidate._id));
+      setSelectedCandidates(
+        filteredCandidates.map((candidate) => candidate._id)
+      );
     } else {
       setSelectedCandidates([]);
     }
@@ -273,7 +295,9 @@ const CandidatesList = () => {
 
   const handleSelectCandidate = (candidateId) => {
     if (selectedCandidates.includes(candidateId)) {
-      setSelectedCandidates(selectedCandidates.filter(id => id !== candidateId));
+      setSelectedCandidates(
+        selectedCandidates.filter((id) => id !== candidateId)
+      );
     } else {
       setSelectedCandidates([...selectedCandidates, candidateId]);
     }
@@ -287,27 +311,31 @@ const CandidatesList = () => {
   const handleConfirmDelete = async () => {
     try {
       if (candidateToDelete) {
-        const token = localStorage.getItem('employerToken');
+        const token = localStorage.getItem("employerToken");
         const response = await fetch(
-          `https://edujobzbackend.onrender.com/employer/deletecandidate/${candidateToDelete._id}`,
+          `https://api.edprofio.com/employer/deletecandidate/${candidateToDelete._id}`,
           {
-            method: 'DELETE',
+            method: "DELETE",
             headers: {
-              'Authorization': `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
 
         if (!response.ok) {
-          throw new Error('Failed to delete candidate');
+          throw new Error("Failed to delete candidate");
         }
 
         // Remove the deleted candidate from state
-        setCandidates(candidates.filter(c => c._id !== candidateToDelete._id));
-        setFilteredCandidates(filteredCandidates.filter(c => c._id !== candidateToDelete._id));
+        setCandidates(
+          candidates.filter((c) => c._id !== candidateToDelete._id)
+        );
+        setFilteredCandidates(
+          filteredCandidates.filter((c) => c._id !== candidateToDelete._id)
+        );
       }
     } catch (err) {
-      console.error('Delete error:', err);
+      console.error("Delete error:", err);
       setError(err.message);
     } finally {
       setShowDeleteModal(false);
@@ -321,29 +349,29 @@ const CandidatesList = () => {
   };
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'Applied':
-        return 'border border-purple text-purple';
-      case 'Scheduled':
-        return 'border border-pink text-pink';
-      case 'Interviewed':
-        return 'border border-info text-info';
-      case 'Offered':
-        return 'border border-warning text-warning';
-      case 'Hired':
-        return 'border border-success text-success';
-      case 'Rejected':
-        return 'border border-danger text-danger';
+      case "Applied":
+        return "border border-purple text-purple";
+      case "Scheduled":
+        return "border border-pink text-pink";
+      case "Interviewed":
+        return "border border-info text-info";
+      case "Offered":
+        return "border border-warning text-warning";
+      case "Hired":
+        return "border border-success text-success";
+      case "Rejected":
+        return "border border-danger text-danger";
       default:
-        return 'border border-purple text-purple';
+        return "border border-purple text-purple";
     }
   };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   };
 
@@ -362,7 +390,9 @@ const CandidatesList = () => {
         {/* Breadcrumb */}
         <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
           <div className="my-auto">
-            <h2>&nbsp; <i className="fa fa-users text-primary"></i> Candidates</h2>
+            <h2>
+              &nbsp; <i className="fa fa-users text-primary"></i> Candidates
+            </h2>
           </div>
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
             <div className="me-2">
@@ -370,7 +400,7 @@ const CandidatesList = () => {
                 <input
                   type="text"
                   className="form-control date-range bookingrange"
-                  style={{ width: '205px' }}
+                  style={{ width: "205px" }}
                   placeholder="dd/mm/yyyy - dd/mm/yyyy"
                   value={dateRange}
                   onChange={(e) => setDateRange(e.target.value)}
@@ -386,27 +416,29 @@ const CandidatesList = () => {
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
                 data-bs-toggle="dropdown"
               >
-                {selectedRole || 'Role'}
+                {selectedRole || "Role"}
               </button>
               <ul className="dropdown-menu dropdown-menu-end p-3">
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleRoleFilter('All')}
+                    onClick={() => handleRoleFilter("All")}
                   >
                     All Roles
                   </button>
                 </li>
-                {Array.from(new Set(candidates.map(c => c.jobrole))).map(role => (
-                  <li key={role}>
-                    <button
-                      className="dropdown-item rounded-1"
-                      onClick={() => handleRoleFilter(role)}
-                    >
-                      {role}
-                    </button>
-                  </li>
-                ))}
+                {Array.from(new Set(candidates.map((c) => c.jobrole))).map(
+                  (role) => (
+                    <li key={role}>
+                      <button
+                        className="dropdown-item rounded-1"
+                        onClick={() => handleRoleFilter(role)}
+                      >
+                        {role}
+                      </button>
+                    </li>
+                  )
+                )}
               </ul>
             </div>
 
@@ -415,13 +447,13 @@ const CandidatesList = () => {
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
                 data-bs-toggle="dropdown"
               >
-                {selectedStatus || 'Select Status'}
+                {selectedStatus || "Select Status"}
               </button>
               <ul className="dropdown-menu dropdown-menu-end p-3">
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('All')}
+                    onClick={() => handleStatusFilter("All")}
                   >
                     All Statuses
                   </button>
@@ -429,7 +461,7 @@ const CandidatesList = () => {
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('Pending')}
+                    onClick={() => handleStatusFilter("Pending")}
                   >
                     Pending
                   </button>
@@ -437,7 +469,7 @@ const CandidatesList = () => {
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('Scheduled')}
+                    onClick={() => handleStatusFilter("Scheduled")}
                   >
                     Scheduled
                   </button>
@@ -445,7 +477,7 @@ const CandidatesList = () => {
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('Interviewed')}
+                    onClick={() => handleStatusFilter("Interviewed")}
                   >
                     Interviewed
                   </button>
@@ -453,7 +485,7 @@ const CandidatesList = () => {
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('Offered')}
+                    onClick={() => handleStatusFilter("Offered")}
                   >
                     Offered
                   </button>
@@ -461,7 +493,7 @@ const CandidatesList = () => {
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('Hired')}
+                    onClick={() => handleStatusFilter("Hired")}
                   >
                     Hired
                   </button>
@@ -469,7 +501,7 @@ const CandidatesList = () => {
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('Rejected')}
+                    onClick={() => handleStatusFilter("Rejected")}
                   >
                     Rejected
                   </button>
@@ -486,19 +518,27 @@ const CandidatesList = () => {
               </button>
               <ul className="dropdown-menu dropdown-menu-end p-3">
                 <li>
-                  <button className="dropdown-item rounded-1">Recently Added</button>
+                  <button className="dropdown-item rounded-1">
+                    Recently Added
+                  </button>
                 </li>
                 <li>
                   <button className="dropdown-item rounded-1">Ascending</button>
                 </li>
                 <li>
-                  <button className="dropdown-item rounded-1">Descending</button>
+                  <button className="dropdown-item rounded-1">
+                    Descending
+                  </button>
                 </li>
                 <li>
-                  <button className="dropdown-item rounded-1">Last Month</button>
+                  <button className="dropdown-item rounded-1">
+                    Last Month
+                  </button>
                 </li>
                 <li>
-                  <button className="dropdown-item rounded-1">Last 7 Days</button>
+                  <button className="dropdown-item rounded-1">
+                    Last 7 Days
+                  </button>
                 </li>
               </ul>
             </div>
@@ -517,17 +557,26 @@ const CandidatesList = () => {
             </div>
 
             <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
-              <button className="btn btn-icon btn-sm me-1 toggle-theme" onClick={() => setShowFilterSidebar(true)}>
+              <button
+                className="btn btn-icon btn-sm me-1 toggle-theme"
+                onClick={() => setShowFilterSidebar(true)}
+              >
                 <i className="ti ti-filter"></i>
               </button>
             </div>
 
             <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
-              <button className="btn btn-icon btn-sm active bg-primary text-white me-1" onClick={() => navigate("/employer/candidate-list")} >
+              <button
+                className="btn btn-icon btn-sm active bg-primary text-white me-1"
+                onClick={() => navigate("/employer/candidate-list")}
+              >
                 <i className="ti ti-list-tree"></i>
               </button>
-              <button className="btn btn-icon btn-sm" onClick={() => navigate("/employer/new-candidate")}>
-                <i className="ti ti-layout-grid" ></i>
+              <button
+                className="btn btn-icon btn-sm"
+                onClick={() => navigate("/employer/new-candidate")}
+              >
+                <i className="ti ti-layout-grid"></i>
               </button>
             </div>
 
@@ -547,14 +596,18 @@ const CandidatesList = () => {
                   </li>
                   <li>
                     <button className="dropdown-item rounded-1">
-                      <i className="ti ti-file-type-xls me-1"></i>Export as Excel
+                      <i className="ti ti-file-type-xls me-1"></i>Export as
+                      Excel
                     </button>
                   </li>
                 </ul>
               </div>
             </div>
 
-            <button className="btn btn-primary d-flex align-items-center" onClick={() => setShowAddCandidateModal(true)}>
+            <button
+              className="btn btn-primary d-flex align-items-center"
+              onClick={() => setShowAddCandidateModal(true)}
+            >
               <i className="ti ti-circle-plus me-2"></i>Add Candidate
             </button>
           </div>
@@ -570,17 +623,24 @@ const CandidatesList = () => {
                   <div className="card-body">
                     <div className="overflow-hidden d-flex mb-2 align-items-center">
                       <span className="me-2">
-                        <img src="/assets/img/reports-img/employee-report-icon.svg" alt="Img" className="img-fluid" />
+                        <img
+                          src="/assets/img/reports-img/employee-report-icon.svg"
+                          alt="Img"
+                          className="img-fluid"
+                        />
                       </span>
                       <div>
-                        <p className="fs-14 fw-bold mb-1 text-primary">Total Candidates</p>
+                        <p className="fs-14 fw-bold mb-1 text-primary">
+                          Total Candidates
+                        </p>
                         <h5>{candidates.length}</h5>
                       </div>
                     </div>
                     <div>
                       <p className="fs-12 fw-normal d-flex align-items-center text-truncate">
                         <span className="text-success fs-12 d-flex align-items-center me-1">
-                          <i className="ti ti-arrow-wave-right-up me-1"></i>+20.01%
+                          <i className="ti ti-arrow-wave-right-up me-1"></i>
+                          +20.01%
                         </span>
                         from last week
                       </p>
@@ -596,17 +656,24 @@ const CandidatesList = () => {
                   <div className="card-body">
                     <div className="overflow-hidden d-flex mb-2 align-items-center">
                       <span className="me-2">
-                        <img src="/assets/img/reports-img/employee-report-success.svg" alt="Img" className="img-fluid" />
+                        <img
+                          src="/assets/img/reports-img/employee-report-success.svg"
+                          alt="Img"
+                          className="img-fluid"
+                        />
                       </span>
                       <div>
-                        <p className="fs-14 fw-bold mb-1 text-primary">Shortlisted Candidates</p>
-                        <h5>{candidates.filter(c => c.favourite).length}</h5>
+                        <p className="fs-14 fw-bold mb-1 text-primary">
+                          Shortlisted Candidates
+                        </p>
+                        <h5>{candidates.filter((c) => c.favourite).length}</h5>
                       </div>
                     </div>
                     <div>
                       <p className="fs-12 fw-normal d-flex align-items-center text-truncate">
                         <span className="text-success fs-12 d-flex align-items-center me-1">
-                          <i className="ti ti-arrow-wave-right-up me-1"></i>+20.01%
+                          <i className="ti ti-arrow-wave-right-up me-1"></i>
+                          +20.01%
                         </span>
                         from last week
                       </p>
@@ -622,22 +689,33 @@ const CandidatesList = () => {
                   <div className="card-body">
                     <div className="overflow-hidden d-flex mb-2 align-items-center">
                       <span className="me-2">
-                        <img src="/assets/img/reports-img/employee-report-info.svg" alt="Img" className="img-fluid" />
+                        <img
+                          src="/assets/img/reports-img/employee-report-info.svg"
+                          alt="Img"
+                          className="img-fluid"
+                        />
                       </span>
                       <div>
-                        <p className="fs-14 fw-bold mb-1 text-primary">New Candidates</p>
-                        <h5>{candidates.filter(c => {
-                          const appliedDate = new Date(c.appliedDate);
-                          const sevenDaysAgo = new Date();
-                          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-                          return appliedDate > sevenDaysAgo;
-                        }).length}</h5>
+                        <p className="fs-14 fw-bold mb-1 text-primary">
+                          New Candidates
+                        </p>
+                        <h5>
+                          {
+                            candidates.filter((c) => {
+                              const appliedDate = new Date(c.appliedDate);
+                              const sevenDaysAgo = new Date();
+                              sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                              return appliedDate > sevenDaysAgo;
+                            }).length
+                          }
+                        </h5>
                       </div>
                     </div>
                     <div>
                       <p className="fs-12 fw-normal d-flex align-items-center text-truncate">
                         <span className="text-success fs-12 d-flex align-items-center me-1">
-                          <i className="ti ti-arrow-wave-right-up me-1"></i>+20.01%
+                          <i className="ti ti-arrow-wave-right-up me-1"></i>
+                          +20.01%
                         </span>
                         from last week
                       </p>
@@ -653,17 +731,32 @@ const CandidatesList = () => {
                   <div className="card-body">
                     <div className="overflow-hidden d-flex mb-2 align-items-center">
                       <span className="me-2">
-                        <img src="/assets/img/reports-img/employee-report-danger.svg" alt="Img" className="img-fluid" />
+                        <img
+                          src="/assets/img/reports-img/employee-report-danger.svg"
+                          alt="Img"
+                          className="img-fluid"
+                        />
                       </span>
                       <div>
-                        <p className="fs-14 fw-bold mb-1 text-primary">Inactive Candidates</p>
-                        <h5>{candidates.filter(c => c.status === 'Rejected' || c.status === 'Withdrawn').length}</h5>
+                        <p className="fs-14 fw-bold mb-1 text-primary">
+                          Inactive Candidates
+                        </p>
+                        <h5>
+                          {
+                            candidates.filter(
+                              (c) =>
+                                c.status === "Rejected" ||
+                                c.status === "Withdrawn"
+                            ).length
+                          }
+                        </h5>
                       </div>
                     </div>
                     <div>
                       <p className="fs-12 fw-normal d-flex align-items-center text-truncate">
                         <span className="text-success fs-12 d-flex align-items-center me-1">
-                          <i className="ti ti-arrow-wave-right-up me-1"></i>+20.01%
+                          <i className="ti ti-arrow-wave-right-up me-1"></i>
+                          +20.01%
                         </span>
                         from last week
                       </p>
@@ -680,7 +773,9 @@ const CandidatesList = () => {
               <div className="card-header border-0 pb-0">
                 <div className="d-flex flex-wrap justify-content-between align-items-center row-gap-2">
                   <div className="d-flex align-items-center">
-                    <span className="me-2"><i className="ti ti-chart-bar text-danger"></i></span>
+                    <span className="me-2">
+                      <i className="ti ti-chart-bar text-danger"></i>
+                    </span>
                     <h5>Candidates</h5>
                   </div>
                   <div className="d-flex align-items-center">
@@ -702,25 +797,35 @@ const CandidatesList = () => {
                     </button>
                     <ul className="dropdown-menu dropdown-menu-end p-2">
                       <li>
-                        <button className="dropdown-item rounded-1">2025</button>
+                        <button className="dropdown-item rounded-1">
+                          2025
+                        </button>
                       </li>
                       <li>
-                        <button className="dropdown-item rounded-1">2024</button>
+                        <button className="dropdown-item rounded-1">
+                          2024
+                        </button>
                       </li>
                       <li>
-                        <button className="dropdown-item rounded-1">2023</button>
+                        <button className="dropdown-item rounded-1">
+                          2023
+                        </button>
                       </li>
                       <li>
-                        <button className="dropdown-item rounded-1">2022</button>
+                        <button className="dropdown-item rounded-1">
+                          2022
+                        </button>
                       </li>
                     </ul>
                   </div>
                 </div>
               </div>
               <div className="card-body py-0">
-                <div id="employee-reports" style={{ height: '200px' }}>
+                <div id="employee-reports" style={{ height: "200px" }}>
                   {/* Chart would go here */}
-                  <div className="text-center py-5">Candidate statistics chart</div>
+                  <div className="text-center py-5">
+                    Candidate statistics chart
+                  </div>
                 </div>
               </div>
             </div>
@@ -739,7 +844,11 @@ const CandidatesList = () => {
                           className="form-check-input"
                           type="checkbox"
                           id="select-all"
-                          checked={selectedCandidates.length === filteredCandidates.length && filteredCandidates.length > 0}
+                          checked={
+                            selectedCandidates.length ===
+                              filteredCandidates.length &&
+                            filteredCandidates.length > 0
+                          }
                           onChange={handleSelectAll}
                         />
                       </div>
@@ -763,38 +872,59 @@ const CandidatesList = () => {
                             <input
                               className="form-check-input"
                               type="checkbox"
-                              checked={selectedCandidates.includes(candidate._id)}
-                              onChange={() => handleSelectCandidate(candidate._id)}
+                              checked={selectedCandidates.includes(
+                                candidate._id
+                              )}
+                              onChange={() =>
+                                handleSelectCandidate(candidate._id)
+                              }
                             />
                           </div>
                         </td>
-                        <td>Cand-{candidate._id.substring(candidate._id.length - 4)}</td>
+                        <td>
+                          Cand-
+                          {candidate._id.substring(candidate._id.length - 4)}
+                        </td>
                         <td>
                           <div className="d-flex align-items-center file-name-icon">
-                            <a onClick={(e) => {
-                              e.preventDefault();
-                              viewCandidateDetails(candidate);
-                            }} className="avatar avatar-md">
+                            <a
+                              onClick={(e) => {
+                                e.preventDefault();
+                                viewCandidateDetails(candidate);
+                              }}
+                              className="avatar avatar-md"
+                            >
                               <img
-                                src={candidate.profileurl || '/assets/img/users/user-01.jpg'}
+                                src={
+                                  candidate.profileurl ||
+                                  "/assets/img/users/user-01.jpg"
+                                }
                                 className="img-fluid rounded-circle"
                                 alt="img"
                               />
                             </a>
                             <div className="ms-2">
                               <h6 className="fw-medium">
-                                <a onClick={(e) => {
-                                  e.preventDefault();
-                                  viewCandidateDetails(candidate);
-                                }} data-bs-toggle="offcanvas" data-bs-target="#candidate_details">
+                                <a
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    viewCandidateDetails(candidate);
+                                  }}
+                                  data-bs-toggle="offcanvas"
+                                  data-bs-target="#candidate_details"
+                                >
                                   {candidate.firstName}
                                 </a>
                               </h6>
                               <span className="d-block mt-1">
-                                <a onClick={(e) => {
-                                  e.preventDefault();
-                                  viewCandidateDetails(candidate);
-                                }}>{candidate.currentcity}</a>
+                                <a
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    viewCandidateDetails(candidate);
+                                  }}
+                                >
+                                  {candidate.currentcity}
+                                </a>
                               </span>
                             </div>
                           </div>
@@ -803,7 +933,9 @@ const CandidatesList = () => {
                           {candidate.jobTitle}
                           <br />
                           <span className="d-block mt-1">
-                            <a href="#">{candidate.experience} years of experience</a>
+                            <a href="#">
+                              {candidate.experience} years of experience
+                            </a>
                           </span>
                         </td>
                         <td>
@@ -814,7 +946,10 @@ const CandidatesList = () => {
                             <a href={`sms:${candidate.phone}`} className="me-2">
                               <i className="ti ti-message"></i>
                             </a>
-                            <a href={`mailto:${candidate.email}`} className="me-2">
+                            <a
+                              href={`mailto:${candidate.email}`}
+                              className="me-2"
+                            >
                               <i className="ti ti-mail text-danger"></i>
                             </a>
                           </div>
@@ -840,17 +975,29 @@ const CandidatesList = () => {
                           </div>
                         </td>
                         <td>
-                          <span className={`badge ${getStatusBadge(candidate.employapplicantstatus)}`}>
+                          <span
+                            className={`badge ${getStatusBadge(
+                              candidate.employapplicantstatus
+                            )}`}
+                          >
                             <i className="ti ti-point-filled"></i>
                             {candidate.employapplicantstatus}
                           </span>
                         </td>
                         <td>
                           <div className="action-icon d-inline-flex">
-                            <a onClick={() => setShowEditCandidateModal(true)} className="me-2" data-bs-toggle="modal" data-bs-target="#edit_employee">
+                            <a
+                              onClick={() => setShowEditCandidateModal(true)}
+                              className="me-2"
+                              data-bs-toggle="modal"
+                              data-bs-target="#edit_employee"
+                            >
                               <i className="ti ti-edit"></i>
                             </a>
-                            <a href="javascript:void(0);" onClick={() => handleDeleteClick(candidate)}>
+                            <a
+                              href="javascript:void(0);"
+                              onClick={() => handleDeleteClick(candidate)}
+                            >
                               <i className="ti ti-trash text-danger"></i>
                             </a>
                           </div>
@@ -859,7 +1006,9 @@ const CandidatesList = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="9" className="text-center py-4">No candidates found</td>
+                      <td colSpan="9" className="text-center py-4">
+                        No candidates found
+                      </td>
                     </tr>
                   )}
                 </tbody>
@@ -870,42 +1019,66 @@ const CandidatesList = () => {
       </div>
 
       {/* Filter Sidebar */}
-      <div className={`sidebar-themesettings offcanvas offcanvas-end ${showFilterSidebar ? 'show' : ''}`}
+      <div
+        className={`sidebar-themesettings offcanvas offcanvas-end ${
+          showFilterSidebar ? "show" : ""
+        }`}
         id="theme-setting"
-        style={{ visibility: showFilterSidebar ? 'visible' : 'hidden' }}>
+        style={{ visibility: showFilterSidebar ? "visible" : "hidden" }}
+      >
         <div className="offcanvas-header d-flex align-items-center justify-content-between bg-dark">
           <div>
             <h3 className="mb-1 text-white">Filter Jobs</h3>
             <p className="text-light">Search & Filter</p>
           </div>
-          <a href="#" className="custom-btn-close d-flex align-items-center justify-content-center text-white"
-            onClick={(e) => { e.preventDefault(); setShowFilterSidebar(false); }}>
+          <a
+            href="#"
+            className="custom-btn-close d-flex align-items-center justify-content-center text-white"
+            onClick={(e) => {
+              e.preventDefault();
+              setShowFilterSidebar(false);
+            }}
+          >
             <i className="ti ti-x"></i>
           </a>
         </div>
         <div className="themesettings-inner offcanvas-body">
-          <div className="accordion accordion-customicon1 accordions-items-seperate" id="settingtheme">
+          <div
+            className="accordion accordion-customicon1 accordions-items-seperate"
+            id="settingtheme"
+          >
             {/* Job Category */}
             <div className="accordion-item">
               <h2 className="accordion-header">
-                <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#layoutsetting" aria-expanded="true">
+                <button
+                  className="accordion-button text-dark fs-16"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#layoutsetting"
+                  aria-expanded="true"
+                >
                   Select Job Category
                 </button>
               </h2>
-              <div id="layoutsetting" className="accordion-collapse collapse show">
+              <div
+                id="layoutsetting"
+                className="accordion-collapse collapse show"
+              >
                 <div className="accordion-body">
                   <div className="row gx-3">
                     <div className="form-group">
                       <div className="checkbox-limit">
                         <ul className="checkbox-list">
-                          {Object.keys(jobCategories).map(category => (
+                          {Object.keys(jobCategories).map((category) => (
                             <React.Fragment key={category}>
                               <li>
                                 <label className="custom-checkbox">
                                   <input
                                     type="checkbox"
                                     checked={jobCategories[category]}
-                                    onChange={() => handleJobCategoryChange(category)}
+                                    onChange={() =>
+                                      handleJobCategoryChange(category)
+                                    }
                                   />
                                   <span className="fake-checkbox"></span>
                                   <span className="label-text">{category}</span>
@@ -925,17 +1098,26 @@ const CandidatesList = () => {
             {/* Job Type */}
             <div className="accordion-item">
               <h2 className="accordion-header">
-                <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#layoutsetting1" aria-expanded="true">
+                <button
+                  className="accordion-button text-dark fs-16"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#layoutsetting1"
+                  aria-expanded="true"
+                >
                   Select Job Type
                 </button>
               </h2>
-              <div id="layoutsetting1" className="accordion-collapse collapse show">
+              <div
+                id="layoutsetting1"
+                className="accordion-collapse collapse show"
+              >
                 <div className="accordion-body">
                   <div className="row gx-3">
                     <div className="form-group">
                       <div className="checkbox-limit">
                         <ul className="checkbox-list">
-                          {Object.keys(jobTypes).map(type => (
+                          {Object.keys(jobTypes).map((type) => (
                             <React.Fragment key={type}>
                               <li>
                                 <label className="custom-checkbox">
@@ -962,11 +1144,20 @@ const CandidatesList = () => {
             {/* Gender */}
             <div className="accordion-item">
               <h2 className="accordion-header">
-                <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarsetting" aria-expanded="true">
+                <button
+                  className="accordion-button text-dark fs-16"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#sidebarsetting"
+                  aria-expanded="true"
+                >
                   Gender
                 </button>
               </h2>
-              <div id="sidebarsetting" className="accordion-collapse collapse show">
+              <div
+                id="sidebarsetting"
+                className="accordion-collapse collapse show"
+              >
                 <div className="accordion-body">
                   <div className="d-flex align-items-center">
                     <div className="theme-width m-1 me-2">
@@ -975,10 +1166,15 @@ const CandidatesList = () => {
                         name="gender"
                         id="maleGender"
                         value="Male"
-                        checked={gender === 'Male'}
-                        onChange={() => setGender('Male')}
+                        checked={gender === "Male"}
+                        onChange={() => setGender("Male")}
                       />
-                      <label htmlFor="maleGender" className="d-block rounded fs-12">Male</label>
+                      <label
+                        htmlFor="maleGender"
+                        className="d-block rounded fs-12"
+                      >
+                        Male
+                      </label>
                     </div>
                     <div className="theme-width m-1 me-2">
                       <input
@@ -986,10 +1182,15 @@ const CandidatesList = () => {
                         name="gender"
                         id="femaleGender"
                         value="Female"
-                        checked={gender === 'Female'}
-                        onChange={() => setGender('Female')}
+                        checked={gender === "Female"}
+                        onChange={() => setGender("Female")}
                       />
-                      <label htmlFor="femaleGender" className="d-block rounded fs-12">Female</label>
+                      <label
+                        htmlFor="femaleGender"
+                        className="d-block rounded fs-12"
+                      >
+                        Female
+                      </label>
                     </div>
                     <div className="theme-width m-1">
                       <input
@@ -997,10 +1198,15 @@ const CandidatesList = () => {
                         name="gender"
                         id="allGender"
                         value="All"
-                        checked={gender === 'All'}
-                        onChange={() => setGender('All')}
+                        checked={gender === "All"}
+                        onChange={() => setGender("All")}
                       />
-                      <label htmlFor="allGender" className="d-block rounded fs-12">All</label>
+                      <label
+                        htmlFor="allGender"
+                        className="d-block rounded fs-12"
+                      >
+                        All
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -1010,11 +1216,20 @@ const CandidatesList = () => {
             {/* Salary Range */}
             <div className="accordion-item">
               <h2 className="accordion-header">
-                <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#cardsetting" aria-expanded="true">
+                <button
+                  className="accordion-button text-dark fs-16"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#cardsetting"
+                  aria-expanded="true"
+                >
                   Salary Range
                 </button>
               </h2>
-              <div id="cardsetting" className="accordion-collapse collapse show">
+              <div
+                id="cardsetting"
+                className="accordion-collapse collapse show"
+              >
                 <div className="accordion-body pb-0">
                   <div className="row gx-3">
                     <div className="form-group">
@@ -1024,14 +1239,24 @@ const CandidatesList = () => {
                           className="form-control"
                           placeholder="From"
                           value={salaryRange.min}
-                          onChange={(e) => setSalaryRange({ ...salaryRange, min: e.target.value })}
+                          onChange={(e) =>
+                            setSalaryRange({
+                              ...salaryRange,
+                              min: e.target.value,
+                            })
+                          }
                         />
                         <input
                           type="text"
                           className="form-control"
                           placeholder="To"
                           value={salaryRange.max}
-                          onChange={(e) => setSalaryRange({ ...salaryRange, max: e.target.value })}
+                          onChange={(e) =>
+                            setSalaryRange({
+                              ...salaryRange,
+                              max: e.target.value,
+                            })
+                          }
                         />
                       </div>
                     </div>
@@ -1043,11 +1268,20 @@ const CandidatesList = () => {
             {/* Location */}
             <div className="accordion-item">
               <h2 className="accordion-header">
-                <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarsetting1" aria-expanded="true">
+                <button
+                  className="accordion-button text-dark fs-16"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#sidebarsetting1"
+                  aria-expanded="true"
+                >
                   Location
                 </button>
               </h2>
-              <div id="sidebarsetting1" className="accordion-collapse collapse show">
+              <div
+                id="sidebarsetting1"
+                className="accordion-collapse collapse show"
+              >
                 <div className="accordion-body">
                   <div className="d-flex align-items-center">
                     <input
@@ -1065,11 +1299,20 @@ const CandidatesList = () => {
             {/* Qualification */}
             <div className="accordion-item">
               <h2 className="accordion-header">
-                <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#modesetting" aria-expanded="true">
+                <button
+                  className="accordion-button text-dark fs-16"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#modesetting"
+                  aria-expanded="true"
+                >
                   Qualification
                 </button>
               </h2>
-              <div id="modesetting" className="accordion-collapse collapse show">
+              <div
+                id="modesetting"
+                className="accordion-collapse collapse show"
+              >
                 <div className="accordion-body">
                   <div className="row gx-3">
                     <input
@@ -1087,11 +1330,20 @@ const CandidatesList = () => {
             {/* Experience */}
             <div className="accordion-item">
               <h2 className="accordion-header">
-                <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#sizesetting" aria-expanded="true">
+                <button
+                  className="accordion-button text-dark fs-16"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#sizesetting"
+                  aria-expanded="true"
+                >
                   Experience
                 </button>
               </h2>
-              <div id="sizesetting" className="accordion-collapse collapse show">
+              <div
+                id="sizesetting"
+                className="accordion-collapse collapse show"
+              >
                 <div className="accordion-body pb-0">
                   <div className="row gx-3">
                     <div className="price-inputs d-flex">
@@ -1100,14 +1352,24 @@ const CandidatesList = () => {
                         className="form-control"
                         placeholder="From"
                         value={experienceRange.min}
-                        onChange={(e) => setExperienceRange({ ...experienceRange, min: e.target.value })}
+                        onChange={(e) =>
+                          setExperienceRange({
+                            ...experienceRange,
+                            min: e.target.value,
+                          })
+                        }
                       />
                       <input
                         type="text"
                         className="form-control"
                         placeholder="To"
                         value={experienceRange.max}
-                        onChange={(e) => setExperienceRange({ ...experienceRange, max: e.target.value })}
+                        onChange={(e) =>
+                          setExperienceRange({
+                            ...experienceRange,
+                            max: e.target.value,
+                          })
+                        }
                       />
                     </div>
                   </div>
@@ -1127,10 +1389,7 @@ const CandidatesList = () => {
               </button>
             </div>
             <div className="col-6">
-              <button
-                className="btn btn-primary w-100"
-                onClick={applyFilters}
-              >
+              <button className="btn btn-primary w-100" onClick={applyFilters}>
                 <i className="ti ti-circle-check me-1"></i>Submit
               </button>
             </div>
@@ -1138,11 +1397,17 @@ const CandidatesList = () => {
         </div>
       </div>
       {showFilterSidebar && (
-        <div className="modal-backdrop fade show" onClick={() => setShowFilterSidebar(false)}></div>
+        <div
+          className="modal-backdrop fade show"
+          onClick={() => setShowFilterSidebar(false)}
+        ></div>
       )}
 
-
-      <div className={`modal fade ${showDeleteModal ? 'show' : ''}`} id="delete_modal" style={{ display: showDeleteModal ? 'block' : 'none' }}>
+      <div
+        className={`modal fade ${showDeleteModal ? "show" : ""}`}
+        id="delete_modal"
+        style={{ display: showDeleteModal ? "block" : "none" }}
+      >
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-body text-center">
@@ -1153,7 +1418,7 @@ const CandidatesList = () => {
               <p className="mb-3">
                 {candidateToDelete
                   ? `Are you sure you want to delete ${candidateToDelete.firstName}? This action cannot be undone.`
-                  : 'You want to delete all the marked items, this cant be undone once you delete.'}
+                  : "You want to delete all the marked items, this cant be undone once you delete."}
               </p>
               <div className="d-flex justify-content-center">
                 <button
@@ -1173,9 +1438,7 @@ const CandidatesList = () => {
           </div>
         </div>
       </div>
-      {showDeleteModal && (
-        <div className="modal-backdrop fade show"></div>
-      )}
+      {showDeleteModal && <div className="modal-backdrop fade show"></div>}
       {selectedCandidate && (
         <EmployerCandidatesDetails
           show={showDetails}

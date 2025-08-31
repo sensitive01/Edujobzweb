@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AdminHeader from '../layout/AdminHeader';
-import AdminFooter from '../layout/AdminFooter';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import AdminHeader from "../layout/AdminHeader";
+import AdminFooter from "../layout/AdminFooter";
 
 const EmployerList = () => {
   const navigate = useNavigate();
@@ -9,11 +9,11 @@ const EmployerList = () => {
   const [filteredEmployers, setFilteredEmployers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedType, setSelectedType] = useState('All');
-  const [selectedStatus, setSelectedStatus] = useState('All');
-  const [sortBy, setSortBy] = useState('Last 7 Days');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedYear, setSelectedYear] = useState('This Year');
+  const [selectedType, setSelectedType] = useState("All");
+  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [sortBy, setSortBy] = useState("Last 7 Days");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedYear, setSelectedYear] = useState("This Year");
   const [selectedEmployers, setSelectedEmployers] = useState([]);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedEmployer, setSelectedEmployer] = useState(null);
@@ -25,26 +25,26 @@ const EmployerList = () => {
   const [editedEmployer, setEditedEmployer] = useState(null);
 
   const [newEmployer, setNewEmployer] = useState({
-    employerType: '',
-    schoolName: '',
-    firstName: '',
-    lastName: '',
-    userEmail: '',
-    userMobile: '',
-    userPassword: '',
-    referralCode: ''
+    employerType: "",
+    schoolName: "",
+    firstName: "",
+    lastName: "",
+    userEmail: "",
+    userMobile: "",
+    userPassword: "",
+    referralCode: "",
   });
 
   // Dynamic filter states
   const [employerTypes, setEmployerTypes] = useState({});
   const [institutionTypes, setInstitutionTypes] = useState({});
   const [states, setStates] = useState({});
-  const [subscriptionStatus, setSubscriptionStatus] = useState('All');
+  const [subscriptionStatus, setSubscriptionStatus] = useState("All");
   const [dateRange, setDateRange] = useState({
-    start: '',
-    end: ''
+    start: "",
+    end: "",
   });
-  const [selectedDateRange, setSelectedDateRange] = useState('This Year');
+  const [selectedDateRange, setSelectedDateRange] = useState("This Year");
   const [showDateDropdown, setShowDateDropdown] = useState(false);
 
   const getDynamicDateRangeOptions = () => {
@@ -55,58 +55,80 @@ const EmployerList = () => {
 
     return [
       {
-        label: 'Today',
-        value: 'today',
-        dateLabel: `${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`
+        label: "Today",
+        value: "today",
+        dateLabel: `${currentDate.toString().padStart(2, "0")}/${currentMonth
+          .toString()
+          .padStart(2, "0")}/${currentYear}`,
       },
       {
-        label: 'Yesterday',
-        value: 'yesterday',
+        label: "Yesterday",
+        value: "yesterday",
         dateLabel: (() => {
           const yesterday = new Date(today);
           yesterday.setDate(yesterday.getDate() - 1);
-          return `${yesterday.getDate().toString().padStart(2, '0')}/${(yesterday.getMonth() + 1).toString().padStart(2, '0')}/${yesterday.getFullYear()}`;
-        })()
+          return `${yesterday.getDate().toString().padStart(2, "0")}/${(
+            yesterday.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${yesterday.getFullYear()}`;
+        })(),
       },
       {
-        label: 'Last 7 Days',
-        value: 'last7days',
+        label: "Last 7 Days",
+        value: "last7days",
         dateLabel: (() => {
           const week = new Date(today);
           week.setDate(week.getDate() - 7);
-          return `${week.getDate().toString().padStart(2, '0')}/${(week.getMonth() + 1).toString().padStart(2, '0')}/${week.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
-        })()
+          return `${week.getDate().toString().padStart(2, "0")}/${(
+            week.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${week.getFullYear()} - ${currentDate
+            .toString()
+            .padStart(2, "0")}/${currentMonth
+            .toString()
+            .padStart(2, "0")}/${currentYear}`;
+        })(),
       },
       {
-        label: 'Last 30 Days',
-        value: 'last30days',
+        label: "Last 30 Days",
+        value: "last30days",
         dateLabel: (() => {
           const month = new Date(today);
           month.setDate(month.getDate() - 30);
-          return `${month.getDate().toString().padStart(2, '0')}/${(month.getMonth() + 1).toString().padStart(2, '0')}/${month.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
-        })()
+          return `${month.getDate().toString().padStart(2, "0")}/${(
+            month.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${month.getFullYear()} - ${currentDate
+            .toString()
+            .padStart(2, "0")}/${currentMonth
+            .toString()
+            .padStart(2, "0")}/${currentYear}`;
+        })(),
       },
       {
-        label: 'This Year',
-        value: 'thisyear',
-        dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`
+        label: "This Year",
+        value: "thisyear",
+        dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`,
       },
       {
-        label: 'Last Year',
-        value: 'lastyear',
-        dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`
+        label: "Last Year",
+        value: "lastyear",
+        dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`,
       },
       {
-        label: 'Custom Range',
-        value: 'custom',
-        dateLabel: 'Select dates'
-      }
+        label: "Custom Range",
+        value: "custom",
+        dateLabel: "Select dates",
+      },
     ];
   };
 
   const handleDateRangeSelect = (option) => {
-    if (option.value === 'custom') {
-      setSelectedDateRange('Custom Range');
+    if (option.value === "custom") {
+      setSelectedDateRange("Custom Range");
       return;
     }
 
@@ -115,31 +137,31 @@ const EmployerList = () => {
     let startDate, endDate;
 
     switch (option.value) {
-      case 'today':
-        startDate = endDate = today.toISOString().split('T')[0];
+      case "today":
+        startDate = endDate = today.toISOString().split("T")[0];
         break;
-      case 'yesterday':
+      case "yesterday":
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
-        startDate = endDate = yesterday.toISOString().split('T')[0];
+        startDate = endDate = yesterday.toISOString().split("T")[0];
         break;
-      case 'last7days':
+      case "last7days":
         const week = new Date(today);
         week.setDate(week.getDate() - 7);
-        startDate = week.toISOString().split('T')[0];
-        endDate = today.toISOString().split('T')[0];
+        startDate = week.toISOString().split("T")[0];
+        endDate = today.toISOString().split("T")[0];
         break;
-      case 'last30days':
+      case "last30days":
         const month = new Date(today);
         month.setDate(month.getDate() - 30);
-        startDate = month.toISOString().split('T')[0];
-        endDate = today.toISOString().split('T')[0];
+        startDate = month.toISOString().split("T")[0];
+        endDate = today.toISOString().split("T")[0];
         break;
-      case 'thisyear':
+      case "thisyear":
         startDate = `${today.getFullYear()}-01-01`;
         endDate = `${today.getFullYear()}-12-31`;
         break;
-      case 'lastyear':
+      case "lastyear":
         startDate = `${today.getFullYear() - 1}-01-01`;
         endDate = `${today.getFullYear() - 1}-12-31`;
         break;
@@ -152,9 +174,9 @@ const EmployerList = () => {
 
   const handleNewEmployerChange = (e) => {
     const { name, value } = e.target;
-    setNewEmployer(prev => ({
+    setNewEmployer((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -166,24 +188,24 @@ const EmployerList = () => {
 
       // Basic validation
       if (!newEmployer.userEmail && !newEmployer.userMobile) {
-        throw new Error('Email or mobile is required');
+        throw new Error("Email or mobile is required");
       }
 
       if (!newEmployer.userPassword) {
-        throw new Error('Password is required');
+        throw new Error("Password is required");
       }
 
-      const response = await fetch('https://edujobzbackend.onrender.com/employer/signup', {
-        method: 'POST',
+      const response = await fetch("https://api.edprofio.com/employer/signup", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(newEmployer)
+        body: JSON.stringify(newEmployer),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to add employer');
+        throw new Error(errorData.message || "Failed to add employer");
       }
 
       const data = await response.json();
@@ -192,28 +214,27 @@ const EmployerList = () => {
       const addedEmployer = {
         ...data.data,
         _id: data.data.id,
-        verificationstatus: data.data.verificationstatus || 'pending',
-        blockstatus: data.data.blockstatus || 'unblock'
+        verificationstatus: data.data.verificationstatus || "pending",
+        blockstatus: data.data.blockstatus || "unblock",
       };
 
-      setEmployers(prev => [...prev, addedEmployer]);
-      setFilteredEmployers(prev => [...prev, addedEmployer]);
+      setEmployers((prev) => [...prev, addedEmployer]);
+      setFilteredEmployers((prev) => [...prev, addedEmployer]);
 
       // Close modal and reset form
       setShowAddEmployerModal(false);
       setNewEmployer({
-        employerType: '',
-        schoolName: '',
-        firstName: '',
-        lastName: '',
-        userEmail: '',
-        userMobile: '',
-        userPassword: '',
-        referralCode: ''
+        employerType: "",
+        schoolName: "",
+        firstName: "",
+        lastName: "",
+        userEmail: "",
+        userMobile: "",
+        userPassword: "",
+        referralCode: "",
       });
-
     } catch (err) {
-      console.error('Add employer error:', err);
+      console.error("Add employer error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -224,17 +245,19 @@ const EmployerList = () => {
     const fetchEmployers = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://edujobzbackend.onrender.com/admin/getallemployers');
+        const response = await fetch(
+          "https://api.edprofio.com/admin/getallemployers"
+        );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch employers');
+          throw new Error("Failed to fetch employers");
         }
 
         const data = await response.json();
         setEmployers(data.data || []);
         setFilteredEmployers(data.data || []);
       } catch (err) {
-        console.error('Fetch error:', err);
+        console.error("Fetch error:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -248,21 +271,27 @@ const EmployerList = () => {
   useEffect(() => {
     if (employers.length > 0) {
       // Get unique employer types
-      const types = [...new Set(employers.map(e => e.employerType).filter(Boolean))];
+      const types = [
+        ...new Set(employers.map((e) => e.employerType).filter(Boolean)),
+      ];
       const initialTypes = types.reduce((acc, type) => {
         acc[type] = false;
         return acc;
       }, {});
 
       // Get unique institution types
-      const instTypes = [...new Set(employers.map(e => e.institutionType).filter(Boolean))];
+      const instTypes = [
+        ...new Set(employers.map((e) => e.institutionType).filter(Boolean)),
+      ];
       const initialInstTypes = instTypes.reduce((acc, type) => {
         acc[type] = false;
         return acc;
       }, {});
 
       // Get unique states
-      const uniqueStates = [...new Set(employers.map(e => e.state).filter(Boolean))];
+      const uniqueStates = [
+        ...new Set(employers.map((e) => e.state).filter(Boolean)),
+      ];
       const initialStates = uniqueStates.reduce((acc, state) => {
         acc[state] = false;
         return acc;
@@ -274,22 +303,23 @@ const EmployerList = () => {
     }
   }, [employers]);
 
-
   // Replace the existing setShowEditEmployerModal calls with this:
 
   const fetchEmployerDetails = async (employerId) => {
     try {
       setLoading(true);
-      const response = await fetch(`https://edujobzbackend.onrender.com/employer/fetchemployer/${employerId}`);
+      const response = await fetch(
+        `https://api.edprofio.com/employer/fetchemployer/${employerId}`
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch employer details');
+        throw new Error("Failed to fetch employer details");
       }
 
       const data = await response.json();
       return data;
     } catch (err) {
-      console.error('Fetch employer error:', err);
+      console.error("Fetch employer error:", err);
       setError(err.message);
       return null;
     } finally {
@@ -305,25 +335,25 @@ const EmployerList = () => {
       const details = await fetchEmployerDetails(employer._id);
       if (details) {
         setEditedEmployer({
-          firstName: details.firstName || '',
-          lastName: details.lastName || '',
-          userEmail: details.userEmail || '',
-          userMobile: details.userMobile || '',
-          address: details.address || '',
-          state: details.state || '',
-          pincode: details.pincode || '',
-          city: details.city || '',
-          schoolName: details.schoolName || '',
-          website: details.website || '',
-          board: details.board || '',
-          institutionType: details.institutionType || '',
-          employerType: details.employerType || '',
-          organizationid: details.organizationid || '',
+          firstName: details.firstName || "",
+          lastName: details.lastName || "",
+          userEmail: details.userEmail || "",
+          userMobile: details.userMobile || "",
+          address: details.address || "",
+          state: details.state || "",
+          pincode: details.pincode || "",
+          city: details.city || "",
+          schoolName: details.schoolName || "",
+          website: details.website || "",
+          board: details.board || "",
+          institutionType: details.institutionType || "",
+          employerType: details.employerType || "",
+          organizationid: details.organizationid || "",
         });
         setShowEditEmployerModal(true);
       }
     } catch (err) {
-      console.error('Error loading employer details:', err);
+      console.error("Error loading employer details:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -333,39 +363,43 @@ const EmployerList = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/employer/updateemployer/${selectedEmployer._id}`,
+        `https://api.edprofio.com/employer/updateemployer/${selectedEmployer._id}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(editedEmployer)
+          body: JSON.stringify(editedEmployer),
         }
       );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update employer');
+        throw new Error(errorData.message || "Failed to update employer");
       }
 
       const data = await response.json();
 
       // Update the local state
-      setEmployers(employers.map(employer =>
-        employer._id === selectedEmployer._id
-          ? { ...employer, ...editedEmployer }
-          : employer
-      ));
+      setEmployers(
+        employers.map((employer) =>
+          employer._id === selectedEmployer._id
+            ? { ...employer, ...editedEmployer }
+            : employer
+        )
+      );
 
-      setFilteredEmployers(filteredEmployers.map(employer =>
-        employer._id === selectedEmployer._id
-          ? { ...employer, ...editedEmployer }
-          : employer
-      ));
+      setFilteredEmployers(
+        filteredEmployers.map((employer) =>
+          employer._id === selectedEmployer._id
+            ? { ...employer, ...editedEmployer }
+            : employer
+        )
+      );
 
       setShowEditEmployerModal(false);
     } catch (err) {
-      console.error('Update error:', err);
+      console.error("Update error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -384,7 +418,7 @@ const EmployerList = () => {
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
 
-      filtered = filtered.filter(employer => {
+      filtered = filtered.filter((employer) => {
         if (!employer.createdAt) return false;
         const createdDate = new Date(employer.createdAt);
         return createdDate >= startDate && createdDate <= endDate;
@@ -392,58 +426,76 @@ const EmployerList = () => {
     }
 
     // Type filter
-    if (selectedType !== 'All') {
-      filtered = filtered.filter(employer => employer.employerType === selectedType);
+    if (selectedType !== "All") {
+      filtered = filtered.filter(
+        (employer) => employer.employerType === selectedType
+      );
     }
 
     // Status filter
-    if (selectedStatus !== 'All') {
-      filtered = filtered.filter(employer => employer.verificationstatus === selectedStatus);
+    if (selectedStatus !== "All") {
+      filtered = filtered.filter(
+        (employer) => employer.verificationstatus === selectedStatus
+      );
     }
 
     // Subscription status filter
-    if (subscriptionStatus !== 'All') {
-      if (subscriptionStatus === 'subscribed') {
-        filtered = filtered.filter(employer => employer.subscription === 'true');
-      } else if (subscriptionStatus === 'trial') {
-        filtered = filtered.filter(employer => employer.trial === 'true');
+    if (subscriptionStatus !== "All") {
+      if (subscriptionStatus === "subscribed") {
+        filtered = filtered.filter(
+          (employer) => employer.subscription === "true"
+        );
+      } else if (subscriptionStatus === "trial") {
+        filtered = filtered.filter((employer) => employer.trial === "true");
       } else {
-        filtered = filtered.filter(employer => employer.subscription === 'false' && employer.trial === 'false');
+        filtered = filtered.filter(
+          (employer) =>
+            employer.subscription === "false" && employer.trial === "false"
+        );
       }
     }
 
     // Search term filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(employer =>
-        employer.schoolName?.toLowerCase().includes(term) ||
-        employer.userEmail?.toLowerCase().includes(term) ||
-        `${employer.firstName || ''} ${employer.lastName || ''}`.toLowerCase().includes(term) ||
-        employer.userMobile?.includes(term)
+      filtered = filtered.filter(
+        (employer) =>
+          employer.schoolName?.toLowerCase().includes(term) ||
+          employer.userEmail?.toLowerCase().includes(term) ||
+          `${employer.firstName || ""} ${employer.lastName || ""}`
+            .toLowerCase()
+            .includes(term) ||
+          employer.userMobile?.includes(term)
       );
     }
 
     // Employer Type filter
-    const selectedEmployerTypes = Object.keys(employerTypes).filter(type => employerTypes[type]);
+    const selectedEmployerTypes = Object.keys(employerTypes).filter(
+      (type) => employerTypes[type]
+    );
     if (selectedEmployerTypes.length > 0) {
-      filtered = filtered.filter(employer =>
+      filtered = filtered.filter((employer) =>
         selectedEmployerTypes.includes(employer.employerType)
       );
     }
 
     // Institution Type filter
-    const selectedInstitutionTypes = Object.keys(institutionTypes).filter(type => institutionTypes[type]);
+    const selectedInstitutionTypes = Object.keys(institutionTypes).filter(
+      (type) => institutionTypes[type]
+    );
     if (selectedInstitutionTypes.length > 0) {
-      filtered = filtered.filter(employer =>
-        employer.institutionType && selectedInstitutionTypes.includes(employer.institutionType)
+      filtered = filtered.filter(
+        (employer) =>
+          employer.institutionType &&
+          selectedInstitutionTypes.includes(employer.institutionType)
       );
     }
 
     // State filter
-    const selectedStates = Object.keys(states).filter(state => states[state]);
+    const selectedStates = Object.keys(states).filter((state) => states[state]);
     if (selectedStates.length > 0) {
-      filtered = filtered.filter(employer =>
-        employer.state && selectedStates.includes(employer.state)
+      filtered = filtered.filter(
+        (employer) => employer.state && selectedStates.includes(employer.state)
       );
     }
 
@@ -474,35 +526,35 @@ const EmployerList = () => {
     setEmployerTypes(resetTypes);
     setInstitutionTypes(resetInstTypes);
     setStates(resetStates);
-    setSelectedType('All');
-    setSelectedStatus('All');
-    setSubscriptionStatus('All');
-    setDateRange({ start: '', end: '' });
-    setSelectedDateRange('This Year');
+    setSelectedType("All");
+    setSelectedStatus("All");
+    setSubscriptionStatus("All");
+    setDateRange({ start: "", end: "" });
+    setSelectedDateRange("This Year");
     setFilteredEmployers(employers);
   };
 
   // Handle employer type checkbox change
   const handleEmployerTypeChange = (type) => {
-    setEmployerTypes(prev => ({
+    setEmployerTypes((prev) => ({
       ...prev,
-      [type]: !prev[type]
+      [type]: !prev[type],
     }));
   };
 
   // Handle institution type checkbox change
   const handleInstitutionTypeChange = (type) => {
-    setInstitutionTypes(prev => ({
+    setInstitutionTypes((prev) => ({
       ...prev,
-      [type]: !prev[type]
+      [type]: !prev[type],
     }));
   };
 
   // Handle state checkbox change
   const handleStateChange = (state) => {
-    setStates(prev => ({
+    setStates((prev) => ({
       ...prev,
-      [state]: !prev[state]
+      [state]: !prev[state],
     }));
   };
 
@@ -529,7 +581,7 @@ const EmployerList = () => {
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedEmployers(filteredEmployers.map(employer => employer._id));
+      setSelectedEmployers(filteredEmployers.map((employer) => employer._id));
     } else {
       setSelectedEmployers([]);
     }
@@ -537,7 +589,7 @@ const EmployerList = () => {
 
   const handleSelectEmployer = (employerId) => {
     if (selectedEmployers.includes(employerId)) {
-      setSelectedEmployers(selectedEmployers.filter(id => id !== employerId));
+      setSelectedEmployers(selectedEmployers.filter((id) => id !== employerId));
     } else {
       setSelectedEmployers([...selectedEmployers, employerId]);
     }
@@ -552,22 +604,24 @@ const EmployerList = () => {
     try {
       if (employerToDelete) {
         const response = await fetch(
-          `https://edujobzbackend.onrender.com/admin/deleteemployer/${employerToDelete._id}`,
+          `https://api.edprofio.com/admin/deleteemployer/${employerToDelete._id}`,
           {
-            method: 'DELETE'
+            method: "DELETE",
           }
         );
 
         if (!response.ok) {
-          throw new Error('Failed to delete employer');
+          throw new Error("Failed to delete employer");
         }
 
         // Remove the deleted employer from state
-        setEmployers(employers.filter(e => e._id !== employerToDelete._id));
-        setFilteredEmployers(filteredEmployers.filter(e => e._id !== employerToDelete._id));
+        setEmployers(employers.filter((e) => e._id !== employerToDelete._id));
+        setFilteredEmployers(
+          filteredEmployers.filter((e) => e._id !== employerToDelete._id)
+        );
       }
     } catch (err) {
-      console.error('Delete error:', err);
+      console.error("Delete error:", err);
       setError(err.message);
     } finally {
       setShowDeleteModal(false);
@@ -577,76 +631,82 @@ const EmployerList = () => {
 
   const handleBlockStatusToggle = async (employerId, currentStatus) => {
     try {
-      const newStatus = currentStatus === 'block' ? 'unblock' : 'block';
+      const newStatus = currentStatus === "block" ? "unblock" : "block";
 
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/admin/updateblockstatus/${employerId}`,
+        `https://api.edprofio.com/admin/updateblockstatus/${employerId}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ blockstatus: newStatus })
+          body: JSON.stringify({ blockstatus: newStatus }),
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to update block status');
+        throw new Error("Failed to update block status");
       }
 
       // Update the local state
-      setEmployers(employers.map(employer =>
-        employer._id === employerId
-          ? { ...employer, blockstatus: newStatus }
-          : employer
-      ));
+      setEmployers(
+        employers.map((employer) =>
+          employer._id === employerId
+            ? { ...employer, blockstatus: newStatus }
+            : employer
+        )
+      );
 
-      setFilteredEmployers(filteredEmployers.map(employer =>
-        employer._id === employerId
-          ? { ...employer, blockstatus: newStatus }
-          : employer
-      ));
-
+      setFilteredEmployers(
+        filteredEmployers.map((employer) =>
+          employer._id === employerId
+            ? { ...employer, blockstatus: newStatus }
+            : employer
+        )
+      );
     } catch (err) {
-      console.error('Error updating block status:', err);
+      console.error("Error updating block status:", err);
       setError(err.message);
     }
   };
 
   const handleVerificationStatusToggle = async (employerId, currentStatus) => {
     try {
-      const newStatus = currentStatus === 'approved' ? 'pending' : 'approved';
+      const newStatus = currentStatus === "approved" ? "pending" : "approved";
 
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/admin/approveemployer/${employerId}`,
+        `https://api.edprofio.com/admin/approveemployer/${employerId}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ verificationstatus: newStatus })
+          body: JSON.stringify({ verificationstatus: newStatus }),
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to update verification status');
+        throw new Error("Failed to update verification status");
       }
 
       // Update the local state
-      setEmployers(employers.map(employer =>
-        employer._id === employerId
-          ? { ...employer, verificationstatus: newStatus }
-          : employer
-      ));
+      setEmployers(
+        employers.map((employer) =>
+          employer._id === employerId
+            ? { ...employer, verificationstatus: newStatus }
+            : employer
+        )
+      );
 
-      setFilteredEmployers(filteredEmployers.map(employer =>
-        employer._id === employerId
-          ? { ...employer, verificationstatus: newStatus }
-          : employer
-      ));
-
+      setFilteredEmployers(
+        filteredEmployers.map((employer) =>
+          employer._id === employerId
+            ? { ...employer, verificationstatus: newStatus }
+            : employer
+        )
+      );
     } catch (err) {
-      console.error('Error updating verification status:', err);
+      console.error("Error updating verification status:", err);
       setError(err.message);
     }
   };
@@ -658,66 +718,77 @@ const EmployerList = () => {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'approved':
-        return 'badge bg-success';
-      case 'pending':
-        return 'badge bg-warning';
-      case 'rejected':
-        return 'badge bg-danger';
+      case "approved":
+        return "badge bg-success";
+      case "pending":
+        return "badge bg-warning";
+      case "rejected":
+        return "badge bg-danger";
       default:
-        return 'badge bg-secondary';
+        return "badge bg-secondary";
     }
   };
 
   const getSubscriptionBadge = (subscription, trial) => {
-    if (trial === 'true') {
-      return 'badge bg-info';
-    } else if (subscription === 'true') {
-      return 'badge bg-success';
+    if (trial === "true") {
+      return "badge bg-info";
+    } else if (subscription === "true") {
+      return "badge bg-success";
     } else {
-      return 'badge bg-secondary';
+      return "badge bg-secondary";
     }
   };
 
   const getSubscriptionText = (subscription, trial) => {
-    if (trial === 'true') {
-      return 'Trial';
-    } else if (subscription === 'true') {
-      return 'Subscribed';
+    if (trial === "true") {
+      return "Trial";
+    } else if (subscription === "true") {
+      return "Subscribed";
     } else {
-      return 'Not Subscribed';
+      return "Not Subscribed";
     }
   };
 
   useEffect(() => {
     applyFilters();
-  }, [selectedType, selectedStatus, subscriptionStatus, searchTerm, dateRange, employerTypes, institutionTypes, states]);
+  }, [
+    selectedType,
+    selectedStatus,
+    subscriptionStatus,
+    searchTerm,
+    dateRange,
+    employerTypes,
+    institutionTypes,
+    states,
+  ]);
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   };
 
   const handleExport = (type) => {
     // Prepare data for export (simplify if needed)
-    const exportData = filteredEmployers.map(employer => ({
+    const exportData = filteredEmployers.map((employer) => ({
       ID: `Emp-${employer._id.substring(employer._id.length - 4)}`,
-      Name: employer.schoolName || `${employer.firstName || ''} ${employer.lastName || ''}`.trim(),
-      Type: employer.employerType || 'N/A',
-      Email: employer.userEmail || 'N/A',
-      Phone: employer.userMobile || 'N/A',
-      Status: employer.verificationstatus || 'pending',
-      'Created Date': formatDate(employer.createdAt)
+      Name:
+        employer.schoolName ||
+        `${employer.firstName || ""} ${employer.lastName || ""}`.trim(),
+      Type: employer.employerType || "N/A",
+      Email: employer.userEmail || "N/A",
+      Phone: employer.userMobile || "N/A",
+      Status: employer.verificationstatus || "pending",
+      "Created Date": formatDate(employer.createdAt),
     }));
 
-    if (type === 'pdf') {
+    if (type === "pdf") {
       // Simple PDF export using browser print
-      const printWindow = window.open('', '_blank');
+      const printWindow = window.open("", "_blank");
       const htmlContent = `
       <html>
         <head>
@@ -733,15 +804,23 @@ const EmployerList = () => {
           <table>
             <thead>
               <tr>
-                ${Object.keys(exportData[0]).map(key => `<th>${key}</th>`).join('')}
+                ${Object.keys(exportData[0])
+                  .map((key) => `<th>${key}</th>`)
+                  .join("")}
               </tr>
             </thead>
             <tbody>
-              ${exportData.map(row => `
+              ${exportData
+                .map(
+                  (row) => `
                 <tr>
-                  ${Object.values(row).map(value => `<td>${value}</td>`).join('')}
+                  ${Object.values(row)
+                    .map((value) => `<td>${value}</td>`)
+                    .join("")}
                 </tr>
-              `).join('')}
+              `
+                )
+                .join("")}
             </tbody>
           </table>
         </body>
@@ -750,25 +829,24 @@ const EmployerList = () => {
       printWindow.document.write(htmlContent);
       printWindow.document.close();
       printWindow.print();
-    } else if (type === 'excel') {
+    } else if (type === "excel") {
       // CSV export (works in Excel)
-      const headers = Object.keys(exportData[0]).join(',');
+      const headers = Object.keys(exportData[0]).join(",");
       const csvContent = [
         headers,
-        ...exportData.map(row => Object.values(row).join(','))
-      ].join('\n');
+        ...exportData.map((row) => Object.values(row).join(",")),
+      ].join("\n");
 
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', 'employers_export.csv');
+      link.setAttribute("download", "employers_export.csv");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
   };
-
 
   if (loading) {
     return <div className="text-center py-5">Loading employers...</div>;
@@ -785,7 +863,9 @@ const EmployerList = () => {
         {/* Breadcrumb */}
         <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
           <div className="my-auto">
-            <h2>&nbsp; <i className="fa fa-building text-primary"></i> Employers</h2>
+            <h2>
+              &nbsp; <i className="fa fa-building text-primary"></i> Employers
+            </h2>
           </div>
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
             <div className="dropdown me-2">
@@ -794,20 +874,22 @@ const EmployerList = () => {
                 onClick={() => setShowDateDropdown(!showDateDropdown)}
               >
                 <i className="ti ti-calendar me-1"></i>
-                {selectedDateRange || 'Select Date Range'}
+                {selectedDateRange || "Select Date Range"}
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${showDateDropdown ? 'show' : ''}`}
-                style={{ minWidth: '280px' }}
+                className={`dropdown-menu dropdown-menu-end p-3 ${
+                  showDateDropdown ? "show" : ""
+                }`}
+                style={{ minWidth: "280px" }}
               >
-                {selectedDateRange === 'Custom Range' ? (
+                {selectedDateRange === "Custom Range" ? (
                   // Custom Range Date Picker View
                   <li className="p-2">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <h6 className="mb-0">Select Date Range</h6>
                       <button
                         className="btn btn-sm btn-outline-secondary"
-                        onClick={() => setSelectedDateRange('')}
+                        onClick={() => setSelectedDateRange("")}
                       >
                         <i className="ti ti-arrow-left"></i> Back
                       </button>
@@ -816,12 +898,14 @@ const EmployerList = () => {
                       <input
                         type="date"
                         className="form-control me-2"
-                        style={{ fontSize: '12px' }}
+                        style={{ fontSize: "12px" }}
                         value={dateRange.start}
                         onChange={(e) => {
                           setDateRange({ ...dateRange, start: e.target.value });
                           if (dateRange.end && e.target.value) {
-                            setSelectedDateRange(`${e.target.value} - ${dateRange.end}`);
+                            setSelectedDateRange(
+                              `${e.target.value} - ${dateRange.end}`
+                            );
                           }
                         }}
                         placeholder="Start Date"
@@ -830,12 +914,14 @@ const EmployerList = () => {
                       <input
                         type="date"
                         className="form-control"
-                        style={{ fontSize: '12px' }}
+                        style={{ fontSize: "12px" }}
                         value={dateRange.end}
                         onChange={(e) => {
                           setDateRange({ ...dateRange, end: e.target.value });
                           if (dateRange.start && e.target.value) {
-                            setSelectedDateRange(`${dateRange.start} - ${e.target.value}`);
+                            setSelectedDateRange(
+                              `${dateRange.start} - ${e.target.value}`
+                            );
                           }
                         }}
                         min={dateRange.start}
@@ -846,8 +932,8 @@ const EmployerList = () => {
                       <button
                         className="btn btn-sm btn-outline-secondary"
                         onClick={() => {
-                          setDateRange({ start: '', end: '' });
-                          setSelectedDateRange('');
+                          setDateRange({ start: "", end: "" });
+                          setSelectedDateRange("");
                           setShowDateDropdown(false);
                         }}
                       >
@@ -879,7 +965,9 @@ const EmployerList = () => {
                           }}
                         >
                           <span>{option.label}</span>
-                          <small className="text-muted">{option.dateLabel}</small>
+                          <small className="text-muted">
+                            {option.dateLabel}
+                          </small>
                         </button>
                       </li>
                     ))}
@@ -893,18 +981,20 @@ const EmployerList = () => {
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
                 data-bs-toggle="dropdown"
               >
-                {selectedType || 'Type'}
+                {selectedType || "Type"}
               </button>
               <ul className="dropdown-menu dropdown-menu-end p-3">
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleTypeFilter('All')}
+                    onClick={() => handleTypeFilter("All")}
                   >
                     All Types
                   </button>
                 </li>
-                {Array.from(new Set(employers.map(e => e.employerType).filter(Boolean))).map(type => (
+                {Array.from(
+                  new Set(employers.map((e) => e.employerType).filter(Boolean))
+                ).map((type) => (
                   <li key={type}>
                     <button
                       className="dropdown-item rounded-1"
@@ -922,13 +1012,13 @@ const EmployerList = () => {
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
                 data-bs-toggle="dropdown"
               >
-                {selectedStatus || 'Select Status'}
+                {selectedStatus || "Select Status"}
               </button>
               <ul className="dropdown-menu dropdown-menu-end p-3">
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('All')}
+                    onClick={() => handleStatusFilter("All")}
                   >
                     All Statuses
                   </button>
@@ -936,7 +1026,7 @@ const EmployerList = () => {
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('approved')}
+                    onClick={() => handleStatusFilter("approved")}
                   >
                     Approved
                   </button>
@@ -944,7 +1034,7 @@ const EmployerList = () => {
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('pending')}
+                    onClick={() => handleStatusFilter("pending")}
                   >
                     Pending
                   </button>
@@ -952,7 +1042,7 @@ const EmployerList = () => {
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('rejected')}
+                    onClick={() => handleStatusFilter("rejected")}
                   >
                     Rejected
                   </button>
@@ -969,19 +1059,27 @@ const EmployerList = () => {
               </button>
               <ul className="dropdown-menu dropdown-menu-end p-3">
                 <li>
-                  <button className="dropdown-item rounded-1">Recently Added</button>
+                  <button className="dropdown-item rounded-1">
+                    Recently Added
+                  </button>
                 </li>
                 <li>
                   <button className="dropdown-item rounded-1">Ascending</button>
                 </li>
                 <li>
-                  <button className="dropdown-item rounded-1">Descending</button>
+                  <button className="dropdown-item rounded-1">
+                    Descending
+                  </button>
                 </li>
                 <li>
-                  <button className="dropdown-item rounded-1">Last Month</button>
+                  <button className="dropdown-item rounded-1">
+                    Last Month
+                  </button>
                 </li>
                 <li>
-                  <button className="dropdown-item rounded-1">Last 7 Days</button>
+                  <button className="dropdown-item rounded-1">
+                    Last 7 Days
+                  </button>
                 </li>
               </ul>
             </div>
@@ -1000,39 +1098,60 @@ const EmployerList = () => {
             </div>
 
             <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
-              <button className="btn btn-icon btn-sm me-1 toggle-theme" onClick={() => setShowFilterSidebar(true)}>
+              <button
+                className="btn btn-icon btn-sm me-1 toggle-theme"
+                onClick={() => setShowFilterSidebar(true)}
+              >
                 <i className="ti ti-filter"></i>
               </button>
             </div>
 
             <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
-              <button className="btn btn-icon btn-sm active bg-primary text-white me-1" onClick={() => navigate("/employer-admin/employer-list")} >
+              <button
+                className="btn btn-icon btn-sm active bg-primary text-white me-1"
+                onClick={() => navigate("/employer-admin/employer-list")}
+              >
                 <i className="ti ti-list-tree"></i>
               </button>
-              <button className="btn btn-icon btn-sm" onClick={() => navigate("/employer-admin/new-employer")}>
-                <i className="ti ti-layout-grid" ></i>
+              <button
+                className="btn btn-icon btn-sm"
+                onClick={() => navigate("/employer-admin/new-employer")}
+              >
+                <i className="ti ti-layout-grid"></i>
               </button>
             </div>
 
             <div className="dropdown me-2">
-              <button className="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+              <button
+                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                data-bs-toggle="dropdown"
+              >
                 <i className="ti ti-file-export me-1"></i>Export
               </button>
               <ul className="dropdown-menu dropdown-menu-end p-3">
                 <li>
-                  <button className="dropdown-item rounded-1" onClick={() => handleExport('pdf')}>
+                  <button
+                    className="dropdown-item rounded-1"
+                    onClick={() => handleExport("pdf")}
+                  >
                     <i className="ti ti-file-type-pdf me-1"></i>Export as PDF
                   </button>
                 </li>
                 <li>
-                  <button className="dropdown-item rounded-1" onClick={() => handleExport('excel')}>
+                  <button
+                    className="dropdown-item rounded-1"
+                    onClick={() => handleExport("excel")}
+                  >
                     <i className="ti ti-file-type-xls me-1"></i>Export as Excel
                   </button>
                 </li>
               </ul>
             </div>
 
-            <button className="btn btn-primary d-flex align-items-center" onClick={() => setShowAddEmployerModal(true)}>
+            <button
+              className="btn btn-primary d-flex align-items-center"
+              onClick={() => setShowAddEmployerModal(true)}
+            >
               <i className="ti ti-circle-plus me-2"></i>Add Employer
             </button>
           </div>
@@ -1059,7 +1178,13 @@ const EmployerList = () => {
                 <div className="d-flex justify-content-between align-items-center">
                   <div>
                     <h6 className="card-title mb-0">Approved</h6>
-                    <h3 className="mb-0">{employers.filter(e => e.verificationstatus === 'approved').length}</h3>
+                    <h3 className="mb-0">
+                      {
+                        employers.filter(
+                          (e) => e.verificationstatus === "approved"
+                        ).length
+                      }
+                    </h3>
                   </div>
                   <i className="fas fa-check-circle fa-2x opacity-50"></i>
                 </div>
@@ -1074,12 +1199,14 @@ const EmployerList = () => {
                   <div>
                     <h6 className="card-title mb-0">New This Week</h6>
                     <h3 className="mb-0">
-                      {employers.filter(e => {
-                        const createdDate = new Date(e.createdAt);
-                        const sevenDaysAgo = new Date();
-                        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-                        return createdDate > sevenDaysAgo;
-                      }).length}
+                      {
+                        employers.filter((e) => {
+                          const createdDate = new Date(e.createdAt);
+                          const sevenDaysAgo = new Date();
+                          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                          return createdDate > sevenDaysAgo;
+                        }).length
+                      }
                     </h3>
                   </div>
                   <i className="fas fa-plus-circle fa-2x opacity-50"></i>
@@ -1094,7 +1221,13 @@ const EmployerList = () => {
                 <div className="d-flex justify-content-between align-items-center">
                   <div>
                     <h6 className="card-title mb-0">Rejected</h6>
-                    <h3 className="mb-0">{employers.filter(e => e.verificationstatus === 'rejected').length}</h3>
+                    <h3 className="mb-0">
+                      {
+                        employers.filter(
+                          (e) => e.verificationstatus === "rejected"
+                        ).length
+                      }
+                    </h3>
                   </div>
                   <i className="fas fa-times-circle fa-2x opacity-50"></i>
                 </div>
@@ -1116,7 +1249,11 @@ const EmployerList = () => {
                           className="form-check-input"
                           type="checkbox"
                           id="select-all"
-                          checked={selectedEmployers.length === filteredEmployers.length && filteredEmployers.length > 0}
+                          checked={
+                            selectedEmployers.length ===
+                              filteredEmployers.length &&
+                            filteredEmployers.length > 0
+                          }
                           onChange={handleSelectAll}
                         />
                       </div>
@@ -1142,17 +1279,24 @@ const EmployerList = () => {
                               className="form-check-input"
                               type="checkbox"
                               checked={selectedEmployers.includes(employer._id)}
-                              onChange={() => handleSelectEmployer(employer._id)}
+                              onChange={() =>
+                                handleSelectEmployer(employer._id)
+                              }
                             />
                           </div>
                         </td>
-                        <td>Emp-{employer._id.substring(employer._id.length - 4)}</td>
+                        <td>
+                          Emp-{employer._id.substring(employer._id.length - 4)}
+                        </td>
                         <td>
                           <div className="d-flex align-items-center file-name-icon">
-                            <a onClick={(e) => {
-                              e.preventDefault();
-                              viewEmployerDetails(employer);
-                            }} className="avatar avatar-md">
+                            <a
+                              onClick={(e) => {
+                                e.preventDefault();
+                                viewEmployerDetails(employer);
+                              }}
+                              className="avatar avatar-md"
+                            >
                               {employer.userProfilePic ? (
                                 <img
                                   src={employer.userProfilePic}
@@ -1161,51 +1305,84 @@ const EmployerList = () => {
                                 />
                               ) : (
                                 <div className="avatar-text bg-primary text-white rounded-circle">
-                                  {(employer.schoolName || employer.firstName || 'E').charAt(0).toUpperCase()}
+                                  {(
+                                    employer.schoolName ||
+                                    employer.firstName ||
+                                    "E"
+                                  )
+                                    .charAt(0)
+                                    .toUpperCase()}
                                 </div>
                               )}
                             </a>
                             <div className="ms-2">
                               <h6 className="fw-medium">
-                                <a onClick={(e) => {
-                                  e.preventDefault();
-                                  viewEmployerDetails(employer);
-                                }}>
-                                  {employer.schoolName || `${employer.firstName || ''} ${employer.lastName || ''}`.trim()}
+                                <a
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    viewEmployerDetails(employer);
+                                  }}
+                                >
+                                  {employer.schoolName ||
+                                    `${employer.firstName || ""} ${
+                                      employer.lastName || ""
+                                    }`.trim()}
                                 </a>
                               </h6>
                               <span className="d-block mt-1">
-                                <a href="#">{employer.city || 'N/A'}, {employer.state || 'N/A'}</a>
+                                <a href="#">
+                                  {employer.city || "N/A"},{" "}
+                                  {employer.state || "N/A"}
+                                </a>
                               </span>
                             </div>
                           </div>
                         </td>
-                        <td>
-                          {employer.employerType || 'N/A'}
-                        </td>
+                        <td>{employer.employerType || "N/A"}</td>
                         <td>
                           <div className="action-icon d-inline-flex">
-                            <a href={`tel:${employer.userMobile}`} className="me-2">
+                            <a
+                              href={`tel:${employer.userMobile}`}
+                              className="me-2"
+                            >
                               <i className="ti ti-phone text-success"></i>
                             </a>
-                            <a href={`mailto:${employer.userEmail}`} className="me-2">
+                            <a
+                              href={`mailto:${employer.userEmail}`}
+                              className="me-2"
+                            >
                               <i className="ti ti-mail text-danger"></i>
                             </a>
                           </div>
                         </td>
                         <td>{formatDate(employer.createdAt)}</td>
                         <td>
-                          <span className={`badge ${getSubscriptionBadge(employer.subscription, employer.trial)}`}>
-                            {getSubscriptionText(employer.subscription, employer.trial)}
+                          <span
+                            className={`badge ${getSubscriptionBadge(
+                              employer.subscription,
+                              employer.trial
+                            )}`}
+                          >
+                            {getSubscriptionText(
+                              employer.subscription,
+                              employer.trial
+                            )}
                           </span>
                         </td>
                         <td>
                           <span
-                            className={`badge ${getStatusBadge(employer.verificationstatus)}`}
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => handleVerificationStatusToggle(employer._id, employer.verificationstatus)}
+                            className={`badge ${getStatusBadge(
+                              employer.verificationstatus
+                            )}`}
+                            style={{ cursor: "pointer" }}
+                            onClick={() =>
+                              handleVerificationStatusToggle(
+                                employer._id,
+                                employer.verificationstatus
+                              )
+                            }
                           >
-                            {employer.verificationstatus || 'pending'}
+                            {employer.verificationstatus || "pending"}
                           </span>
                         </td>
                         <td>
@@ -1214,11 +1391,18 @@ const EmployerList = () => {
                               className="form-check-input"
                               type="checkbox"
                               role="switch"
-                              checked={employer.blockstatus === 'unblock'}
-                              onChange={() => handleBlockStatusToggle(employer._id, employer.blockstatus)}
+                              checked={employer.blockstatus === "unblock"}
+                              onChange={() =>
+                                handleBlockStatusToggle(
+                                  employer._id,
+                                  employer.blockstatus
+                                )
+                              }
                             />
                             <label className="form-check-label">
-                              {employer.blockstatus === 'unblock' ? 'Unblock' : 'Blocked'}
+                              {employer.blockstatus === "unblock"
+                                ? "Unblock"
+                                : "Blocked"}
                             </label>
                           </div>
                         </td>
@@ -1255,42 +1439,66 @@ const EmployerList = () => {
         {/* Pagination could go here */}
 
         {/* Filter Sidebar */}
-        <div className={`sidebar-themesettings offcanvas offcanvas-end ${showFilterSidebar ? 'show' : ''}`}
+        <div
+          className={`sidebar-themesettings offcanvas offcanvas-end ${
+            showFilterSidebar ? "show" : ""
+          }`}
           id="theme-setting"
-          style={{ visibility: showFilterSidebar ? 'visible' : 'hidden' }}>
+          style={{ visibility: showFilterSidebar ? "visible" : "hidden" }}
+        >
           <div className="offcanvas-header d-flex align-items-center justify-content-between bg-dark">
             <div>
               <h3 className="mb-1 text-white">Filter Employers</h3>
               <p className="text-light">Search & Filter</p>
             </div>
-            <a href="#" className="custom-btn-close d-flex align-items-center justify-content-center text-white"
-              onClick={(e) => { e.preventDefault(); setShowFilterSidebar(false); }}>
+            <a
+              href="#"
+              className="custom-btn-close d-flex align-items-center justify-content-center text-white"
+              onClick={(e) => {
+                e.preventDefault();
+                setShowFilterSidebar(false);
+              }}
+            >
               <i className="ti ti-x"></i>
             </a>
           </div>
           <div className="themesettings-inner offcanvas-body">
-            <div className="accordion accordion-customicon1 accordions-items-seperate" id="settingtheme">
+            <div
+              className="accordion accordion-customicon1 accordions-items-seperate"
+              id="settingtheme"
+            >
               {/* Employer Types */}
               <div className="accordion-item">
                 <h2 className="accordion-header">
-                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#employerTypes" aria-expanded="true">
+                  <button
+                    className="accordion-button text-dark fs-16"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#employerTypes"
+                    aria-expanded="true"
+                  >
                     Employer Types
                   </button>
                 </h2>
-                <div id="employerTypes" className="accordion-collapse collapse show">
+                <div
+                  id="employerTypes"
+                  className="accordion-collapse collapse show"
+                >
                   <div className="accordion-body">
                     <div className="row gx-3">
                       <div className="form-group">
                         <div className="checkbox-limit">
                           <ul className="checkbox-list">
-                            {Object.keys(employerTypes).map(type => (
+                            {Object.keys(employerTypes).map((type) => (
                               <React.Fragment key={type}>
                                 <li>
                                   <label className="custom-checkbox">
                                     <input
                                       type="checkbox"
                                       checked={employerTypes[type]}
-                                      onChange={() => handleEmployerTypeChange(type)}
+                                      onChange={() =>
+                                        handleEmployerTypeChange(type)
+                                      }
                                     />
                                     <span className="fake-checkbox"></span>
                                     <span className="label-text">{type}</span>
@@ -1311,24 +1519,35 @@ const EmployerList = () => {
               {Object.keys(institutionTypes).length > 0 && (
                 <div className="accordion-item">
                   <h2 className="accordion-header">
-                    <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#institutionTypes" aria-expanded="true">
+                    <button
+                      className="accordion-button text-dark fs-16"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#institutionTypes"
+                      aria-expanded="true"
+                    >
                       Institution Types
                     </button>
                   </h2>
-                  <div id="institutionTypes" className="accordion-collapse collapse show">
+                  <div
+                    id="institutionTypes"
+                    className="accordion-collapse collapse show"
+                  >
                     <div className="accordion-body">
                       <div className="row gx-3">
                         <div className="form-group">
                           <div className="checkbox-limit">
                             <ul className="checkbox-list">
-                              {Object.keys(institutionTypes).map(type => (
+                              {Object.keys(institutionTypes).map((type) => (
                                 <React.Fragment key={type}>
                                   <li>
                                     <label className="custom-checkbox">
                                       <input
                                         type="checkbox"
                                         checked={institutionTypes[type]}
-                                        onChange={() => handleInstitutionTypeChange(type)}
+                                        onChange={() =>
+                                          handleInstitutionTypeChange(type)
+                                        }
                                       />
                                       <span className="fake-checkbox"></span>
                                       <span className="label-text">{type}</span>
@@ -1350,7 +1569,13 @@ const EmployerList = () => {
               {Object.keys(states).length > 0 && (
                 <div className="accordion-item">
                   <h2 className="accordion-header">
-                    <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#states" aria-expanded="true">
+                    <button
+                      className="accordion-button text-dark fs-16"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#states"
+                      aria-expanded="true"
+                    >
                       States
                     </button>
                   </h2>
@@ -1358,19 +1583,26 @@ const EmployerList = () => {
                     <div className="accordion-body">
                       <div className="row gx-3">
                         <div className="form-group">
-                          <div className="checkbox-limit" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                          <div
+                            className="checkbox-limit"
+                            style={{ maxHeight: "200px", overflowY: "auto" }}
+                          >
                             <ul className="checkbox-list">
-                              {Object.keys(states).map(state => (
+                              {Object.keys(states).map((state) => (
                                 <React.Fragment key={state}>
                                   <li>
                                     <label className="custom-checkbox">
                                       <input
                                         type="checkbox"
                                         checked={states[state]}
-                                        onChange={() => handleStateChange(state)}
+                                        onChange={() =>
+                                          handleStateChange(state)
+                                        }
                                       />
                                       <span className="fake-checkbox"></span>
-                                      <span className="label-text">{state}</span>
+                                      <span className="label-text">
+                                        {state}
+                                      </span>
                                     </label>
                                   </li>
                                   <br />
@@ -1388,11 +1620,20 @@ const EmployerList = () => {
               {/* Verification Status */}
               <div className="accordion-item">
                 <h2 className="accordion-header">
-                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#verificationStatus" aria-expanded="true">
+                  <button
+                    className="accordion-button text-dark fs-16"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#verificationStatus"
+                    aria-expanded="true"
+                  >
                     Verification Status
                   </button>
                 </h2>
-                <div id="verificationStatus" className="accordion-collapse collapse show">
+                <div
+                  id="verificationStatus"
+                  className="accordion-collapse collapse show"
+                >
                   <div className="accordion-body">
                     <div className="d-flex align-items-center">
                       <div className="theme-width m-1 me-2">
@@ -1400,40 +1641,60 @@ const EmployerList = () => {
                           type="radio"
                           name="verificationStatus"
                           id="allStatus"
-                          checked={selectedStatus === 'All'}
-                          onChange={() => setSelectedStatus('All')}
+                          checked={selectedStatus === "All"}
+                          onChange={() => setSelectedStatus("All")}
                         />
-                        <label htmlFor="allStatus" className="d-block rounded fs-12">All</label>
+                        <label
+                          htmlFor="allStatus"
+                          className="d-block rounded fs-12"
+                        >
+                          All
+                        </label>
                       </div>
                       <div className="theme-width m-1 me-2">
                         <input
                           type="radio"
                           name="verificationStatus"
                           id="approvedStatus"
-                          checked={selectedStatus === 'approved'}
-                          onChange={() => setSelectedStatus('approved')}
+                          checked={selectedStatus === "approved"}
+                          onChange={() => setSelectedStatus("approved")}
                         />
-                        <label htmlFor="approvedStatus" className="d-block rounded fs-12">Approved</label>
+                        <label
+                          htmlFor="approvedStatus"
+                          className="d-block rounded fs-12"
+                        >
+                          Approved
+                        </label>
                       </div>
                       <div className="theme-width m-1 me-2">
                         <input
                           type="radio"
                           name="verificationStatus"
                           id="pendingStatus"
-                          checked={selectedStatus === 'pending'}
-                          onChange={() => setSelectedStatus('pending')}
+                          checked={selectedStatus === "pending"}
+                          onChange={() => setSelectedStatus("pending")}
                         />
-                        <label htmlFor="pendingStatus" className="d-block rounded fs-12">Pending</label>
+                        <label
+                          htmlFor="pendingStatus"
+                          className="d-block rounded fs-12"
+                        >
+                          Pending
+                        </label>
                       </div>
                       <div className="theme-width m-1">
                         <input
                           type="radio"
                           name="verificationStatus"
                           id="rejectedStatus"
-                          checked={selectedStatus === 'rejected'}
-                          onChange={() => setSelectedStatus('rejected')}
+                          checked={selectedStatus === "rejected"}
+                          onChange={() => setSelectedStatus("rejected")}
                         />
-                        <label htmlFor="rejectedStatus" className="d-block rounded fs-12">Rejected</label>
+                        <label
+                          htmlFor="rejectedStatus"
+                          className="d-block rounded fs-12"
+                        >
+                          Rejected
+                        </label>
                       </div>
                     </div>
                   </div>
@@ -1443,11 +1704,20 @@ const EmployerList = () => {
               {/* Subscription Status */}
               <div className="accordion-item">
                 <h2 className="accordion-header">
-                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#subscriptionStatus" aria-expanded="true">
+                  <button
+                    className="accordion-button text-dark fs-16"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#subscriptionStatus"
+                    aria-expanded="true"
+                  >
                     Subscription Status
                   </button>
                 </h2>
-                <div id="subscriptionStatus" className="accordion-collapse collapse show">
+                <div
+                  id="subscriptionStatus"
+                  className="accordion-collapse collapse show"
+                >
                   <div className="accordion-body">
                     <div className="d-flex align-items-center">
                       <div className="theme-width m-1 me-2">
@@ -1455,40 +1725,62 @@ const EmployerList = () => {
                           type="radio"
                           name="subscriptionStatus"
                           id="allSubStatus"
-                          checked={subscriptionStatus === 'All'}
-                          onChange={() => setSubscriptionStatus('All')}
+                          checked={subscriptionStatus === "All"}
+                          onChange={() => setSubscriptionStatus("All")}
                         />
-                        <label htmlFor="allSubStatus" className="d-block rounded fs-12">All</label>
+                        <label
+                          htmlFor="allSubStatus"
+                          className="d-block rounded fs-12"
+                        >
+                          All
+                        </label>
                       </div>
                       <div className="theme-width m-1 me-2">
                         <input
                           type="radio"
                           name="subscriptionStatus"
                           id="subscribedStatus"
-                          checked={subscriptionStatus === 'subscribed'}
-                          onChange={() => setSubscriptionStatus('subscribed')}
+                          checked={subscriptionStatus === "subscribed"}
+                          onChange={() => setSubscriptionStatus("subscribed")}
                         />
-                        <label htmlFor="subscribedStatus" className="d-block rounded fs-12">Subscribed</label>
+                        <label
+                          htmlFor="subscribedStatus"
+                          className="d-block rounded fs-12"
+                        >
+                          Subscribed
+                        </label>
                       </div>
                       <div className="theme-width m-1 me-2">
                         <input
                           type="radio"
                           name="subscriptionStatus"
                           id="trialStatus"
-                          checked={subscriptionStatus === 'trial'}
-                          onChange={() => setSubscriptionStatus('trial')}
+                          checked={subscriptionStatus === "trial"}
+                          onChange={() => setSubscriptionStatus("trial")}
                         />
-                        <label htmlFor="trialStatus" className="d-block rounded fs-12">Trial</label>
+                        <label
+                          htmlFor="trialStatus"
+                          className="d-block rounded fs-12"
+                        >
+                          Trial
+                        </label>
                       </div>
                       <div className="theme-width m-1">
                         <input
                           type="radio"
                           name="subscriptionStatus"
                           id="notSubscribedStatus"
-                          checked={subscriptionStatus === 'notSubscribed'}
-                          onChange={() => setSubscriptionStatus('notSubscribed')}
+                          checked={subscriptionStatus === "notSubscribed"}
+                          onChange={() =>
+                            setSubscriptionStatus("notSubscribed")
+                          }
                         />
-                        <label htmlFor="notSubscribedStatus" className="d-block rounded fs-12">Not Subscribed</label>
+                        <label
+                          htmlFor="notSubscribedStatus"
+                          className="d-block rounded fs-12"
+                        >
+                          Not Subscribed
+                        </label>
                       </div>
                     </div>
                   </div>
@@ -1498,11 +1790,20 @@ const EmployerList = () => {
               {/* Date Range */}
               <div className="accordion-item">
                 <h2 className="accordion-header">
-                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#dateRange" aria-expanded="true">
+                  <button
+                    className="accordion-button text-dark fs-16"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#dateRange"
+                    aria-expanded="true"
+                  >
                     Date Range
                   </button>
                 </h2>
-                <div id="dateRange" className="accordion-collapse collapse show">
+                <div
+                  id="dateRange"
+                  className="accordion-collapse collapse show"
+                >
                   <div className="accordion-body pb-0">
                     <div className="row gx-3">
                       <div className="form-group">
@@ -1512,14 +1813,24 @@ const EmployerList = () => {
                             className="form-control"
                             placeholder="From"
                             value={dateRange.start}
-                            onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                            onChange={(e) =>
+                              setDateRange({
+                                ...dateRange,
+                                start: e.target.value,
+                              })
+                            }
                           />
                           <input
                             type="date"
                             className="form-control"
                             placeholder="To"
                             value={dateRange.end}
-                            onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                            onChange={(e) =>
+                              setDateRange({
+                                ...dateRange,
+                                end: e.target.value,
+                              })
+                            }
                           />
                         </div>
                       </div>
@@ -1551,12 +1862,18 @@ const EmployerList = () => {
           </div>
         </div>
         {showFilterSidebar && (
-          <div className="modal-backdrop fade show" onClick={() => setShowFilterSidebar(false)}></div>
+          <div
+            className="modal-backdrop fade show"
+            onClick={() => setShowFilterSidebar(false)}
+          ></div>
         )}
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && (
-          <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div
+            className="modal show"
+            style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+          >
             <div className="modal-dialog">
               <div className="modal-content">
                 <div className="modal-header">
@@ -1571,7 +1888,11 @@ const EmployerList = () => {
                   <p>Are you sure you want to delete this employer?</p>
                   {employerToDelete && (
                     <div className="alert alert-warning">
-                      <strong>Employer:</strong> {employerToDelete.schoolName || `${employerToDelete.firstName || ''} ${employerToDelete.lastName || ''}`.trim()}
+                      <strong>Employer:</strong>{" "}
+                      {employerToDelete.schoolName ||
+                        `${employerToDelete.firstName || ""} ${
+                          employerToDelete.lastName || ""
+                        }`.trim()}
                       <br />
                       <strong>Email:</strong> {employerToDelete.userEmail}
                     </div>
@@ -1600,7 +1921,10 @@ const EmployerList = () => {
 
         {/* Employer Details Modal */}
         {showDetails && selectedEmployer && (
-          <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div
+            className="modal show"
+            style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+          >
             <div className="modal-dialog modal-lg modal-dialog-scrollable">
               <div className="modal-content">
                 <div className="modal-header">
@@ -1623,88 +1947,149 @@ const EmployerList = () => {
                           height="120"
                         />
                       ) : (
-                        <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: '120px', height: '120px', fontSize: '48px' }}>
-                          {(selectedEmployer.firstName || selectedEmployer.schoolName || 'U').charAt(0).toUpperCase()}
+                        <div
+                          className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                          style={{
+                            width: "120px",
+                            height: "120px",
+                            fontSize: "48px",
+                          }}
+                        >
+                          {(
+                            selectedEmployer.firstName ||
+                            selectedEmployer.schoolName ||
+                            "U"
+                          )
+                            .charAt(0)
+                            .toUpperCase()}
                         </div>
                       )}
-                      <h5>{selectedEmployer.schoolName || `${selectedEmployer.firstName || ''} ${selectedEmployer.lastName || ''}`.trim()}</h5>
+                      <h5>
+                        {selectedEmployer.schoolName ||
+                          `${selectedEmployer.firstName || ""} ${
+                            selectedEmployer.lastName || ""
+                          }`.trim()}
+                      </h5>
                       <p className="text-muted">{selectedEmployer.userEmail}</p>
                     </div>
 
                     <div className="col-md-8">
                       <div className="row">
                         <div className="col-sm-6 mb-3">
-                          <label className="form-label fw-bold">Employer ID:</label>
-                          <p>Emp-{selectedEmployer._id.substring(selectedEmployer._id.length - 4)}</p>
+                          <label className="form-label fw-bold">
+                            Employer ID:
+                          </label>
+                          <p>
+                            Emp-
+                            {selectedEmployer._id.substring(
+                              selectedEmployer._id.length - 4
+                            )}
+                          </p>
                         </div>
 
                         <div className="col-sm-6 mb-3">
-                          <label className="form-label fw-bold">Employer Type:</label>
-                          <p>{selectedEmployer.employerType || 'N/A'}</p>
+                          <label className="form-label fw-bold">
+                            Employer Type:
+                          </label>
+                          <p>{selectedEmployer.employerType || "N/A"}</p>
                         </div>
 
                         <div className="col-sm-6 mb-3">
-                          <label className="form-label fw-bold">Institution Type:</label>
-                          <p>{selectedEmployer.institutionType || 'N/A'}</p>
+                          <label className="form-label fw-bold">
+                            Institution Type:
+                          </label>
+                          <p>{selectedEmployer.institutionType || "N/A"}</p>
                         </div>
 
                         <div className="col-sm-6 mb-3">
                           <label className="form-label fw-bold">Phone:</label>
-                          <p>{selectedEmployer.userMobile || 'N/A'}</p>
+                          <p>{selectedEmployer.userMobile || "N/A"}</p>
                         </div>
 
                         <div className="col-sm-6 mb-3">
                           <label className="form-label fw-bold">State:</label>
-                          <p>{selectedEmployer.state || 'N/A'}</p>
+                          <p>{selectedEmployer.state || "N/A"}</p>
                         </div>
 
                         <div className="col-sm-6 mb-3">
                           <label className="form-label fw-bold">City:</label>
-                          <p>{selectedEmployer.city || 'N/A'}</p>
+                          <p>{selectedEmployer.city || "N/A"}</p>
                         </div>
 
                         <div className="col-sm-6 mb-3">
-                          <label className="form-label fw-bold">Verification Status:</label>
+                          <label className="form-label fw-bold">
+                            Verification Status:
+                          </label>
                           <p>
-                            <span className={getStatusBadge(selectedEmployer.verificationstatus)}>
-                              {selectedEmployer.verificationstatus || 'pending'}
+                            <span
+                              className={getStatusBadge(
+                                selectedEmployer.verificationstatus
+                              )}
+                            >
+                              {selectedEmployer.verificationstatus || "pending"}
                             </span>
                           </p>
                         </div>
 
                         <div className="col-sm-6 mb-3">
-                          <label className="form-label fw-bold">Subscription:</label>
+                          <label className="form-label fw-bold">
+                            Subscription:
+                          </label>
                           <p>
-                            <span className={getSubscriptionBadge(selectedEmployer.subscription, selectedEmployer.trial)}>
-                              {getSubscriptionText(selectedEmployer.subscription, selectedEmployer.trial)}
+                            <span
+                              className={getSubscriptionBadge(
+                                selectedEmployer.subscription,
+                                selectedEmployer.trial
+                              )}
+                            >
+                              {getSubscriptionText(
+                                selectedEmployer.subscription,
+                                selectedEmployer.trial
+                              )}
                             </span>
                           </p>
                         </div>
 
                         <div className="col-sm-6 mb-3">
-                          <label className="form-label fw-bold">Block Status:</label>
+                          <label className="form-label fw-bold">
+                            Block Status:
+                          </label>
                           <p>
-                            <span className={`badge ${selectedEmployer.blockstatus === 'block' ? 'bg-danger' : 'bg-success'}`}>
-                              {selectedEmployer.blockstatus === 'block' ? 'Blocked' : 'Active'}
+                            <span
+                              className={`badge ${
+                                selectedEmployer.blockstatus === "block"
+                                  ? "bg-danger"
+                                  : "bg-success"
+                              }`}
+                            >
+                              {selectedEmployer.blockstatus === "block"
+                                ? "Blocked"
+                                : "Active"}
                             </span>
                           </p>
                         </div>
 
                         <div className="col-sm-6 mb-3">
-                          <label className="form-label fw-bold">Created Date:</label>
+                          <label className="form-label fw-bold">
+                            Created Date:
+                          </label>
                           <p>{formatDate(selectedEmployer.createdAt)}</p>
                         </div>
 
                         {selectedEmployer.address && (
                           <div className="col-12 mb-3">
-                            <label className="form-label fw-bold">Address:</label>
+                            <label className="form-label fw-bold">
+                              Address:
+                            </label>
                             <p>{selectedEmployer.address}</p>
                           </div>
                         )}
 
                         {selectedEmployer.description && (
                           <div className="col-12 mb-3">
-                            <label className="form-label fw-bold">Description:</label>
+                            <label className="form-label fw-bold">
+                              Description:
+                            </label>
                             <p>{selectedEmployer.description}</p>
                           </div>
                         )}
@@ -1738,7 +2123,10 @@ const EmployerList = () => {
 
         {/* Add Employer Modal */}
         {showAddEmployerModal && (
-          <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div
+            className="modal show"
+            style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+          >
             <div className="modal-dialog modal-lg">
               <div className="modal-content">
                 <div className="modal-header">
@@ -1782,7 +2170,9 @@ const EmployerList = () => {
                       </div>
 
                       <div className="col-md-6 mb-3">
-                        <label className="form-label">School/Company Name</label>
+                        <label className="form-label">
+                          School/Company Name
+                        </label>
                         <input
                           type="text"
                           name="schoolName"
@@ -1878,11 +2268,15 @@ const EmployerList = () => {
                       >
                         {loading ? (
                           <>
-                            <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            <span
+                              className="spinner-border spinner-border-sm me-1"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
                             Adding...
                           </>
                         ) : (
-                          'Add Employer'
+                          "Add Employer"
                         )}
                       </button>
                     </div>
@@ -1895,12 +2289,15 @@ const EmployerList = () => {
 
         {/* Edit Employer Modal */}
         {showEditEmployerModal && (
-          <div className="modal show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div
+            className="modal show"
+            style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+          >
             <div className="modal-dialog modal-lg">
               <div className="modal-content">
                 <div className="modal-header">
                   <h5 className="modal-title">
-                    {loading ? 'Loading Employer Details...' : 'Edit Employer'}
+                    {loading ? "Loading Employer Details..." : "Edit Employer"}
                   </h5>
                   <button
                     type="button"
@@ -1937,8 +2334,13 @@ const EmployerList = () => {
                           <input
                             type="text"
                             className="form-control"
-                            value={editedEmployer?.firstName || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, firstName: e.target.value })}
+                            value={editedEmployer?.firstName || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                firstName: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div className="col-md-6 mb-3">
@@ -1946,8 +2348,13 @@ const EmployerList = () => {
                           <input
                             type="text"
                             className="form-control"
-                            value={editedEmployer?.lastName || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, lastName: e.target.value })}
+                            value={editedEmployer?.lastName || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                lastName: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div className="col-md-6 mb-3">
@@ -1955,8 +2362,13 @@ const EmployerList = () => {
                           <input
                             type="email"
                             className="form-control"
-                            value={editedEmployer?.userEmail || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, userEmail: e.target.value })}
+                            value={editedEmployer?.userEmail || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                userEmail: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div className="col-md-6 mb-3">
@@ -1964,25 +2376,42 @@ const EmployerList = () => {
                           <input
                             type="tel"
                             className="form-control"
-                            value={editedEmployer?.userMobile || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, userMobile: e.target.value })}
+                            value={editedEmployer?.userMobile || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                userMobile: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div className="col-md-6 mb-3">
-                          <label className="form-label">School/Company Name</label>
+                          <label className="form-label">
+                            School/Company Name
+                          </label>
                           <input
                             type="text"
                             className="form-control"
-                            value={editedEmployer?.schoolName || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, schoolName: e.target.value })}
+                            value={editedEmployer?.schoolName || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                schoolName: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div className="col-md-6 mb-3">
                           <label className="form-label">Employer Type</label>
                           <select
                             className="form-select"
-                            value={editedEmployer?.employerType || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, employerType: e.target.value })}
+                            value={editedEmployer?.employerType || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                employerType: e.target.value,
+                              })
+                            }
                           >
                             <option value="">Select Type</option>
                             <option value="School">School</option>
@@ -1996,8 +2425,13 @@ const EmployerList = () => {
                           <input
                             type="text"
                             className="form-control"
-                            value={editedEmployer?.institutionType || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, institutionType: e.target.value })}
+                            value={editedEmployer?.institutionType || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                institutionType: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div className="col-md-6 mb-3">
@@ -2005,8 +2439,13 @@ const EmployerList = () => {
                           <input
                             type="text"
                             className="form-control"
-                            value={editedEmployer?.organizationid || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, organizationid: e.target.value })}
+                            value={editedEmployer?.organizationid || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                organizationid: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div className="col-md-6 mb-3">
@@ -2014,8 +2453,13 @@ const EmployerList = () => {
                           <input
                             type="text"
                             className="form-control"
-                            value={editedEmployer?.state || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, state: e.target.value })}
+                            value={editedEmployer?.state || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                state: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div className="col-md-6 mb-3">
@@ -2023,8 +2467,13 @@ const EmployerList = () => {
                           <input
                             type="text"
                             className="form-control"
-                            value={editedEmployer?.city || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, city: e.target.value })}
+                            value={editedEmployer?.city || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                city: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div className="col-md-6 mb-3">
@@ -2032,8 +2481,13 @@ const EmployerList = () => {
                           <input
                             type="text"
                             className="form-control"
-                            value={editedEmployer?.pincode || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, pincode: e.target.value })}
+                            value={editedEmployer?.pincode || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                pincode: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div className="col-md-6 mb-3">
@@ -2041,8 +2495,13 @@ const EmployerList = () => {
                           <input
                             type="text"
                             className="form-control"
-                            value={editedEmployer?.board || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, board: e.target.value })}
+                            value={editedEmployer?.board || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                board: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div className="col-md-6 mb-3">
@@ -2050,8 +2509,13 @@ const EmployerList = () => {
                           <input
                             type="text"
                             className="form-control"
-                            value={editedEmployer?.website || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, website: e.target.value })}
+                            value={editedEmployer?.website || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                website: e.target.value,
+                              })
+                            }
                           />
                         </div>
                         <div className="col-12 mb-3">
@@ -2059,8 +2523,13 @@ const EmployerList = () => {
                           <textarea
                             className="form-control"
                             rows="3"
-                            value={editedEmployer?.address || ''}
-                            onChange={(e) => setEditedEmployer({ ...editedEmployer, address: e.target.value })}
+                            value={editedEmployer?.address || ""}
+                            onChange={(e) =>
+                              setEditedEmployer({
+                                ...editedEmployer,
+                                address: e.target.value,
+                              })
+                            }
                           ></textarea>
                         </div>
                       </div>
@@ -2082,10 +2551,16 @@ const EmployerList = () => {
                       >
                         {loading ? (
                           <>
-                            <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            <span
+                              className="spinner-border spinner-border-sm me-1"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
                             Updating...
                           </>
-                        ) : 'Update Employer'}
+                        ) : (
+                          "Update Employer"
+                        )}
                       </button>
                     </div>
                   </>

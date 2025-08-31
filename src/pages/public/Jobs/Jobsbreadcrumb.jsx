@@ -13,7 +13,7 @@ const Jobsbreadcrumb = ({ onFilterChange }) => {
     const fetchFilterOptions = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://edujobzbackend.onrender.com/employer/fetchjobs');
+        const response = await fetch('https://api.edprofio.com/employer/fetchjobs');
         if (!response.ok) {
           throw new Error('Failed to fetch filter options');
         }

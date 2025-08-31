@@ -49,7 +49,7 @@
 //         if (!userId) return; // Redirect already happened
 
 //         // Fetch job details
-//         const jobResponse = await axios.get(`https://edujobzbackend.onrender.com/employer/viewjobs/${id}`);
+//         const jobResponse = await axios.get(`https://api.edprofio.com/employer/viewjobs/${id}`);
 //         if (!jobResponse.data) {
 //           throw new Error('Failed to fetch job details');
 //         }
@@ -161,7 +161,7 @@
 
 //     try {
 //       const response = await axios.post(
-//         'https://edujobzbackend.onrender.com/upload/resume',
+//         'https://api.edprofio.com/upload/resume',
 //         formData,
 //         {
 //           headers: {
@@ -217,7 +217,7 @@
 //       };
 
 //       const response = await axios.post(
-//         `https://edujobzbackend.onrender.com/${id}/apply`,
+//         `https://api.edprofio.com/${id}/apply`,
 //         payload,
 //         {
 //           headers: {
@@ -228,12 +228,12 @@
 //       );
 
 //       if (response.data.success) {
-//         navigate('/job-vacancies', { 
-//           state: { 
+//         navigate('/job-vacancies', {
+//           state: {
 //             applicationSuccess: true,
 //             jobTitle: job.jobTitle,
 //             companyName: job.companyName
-//           } 
+//           }
 //         });
 //       } else {
 //         throw new Error(response.data.message || 'Application failed');
@@ -262,7 +262,7 @@
 //         <i className="fas fa-exclamation-triangle fa-2x mb-3"></i>
 //         <h5>Error loading job details</h5>
 //         <p>{error}</p>
-//         <button 
+//         <button
 //           className="btn btn-primary mt-3"
 //           onClick={() => window.location.reload()}
 //         >
@@ -483,7 +483,7 @@
 //                       {employeeData?.resume?.url && (
 //                         <div className="alert alert-info mb-4">
 //                           <i className="fas fa-info-circle me-2"></i>
-//                           You already have a resume uploaded in your profile. 
+//                           You already have a resume uploaded in your profile.
 //                           {formData.resume instanceof File ? (
 //                             <span> A new resume has been selected and will replace your current one.</span>
 //                           ) : (
@@ -506,8 +506,8 @@
 //                           />
 //                           <div className="file-upload-label">
 //                             <i className="fas fa-cloud-upload-alt me-2"></i>
-//                             {formData.resume ? 
-//                               (formData.resume instanceof File ? formData.resume.name : formData.resume.name) 
+//                             {formData.resume ?
+//                               (formData.resume instanceof File ? formData.resume.name : formData.resume.name)
 //                               : 'Choose file or drag here'}
 //                           </div>
 //                           {formErrors.resume && (
@@ -551,8 +551,8 @@
 //                           <div className="col-md-6 mb-15">
 //                             <p className="mb-1"><strong>Resume:</strong></p>
 //                             <p>
-//                               {formData.resume ? 
-//                                 (formData.resume instanceof File ? formData.resume.name : formData.resume.name) 
+//                               {formData.resume ?
+//                                 (formData.resume instanceof File ? formData.resume.name : formData.resume.name)
 //                                 : (employeeData?.resume?.name || 'Not uploaded')}
 //                             </p>
 //                           </div>
@@ -602,10 +602,10 @@
 
 // wthout resume router
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { getEmployeeDetails } from '../../../api/services/projectServices';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { getEmployeeDetails } from "../../../api/services/projectServices";
 
 const ApplyJob = () => {
   const { id } = useParams();
@@ -615,14 +615,14 @@ const ApplyJob = () => {
   const [error, setError] = useState(null);
   const [employeeData, setEmployeeData] = useState(null);
   const [formData, setFormData] = useState({
-    firstName: '',
-    email: '',
-    phone: '',
-    experience: '',
-    jobrole: '',
-    currentcity: '',
+    firstName: "",
+    email: "",
+    phone: "",
+    experience: "",
+    jobrole: "",
+    currentcity: "",
     resume: null,
-    profileurl: ''
+    profileurl: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -631,11 +631,11 @@ const ApplyJob = () => {
 
   useEffect(() => {
     const checkAuth = () => {
-      const token = localStorage.getItem('authToken');
-      const userData = JSON.parse(localStorage.getItem('userData'));
+      const token = localStorage.getItem("authToken");
+      const userData = JSON.parse(localStorage.getItem("userData"));
 
       if (!token || !userData) {
-        navigate('/login', { state: { from: `/apply-job/${id}` } });
+        navigate("/login", { state: { from: `/apply-job/${id}` } });
         return null;
       }
       return userData._id;
@@ -649,38 +649,48 @@ const ApplyJob = () => {
         const userId = checkAuth();
         if (!userId) return;
 
-        const jobResponse = await axios.get(`https://edujobzbackend.onrender.com/employer/viewjobs/${id}`);
+        const jobResponse = await axios.get(
+          `https://api.edprofio.com/employer/viewjobs/${id}`
+        );
         if (!jobResponse.data) {
-          throw new Error('Failed to fetch job details');
+          throw new Error("Failed to fetch job details");
         }
         setJob(jobResponse.data);
 
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem("authToken");
         const employeeResponse = await getEmployeeDetails(userId, token);
 
         if (!employeeResponse) {
-          console.warn('No employee data received');
+          console.warn("No employee data received");
           return;
         }
 
         setEmployeeData(employeeResponse);
 
         const newFormData = {
-          firstName: employeeResponse.userName || employeeResponse.name || '',
-          email: employeeResponse.userEmail || employeeResponse.email || '',
-          phone: employeeResponse.userMobile || employeeResponse.mobile || employeeResponse.phone || '',
-          experience: employeeResponse.experience || '',
-          jobrole: employeeResponse.currentJobRole || employeeResponse.jobRole || '',
-          currentcity: employeeResponse.currentCity || employeeResponse.city || '',
-          profileurl: employeeResponse.profileUrl || employeeResponse.linkedIn || '',
-          resume: employeeResponse.resume || null
+          firstName: employeeResponse.userName || employeeResponse.name || "",
+          email: employeeResponse.userEmail || employeeResponse.email || "",
+          phone:
+            employeeResponse.userMobile ||
+            employeeResponse.mobile ||
+            employeeResponse.phone ||
+            "",
+          experience: employeeResponse.experience || "",
+          jobrole:
+            employeeResponse.currentJobRole || employeeResponse.jobRole || "",
+          currentcity:
+            employeeResponse.currentCity || employeeResponse.city || "",
+          profileurl:
+            employeeResponse.profileUrl || employeeResponse.linkedIn || "",
+          resume: employeeResponse.resume || null,
         };
 
         setFormData(newFormData);
-
       } catch (err) {
-        console.error('Error in fetchData:', err);
-        setError(err.response?.data?.message || err.message || 'Failed to load data');
+        console.error("Error in fetchData:", err);
+        setError(
+          err.response?.data?.message || err.message || "Failed to load data"
+        );
       } finally {
         setLoading(false);
       }
@@ -695,27 +705,30 @@ const ApplyJob = () => {
     const phoneRegex = /^[0-9]{10,15}$/;
 
     if (step === 1) {
-      if (!formData.firstName.trim()) errors.firstName = 'Full name is required';
+      if (!formData.firstName.trim())
+        errors.firstName = "Full name is required";
       if (!formData.email) {
-        errors.email = 'Email is required';
+        errors.email = "Email is required";
       } else if (!emailRegex.test(formData.email)) {
-        errors.email = 'Please enter a valid email';
+        errors.email = "Please enter a valid email";
       }
       if (!formData.phone) {
-        errors.phone = 'Phone number is required';
+        errors.phone = "Phone number is required";
       } else if (!phoneRegex.test(formData.phone)) {
-        errors.phone = 'Please enter a valid phone number (10-15 digits)';
+        errors.phone = "Please enter a valid phone number (10-15 digits)";
       }
     }
 
     if (step === 2) {
-      if (!formData.experience) errors.experience = 'Experience is required';
-      if (!formData.jobrole) errors.jobrole = 'Current job role is required';
-      if (!formData.currentcity) errors.currentcity = 'Current city is required';
+      if (!formData.experience) errors.experience = "Experience is required";
+      if (!formData.jobrole) errors.jobrole = "Current job role is required";
+      if (!formData.currentcity)
+        errors.currentcity = "Current city is required";
     }
 
     if (step === 3) {
-      if (!formData.resume && !employeeData?.resume) errors.resume = 'Resume is required';
+      if (!formData.resume && !employeeData?.resume)
+        errors.resume = "Resume is required";
     }
 
     setFormErrors(errors);
@@ -724,31 +737,31 @@ const ApplyJob = () => {
 
   const handleNext = () => {
     if (validateStep(activeStep)) {
-      setActiveStep(prev => prev + 1);
+      setActiveStep((prev) => prev + 1);
     }
   };
 
   const handleBack = () => {
-    setActiveStep(prev => prev - 1);
+    setActiveStep((prev) => prev - 1);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         resume: {
           name: file.name,
-          url: URL.createObjectURL(file)
-        }
+          url: URL.createObjectURL(file),
+        },
       }));
     }
   };
@@ -762,11 +775,11 @@ const ApplyJob = () => {
     setSubmitError(null);
 
     try {
-      const token = localStorage.getItem('authToken');
-      const userData = JSON.parse(localStorage.getItem('userData'));
+      const token = localStorage.getItem("authToken");
+      const userData = JSON.parse(localStorage.getItem("userData"));
 
       if (!token || !userData) {
-        navigate('/login', { state: { from: `/apply-job/${id}` } });
+        navigate("/login", { state: { from: `/apply-job/${id}` } });
         return;
       }
 
@@ -781,35 +794,42 @@ const ApplyJob = () => {
         currentcity: formData.currentcity,
         profileurl: formData.profileurl,
         resume: resumeToSubmit,
-        applicantId: userData._id
+        applicantId: userData._id,
       };
 
       const response = await axios.post(
-        `https://edujobzbackend.onrender.com/${id}/apply`,
+        `https://api.edprofio.com/${id}/apply`,
         payload,
         {
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
       if (response.data.success) {
-        window.alert('Application submitted successfully!');
-        navigate('/applied-jobs', {
+        window.alert("Application submitted successfully!");
+        navigate("/applied-jobs", {
           state: {
             applicationSuccess: true,
             jobTitle: job.jobTitle,
-            companyName: job.companyName
-          }
+            companyName: job.companyName,
+          },
         });
       } else {
-        throw new Error(response.data.message || 'Application failed');
+        throw new Error(response.data.message || "Application failed");
       }
     } catch (err) {
-      window.alert('Failed to submit application: ' + (err.response?.data?.message || err.message));
-      setSubmitError(err.response?.data?.message || err.message || 'Failed to submit application');
+      window.alert(
+        "Failed to submit application: " +
+          (err.response?.data?.message || err.message)
+      );
+      setSubmitError(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to submit application"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -847,7 +867,9 @@ const ApplyJob = () => {
       <div className="text-center py-5">
         <i className="fas fa-briefcase fa-3x text-muted mb-3"></i>
         <h4>Job not found</h4>
-        <p className="text-muted">The job you're looking for doesn't exist or may have been removed</p>
+        <p className="text-muted">
+          The job you're looking for doesn't exist or may have been removed
+        </p>
       </div>
     );
   }
@@ -859,7 +881,9 @@ const ApplyJob = () => {
           <div className="col-lg-10 col-xl-8">
             <div className="section-header text-center mb-45">
               <h2 className="text-secondary mb-20">Apply for {job.jobTitle}</h2>
-              <p className="mb-0">{job.companyName} • {job.location}</p>
+              <p className="mb-0">
+                {job.companyName} • {job.location}
+              </p>
             </div>
 
             {/* Pipeline Stepper */}
@@ -867,13 +891,25 @@ const ApplyJob = () => {
               <div className="card-body">
                 <h5 className="fw-medium mb-3">Application Progress</h5>
                 <div className="pipeline-stepper">
-                  <div className={`pipeline-step ${activeStep >= 1 ? 'active' : ''}`}>
+                  <div
+                    className={`pipeline-step ${
+                      activeStep >= 1 ? "active" : ""
+                    }`}
+                  >
                     <span className="step-label">Personal Information</span>
                   </div>
-                  <div className={`pipeline-step ${activeStep >= 2 ? 'active' : ''}`}>
+                  <div
+                    className={`pipeline-step ${
+                      activeStep >= 2 ? "active" : ""
+                    }`}
+                  >
                     <span className="step-label">Professional Details</span>
                   </div>
-                  <div className={`pipeline-step ${activeStep >= 3 ? 'active' : ''}`}>
+                  <div
+                    className={`pipeline-step ${
+                      activeStep >= 3 ? "active" : ""
+                    }`}
+                  >
                     <span className="step-label">Review & Submit</span>
                   </div>
                 </div>
@@ -892,13 +928,19 @@ const ApplyJob = () => {
                   {/* Step 1: Personal Information */}
                   {activeStep === 1 && (
                     <div className="step-content">
-                      <h4 className="text-secondary mb-30">Personal Information</h4>
+                      <h4 className="text-secondary mb-30">
+                        Personal Information
+                      </h4>
                       <div className="row">
                         <div className="col-md-12 mb-20">
-                          <label htmlFor="firstName" className="form-label">Full Name *</label>
+                          <label htmlFor="firstName" className="form-label">
+                            Full Name *
+                          </label>
                           <input
                             type="text"
-                            className={`form-control ${formErrors.firstName ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              formErrors.firstName ? "is-invalid" : ""
+                            }`}
                             id="firstName"
                             name="firstName"
                             value={formData.firstName}
@@ -907,15 +949,21 @@ const ApplyJob = () => {
                             disabled={!!employeeData?.userName}
                           />
                           {formErrors.firstName && (
-                            <div className="invalid-feedback">{formErrors.firstName}</div>
+                            <div className="invalid-feedback">
+                              {formErrors.firstName}
+                            </div>
                           )}
                         </div>
 
                         <div className="col-md-6 mb-20">
-                          <label htmlFor="email" className="form-label">Email *</label>
+                          <label htmlFor="email" className="form-label">
+                            Email *
+                          </label>
                           <input
                             type="email"
-                            className={`form-control ${formErrors.email ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              formErrors.email ? "is-invalid" : ""
+                            }`}
                             id="email"
                             name="email"
                             value={formData.email}
@@ -924,15 +972,21 @@ const ApplyJob = () => {
                             disabled={!!employeeData?.userEmail}
                           />
                           {formErrors.email && (
-                            <div className="invalid-feedback">{formErrors.email}</div>
+                            <div className="invalid-feedback">
+                              {formErrors.email}
+                            </div>
                           )}
                         </div>
 
                         <div className="col-md-6 mb-20">
-                          <label htmlFor="phone" className="form-label">Phone Number *</label>
+                          <label htmlFor="phone" className="form-label">
+                            Phone Number *
+                          </label>
                           <input
                             type="tel"
-                            className={`form-control ${formErrors.phone ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              formErrors.phone ? "is-invalid" : ""
+                            }`}
                             id="phone"
                             name="phone"
                             value={formData.phone}
@@ -941,7 +995,9 @@ const ApplyJob = () => {
                             disabled={!!employeeData?.userMobile}
                           />
                           {formErrors.phone && (
-                            <div className="invalid-feedback">{formErrors.phone}</div>
+                            <div className="invalid-feedback">
+                              {formErrors.phone}
+                            </div>
                           )}
                         </div>
                       </div>
@@ -962,13 +1018,19 @@ const ApplyJob = () => {
                   {/* Step 2: Professional Details */}
                   {activeStep === 2 && (
                     <div className="step-content">
-                      <h4 className="text-secondary mb-30">Professional Details</h4>
+                      <h4 className="text-secondary mb-30">
+                        Professional Details
+                      </h4>
                       <div className="row">
                         <div className="col-md-6 mb-20">
-                          <label htmlFor="experience" className="form-label">Years of Experience *</label>
+                          <label htmlFor="experience" className="form-label">
+                            Years of Experience *
+                          </label>
                           <input
                             type="text"
-                            className={`form-control ${formErrors.experience ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              formErrors.experience ? "is-invalid" : ""
+                            }`}
                             id="experience"
                             name="experience"
                             value={formData.experience}
@@ -976,15 +1038,21 @@ const ApplyJob = () => {
                             required
                           />
                           {formErrors.experience && (
-                            <div className="invalid-feedback">{formErrors.experience}</div>
+                            <div className="invalid-feedback">
+                              {formErrors.experience}
+                            </div>
                           )}
                         </div>
 
                         <div className="col-md-6 mb-20">
-                          <label htmlFor="jobrole" className="form-label">Current Job Role *</label>
+                          <label htmlFor="jobrole" className="form-label">
+                            Current Job Role *
+                          </label>
                           <input
                             type="text"
-                            className={`form-control ${formErrors.jobrole ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              formErrors.jobrole ? "is-invalid" : ""
+                            }`}
                             id="jobrole"
                             name="jobrole"
                             value={formData.jobrole}
@@ -992,15 +1060,21 @@ const ApplyJob = () => {
                             required
                           />
                           {formErrors.jobrole && (
-                            <div className="invalid-feedback">{formErrors.jobrole}</div>
+                            <div className="invalid-feedback">
+                              {formErrors.jobrole}
+                            </div>
                           )}
                         </div>
 
                         <div className="col-md-6 mb-20">
-                          <label htmlFor="currentcity" className="form-label">Current City *</label>
+                          <label htmlFor="currentcity" className="form-label">
+                            Current City *
+                          </label>
                           <input
                             type="text"
-                            className={`form-control ${formErrors.currentcity ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              formErrors.currentcity ? "is-invalid" : ""
+                            }`}
                             id="currentcity"
                             name="currentcity"
                             value={formData.currentcity}
@@ -1008,12 +1082,16 @@ const ApplyJob = () => {
                             required
                           />
                           {formErrors.currentcity && (
-                            <div className="invalid-feedback">{formErrors.currentcity}</div>
+                            <div className="invalid-feedback">
+                              {formErrors.currentcity}
+                            </div>
                           )}
                         </div>
 
                         <div className="col-md-6 mb-20">
-                          <label htmlFor="profileurl" className="form-label">Profile URL (LinkedIn/Portfolio)</label>
+                          <label htmlFor="profileurl" className="form-label">
+                            Profile URL (LinkedIn/Portfolio)
+                          </label>
                           <input
                             type="url"
                             className="form-control"
@@ -1055,19 +1133,23 @@ const ApplyJob = () => {
                       {employeeData?.resume?.url && (
                         <div className="alert alert-info mb-4">
                           <i className="fas fa-info-circle me-2"></i>
-                          {formData.resume ?
-                            "A new resume has been selected and will be used for this application." :
-                            "We'll use your existing resume for this application."}
+                          {formData.resume
+                            ? "A new resume has been selected and will be used for this application."
+                            : "We'll use your existing resume for this application."}
                         </div>
                       )}
 
                       <div className="mb-30">
                         <label htmlFor="resume" className="form-label">
-                          {employeeData?.resume?.url ? 'Change Resume' : 'Upload Resume *'}
+                          {employeeData?.resume?.url
+                            ? "Change Resume"
+                            : "Upload Resume *"}
                         </label>
                         <input
                           type="file"
-                          className={`form-control ${formErrors.resume ? 'is-invalid' : ''}`}
+                          className={`form-control ${
+                            formErrors.resume ? "is-invalid" : ""
+                          }`}
                           id="resume"
                           name="resume"
                           onChange={handleFileChange}
@@ -1075,48 +1157,70 @@ const ApplyJob = () => {
                           required={!employeeData?.resume?.url}
                         />
                         {formErrors.resume && (
-                          <div className="invalid-feedback d-block">{formErrors.resume}</div>
+                          <div className="invalid-feedback d-block">
+                            {formErrors.resume}
+                          </div>
                         )}
-                        <div className="form-text">Accepted formats: PDF, DOC, DOCX (Max 5MB)</div>
+                        <div className="form-text">
+                          Accepted formats: PDF, DOC, DOCX (Max 5MB)
+                        </div>
                       </div>
 
                       <div className="review-section bg-light-sky p-30 rounded mb-30">
-                        <h5 className="text-secondary mb-20">Application Review</h5>
+                        <h5 className="text-secondary mb-20">
+                          Application Review
+                        </h5>
                         <div className="row">
                           <div className="col-md-6 mb-15">
-                            <p className="mb-1"><strong>Full Name:</strong></p>
-                            <p>{formData.firstName || '-'}</p>
+                            <p className="mb-1">
+                              <strong>Full Name:</strong>
+                            </p>
+                            <p>{formData.firstName || "-"}</p>
                           </div>
                           <div className="col-md-6 mb-15">
-                            <p className="mb-1"><strong>Email:</strong></p>
-                            <p>{formData.email || '-'}</p>
+                            <p className="mb-1">
+                              <strong>Email:</strong>
+                            </p>
+                            <p>{formData.email || "-"}</p>
                           </div>
                           <div className="col-md-6 mb-15">
-                            <p className="mb-1"><strong>Phone:</strong></p>
-                            <p>{formData.phone || '-'}</p>
+                            <p className="mb-1">
+                              <strong>Phone:</strong>
+                            </p>
+                            <p>{formData.phone || "-"}</p>
                           </div>
                           <div className="col-md-6 mb-15">
-                            <p className="mb-1"><strong>Experience:</strong></p>
-                            <p>{formData.experience || '-'}</p>
+                            <p className="mb-1">
+                              <strong>Experience:</strong>
+                            </p>
+                            <p>{formData.experience || "-"}</p>
                           </div>
                           <div className="col-md-6 mb-15">
-                            <p className="mb-1"><strong>Current Role:</strong></p>
-                            <p>{formData.jobrole || '-'}</p>
+                            <p className="mb-1">
+                              <strong>Current Role:</strong>
+                            </p>
+                            <p>{formData.jobrole || "-"}</p>
                           </div>
                           <div className="col-md-6 mb-15">
-                            <p className="mb-1"><strong>Location:</strong></p>
-                            <p>{formData.currentcity || '-'}</p>
+                            <p className="mb-1">
+                              <strong>Location:</strong>
+                            </p>
+                            <p>{formData.currentcity || "-"}</p>
                           </div>
                           <div className="col-md-6 mb-15">
-                            <p className="mb-1"><strong>Profile URL:</strong></p>
-                            <p>{formData.profileurl || '-'}</p>
+                            <p className="mb-1">
+                              <strong>Profile URL:</strong>
+                            </p>
+                            <p>{formData.profileurl || "-"}</p>
                           </div>
                           <div className="col-md-6 mb-15">
-                            <p className="mb-1"><strong>Resume:</strong></p>
+                            <p className="mb-1">
+                              <strong>Resume:</strong>
+                            </p>
                             <p>
                               {formData.resume?.name ||
                                 employeeData?.resume?.name ||
-                                'No resume uploaded'}
+                                "No resume uploaded"}
                             </p>
                           </div>
                         </div>
@@ -1138,7 +1242,11 @@ const ApplyJob = () => {
                         >
                           {isSubmitting ? (
                             <>
-                              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                              <span
+                                className="spinner-border spinner-border-sm me-2"
+                                role="status"
+                                aria-hidden="true"
+                              ></span>
                               Submitting...
                             </>
                           ) : (
@@ -1180,25 +1288,43 @@ const ApplyJob = () => {
           text-align: center;
           margin-right: 2px;
           transition: all 0.3s ease;
-          clip-path: polygon(0% 0%, calc(100% - 15px) 0%, 100% 50%, calc(100% - 15px) 100%, 0% 100%, 15px 50%);
+          clip-path: polygon(
+            0% 0%,
+            calc(100% - 15px) 0%,
+            100% 50%,
+            calc(100% - 15px) 100%,
+            0% 100%,
+            15px 50%
+          );
         }
 
         .pipeline-step:first-child {
-          clip-path: polygon(0% 0%, calc(100% - 15px) 0%, 100% 50%, calc(100% - 15px) 100%, 0% 100%);
+          clip-path: polygon(
+            0% 0%,
+            calc(100% - 15px) 0%,
+            100% 50%,
+            calc(100% - 15px) 100%,
+            0% 100%
+          );
           padding-left: 15px;
         }
 
-       .pipeline-step:last-child {
-    clip-path: polygon(2px 0%, 123% 0%, 100% 100%, 0px 100%, 5% 53%);
+        .pipeline-step:last-child {
+          clip-path: polygon(2px 0%, 123% 0%, 100% 100%, 0px 100%, 5% 53%);
           padding-right: 15px;
           margin-right: 0;
         }
 
         .pipeline-step.active {
-          background: linear-gradient(135deg, #ab47bc 0%, #ab47bc 50%, #ab47bc 100%);
+          background: linear-gradient(
+            135deg,
+            #ab47bc 0%,
+            #ab47bc 50%,
+            #ab47bc 100%
+          );
           color: white;
           font-weight: 600;
-          box-shadow: 0 2px 8px rgb(171,71,188);
+          box-shadow: 0 2px 8px rgb(171, 71, 188);
         }
 
         .pipeline-step .step-label {
@@ -1214,7 +1340,7 @@ const ApplyJob = () => {
             font-size: 12px;
             height: 45px;
           }
-          
+
           .pipeline-step .step-label {
             padding: 0 8px;
           }
@@ -1225,7 +1351,7 @@ const ApplyJob = () => {
             font-size: 11px;
             height: 40px;
           }
-          
+
           .pipeline-step .step-label {
             padding: 0 5px;
           }

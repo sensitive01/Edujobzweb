@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import Jobsbreadcrumb from './Jobsbreadcrumb';
-import { Search } from 'lucide-react';
-import JobsFilter from './JobsFilter';
-import { useLocation } from 'react-router-dom';
-import defaultEmployeeAvatar from '../../../assets/employer-admin/assets/img/profiles/avatar-12.jpg';
+import React, { useState, useEffect } from "react";
+import Jobsbreadcrumb from "./Jobsbreadcrumb";
+import { Search } from "lucide-react";
+import JobsFilter from "./JobsFilter";
+import { useLocation } from "react-router-dom";
+import defaultEmployeeAvatar from "../../../assets/employer-admin/assets/img/profiles/avatar-12.jpg";
 const JobsPage = () => {
   const location = useLocation();
   const [allJobListings, setAllJobListings] = useState([]);
@@ -14,36 +14,36 @@ const JobsPage = () => {
   const [jobsPerPage] = useState(8);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
-    jobType: '',
-    location: '',
-    experienceLevel: '',
-    searchQuery: '',
-    sort: '',
-    category: '',
-    salaryFrom: '',
-    salaryTo: ''
+    jobType: "",
+    location: "",
+    experienceLevel: "",
+    searchQuery: "",
+    sort: "",
+    category: "",
+    salaryFrom: "",
+    salaryTo: "",
   });
   const [filterOptions, setFilterOptions] = useState({
     jobTypes: [],
     locations: [],
     experienceLevels: [],
     categories: [],
-    specializations: []
+    specializations: [],
   });
 
   useEffect(() => {
     // Parse URL parameters
     const searchParams = new URLSearchParams(location.search);
-    const keyword = searchParams.get('keyword') || '';
-    const locationParam = searchParams.get('location') || '';
-    const categoryParam = searchParams.get('category') || '';
+    const keyword = searchParams.get("keyword") || "";
+    const locationParam = searchParams.get("location") || "";
+    const categoryParam = searchParams.get("category") || "";
 
     // Initialize filters with URL parameters
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       searchQuery: keyword,
       location: locationParam,
-      category: categoryParam
+      category: categoryParam,
     }));
   }, [location.search]);
 
@@ -51,28 +51,40 @@ const JobsPage = () => {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://edujobzbackend.onrender.com/employer/fetchjobs');
+        const response = await fetch(
+          "https://api.edprofio.com/employer/fetchjobs"
+        );
         if (!response.ok) {
-          throw new Error('Failed to fetch jobs');
+          throw new Error("Failed to fetch jobs");
         }
         const data = await response.json();
         setAllJobListings(data);
 
         // Set filter options
-        const uniqueJobTypes = [...new Set(data.map(job => job.jobType))].filter(Boolean);
-        const uniqueLocations = [...new Set(data.flatMap(job =>
-          job.isRemote ? ['Remote'] : [job.location]
-        ))].filter(Boolean);
-        const uniqueExperienceLevels = [...new Set(data.map(job => job.experienceLevel))].filter(Boolean);
-        const uniqueCategories = [...new Set(data.map(job => job.category))].filter(Boolean);
-        const uniqueSpecializations = [...new Set(data.map(job => job.category))].filter(Boolean);
+        const uniqueJobTypes = [
+          ...new Set(data.map((job) => job.jobType)),
+        ].filter(Boolean);
+        const uniqueLocations = [
+          ...new Set(
+            data.flatMap((job) => (job.isRemote ? ["Remote"] : [job.location]))
+          ),
+        ].filter(Boolean);
+        const uniqueExperienceLevels = [
+          ...new Set(data.map((job) => job.experienceLevel)),
+        ].filter(Boolean);
+        const uniqueCategories = [
+          ...new Set(data.map((job) => job.category)),
+        ].filter(Boolean);
+        const uniqueSpecializations = [
+          ...new Set(data.map((job) => job.category)),
+        ].filter(Boolean);
 
         setFilterOptions({
           jobTypes: uniqueJobTypes,
           locations: uniqueLocations,
           experienceLevels: uniqueExperienceLevels,
           categories: uniqueCategories,
-          specializations: uniqueSpecializations
+          specializations: uniqueSpecializations,
         });
 
         setError(null);
@@ -93,19 +105,21 @@ const JobsPage = () => {
 
       // Apply category filter first (from URL parameter)
       if (filters.category) {
-        filteredJobs = filteredJobs.filter(job =>
-          job.category && job.category.toLowerCase() === filters.category.toLowerCase()
+        filteredJobs = filteredJobs.filter(
+          (job) =>
+            job.category &&
+            job.category.toLowerCase() === filters.category.toLowerCase()
         );
       }
 
       // Then apply other filters
       if (filters.searchQuery) {
         const query = filters.searchQuery.toLowerCase();
-        filteredJobs = filteredJobs.filter(job => {
-          const jobTitle = job.jobTitle?.toLowerCase() || '';
-          const companyName = job.companyName?.toLowerCase() || '';
-          const category = job.category?.toLowerCase() || '';
-          const skillsRequired = job.skills?.join(' ')?.toLowerCase() || '';
+        filteredJobs = filteredJobs.filter((job) => {
+          const jobTitle = job.jobTitle?.toLowerCase() || "";
+          const companyName = job.companyName?.toLowerCase() || "";
+          const category = job.category?.toLowerCase() || "";
+          const skillsRequired = job.skills?.join(" ")?.toLowerCase() || "";
 
           return (
             jobTitle.includes(query) ||
@@ -118,32 +132,38 @@ const JobsPage = () => {
 
       // Apply location filter
       if (filters.location) {
-        if (filters.location === 'Remote') {
-          filteredJobs = filteredJobs.filter(job => job.isRemote);
+        if (filters.location === "Remote") {
+          filteredJobs = filteredJobs.filter((job) => job.isRemote);
         } else {
-          filteredJobs = filteredJobs.filter(job => job.location === filters.location);
+          filteredJobs = filteredJobs.filter(
+            (job) => job.location === filters.location
+          );
         }
       }
 
       // Apply other filters
       if (filters.jobType) {
-        filteredJobs = filteredJobs.filter(job => job.jobType === filters.jobType);
+        filteredJobs = filteredJobs.filter(
+          (job) => job.jobType === filters.jobType
+        );
       }
       if (filters.experienceLevel) {
-        filteredJobs = filteredJobs.filter(job => job.experienceLevel === filters.experienceLevel);
+        filteredJobs = filteredJobs.filter(
+          (job) => job.experienceLevel === filters.experienceLevel
+        );
       }
 
       // Apply sorting
       if (filters.sort) {
         filteredJobs = [...filteredJobs].sort((a, b) => {
           switch (filters.sort) {
-            case 'newest':
+            case "newest":
               return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-            case 'oldest':
+            case "oldest":
               return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
-            case 'salary-high':
+            case "salary-high":
               return (b.salaryTo || 0) - (a.salaryTo || 0);
-            case 'salary-low':
+            case "salary-low":
               return (a.salaryFrom || 0) - (b.salaryFrom || 0);
             default:
               return 0;
@@ -153,7 +173,7 @@ const JobsPage = () => {
 
       // Apply salary range filter
       if (filters.salaryFrom || filters.salaryTo) {
-        filteredJobs = filteredJobs.filter(job => {
+        filteredJobs = filteredJobs.filter((job) => {
           const salaryFrom = job.salaryFrom || 0;
           const salaryTo = job.salaryTo || Infinity;
           return (
@@ -174,57 +194,71 @@ const JobsPage = () => {
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prevFilters => ({
+    setFilters((prevFilters) => ({
       ...prevFilters,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
     const searchQuery = e.target.search.value;
-    setFilters(prevFilters => ({
+    setFilters((prevFilters) => ({
       ...prevFilters,
-      searchQuery
+      searchQuery,
     }));
   };
 
   const clearFilters = () => {
     setFilters({
-      jobType: '',
-      location: '',
-      experienceLevel: '',
-      searchQuery: '',
-      sort: '',
-      category: '',
-      salaryFrom: '',
-      salaryTo: ''
+      jobType: "",
+      location: "",
+      experienceLevel: "",
+      searchQuery: "",
+      sort: "",
+      category: "",
+      salaryFrom: "",
+      salaryTo: "",
     });
     const searchInput = document.querySelector('input[name="search"]');
     if (searchInput) {
-      searchInput.value = '';
+      searchInput.value = "";
     }
   };
 
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = filteredJobListings.slice(indexOfFirstJob, indexOfLastJob);
+  const currentJobs = filteredJobListings.slice(
+    indexOfFirstJob,
+    indexOfLastJob
+  );
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const SkeletonLoader = () => {
     return (
       <div className="col-12 col-sm-6 col-lg-4 col-xl-3 mb-15 mb-md-30">
-        <div className="featured-category-box pt-20" style={{ height: '400px', position: 'relative', overflow: 'hidden', backgroundColor: '#f5f5f5' }}>
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(90deg, #f5f5f5 25%, #e0e0e0 50%, #f5f5f5 75%)',
-            backgroundSize: '200% 100%',
-            animation: 'shimmer 1.5s infinite'
-          }}></div>
+        <div
+          className="featured-category-box pt-20"
+          style={{
+            height: "400px",
+            position: "relative",
+            overflow: "hidden",
+            backgroundColor: "#f5f5f5",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background:
+                "linear-gradient(90deg, #f5f5f5 25%, #e0e0e0 50%, #f5f5f5 75%)",
+              backgroundSize: "200% 100%",
+              animation: "shimmer 1.5s infinite",
+            }}
+          ></div>
         </div>
       </div>
     );
@@ -246,17 +280,17 @@ const JobsPage = () => {
     );
   }
   const handleBreadcrumbFilter = ({ keyword, location }) => {
-    setFilters(prevFilters => ({
+    setFilters((prevFilters) => ({
       ...prevFilters,
-      searchQuery: keyword || '',
-      location: location || ''
+      searchQuery: keyword || "",
+      location: location || "",
     }));
   };
 
   const handleApplyFilters = (newFilters) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      ...newFilters
+      ...newFilters,
     }));
     setShowFilters(false);
   };
@@ -291,14 +325,23 @@ const JobsPage = () => {
                   <span></span>
                   <div className="subhead-filters">
                     {loading ? (
-                      <div style={{
-                        width: '150px',
-                        height: '24px',
-                        backgroundColor: '#e0e0e0',
-                        borderRadius: '4px'
-                      }}></div>
+                      <div
+                        style={{
+                          width: "150px",
+                          height: "24px",
+                          backgroundColor: "#e0e0e0",
+                          borderRadius: "4px",
+                        }}
+                      ></div>
                     ) : (
-                      <h2 className="h6 mb-25 mb-lg-0 text-dark me-3" style={{ letterSpacing: '1px', fontSize: '1.25rem', whiteSpace: 'nowrap' }}>
+                      <h2
+                        className="h6 mb-25 mb-lg-0 text-dark me-3"
+                        style={{
+                          letterSpacing: "1px",
+                          fontSize: "1.25rem",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
                         <b>
                           {filters.category
                             ? `${filteredJobListings.length} ${filters.category} Jobs Found`
@@ -318,7 +361,13 @@ const JobsPage = () => {
                         type="button"
                         className="btn btn-outline-secondary btn-sm"
                         onClick={clearFilters}
-                        disabled={!filters.jobType && !filters.location && !filters.experienceLevel && !filters.searchQuery && !filters.sort}
+                        disabled={
+                          !filters.jobType &&
+                          !filters.location &&
+                          !filters.experienceLevel &&
+                          !filters.searchQuery &&
+                          !filters.sort
+                        }
                       >
                         <i className="fas fa-times"></i>
                       </button>
@@ -338,35 +387,74 @@ const JobsPage = () => {
                       </select>
                     </div>
                     <div className="grid-buttons">
-                      <a href="job-vacancies-list" className="btn btn-list" type="button">
-                        <img src="/images/list-icon.svg" width="20" height="20" alt="List" />
-                      </a> &nbsp;
-                      <a href="job-vacancies" className="btn btn-grid active" type="button">
-                        <img src="/images/grid-icon.svg" width="22" height="22" alt="Grid" />
-                      </a> &nbsp;
-                      <a href="job-vacancies-map" className="btn btn-grid bg-white" type="button">
-                        <img src="/images/icons8-place-marker.gif" width="22" height="22" alt="Grid" />
+                      <a
+                        href="job-vacancies-list"
+                        className="btn btn-list"
+                        type="button"
+                      >
+                        <img
+                          src="/images/list-icon.svg"
+                          width="20"
+                          height="20"
+                          alt="List"
+                        />
+                      </a>{" "}
+                      &nbsp;
+                      <a
+                        href="job-vacancies"
+                        className="btn btn-grid active"
+                        type="button"
+                      >
+                        <img
+                          src="/images/grid-icon.svg"
+                          width="22"
+                          height="22"
+                          alt="Grid"
+                        />
+                      </a>{" "}
+                      &nbsp;
+                      <a
+                        href="job-vacancies-map"
+                        className="btn btn-grid bg-white"
+                        type="button"
+                      >
+                        <img
+                          src="/images/icons8-place-marker.gif"
+                          width="22"
+                          height="22"
+                          alt="Grid"
+                        />
                       </a>
                     </div>
                   </div>
                 </header>
                 <div className="row justify-content-center">
                   {loading ? (
-                    Array(jobsPerPage).fill(0).map((_, index) => (
-                      <SkeletonLoader key={index} />
-                    ))
+                    Array(jobsPerPage)
+                      .fill(0)
+                      .map((_, index) => <SkeletonLoader key={index} />)
                   ) : currentJobs.length > 0 ? (
                     currentJobs.map((job, index) => (
-                      <div key={job._id || index} className="col-12 col-sm-6 col-lg-4 col-xl-3 mb-15 mb-md-30">
+                      <div
+                        key={job._id || index}
+                        className="col-12 col-sm-6 col-lg-4 col-xl-3 mb-15 mb-md-30"
+                      >
                         <JobCard
                           id={job._id}
-                          postedTime={new Date(job.createdAt).toLocaleDateString()}
-                          companyLogo={job.companyLogo || '/images/default-company-logo.jpg'}
+                          postedTime={new Date(
+                            job.createdAt
+                          ).toLocaleDateString()}
+                          companyLogo={
+                            job.companyLogo ||
+                            "/images/default-company-logo.jpg"
+                          }
                           companyName={job.companyName}
                           location={job.location}
                           jobTitle={job.jobTitle}
                           subject={job.category}
-                          salary={`₹ ${job.salaryFrom || 'NA'} to ₹ ${job.salaryTo || 'NA'}`}
+                          salary={`₹ ${job.salaryFrom || "NA"} to ₹ ${
+                            job.salaryTo || "NA"
+                          }`}
                           jobType={job.jobType}
                           isRemote={job.isRemote}
                           experienceLevel={job.experienceLevel}
@@ -376,13 +464,20 @@ const JobsPage = () => {
                     ))
                   ) : (
                     <div className="col-12 text-center py-5">
-                      <img src={defaultEmployeeAvatar} alt="No jobs found" width="150" className="mb-3" />
+                      <img
+                        src={defaultEmployeeAvatar}
+                        alt="No jobs found"
+                        width="150"
+                        className="mb-3"
+                      />
                       <h4>
                         {filters.category
                           ? `No ${filters.category} jobs found matching your criteria`
-                          : 'No jobs found matching your criteria'}
+                          : "No jobs found matching your criteria"}
                       </h4>
-                      <p className="text-muted">Try adjusting your search filters</p>
+                      <p className="text-muted">
+                        Try adjusting your search filters
+                      </p>
                       <button
                         className="btn btn-primary mt-2"
                         onClick={clearFilters}
@@ -396,7 +491,11 @@ const JobsPage = () => {
                   <div className="pagination-block pt-20 pt-lg-30 pt-xl-50 pb-0">
                     <div className="container d-flex align-items-center justify-content-center">
                       <ul className="pagination">
-                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <li
+                          className={`page-item ${
+                            currentPage === 1 ? "disabled" : ""
+                          }`}
+                        >
                           <button
                             className="page-link"
                             onClick={() => paginate(currentPage - 1)}
@@ -405,10 +504,16 @@ const JobsPage = () => {
                             <i className="icon-arrow-left1"></i>
                           </button>
                         </li>
-                        {[...Array(Math.ceil(filteredJobListings.length / jobsPerPage)).keys()].map(number => (
+                        {[
+                          ...Array(
+                            Math.ceil(filteredJobListings.length / jobsPerPage)
+                          ).keys(),
+                        ].map((number) => (
                           <li
                             key={number + 1}
-                            className={`page-item ${currentPage === number + 1 ? 'active' : ''}`}
+                            className={`page-item ${
+                              currentPage === number + 1 ? "active" : ""
+                            }`}
                           >
                             <button
                               className="page-link"
@@ -418,11 +523,23 @@ const JobsPage = () => {
                             </button>
                           </li>
                         ))}
-                        <li className={`page-item ${currentPage === Math.ceil(filteredJobListings.length / jobsPerPage) ? 'disabled' : ''}`}>
+                        <li
+                          className={`page-item ${
+                            currentPage ===
+                            Math.ceil(filteredJobListings.length / jobsPerPage)
+                              ? "disabled"
+                              : ""
+                          }`}
+                        >
                           <button
                             className="page-link"
                             onClick={() => paginate(currentPage + 1)}
-                            disabled={currentPage === Math.ceil(filteredJobListings.length / jobsPerPage)}
+                            disabled={
+                              currentPage ===
+                              Math.ceil(
+                                filteredJobListings.length / jobsPerPage
+                              )
+                            }
                           >
                             <i className="icon-arrow-right"></i>
                           </button>
@@ -442,14 +559,23 @@ const JobsPage = () => {
             <header className="section-header text-center mb-30 mb-md-40 mb-lg-50">
               <h2 className="text-secondary">Download our mobile app</h2>
               <br />
-              <p>Search through millions of jobs and find your right fit.<br />Install the app and apply now.</p>
+              <p>
+                Search through millions of jobs and find your right fit.
+                <br />
+                Install the app and apply now.
+              </p>
             </header>
             <hr />
             <br />
             <div className="app-buttons">
               <a className="btn-app btn-play-store" href="#">
                 <div className="store-icon">
-                  <img src="/images/icon-play-store.png" width="28" height="30" alt="Google Play" />
+                  <img
+                    src="/images/icon-play-store.png"
+                    width="28"
+                    height="30"
+                    alt="Google Play"
+                  />
                 </div>
                 <div className="btn-text">
                   Download From <span>Google Play</span>
@@ -457,20 +583,32 @@ const JobsPage = () => {
               </a>
               <a className="btn-app btn-app-store" href="#">
                 <div className="store-icon">
-                  <img src="/images/icon-app-store.png" width="32" height="38" alt="App Store" />
+                  <img
+                    src="/images/icon-app-store.png"
+                    width="32"
+                    height="38"
+                    alt="App Store"
+                  />
                 </div>
                 <div className="btn-text">
                   Download From <span>App Store</span>
                 </div>
               </a>
             </div>
-            <div className="icon ico01"><img src="/images/ico-app01.png" alt="Image Description" /></div>
-            <div className="icon ico02"><img src="/images/ico-app02.png" alt="Image Description" /></div>
-            <div className="icon ico03"><img src="/images/ico-app03.png" alt="Image Description" /></div>
-            <div className="icon ico04"><img src="/images/ico-app04.png" alt="Image Description" /></div>
+            <div className="icon ico01">
+              <img src="/images/ico-app01.png" alt="Image Description" />
+            </div>
+            <div className="icon ico02">
+              <img src="/images/ico-app02.png" alt="Image Description" />
+            </div>
+            <div className="icon ico03">
+              <img src="/images/ico-app03.png" alt="Image Description" />
+            </div>
+            <div className="icon ico04">
+              <img src="/images/ico-app04.png" alt="Image Description" />
+            </div>
           </div>
         </section>
-
       </main>
 
       {/* Add shimmer animation */}
@@ -562,59 +700,68 @@ const JobCard = ({
   jobType,
   isRemote,
   experienceLevel,
-  employerProfilePic
+  employerProfilePic,
 }) => {
   return (
     <article className="featured-category-box pt-20">
-      <a 
-        href={`/job-details/${id}`} 
+      <a
+        href={`/job-details/${id}`}
         className="job-card-link"
         style={{
-          position: 'absolute',
+          position: "absolute",
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
           zIndex: 1,
-          opacity: 0 // Make it invisible but clickable
+          opacity: 0, // Make it invisible but clickable
         }}
         aria-label={`View details for ${jobTitle} position at ${companyName}`}
       />
-      
-      <span className="tag"><b className="text-primary">Posted:</b> {postedTime}</span>
+
+      <span className="tag">
+        <b className="text-primary">Posted:</b> {postedTime}
+      </span>
       <div className="img-holder">
         <img
-          src={companyLogo.startsWith('http') ? companyLogo : `/images/${companyLogo}`}
+          src={
+            companyLogo.startsWith("http")
+              ? companyLogo
+              : `/images/${companyLogo}`
+          }
           width="78"
           height="78"
           alt={companyName}
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = '/images/default-company-logo.jpg';
+            e.target.src = "/images/default-company-logo.jpg";
           }}
         />
 
         {employerProfilePic && (
-          <div className="employer-profile-pic" style={{
-            position: 'absolute',
-            bottom: '0px',
-            right: '0px',
-            width: '100%',
-            height: '100% ',
-            borderRadius: '50%',
-            border: '2px solid white',
-            overflow: 'hidden',
-            backgroundColor: 'white'
-          }}>
+          <div
+            className="employer-profile-pic"
+            style={{
+              position: "absolute",
+              bottom: "0px",
+              right: "0px",
+              width: "100%",
+              height: "100% ",
+              borderRadius: "50%",
+              border: "2px solid white",
+              overflow: "hidden",
+              backgroundColor: "white",
+            }}
+          >
             <img
               src={employerProfilePic}
               width="40"
               height="40"
               alt="Employer"
-              style={{ objectFit: 'cover' }}
+              style={{ objectFit: "cover" }}
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = '/images/default-profile-pic.jpg';
+                e.target.src = "/images/default-profile-pic.jpg";
               }}
             />
           </div>
@@ -625,8 +772,8 @@ const JobCard = ({
         <address className="location pt-0">
           <i className="icon icon-map-pin"></i>
           <span className="text">
-            {isRemote ? 'Remote' : location}
-            {isRemote && location ? ` (${location})` : ''}
+            {isRemote ? "Remote" : location}
+            {isRemote && location ? ` (${location})` : ""}
           </span>
         </address>
         <strong className="h6 text-primary mb-0">{jobTitle}</strong>
@@ -638,17 +785,22 @@ const JobCard = ({
         )}
         <hr />
         <div className="job-info">
-          <span className="amount"><strong>{salary}</strong>/month</span>
-          <span className="subtext"><b className="text-primary">Job Type:</b> {jobType}</span>
+          <span className="amount">
+            <strong>{salary}</strong>/month
+          </span>
+          <span className="subtext">
+            <b className="text-primary">Job Type:</b> {jobType}
+          </span>
         </div>
-        <a 
-          href={`/job-details/${id}`} 
+        <a
+          href={`/job-details/${id}`}
           className="btn btn-dark-yellow btn-sm"
-          style={{ position: 'relative', zIndex: 2 }} // Ensure button stays above the overlay
+          style={{ position: "relative", zIndex: 2 }} // Ensure button stays above the overlay
         >
           <span className="btn-text">
             <span className="text">
-              <i className="fa fa-check-circle text-secondary"></i> &nbsp; Apply Now
+              <i className="fa fa-check-circle text-secondary"></i> &nbsp; Apply
+              Now
             </span>
             <i className="icon-chevron-right"></i>
           </span>

@@ -389,7 +389,7 @@
 //         if (!employerData) return;
 
 //         const response = await fetch(
-//           `https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`,
+//           `https://api.edprofio.com/employer/fetchjob/${employerData._id}`,
 //           {
 //             headers: {
 //               'Authorization': `Bearer ${localStorage.getItem('employerToken')}`
@@ -420,7 +420,7 @@
 //       }
 
 //       const response = await fetch(
-//         `https://edujobzbackend.onrender.com/fetchallemployee`,
+//         `https://api.edprofio.com/fetchallemployee`,
 //         {
 //           headers: {
 //             'Authorization': `Bearer ${token}`
@@ -467,9 +467,9 @@
 //   if (filtersApplied) {
 //     // Job category filter (skills)
 //     if (filters.jobCategories.length > 0) {
-//       results = results.filter(candidate => 
-//         candidate.skills && 
-//         candidate.skills.some(skill => 
+//       results = results.filter(candidate =>
+//         candidate.skills &&
+//         candidate.skills.some(skill =>
 //           filters.jobCategories.includes(skill)
 //         )
 //       );
@@ -477,26 +477,26 @@
 
 //     // Gender filter
 //     if (filters.gender) {
-//       results = results.filter(candidate => 
-//         candidate.gender && 
+//       results = results.filter(candidate =>
+//         candidate.gender &&
 //         candidate.gender.toLowerCase() === filters.gender.toLowerCase()
 //       );
 //     }
 
 //     // Location filter
 //     if (filters.location) {
-//       results = results.filter(candidate => 
-//         candidate.currentCity && 
+//       results = results.filter(candidate =>
+//         candidate.currentCity &&
 //         candidate.currentCity.toLowerCase().includes(filters.location.toLowerCase())
 //       );
 //     }
 
 //     // Qualification filter
 //     if (filters.qualification) {
-//       results = results.filter(candidate => 
-//         candidate.education && 
-//         candidate.education.some(edu => 
-//           edu.degree && 
+//       results = results.filter(candidate =>
+//         candidate.education &&
+//         candidate.education.some(edu =>
+//           edu.degree &&
 //           edu.degree.toLowerCase().includes(filters.qualification.toLowerCase())
 //         )
 //       );
@@ -566,7 +566,7 @@
 //       }
 
 //       const response = await fetch(
-//         `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
+//         `https://api.edprofio.com/employer/updaee/${applicationId}/${employid}`,
 //         {
 //           method: 'PUT',
 //           headers: {
@@ -611,7 +611,7 @@
 //       alert(`Error: ${error.message}`);
 //     }
 //   };
-  
+
 //   const getStatusBadgeClass = (status) => {
 //     switch (status?.toLowerCase()) {
 //       case 'shortlisted':
@@ -632,7 +632,7 @@
 //   useEffect(() => {
 //     fetchCandidates();
 //   }, []);
-  
+
 //   const findJobIdForCandidate = (candidate) => {
 //     // Find the job that contains this candidate in its applications
 //     const job = jobs.find(job =>
@@ -645,7 +645,7 @@
 
 //     return job ? job._id : 'default-job-id';
 //   };
-  
+
 //   useEffect(() => {
 //     filterCandidates();
 //   }, [searchQuery, filtersApplied, sortBy, dateRange, filters]);
@@ -1323,34 +1323,42 @@
 
 // export default EmployeerCandidatesSearch;
 
-import React, { useState, useEffect } from 'react';
-import { ChevronsUp, Search, ChevronDown, Download, FileText, FileSpreadsheet } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import EmployerHeader from './EmployerHeader';
-import EmployerFooter from './EmployerFooter';
-import user13 from '../../assets/employer/assets/img/users/user-13.jpg';
-import EmployerCandidatesDetails from './EmployerCandidatesDetails';
-import EmployeerChatSidebar from './EmployeerChatSidebar';
-import { FaArrowCircleUp } from 'react-icons/fa';
-import SearchChat from './searchchat/SearchChat';
-import defaultEmployeeAvatar from '../../assets/employer/assets/img/profiles/avatar-12.jpg';
+import React, { useState, useEffect } from "react";
+import {
+  ChevronsUp,
+  Search,
+  ChevronDown,
+  Download,
+  FileText,
+  FileSpreadsheet,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import EmployerHeader from "./EmployerHeader";
+import EmployerFooter from "./EmployerFooter";
+import user13 from "../../assets/employer/assets/img/users/user-13.jpg";
+import EmployerCandidatesDetails from "./EmployerCandidatesDetails";
+import EmployeerChatSidebar from "./EmployeerChatSidebar";
+import { FaArrowCircleUp } from "react-icons/fa";
+import SearchChat from "./searchchat/SearchChat";
+import defaultEmployeeAvatar from "../../assets/employer/assets/img/profiles/avatar-12.jpg";
 
 const EmployeerCandidatesSearch = () => {
-  const [sortBy, setSortBy] = useState('Sort By : Last 7 Days');
+  const [sortBy, setSortBy] = useState("Sort By : Last 7 Days");
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [candidates, setCandidates] = useState([]);
   const [filteredCandidates, setFilteredCandidates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
-  const [selectedDateRange, setSelectedDateRange] = useState('This Year');
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [selectedDateRange, setSelectedDateRange] = useState("This Year");
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [filtersApplied, setFiltersApplied] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [selectedCandidateForChat, setSelectedCandidateForChat] = useState(null);
+  const [selectedCandidateForChat, setSelectedCandidateForChat] =
+    useState(null);
   const [showChatSidebar, setShowChatSidebar] = useState(false);
   const [jobs, setJobs] = useState([]);
   const navigate = useNavigate();
@@ -1372,20 +1380,20 @@ const EmployeerCandidatesSearch = () => {
 
   const [filters, setFilters] = useState({
     jobCategories: [],
-    gender: '',
-    location: '',
-    qualification: '',
-    experienceFrom: '',
-    experienceTo: '',
-    searchQuery: '',
+    gender: "",
+    location: "",
+    qualification: "",
+    experienceFrom: "",
+    experienceTo: "",
+    searchQuery: "",
   });
 
   const sortOptions = [
-    'Recently Added',
-    'Ascending',
-    'Descending',
-    'Last Month',
-    'Last 7 Days'
+    "Recently Added",
+    "Ascending",
+    "Descending",
+    "Last Month",
+    "Last 7 Days",
   ];
 
   const getDynamicDateRangeOptions = () => {
@@ -1396,64 +1404,86 @@ const EmployeerCandidatesSearch = () => {
 
     return [
       {
-        label: 'Today',
-        value: 'today',
-        dateLabel: `${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`
+        label: "Today",
+        value: "today",
+        dateLabel: `${currentDate.toString().padStart(2, "0")}/${currentMonth
+          .toString()
+          .padStart(2, "0")}/${currentYear}`,
       },
       {
-        label: 'Yesterday',
-        value: 'yesterday',
+        label: "Yesterday",
+        value: "yesterday",
         dateLabel: (() => {
           const yesterday = new Date(today);
           yesterday.setDate(yesterday.getDate() - 1);
-          return `${yesterday.getDate().toString().padStart(2, '0')}/${(yesterday.getMonth() + 1).toString().padStart(2, '0')}/${yesterday.getFullYear()}`;
-        })()
+          return `${yesterday.getDate().toString().padStart(2, "0")}/${(
+            yesterday.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${yesterday.getFullYear()}`;
+        })(),
       },
       {
-        label: 'Last 7 Days',
-        value: 'last7days',
+        label: "Last 7 Days",
+        value: "last7days",
         dateLabel: (() => {
           const week = new Date(today);
           week.setDate(week.getDate() - 7);
-          return `${week.getDate().toString().padStart(2, '0')}/${(week.getMonth() + 1).toString().padStart(2, '0')}/${week.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
-        })()
+          return `${week.getDate().toString().padStart(2, "0")}/${(
+            week.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${week.getFullYear()} - ${currentDate
+            .toString()
+            .padStart(2, "0")}/${currentMonth
+            .toString()
+            .padStart(2, "0")}/${currentYear}`;
+        })(),
       },
       {
-        label: 'Last 30 Days',
-        value: 'last30days',
+        label: "Last 30 Days",
+        value: "last30days",
         dateLabel: (() => {
           const month = new Date(today);
           month.setDate(month.getDate() - 30);
-          return `${month.getDate().toString().padStart(2, '0')}/${(month.getMonth() + 1).toString().padStart(2, '0')}/${month.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
-        })()
+          return `${month.getDate().toString().padStart(2, "0")}/${(
+            month.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${month.getFullYear()} - ${currentDate
+            .toString()
+            .padStart(2, "0")}/${currentMonth
+            .toString()
+            .padStart(2, "0")}/${currentYear}`;
+        })(),
       },
       {
-        label: 'This Year',
-        value: 'thisyear',
-        dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`
+        label: "This Year",
+        value: "thisyear",
+        dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`,
       },
       {
-        label: 'Last Year',
-        value: 'lastyear',
-        dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`
+        label: "Last Year",
+        value: "lastyear",
+        dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`,
       },
       {
-        label: 'Next Year',
-        value: 'nextyear',
-        dateLabel: `01/01/${currentYear + 1} - 31/12/${currentYear + 1}`
+        label: "Next Year",
+        value: "nextyear",
+        dateLabel: `01/01/${currentYear + 1} - 31/12/${currentYear + 1}`,
       },
       {
-        label: 'Custom Range',
-        value: 'custom',
-        dateLabel: 'Select dates'
-      }
+        label: "Custom Range",
+        value: "custom",
+        dateLabel: "Select dates",
+      },
     ];
   };
 
   const handleDateRangeSelect = (option) => {
-    if (option.value === 'custom') {
-      setSelectedDateRange('Custom Range');
-      setActiveDropdown('customRange');
+    if (option.value === "custom") {
+      setSelectedDateRange("Custom Range");
+      setActiveDropdown("customRange");
       return;
     }
 
@@ -1462,35 +1492,35 @@ const EmployeerCandidatesSearch = () => {
     let startDate, endDate;
 
     switch (option.value) {
-      case 'today':
-        startDate = endDate = today.toISOString().split('T')[0];
+      case "today":
+        startDate = endDate = today.toISOString().split("T")[0];
         break;
-      case 'yesterday':
+      case "yesterday":
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
-        startDate = endDate = yesterday.toISOString().split('T')[0];
+        startDate = endDate = yesterday.toISOString().split("T")[0];
         break;
-      case 'last7days':
+      case "last7days":
         const week = new Date(today);
         week.setDate(week.getDate() - 7);
-        startDate = week.toISOString().split('T')[0];
-        endDate = today.toISOString().split('T')[0];
+        startDate = week.toISOString().split("T")[0];
+        endDate = today.toISOString().split("T")[0];
         break;
-      case 'last30days':
+      case "last30days":
         const month = new Date(today);
         month.setDate(month.getDate() - 30);
-        startDate = month.toISOString().split('T')[0];
-        endDate = today.toISOString().split('T')[0];
+        startDate = month.toISOString().split("T")[0];
+        endDate = today.toISOString().split("T")[0];
         break;
-      case 'thisyear':
+      case "thisyear":
         startDate = `${today.getFullYear()}-01-01`;
         endDate = `${today.getFullYear()}-12-31`;
         break;
-      case 'lastyear':
+      case "lastyear":
         startDate = `${today.getFullYear() - 1}-01-01`;
         endDate = `${today.getFullYear() - 1}-12-31`;
         break;
-      case 'nextyear':
+      case "nextyear":
         startDate = `${today.getFullYear() + 1}-01-01`;
         endDate = `${today.getFullYear() + 1}-12-31`;
         break;
@@ -1523,15 +1553,27 @@ const EmployeerCandidatesSearch = () => {
     `;
 
       // Add rows for each candidate
-      filteredCandidates.forEach(candidate => {
+      filteredCandidates.forEach((candidate) => {
         htmlContent += `
         <tr>
-          <td style="border: 1px solid #ddd; padding: 8px;">${candidate.userName || 'N/A'}</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${candidate.userEmail || 'N/A'}</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${candidate.userMobile || 'N/A'}</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${candidate.totalExperience || '0'} years</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${candidate.skills?.join(', ') || 'N/A'}</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${candidate.currentCity || 'N/A'}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            candidate.userName || "N/A"
+          }</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            candidate.userEmail || "N/A"
+          }</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            candidate.userMobile || "N/A"
+          }</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            candidate.totalExperience || "0"
+          } years</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            candidate.skills?.join(", ") || "N/A"
+          }</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            candidate.currentCity || "N/A"
+          }</td>
         </tr>
       `;
       });
@@ -1545,7 +1587,7 @@ const EmployeerCandidatesSearch = () => {
     `;
 
       // Open a new window with the content and trigger print
-      const win = window.open('', '_blank');
+      const win = window.open("", "_blank");
       win.document.write(`
       <html>
         <head>
@@ -1570,10 +1612,9 @@ const EmployeerCandidatesSearch = () => {
       </html>
     `);
       win.document.close();
-
     } catch (error) {
-      console.error('Error exporting to PDF:', error);
-      alert('Failed to export PDF: ' + error.message);
+      console.error("Error exporting to PDF:", error);
+      alert("Failed to export PDF: " + error.message);
     }
   };
 
@@ -1583,40 +1624,47 @@ const EmployeerCandidatesSearch = () => {
       let csvContent = "Name,Email,Phone,Experience,Skills,Location\n";
 
       // Add rows for each candidate
-      filteredCandidates.forEach(candidate => {
-        csvContent += `"${candidate.userName || ''}","${candidate.userEmail || ''}","${candidate.userMobile || ''}",` +
-          `"${candidate.totalExperience || '0'} years","${candidate.skills?.join(', ') || ''}",` +
-          `"${candidate.currentCity || ''}"\n`;
+      filteredCandidates.forEach((candidate) => {
+        csvContent +=
+          `"${candidate.userName || ""}","${candidate.userEmail || ""}","${
+            candidate.userMobile || ""
+          }",` +
+          `"${candidate.totalExperience || "0"} years","${
+            candidate.skills?.join(", ") || ""
+          }",` +
+          `"${candidate.currentCity || ""}"\n`;
       });
 
       // Create download link
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `candidates_${new Date().toISOString().slice(0, 10)}.csv`);
-      link.style.visibility = 'hidden';
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        `candidates_${new Date().toISOString().slice(0, 10)}.csv`
+      );
+      link.style.visibility = "hidden";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
     } catch (error) {
-      console.error('Error exporting to Excel:', error);
-      alert('Failed to export Excel: ' + error.message);
+      console.error("Error exporting to Excel:", error);
+      alert("Failed to export Excel: " + error.message);
     }
   };
 
   const exportOptions = [
     {
-      label: 'Export as PDF',
+      label: "Export as PDF",
       icon: <FileText size={16} className="me-1" />,
-      onClick: exportToPDF
+      onClick: exportToPDF,
     },
     {
-      label: 'Export as Excel',
+      label: "Export as Excel",
       icon: <FileSpreadsheet size={16} className="me-1" />,
-      onClick: exportToExcel
-    }
+      onClick: exportToExcel,
+    },
   ];
 
   const toggleDropdown = (dropdownName) => {
@@ -1640,23 +1688,23 @@ const EmployeerCandidatesSearch = () => {
   // Extract unique job categories from candidates
   const getUniqueJobCategories = () => {
     const categories = new Set();
-    candidates.forEach(candidate => {
+    candidates.forEach((candidate) => {
       if (candidate.skills && candidate.skills.length > 0) {
-        candidate.skills.forEach(skill => categories.add(skill));
+        candidate.skills.forEach((skill) => categories.add(skill));
       }
     });
     return Array.from(categories);
   };
 
   const toggleSection = (section) => {
-    setOpenSections(prev => ({
+    setOpenSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
   const handleCheckboxChange = (type, value) => {
-    setFilters(prev => {
+    setFilters((prev) => {
       const currentValues = [...prev[type]];
       const index = currentValues.indexOf(value);
 
@@ -1668,44 +1716,44 @@ const EmployeerCandidatesSearch = () => {
 
       return {
         ...prev,
-        [type]: currentValues
+        [type]: currentValues,
       };
     });
   };
 
   const handleRadioChange = (e) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      gender: e.target.value
+      gender: e.target.value,
     }));
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleReset = () => {
     setFilters({
       jobCategories: [],
-      gender: '',
-      location: '',
-      qualification: '',
-      experienceFrom: '',
-      experienceTo: '',
-      searchQuery: '',
+      gender: "",
+      location: "",
+      qualification: "",
+      experienceFrom: "",
+      experienceTo: "",
+      searchQuery: "",
     });
     setDateRange({
-      start: '',
-      end: ''
+      start: "",
+      end: "",
     });
-    setSortBy('Sort By : Last 7 Days');
-    setSelectedDateRange('This Year');
+    setSortBy("Sort By : Last 7 Days");
+    setSelectedDateRange("This Year");
     setFiltersApplied(false);
-    setSearchQuery('');
+    setSearchQuery("");
     setDisplayCount(5);
     setUsePagination(false);
     setCurrentPage(1);
@@ -1722,15 +1770,15 @@ const EmployeerCandidatesSearch = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const employerData = JSON.parse(localStorage.getItem('employerData'));
+        const employerData = JSON.parse(localStorage.getItem("employerData"));
         if (!employerData) return;
 
         const response = await fetch(
-          `https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`,
+          `https://api.edprofio.com/employer/fetchjob/${employerData._id}`,
           {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('employerToken')}`
-            }
+              Authorization: `Bearer ${localStorage.getItem("employerToken")}`,
+            },
           }
         );
 
@@ -1739,7 +1787,7 @@ const EmployeerCandidatesSearch = () => {
           setJobs(data || []);
         }
       } catch (error) {
-        console.error('Error fetching jobs:', error);
+        console.error("Error fetching jobs:", error);
       }
     };
 
@@ -1749,31 +1797,31 @@ const EmployeerCandidatesSearch = () => {
   const fetchCandidates = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('employerToken');
+      const token = localStorage.getItem("employerToken");
 
       if (!token) {
-        navigate('/employer/login');
+        navigate("/employer/login");
         return;
       }
 
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/fetchallemployee`,
+        `https://api.edprofio.com/fetchallemployee`,
         {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch candidates');
+        throw new Error("Failed to fetch candidates");
       }
 
       const data = await response.json();
       setCandidates(data || []);
       setFilteredCandidates(data || []);
     } catch (err) {
-      console.error('Fetch error:', err);
+      console.error("Fetch error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -1786,15 +1834,20 @@ const EmployeerCandidatesSearch = () => {
     // Apply search filter first
     if (searchQuery.trim()) {
       const searchTerm = searchQuery.toLowerCase().trim();
-      results = results.filter(candidate => {
+      results = results.filter((candidate) => {
         const searchFields = [
           candidate.userName,
           candidate.userEmail,
           candidate.userMobile,
-          candidate.skills?.join(' '),
+          candidate.skills?.join(" "),
           candidate.currentCity,
-          candidate.education?.map(edu => `${edu.degree} ${edu.institution}`).join(' '),
-        ].filter(Boolean).join(' ').toLowerCase();
+          candidate.education
+            ?.map((edu) => `${edu.degree} ${edu.institution}`)
+            .join(" "),
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
 
         return searchFields.includes(searchTerm);
       });
@@ -1804,37 +1857,47 @@ const EmployeerCandidatesSearch = () => {
     if (filtersApplied) {
       // Job category filter (skills)
       if (filters.jobCategories.length > 0) {
-        results = results.filter(candidate => 
-          candidate.skills && 
-          candidate.skills.some(skill => 
-            filters.jobCategories.includes(skill)
-        ));
+        results = results.filter(
+          (candidate) =>
+            candidate.skills &&
+            candidate.skills.some((skill) =>
+              filters.jobCategories.includes(skill)
+            )
+        );
       }
 
       // Gender filter
       if (filters.gender) {
-        results = results.filter(candidate => 
-          candidate.gender && 
-          candidate.gender.toLowerCase() === filters.gender.toLowerCase()
+        results = results.filter(
+          (candidate) =>
+            candidate.gender &&
+            candidate.gender.toLowerCase() === filters.gender.toLowerCase()
         );
       }
 
       // Location filter
       if (filters.location) {
-        results = results.filter(candidate => 
-          candidate.currentCity && 
-          candidate.currentCity.toLowerCase().includes(filters.location.toLowerCase())
+        results = results.filter(
+          (candidate) =>
+            candidate.currentCity &&
+            candidate.currentCity
+              .toLowerCase()
+              .includes(filters.location.toLowerCase())
         );
       }
 
       // Qualification filter
       if (filters.qualification) {
-        results = results.filter(candidate => 
-          candidate.education && 
-          candidate.education.some(edu => 
-            edu.degree && 
-            edu.degree.toLowerCase().includes(filters.qualification.toLowerCase())
-          )
+        results = results.filter(
+          (candidate) =>
+            candidate.education &&
+            candidate.education.some(
+              (edu) =>
+                edu.degree &&
+                edu.degree
+                  .toLowerCase()
+                  .includes(filters.qualification.toLowerCase())
+            )
         );
       }
 
@@ -1843,7 +1906,7 @@ const EmployeerCandidatesSearch = () => {
         const from = parseInt(filters.experienceFrom) || 0;
         const to = parseInt(filters.experienceTo) || 100; // Set reasonable max
 
-        results = results.filter(candidate => {
+        results = results.filter((candidate) => {
           const exp = parseInt(candidate.totalExperience) || 0;
           return exp >= from && exp <= to;
         });
@@ -1854,7 +1917,7 @@ const EmployeerCandidatesSearch = () => {
         const startDate = new Date(dateRange.start);
         const endDate = new Date(dateRange.end);
 
-        results = results.filter(candidate => {
+        results = results.filter((candidate) => {
           if (!candidate.createdAt) return false;
           const createdDate = new Date(candidate.createdAt);
           return createdDate >= startDate && createdDate <= endDate;
@@ -1862,12 +1925,16 @@ const EmployeerCandidatesSearch = () => {
       }
 
       // Sorting
-      if (sortBy.includes('Recently Added')) {
+      if (sortBy.includes("Recently Added")) {
         results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      } else if (sortBy.includes('Ascending')) {
-        results.sort((a, b) => (a.userName || '').localeCompare(b.userName || ''));
-      } else if (sortBy.includes('Descending')) {
-        results.sort((a, b) => (b.userName || '').localeCompare(a.userName || ''));
+      } else if (sortBy.includes("Ascending")) {
+        results.sort((a, b) =>
+          (a.userName || "").localeCompare(b.userName || "")
+        );
+      } else if (sortBy.includes("Descending")) {
+        results.sort((a, b) =>
+          (b.userName || "").localeCompare(a.userName || "")
+        );
       }
     }
 
@@ -1887,105 +1954,115 @@ const EmployeerCandidatesSearch = () => {
   const viewCandidateDetails = (candidate) => {
     setSelectedCandidate({
       ...candidate,
-      applicantId: candidate._id
+      applicantId: candidate._id,
     });
     setShowDetails(true);
   };
 
-  const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
+  const toggleFavoriteStatus = async (
+    applicationId,
+    employid,
+    currentStatus
+  ) => {
     try {
       console.log("Updating favorite status with:", {
         applicationId,
         employid,
-        currentStatus
+        currentStatus,
       });
-      const token = localStorage.getItem('employerToken');
+      const token = localStorage.getItem("employerToken");
       if (!token) {
-        navigate('/employer/login');
+        navigate("/employer/login");
         return;
       }
 
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
+        `https://api.edprofio.com/employer/updaee/${applicationId}/${employid}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            favourite: !currentStatus
-          })
+            favourite: !currentStatus,
+          }),
         }
       );
 
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to update favorite status');
+        throw new Error(data.message || "Failed to update favorite status");
       }
 
       // Update state only after successful API call
-      setCandidates(prev => prev.map(candidate => {
-        if (candidate._id === applicationId) {
-          return {
-            ...candidate,
-            favourite: !currentStatus
-          };
-        }
-        return candidate;
-      }));
+      setCandidates((prev) =>
+        prev.map((candidate) => {
+          if (candidate._id === applicationId) {
+            return {
+              ...candidate,
+              favourite: !currentStatus,
+            };
+          }
+          return candidate;
+        })
+      );
 
-      setFilteredCandidates(prev => prev.map(candidate => {
-        if (candidate._id === applicationId) {
-          return {
-            ...candidate,
-            favourite: !currentStatus
-          };
-        }
-        return candidate;
-      }));
-
+      setFilteredCandidates((prev) =>
+        prev.map((candidate) => {
+          if (candidate._id === applicationId) {
+            return {
+              ...candidate,
+              favourite: !currentStatus,
+            };
+          }
+          return candidate;
+        })
+      );
     } catch (error) {
-      console.error('Error updating favorite status:', error);
+      console.error("Error updating favorite status:", error);
       alert(`Error: ${error.message}`);
     }
   };
-  
+
   const getStatusBadgeClass = (status) => {
     switch (status?.toLowerCase()) {
-      case 'shortlisted':
-        return 'bg-success';
-      case 'rejected':
-        return 'bg-danger';
-      case 'in progress':
-        return 'bg-info';
-      case 'pending':
-        return 'bg-warning';
-      case 'applied':
-        return 'bg-primary';
+      case "shortlisted":
+        return "bg-success";
+      case "rejected":
+        return "bg-danger";
+      case "in progress":
+        return "bg-info";
+      case "pending":
+        return "bg-warning";
+      case "applied":
+        return "bg-primary";
       default:
-        return 'bg-secondary';
+        return "bg-secondary";
     }
   };
 
   useEffect(() => {
     fetchCandidates();
   }, []);
-  
+
   const findJobIdForCandidate = (candidate) => {
     // Find the job that contains this candidate in its applications
-    const job = jobs.find(job =>
-      job.applications && job.applications.some(app =>
-        app.applicantId === candidate.applicantId ||
-        app.applicantId === candidate._id ||
-        app._id === candidate._id
-      )
+    const job = jobs.find(
+      (job) =>
+        job.applications &&
+        job.applications.some(
+          (app) =>
+            app.applicantId === candidate.applicantId ||
+            app.applicantId === candidate._id ||
+            app._id === candidate._id
+        )
     );
 
-    return job ? job._id : 'default-job-id';
+    return job ? job._id : "default-job-id";
   };
-  
+
   useEffect(() => {
     filterCandidates();
   }, [searchQuery, filtersApplied, sortBy, dateRange, filters]);
@@ -1998,9 +2075,9 @@ const EmployeerCandidatesSearch = () => {
         setDisplayCount(filteredCandidates.length);
       } else {
         // Otherwise, increment by 5
-        setDisplayCount(prev => prev + 5);
+        setDisplayCount((prev) => prev + 5);
       }
-      
+
       // If after this load we have more than 10 results, switch to pagination
       if (displayCount + 5 > 10) {
         setUsePagination(true);
@@ -2018,7 +2095,10 @@ const EmployeerCandidatesSearch = () => {
       // Pagination logic - show 10 per page
       const indexOfLastCandidate = currentPage * resultsPerPage;
       const indexOfFirstCandidate = indexOfLastCandidate - resultsPerPage;
-      return filteredCandidates.slice(indexOfFirstCandidate, indexOfLastCandidate);
+      return filteredCandidates.slice(
+        indexOfFirstCandidate,
+        indexOfLastCandidate
+      );
     }
   };
 
@@ -2070,30 +2150,50 @@ const EmployeerCandidatesSearch = () => {
 
       <div className="content">
         {/* Breadcrumb */}
-        <div className={`d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3 ${isCollapsed ? 'collapsed' : ''}`}>
+        <div
+          className={`d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3 ${
+            isCollapsed ? "collapsed" : ""
+          }`}
+        >
           <div className="my-auto">
-            <h2>&nbsp; <i className="fa fa-search text-primary"></i> Search Candidates</h2>
+            <h2>
+              &nbsp; <i className="fa fa-search text-primary"></i> Search
+              Candidates
+            </h2>
           </div>
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
             {/* Date Range Picker */}
             <div className="dropdown me-2">
               <button
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                onClick={() => toggleDropdown('dateRange')}
+                onClick={() => toggleDropdown("dateRange")}
               >
-                <i className="ti ti-calendar me-1"></i>{selectedDateRange}
+                <i className="ti ti-calendar me-1"></i>
+                {selectedDateRange}
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'dateRange' || activeDropdown === 'customRange' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'dateRange' || activeDropdown === 'customRange' ? 'block' : 'none', minWidth: '280px' }}
+                className={`dropdown-menu dropdown-menu-end p-3 ${
+                  activeDropdown === "dateRange" ||
+                  activeDropdown === "customRange"
+                    ? "show"
+                    : ""
+                }`}
+                style={{
+                  display:
+                    activeDropdown === "dateRange" ||
+                    activeDropdown === "customRange"
+                      ? "block"
+                      : "none",
+                  minWidth: "280px",
+                }}
               >
-                {activeDropdown === 'customRange' ? (
+                {activeDropdown === "customRange" ? (
                   <li className="p-2">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <h6 className="mb-0">Select Date Range</h6>
                       <button
                         className="btn btn-sm btn-outline-secondary"
-                        onClick={() => setActiveDropdown('dateRange')}
+                        onClick={() => setActiveDropdown("dateRange")}
                       >
                         <i className="ti ti-arrow-left"></i> Back
                       </button>
@@ -2102,12 +2202,14 @@ const EmployeerCandidatesSearch = () => {
                       <input
                         type="date"
                         className="form-control me-2"
-                        style={{ fontSize: '12px' }}
+                        style={{ fontSize: "12px" }}
                         value={dateRange.start}
                         onChange={(e) => {
                           setDateRange({ ...dateRange, start: e.target.value });
                           if (dateRange.end && e.target.value) {
-                            setSelectedDateRange(`${e.target.value} - ${dateRange.end}`);
+                            setSelectedDateRange(
+                              `${e.target.value} - ${dateRange.end}`
+                            );
                           }
                         }}
                         placeholder="Start Date"
@@ -2116,12 +2218,14 @@ const EmployeerCandidatesSearch = () => {
                       <input
                         type="date"
                         className="form-control"
-                        style={{ fontSize: '12px' }}
+                        style={{ fontSize: "12px" }}
                         value={dateRange.end}
                         onChange={(e) => {
                           setDateRange({ ...dateRange, end: e.target.value });
                           if (dateRange.start && e.target.value) {
-                            setSelectedDateRange(`${dateRange.start} - ${e.target.value}`);
+                            setSelectedDateRange(
+                              `${dateRange.start} - ${e.target.value}`
+                            );
                           }
                         }}
                         min={dateRange.start}
@@ -2132,8 +2236,8 @@ const EmployeerCandidatesSearch = () => {
                       <button
                         className="btn btn-sm btn-outline-secondary"
                         onClick={() => {
-                          setDateRange({ start: '', end: '' });
-                          setSelectedDateRange('This Year');
+                          setDateRange({ start: "", end: "" });
+                          setSelectedDateRange("This Year");
                           setFiltersApplied(false);
                           closeAllDropdowns();
                         }}
@@ -2163,7 +2267,9 @@ const EmployeerCandidatesSearch = () => {
                           onClick={() => handleDateRangeSelect(option)}
                         >
                           <span>{option.label}</span>
-                          <small className="text-muted">{option.dateLabel}</small>
+                          <small className="text-muted">
+                            {option.dateLabel}
+                          </small>
                         </button>
                       </li>
                     ))}
@@ -2176,13 +2282,17 @@ const EmployeerCandidatesSearch = () => {
             <div className="dropdown me-2">
               <button
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                onClick={() => toggleDropdown('sort')}
+                onClick={() => toggleDropdown("sort")}
               >
                 {sortBy}
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'sort' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'sort' ? 'block' : 'none' }}
+                className={`dropdown-menu dropdown-menu-end p-3 ${
+                  activeDropdown === "sort" ? "show" : ""
+                }`}
+                style={{
+                  display: activeDropdown === "sort" ? "block" : "none",
+                }}
               >
                 {sortOptions.map((item) => (
                   <li key={item}>
@@ -2204,16 +2314,18 @@ const EmployeerCandidatesSearch = () => {
             <div className="dropdown me-2">
               <button
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                onClick={() => toggleDropdown('export')}
+                onClick={() => toggleDropdown("export")}
                 disabled={filteredCandidates.length === 0}
               >
                 <Download size={16} className="me-1" /> Export
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'export' ? 'show' : ''}`}
+                className={`dropdown-menu dropdown-menu-end p-3 ${
+                  activeDropdown === "export" ? "show" : ""
+                }`}
                 style={{
-                  display: activeDropdown === 'export' ? 'block' : 'none',
-                  marginLeft: '-65px',
+                  display: activeDropdown === "export" ? "block" : "none",
+                  marginLeft: "-65px",
                 }}
               >
                 {exportOptions.map((item) => (
@@ -2239,7 +2351,10 @@ const EmployeerCandidatesSearch = () => {
           {/* Filter Sidebar */}
           <div className="col-lg-3 col-md-6 card card-body">
             <div className="themesettings-inner offcanvas-body">
-              <div className="accordion accordion-customicon1 accordions-items-seperate" id="settingtheme">
+              <div
+                className="accordion accordion-customicon1 accordions-items-seperate"
+                id="settingtheme"
+              >
                 <h3 className="mb-1 text-secondary">Filter Candidates</h3>
                 <p className="text-dark">Search & Filter</p>
 
@@ -2249,35 +2364,48 @@ const EmployeerCandidatesSearch = () => {
                     <button
                       className="accordion-button text-dark fs-16 align-items-center justify-content-between"
                       type="button"
-                      onClick={() => toggleSection('jobCategory')}
+                      onClick={() => toggleSection("jobCategory")}
                     >
                       Select Job Category
                       <span>
                         <FaArrowCircleUp
-                          className={`text-primary transition-all duration-300 ${openSections.jobCategory ? 'rotate-180' : ''}`}
+                          className={`text-primary transition-all duration-300 ${
+                            openSections.jobCategory ? "rotate-180" : ""
+                          }`}
                           size={20}
                         />
                       </span>
                     </button>
                   </h2>
                   <div
-                    className={`accordion-collapse collapse ${openSections.jobCategory ? 'show' : ''}`}
+                    className={`accordion-collapse collapse ${
+                      openSections.jobCategory ? "show" : ""
+                    }`}
                   >
                     <div className="accordion-body">
                       <div className="row gx-3">
                         <div className="form-group">
                           <div className="checkbox-limit">
                             <ul className="checkbox-list">
-                              {getUniqueJobCategories().map(category => (
+                              {getUniqueJobCategories().map((category) => (
                                 <li className="mb-2" key={category}>
                                   <label className="custom-checkbox">
                                     <input
                                       type="checkbox"
-                                      checked={filters.jobCategories.includes(category)}
-                                      onChange={() => handleCheckboxChange('jobCategories', category)}
+                                      checked={filters.jobCategories.includes(
+                                        category
+                                      )}
+                                      onChange={() =>
+                                        handleCheckboxChange(
+                                          "jobCategories",
+                                          category
+                                        )
+                                      }
                                     />
                                     <span className="fake-checkbox"></span>
-                                    <span className="label-text">{category}</span>
+                                    <span className="label-text">
+                                      {category}
+                                    </span>
                                   </label>
                                 </li>
                               ))}
@@ -2295,18 +2423,24 @@ const EmployeerCandidatesSearch = () => {
                     <button
                       className="accordion-button text-dark fs-16 align-items-center justify-content-between"
                       type="button"
-                      onClick={() => toggleSection('gender')}
+                      onClick={() => toggleSection("gender")}
                     >
                       Gender
                       <span>
                         <FaArrowCircleUp
-                          className={`text-primary transition-all duration-300 ${openSections.gender ? 'rotate-180' : ''}`}
+                          className={`text-primary transition-all duration-300 ${
+                            openSections.gender ? "rotate-180" : ""
+                          }`}
                           size={20}
                         />
                       </span>
                     </button>
                   </h2>
-                  <div className={`accordion-collapse collapse ${openSections.gender ? 'show' : ''}`}>
+                  <div
+                    className={`accordion-collapse collapse ${
+                      openSections.gender ? "show" : ""
+                    }`}
+                  >
                     <div className="accordion-body">
                       <div className="d-flex align-items-center">
                         <div className="theme-width m-0 me-2">
@@ -2315,10 +2449,15 @@ const EmployeerCandidatesSearch = () => {
                             id="male"
                             name="gender"
                             value="male"
-                            checked={filters.gender === 'male'}
+                            checked={filters.gender === "male"}
                             onChange={handleRadioChange}
                           />
-                          <label htmlFor="male" className="d-block rounded fs-12">Male</label>
+                          <label
+                            htmlFor="male"
+                            className="d-block rounded fs-12"
+                          >
+                            Male
+                          </label>
                         </div>
                         <div className="theme-width m-0">
                           <input
@@ -2326,10 +2465,15 @@ const EmployeerCandidatesSearch = () => {
                             id="female"
                             name="gender"
                             value="female"
-                            checked={filters.gender === 'female'}
+                            checked={filters.gender === "female"}
                             onChange={handleRadioChange}
                           />
-                          <label htmlFor="female" className="d-block rounded fs-12">Female</label>
+                          <label
+                            htmlFor="female"
+                            className="d-block rounded fs-12"
+                          >
+                            Female
+                          </label>
                         </div>
                       </div>
                     </div>
@@ -2342,18 +2486,24 @@ const EmployeerCandidatesSearch = () => {
                     <button
                       className="accordion-button text-dark fs-16 align-items-center justify-content-between"
                       type="button"
-                      onClick={() => toggleSection('location')}
+                      onClick={() => toggleSection("location")}
                     >
                       Location
                       <span>
                         <FaArrowCircleUp
-                          className={`text-primary transition-all duration-300 ${openSections.location ? 'rotate-180' : ''}`}
+                          className={`text-primary transition-all duration-300 ${
+                            openSections.location ? "rotate-180" : ""
+                          }`}
                           size={20}
                         />
                       </span>
                     </button>
                   </h2>
-                  <div className={`accordion-collapse collapse ${openSections.location ? 'show' : ''}`}>
+                  <div
+                    className={`accordion-collapse collapse ${
+                      openSections.location ? "show" : ""
+                    }`}
+                  >
                     <div className="accordion-body">
                       <div className="d-flex align-items-center">
                         <input
@@ -2376,18 +2526,24 @@ const EmployeerCandidatesSearch = () => {
                     <button
                       className="accordion-button text-dark fs-16 align-items-center justify-content-between"
                       type="button"
-                      onClick={() => toggleSection('qualification')}
+                      onClick={() => toggleSection("qualification")}
                     >
                       Qualification
                       <span>
                         <FaArrowCircleUp
-                          className={`text-primary transition-all duration-300 ${openSections.qualification ? 'rotate-180' : ''}`}
+                          className={`text-primary transition-all duration-300 ${
+                            openSections.qualification ? "rotate-180" : ""
+                          }`}
                           size={20}
                         />
                       </span>
                     </button>
                   </h2>
-                  <div className={`accordion-collapse collapse ${openSections.qualification ? 'show' : ''}`}>
+                  <div
+                    className={`accordion-collapse collapse ${
+                      openSections.qualification ? "show" : ""
+                    }`}
+                  >
                     <div className="accordion-body">
                       <div className="row gx-3">
                         <input
@@ -2410,18 +2566,24 @@ const EmployeerCandidatesSearch = () => {
                     <button
                       className="accordion-button text-dark fs-16 align-items-center justify-content-between"
                       type="button"
-                      onClick={() => toggleSection('experience')}
+                      onClick={() => toggleSection("experience")}
                     >
                       Experience
                       <span>
                         <FaArrowCircleUp
-                          className={`text-primary transition-all duration-300 ${openSections.experience ? 'rotate-180' : ''}`}
+                          className={`text-primary transition-all duration-300 ${
+                            openSections.experience ? "rotate-180" : ""
+                          }`}
                           size={20}
                         />
                       </span>
                     </button>
                   </h2>
-                  <div className={`accordion-collapse collapse ${openSections.experience ? 'show' : ''}`}>
+                  <div
+                    className={`accordion-collapse collapse ${
+                      openSections.experience ? "show" : ""
+                    }`}
+                  >
                     <div className="accordion-body pb-0">
                       <div className="row gx-3">
                         <div className="price-inputs d-flex mb-3">
@@ -2489,7 +2651,11 @@ const EmployeerCandidatesSearch = () => {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
-                    <button type="submit" className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }}>
+                    <button
+                      type="submit"
+                      className="btn btn-secondary"
+                      style={{ whiteSpace: "nowrap" }}
+                    >
                       <Search size={16} className="me-1" /> Search
                     </button>
                   </div>
@@ -2500,16 +2666,18 @@ const EmployeerCandidatesSearch = () => {
             {/* Candidates Count */}
             <div className="mb-3">
               <span className="badge bg-warning">
-                {filteredCandidates.length} {filteredCandidates.length === 1 ? 'candidate' : 'candidates'} found
+                {filteredCandidates.length}{" "}
+                {filteredCandidates.length === 1 ? "candidate" : "candidates"}{" "}
+                found
               </span>
               {(searchQuery || filtersApplied) && (
                 <button
                   className="btn btn-sm btn-link ms-2"
                   onClick={() => {
-                    setSearchQuery('');
-                    setSortBy('Sort By : Last 7 Days');
-                    setDateRange({ start: '', end: '' });
-                    setSelectedDateRange('This Year');
+                    setSearchQuery("");
+                    setSortBy("Sort By : Last 7 Days");
+                    setDateRange({ start: "", end: "" });
+                    setSelectedDateRange("This Year");
                     setFiltersApplied(false);
                     handleReset();
                   }}
@@ -2522,13 +2690,19 @@ const EmployeerCandidatesSearch = () => {
             {/* Candidates Grid */}
             <div className="row mt-4">
               {getCurrentCandidates().length > 0 ? (
-                getCurrentCandidates().map(candidate => (
-                  <div key={candidate._id} className="col-xxl-12 col-xl-4 col-md-6">
+                getCurrentCandidates().map((candidate) => (
+                  <div
+                    key={candidate._id}
+                    className="col-xxl-12 col-xl-4 col-md-6"
+                  >
                     <div className="card">
                       <div className="card-body">
                         <div className="d-flex align-items-center justify-content-between mb-2">
                           <div className="d-flex align-items-center">
-                            <a href="javascript:void(0);" className="avatar flex-shrink-0">
+                            <a
+                              href="javascript:void(0);"
+                              className="avatar flex-shrink-0"
+                            >
                               <img
                                 src={candidate.userProfilePic || user13}
                                 className="img-fluid h-auto w-auto"
@@ -2541,11 +2715,14 @@ const EmployeerCandidatesSearch = () => {
                             </a>
                             <div className="ms-2">
                               <h6 className="fs-14 fw-medium text-truncate text-primary mb-1">
-                                <a className="text-secondary" href="#"
+                                <a
+                                  className="text-secondary"
+                                  href="#"
                                   onClick={(e) => {
                                     e.preventDefault();
                                     viewCandidateDetails(candidate);
-                                  }}>
+                                  }}
+                                >
                                   {candidate.userName} &nbsp; | &nbsp;
                                   <span className="text-dark">
                                     <i className="ti ti-eye"></i> View Profile
@@ -2553,10 +2730,20 @@ const EmployeerCandidatesSearch = () => {
                                 </a>
                               </h6>
                               <p className="fs-13">
-                                <b>Registered On:</b> {new Date(candidate.createdAt).toLocaleDateString('en-GB')} &nbsp; | &nbsp;
+                                <b>Registered On:</b>{" "}
+                                {new Date(
+                                  candidate.createdAt
+                                ).toLocaleDateString("en-GB")}{" "}
+                                &nbsp; | &nbsp;
                                 {candidate.resume?.url && (
-                                  <a href={candidate.resume.url} className="fw-medium text-primary" target="_blank" rel="noopener noreferrer">
-                                    <i className="ti ti-download"></i> Download Resume
+                                  <a
+                                    href={candidate.resume.url}
+                                    className="fw-medium text-primary"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    <i className="ti ti-download"></i> Download
+                                    Resume
                                   </a>
                                 )}
                               </p>
@@ -2564,12 +2751,18 @@ const EmployeerCandidatesSearch = () => {
                           </div>
                           <div className="d-flex align-items-center">
                             {candidate.userMobile && (
-                              <a href={`tel:${candidate.userMobile}`} className="btn btn-light text-success btn-icon btn-sm me-1">
+                              <a
+                                href={`tel:${candidate.userMobile}`}
+                                className="btn btn-light text-success btn-icon btn-sm me-1"
+                              >
                                 <i className="ti ti-phone fs-16"></i>
                               </a>
                             )}
                             {candidate.userEmail && (
-                              <a href={`mailto:${candidate.userEmail}`} className="btn btn-light btn-icon text-danger btn-sm me-1">
+                              <a
+                                href={`mailto:${candidate.userEmail}`}
+                                className="btn btn-light btn-icon text-danger btn-sm me-1"
+                              >
                                 <i className="ti ti-mail-bolt fs-16"></i>
                               </a>
                             )}
@@ -2582,9 +2775,10 @@ const EmployeerCandidatesSearch = () => {
                                 setSelectedCandidateForChat({
                                   ...candidate,
                                   jobId: jobId,
-                                  applicantId: candidate.applicantId || candidate._id,
+                                  applicantId:
+                                    candidate.applicantId || candidate._id,
                                   firstName: candidate.userName,
-                                  avatar: candidate.userProfilePic
+                                  avatar: candidate.userProfilePic,
                                 });
                                 setShowChatSidebar(true);
                               }}
@@ -2594,36 +2788,79 @@ const EmployeerCandidatesSearch = () => {
 
                             <a
                               href="#"
-                              className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
+                              className={`btn btn-light ${
+                                candidate.favourite
+                                  ? "text-danger"
+                                  : "text-primary"
+                              } btn-icon btn-sm`}
                               onClick={(e) => {
                                 e.preventDefault();
-                                const employerData = JSON.parse(localStorage.getItem('employerData'));
-                                toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite);
+                                const employerData = JSON.parse(
+                                  localStorage.getItem("employerData")
+                                );
+                                toggleFavoriteStatus(
+                                  candidate._id,
+                                  employerData._id,
+                                  candidate.favourite
+                                );
                               }}
-                              style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
+                              style={
+                                candidate.favourite
+                                  ? {
+                                      backgroundColor: "#ffd700",
+                                      borderColor: "white",
+                                    }
+                                  : {}
+                              }
                             >
                               <i
-                                className={`ti ti-bookmark fs-16 ${candidate.favourite ? 'filled' : ''}`}
-                                style={candidate.favourite ? { color: 'white' } : {}}
+                                className={`ti ti-bookmark fs-16 ${
+                                  candidate.favourite ? "filled" : ""
+                                }`}
+                                style={
+                                  candidate.favourite ? { color: "white" } : {}
+                                }
                               ></i>
                             </a>
                           </div>
                         </div>
                         <div className="bg-light rounder p-2">
                           <div className="d-flex align-items-center justify-content-between mb-2">
-                            <span><b>Experience</b> : {candidate.totalExperience || '0'} Years</span>
-                            <span><b>Skills</b> : {candidate.skills?.join(', ') || 'Not specified'}</span>
+                            <span>
+                              <b>Experience</b> :{" "}
+                              {candidate.totalExperience || "0"} Years
+                            </span>
+                            <span>
+                              <b>Skills</b> :{" "}
+                              {candidate.skills?.join(", ") || "Not specified"}
+                            </span>
                           </div>
                           <div className="d-flex align-items-center justify-content-between mb-2">
-                            <span><b>Gender</b> : {candidate.gender || 'Not specified'}</span>
-                            <span><b>Email</b> : {candidate.userEmail || 'Not specified'}</span>
+                            <span>
+                              <b>Gender</b> :{" "}
+                              {candidate.gender || "Not specified"}
+                            </span>
+                            <span>
+                              <b>Email</b> :{" "}
+                              {candidate.userEmail || "Not specified"}
+                            </span>
                           </div>
                           <div className="d-flex align-items-center justify-content-between mb-2">
-                            <span><b>Phone</b> : {candidate.userMobile || 'Not specified'}</span>
-                            <span><b>Education</b> : {candidate.education?.[0]?.degree || 'Not specified'}</span>
+                            <span>
+                              <b>Phone</b> :{" "}
+                              {candidate.userMobile || "Not specified"}
+                            </span>
+                            <span>
+                              <b>Education</b> :{" "}
+                              {candidate.education?.[0]?.degree ||
+                                "Not specified"}
+                            </span>
                           </div>
                           <div className="d-flex align-items-center justify-content-between">
-                            <span><b>Current Location</b> : {candidate.currentCity || 'Not specified'}</span>
+                            <span>
+                              <b>Current Location</b> :{" "}
+                              {candidate.currentCity || "Not specified"}
+                            </span>
                             <span>
                               <button
                                 className="fs-10 fw-bold badge bg-warning"
@@ -2642,9 +2879,16 @@ const EmployeerCandidatesSearch = () => {
                 <div className="col-12">
                   <div className="card">
                     <div className="card-body text-center py-5">
-                      <img src={defaultEmployeeAvatar} alt="No results" width="150" className="mb-3" />
+                      <img
+                        src={defaultEmployeeAvatar}
+                        alt="No results"
+                        width="150"
+                        className="mb-3"
+                      />
                       <h4>No candidates found</h4>
-                      <p className="text-muted">Try adjusting your search query or filters</p>
+                      <p className="text-muted">
+                        Try adjusting your search query or filters
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -2654,7 +2898,9 @@ const EmployeerCandidatesSearch = () => {
                     <div className="card-body text-center py-5">
                       <i className="ti ti-users fs-1 text-muted mb-3"></i>
                       <h4>All Candidates</h4>
-                      <p className="text-muted">Start typing to search or apply filters</p>
+                      <p className="text-muted">
+                        Start typing to search or apply filters
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -2663,44 +2909,63 @@ const EmployeerCandidatesSearch = () => {
 
             {/* Load More / Pagination Controls */}
             <div className="d-flex justify-content-center mt-4">
-              {!usePagination && filteredCandidates.length > 5 && displayCount < filteredCandidates.length && (
-                <button 
-                  className="btn btn-primary"
-                  onClick={handleLoadMore}
-                >
-                  Load More
-                </button>
-              )}
+              {!usePagination &&
+                filteredCandidates.length > 5 &&
+                displayCount < filteredCandidates.length && (
+                  <button className="btn btn-primary" onClick={handleLoadMore}>
+                    Load More
+                  </button>
+                )}
 
               {usePagination && filteredCandidates.length > resultsPerPage && (
                 <nav>
                   <ul className="pagination">
-                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                      <button 
-                        className="page-link" 
+                    <li
+                      className={`page-item ${
+                        currentPage === 1 ? "disabled" : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
                         onClick={() => paginate(currentPage - 1)}
-                        style={{fontSize: "20px"}}
+                        style={{ fontSize: "20px" }}
                       >
                         Previous
                       </button>
                     </li>
-                    
-                    {Array.from({ length: Math.ceil(filteredCandidates.length / resultsPerPage) }).map((_, index) => (
-                      <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-                        <button 
-                          className="page-link" 
+
+                    {Array.from({
+                      length: Math.ceil(
+                        filteredCandidates.length / resultsPerPage
+                      ),
+                    }).map((_, index) => (
+                      <li
+                        key={index}
+                        className={`page-item ${
+                          currentPage === index + 1 ? "active" : ""
+                        }`}
+                      >
+                        <button
+                          className="page-link"
                           onClick={() => paginate(index + 1)}
                         >
                           {index + 1}
                         </button>
                       </li>
                     ))}
-                    
-                    <li className={`page-item ${currentPage === Math.ceil(filteredCandidates.length / resultsPerPage) ? 'disabled' : ''}`}>
-                      <button 
-                        className="page-link" 
+
+                    <li
+                      className={`page-item ${
+                        currentPage ===
+                        Math.ceil(filteredCandidates.length / resultsPerPage)
+                          ? "disabled"
+                          : ""
+                      }`}
+                    >
+                      <button
+                        className="page-link"
                         onClick={() => paginate(currentPage + 1)}
-                        style={{fontSize: "20px"}}
+                        style={{ fontSize: "20px" }}
                       >
                         Next
                       </button>

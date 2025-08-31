@@ -20,7 +20,7 @@
 //     const fetchJobData = async () => {
 //       try {
 //         setLoading(true);
-//         const response = await fetch('https://edujobzbackend.onrender.com/employer/fetchjobs');
+//         const response = await fetch('https://api.edprofio.com/employer/fetchjobs');
 //         if (!response.ok) {
 //           throw new Error('Failed to fetch job data');
 //         }
@@ -181,7 +181,6 @@
 //     };
 //   });
 
-
 //   return (
 //     <div>
 //       {/* Hero Section */}
@@ -325,7 +324,6 @@
 //             </div>
 //           </div>
 //         </section>
-
 
 //         {/* Jobs Waiting Section */}
 //         <section className="section section-theme-9 jobs_waiting bg-light-sky">
@@ -557,18 +555,30 @@
 
 // export default HomePage;
 
-import React, { useState, useEffect } from 'react';
-import { FaSearch } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
-import { Users, GraduationCap, FileSearch, Briefcase, ChevronLeft, ChevronRight, Search } from 'lucide-react';
-import { FaSquarePen, FaSuitcase, FaUsers } from 'react-icons/fa6';
-import { IoDocumentText } from 'react-icons/io5';
+import React, { useState, useEffect } from "react";
+import { FaSearch } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Users,
+  GraduationCap,
+  FileSearch,
+  Briefcase,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+} from "lucide-react";
+import { FaSquarePen, FaSuitcase, FaUsers } from "react-icons/fa6";
+import { IoDocumentText } from "react-icons/io5";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [location, setLocation] = useState('All Locations');
-  const [locations, setLocations] = useState(['All Locations', 'India', 'Remote']);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [location, setLocation] = useState("All Locations");
+  const [locations, setLocations] = useState([
+    "All Locations",
+    "India",
+    "Remote",
+  ]);
   const [jobTitles, setJobTitles] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryCounts, setCategoryCounts] = useState({});
@@ -582,44 +592,52 @@ const HomePage = () => {
       name: "Linda Svennsky",
       role: "Great quality i am 100% Satisfied",
       img: "/images/img_33.jpg",
-      quote: "Vestibulum orci felis, ullamcorper non conum non, ultrices ac nunc. Mauris non ligscipit, vulputate mi accumsan, dapi bus fe lam sed sapien dc nunc non,uiem non porta."
+      quote:
+        "Vestibulum orci felis, ullamcorper non conum non, ultrices ac nunc. Mauris non ligscipit, vulputate mi accumsan, dapi bus fe lam sed sapien dc nunc non,uiem non porta.",
     },
     {
       name: "Roman Lorance",
       role: "Great quality i am 100% Satisfied",
       img: "/images/img_34.jpg",
-      quote: "Vestibulum orci felis, ullamcorper non conum non, ultrices ac nunc. Mauris non ligscipit, vulputate mi accumsan, dapi bus fe lam sed sapien dc nunc non,uiem non porta."
+      quote:
+        "Vestibulum orci felis, ullamcorper non conum non, ultrices ac nunc. Mauris non ligscipit, vulputate mi accumsan, dapi bus fe lam sed sapien dc nunc non,uiem non porta.",
     },
     {
       name: "Petar Walim",
       role: "Great quality i am 100% Satisfied",
       img: "/images/img_35.png",
-      quote: "Vestibulum orci felis, ullamcorper non conum non, ultrices ac nunc. Mauris non ligscipit, vulputate mi accumsan, dapi bus fe lam sed sapien dc nunc non,uiem non porta."
+      quote:
+        "Vestibulum orci felis, ullamcorper non conum non, ultrices ac nunc. Mauris non ligscipit, vulputate mi accumsan, dapi bus fe lam sed sapien dc nunc non,uiem non porta.",
     },
     {
       name: "Sarah Johnson",
       role: "Excellent platform for educators",
       img: "/images/img_36.jpg",
-      quote: "I found my dream teaching job through Edujobz. The platform made it so easy to connect with schools that matched my qualifications."
+      quote:
+        "I found my dream teaching job through Edujobz. The platform made it so easy to connect with schools that matched my qualifications.",
     },
     {
       name: "Michael Chen",
       role: "Highly recommended",
       img: "/images/img_37.jpg",
-      quote: "As a school administrator, I've hired several qualified candidates through this platform. It saves us so much time in the recruitment process."
+      quote:
+        "As a school administrator, I've hired several qualified candidates through this platform. It saves us so much time in the recruitment process.",
     },
     {
       name: "Priya Patel",
       role: "Life-changing opportunity",
       img: "/images/img_38.jpg",
-      quote: "Moving to a new country was stressful, but Edujobz helped me find a teaching position quickly. The support was exceptional."
-    }
+      quote:
+        "Moving to a new country was stressful, but Edujobz helped me find a teaching position quickly. The support was exceptional.",
+    },
   ];
 
   // Auto-slide effect
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % Math.ceil(testimonials.length / 3));
+      setCurrentSlide(
+        (prev) => (prev + 1) % Math.ceil(testimonials.length / 3)
+      );
     }, 5000); // Auto-slide every 5 seconds
 
     return () => clearInterval(interval);
@@ -630,7 +648,11 @@ const HomePage = () => {
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + Math.ceil(testimonials.length / 3)) % Math.ceil(testimonials.length / 3));
+    setCurrentSlide(
+      (prev) =>
+        (prev - 1 + Math.ceil(testimonials.length / 3)) %
+        Math.ceil(testimonials.length / 3)
+    );
   };
 
   const goToSlide = (index) => {
@@ -641,15 +663,15 @@ const HomePage = () => {
   const getCurrentTestimonials = () => {
     const startIndex = currentSlide * 3;
     const endIndex = startIndex + 3;
-    
+
     // If we're at the end, wrap around to include testimonials from the beginning
     if (endIndex > testimonials.length) {
       return [
         ...testimonials.slice(startIndex),
-        ...testimonials.slice(0, endIndex % testimonials.length)
+        ...testimonials.slice(0, endIndex % testimonials.length),
       ];
     }
-    
+
     return testimonials.slice(startIndex, endIndex);
   };
 
@@ -657,39 +679,47 @@ const HomePage = () => {
     const fetchJobData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://edujobzbackend.onrender.com/employer/fetchjobs');
+        const response = await fetch(
+          "https://api.edprofio.com/employer/fetchjobs"
+        );
         if (!response.ok) {
-          throw new Error('Failed to fetch job data');
+          throw new Error("Failed to fetch job data");
         }
         const data = await response.json();
 
         // Extract unique locations
-        const jobLocations = [...new Set(
-          data.flatMap(job =>
-            job.isRemote ? ['Remote'] : [job.location || 'India']
-          )
-        )].filter(Boolean);
+        const jobLocations = [
+          ...new Set(
+            data.flatMap((job) =>
+              job.isRemote ? ["Remote"] : [job.location || "India"]
+            )
+          ),
+        ].filter(Boolean);
 
         // Extract unique job titles and categories
-        const titles = [...new Set(data.map(job => job.jobTitle))].filter(Boolean);
-        const cats = [...new Set(data.map(job => job.category))].filter(Boolean);
+        const titles = [...new Set(data.map((job) => job.jobTitle))].filter(
+          Boolean
+        );
+        const cats = [...new Set(data.map((job) => job.category))].filter(
+          Boolean
+        );
 
         // Calculate job counts per category
         const counts = {};
-        data.forEach(job => {
+        data.forEach((job) => {
           if (job.category) {
             counts[job.category] = (counts[job.category] || 0) + 1;
           }
         });
 
-        setLocations(['All Locations', 'India', 'Remote', ...jobLocations]);
+        setLocations(["All Locations", "India", "Remote", ...jobLocations]);
         setJobTitles(titles);
         setCategories(cats);
         setCategoryCounts(counts);
         setError(null);
       } catch (err) {
         setError(err.message);
-        setLocations(['All Locations', 'India', 'Remote']); // Fallback options
+        setLocations(["All Locations", "India", "Remote"]); // Fallback options
       } finally {
         setLoading(false);
       }
@@ -705,11 +735,11 @@ const HomePage = () => {
     const params = new URLSearchParams();
 
     if (searchTerm.trim()) {
-      params.append('keyword', searchTerm.trim());
+      params.append("keyword", searchTerm.trim());
     }
 
-    if (location && location !== 'All Locations') {
-      params.append('location', location);
+    if (location && location !== "All Locations") {
+      params.append("location", location);
     }
 
     // Navigate to job vacancies with search parameters
@@ -728,85 +758,86 @@ const HomePage = () => {
       iconBlue: "/images/img_20.png",
       iconWhite: "/images/img_20_white.png",
       lucideIcon: null,
-      apiCategoryMatch: "Education" // Maps to "Education" in API
+      apiCategoryMatch: "Education", // Maps to "Education" in API
     },
     {
       title: "Leadership and Administration",
       iconBlue: "/images/leadership.png",
       iconWhite: "/images/leadership1.png",
       lucideIcon: null,
-      apiCategoryMatch: "Leadership" // No direct match in API
+      apiCategoryMatch: "Leadership", // No direct match in API
     },
     {
       title: "Support and Student Welfare",
       iconBlue: "/images/img_25.png",
       iconWhite: "/images/img_25_white.png",
       lucideIcon: null,
-      apiCategoryMatch: "Support" // No direct match in API
+      apiCategoryMatch: "Support", // No direct match in API
     },
     {
       title: "Extracurricular Activities",
       iconBlue: "/images/img_22.png",
       iconWhite: "/images/img_22_white.png",
       lucideIcon: null,
-      apiCategoryMatch: "Extracurricular" // No direct match in API
+      apiCategoryMatch: "Extracurricular", // No direct match in API
     },
     {
       title: "Curriculum and Content Development",
       iconBlue: "/images/img_23.png",
       iconWhite: "/images/img_23_white.png",
       lucideIcon: null,
-      apiCategoryMatch: "Curriculum" // No direct match in API
+      apiCategoryMatch: "Curriculum", // No direct match in API
     },
     {
       title: "EdTech and Digital Learning",
       iconBlue: "/images/img_24.png",
       iconWhite: "/images/img_24_white.png",
       lucideIcon: null,
-      apiCategoryMatch: "IT" // Maps to "IT" in API
+      apiCategoryMatch: "IT", // Maps to "IT" in API
     },
     {
       title: "Special Education and Inclusive Learning",
       iconBlue: "/images/special.png",
       iconWhite: "/images/special1.png",
       lucideIcon: null,
-      apiCategoryMatch: "Special Education" // No direct match in API
+      apiCategoryMatch: "Special Education", // No direct match in API
     },
     {
       title: "Non-Teaching Staffs",
       iconBlue: null,
       iconWhite: null,
       lucideIcon: FaUsers,
-      apiCategoryMatch: "Non-Teaching" // No direct match in API
+      apiCategoryMatch: "Non-Teaching", // No direct match in API
     },
     {
       title: "Training and Development",
       iconBlue: null,
       iconWhite: null,
       lucideIcon: FaSquarePen,
-      apiCategoryMatch: "Training" // No direct match in API
+      apiCategoryMatch: "Training", // No direct match in API
     },
     {
       title: "Research and Policy Development",
       iconBlue: null,
       iconWhite: null,
       lucideIcon: IoDocumentText,
-      apiCategoryMatch: "Research" // No direct match in API
+      apiCategoryMatch: "Research", // No direct match in API
     },
     {
       title: "Other Specialized Roles",
       iconBlue: null,
       iconWhite: null,
       lucideIcon: FaSuitcase,
-      apiCategoryMatch: "Marketing" // Maps to "Marketing" in API
+      apiCategoryMatch: "Marketing", // Maps to "Marketing" in API
     },
   ];
 
   // Merge default categories with actual categories from API
-  const allCategories = defaultCategories.map(cat => {
+  const allCategories = defaultCategories.map((cat) => {
     // Find matching category from API data
-    const apiCategory = Object.keys(categoryCounts).find(c =>
-      c.toLowerCase() === (cat.apiCategoryMatch || cat.title).toLowerCase()
+    const apiCategory = Object.keys(categoryCounts).find(
+      (c) =>
+        c.toLowerCase() === (cat.apiCategoryMatch || cat.title).toLowerCase()
     );
 
     const count = apiCategory ? categoryCounts[apiCategory] : 0;
@@ -814,28 +845,35 @@ const HomePage = () => {
     return {
       ...cat,
       jobs: count > 0 ? count.toString() : "0",
-      apiCategory: apiCategory || cat.title // Use the actual API category if found
+      apiCategory: apiCategory || cat.title, // Use the actual API category if found
     };
   });
 
   return (
     <div>
       {/* Hero Section */}
-      <div className="visual-block visual-theme-9 bg-white pt-100 pb-30 pb-md-80 pb-lg-140 text-white" style={{ backgroundImage: 'none' }}>
+      <div
+        className="visual-block visual-theme-9 bg-white pt-100 pb-30 pb-md-80 pb-lg-140 text-white"
+        style={{ backgroundImage: "none" }}
+      >
         <div className="container position-relative">
           <div className="row justify-content-between">
             <div className="col-12 col-lg-12 col-xl-12 position-relative">
               <div className="visual-textbox">
-                <h2 align="center" className="text-secondary mb-0">Edujobz: A Platform for Educators at Every Level</h2>
+                <h2 align="center" className="text-secondary mb-0">
+                  Edujobz: A Platform for Educators at Every Level
+                </h2>
                 <p align="center" className="text-dark">
-                  Discover <b className="text-primary">294,881+</b> Open Positions Within Our Network of <b className="text-primary">11,921</b> Educational Partners.
+                  Discover <b className="text-primary">294,881+</b> Open
+                  Positions Within Our Network of{" "}
+                  <b className="text-primary">11,921</b> Educational Partners.
                 </p>
 
                 {/* Search Form */}
                 <form
                   className="form-search bg-light-sky"
                   onSubmit={handleSearch}
-                  style={{ margin: '0px auto', borderRadius: '35px' }}
+                  style={{ margin: "0px auto", borderRadius: "35px" }}
                 >
                   <div className="fields-holder bg-white text-black d-flex flex-wrap flex-md-nowrap">
                     <div className="form-group">
@@ -844,7 +882,12 @@ const HomePage = () => {
                         className="form-control bg-white"
                         type="search"
                         placeholder="Job title, Keyword..."
-                        style={{ width: '300px', outline: 'none', boxShadow: 'none', color: '#333' }}
+                        style={{
+                          width: "300px",
+                          outline: "none",
+                          boxShadow: "none",
+                          color: "#333",
+                        }}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         disabled={loading}
@@ -866,7 +909,11 @@ const HomePage = () => {
                         name="state"
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
-                        style={{ border: 'none', boxShadow: 'none', outline: 'none' }}
+                        style={{
+                          border: "none",
+                          boxShadow: "none",
+                          outline: "none",
+                        }}
                         disabled={loading}
                       >
                         {locations.map((loc, index) => (
@@ -878,14 +925,14 @@ const HomePage = () => {
                     </div>
                   </div>
                   <button
-                    style={{ minWidth: '165px' }}
+                    style={{ minWidth: "165px" }}
                     className="btn btn-blue btn-sm"
                     type="submit"
                     disabled={loading}
                   >
                     <span className="btn-text">
                       {loading ? (
-                        'Loading...'
+                        "Loading..."
                       ) : (
                         <>
                           <FaSearch className="mr-1" /> &nbsp; Search Job
@@ -908,12 +955,27 @@ const HomePage = () => {
       {/* Main Content - Rest of your existing content */}
       <main className="main">
         {/* Browse Categories Section */}
-        <section className="section section-theme-9 browse_categories" style={{ backgroundImage: 'url(/images/bg_img04.jpg)' }}>
+        <section
+          className="section section-theme-9 browse_categories"
+          style={{ backgroundImage: "url(/images/bg_img04.jpg)" }}
+        >
           <div className="container">
-            <div className="section-header text-center mb-40 mb-md-45" style={{ maxWidth: '800px' }}>
-              <p>Invest in Your Future: Join Our Thriving Educational Network</p>
-              <h2><span className="text-outlined text-secondary">Browse by Category</span></h2>
-              <b>Discover Career Advancement Within Our Network of Educational Professionals</b>
+            <div
+              className="section-header text-center mb-40 mb-md-45"
+              style={{ maxWidth: "800px" }}
+            >
+              <p>
+                Invest in Your Future: Join Our Thriving Educational Network
+              </p>
+              <h2>
+                <span className="text-outlined text-secondary">
+                  Browse by Category
+                </span>
+              </h2>
+              <b>
+                Discover Career Advancement Within Our Network of Educational
+                Professionals
+              </b>
             </div>
 
             <div className="row">
@@ -921,23 +983,53 @@ const HomePage = () => {
               {allCategories.map((category, index) => (
                 <div
                   key={index}
-                  className={`col-6 col-lg-4 col-xl-3 ${index % 2 === 0 ? 'pe-5' : 'ps-5'} mb-30 mb-md-50`}
+                  className={`col-6 col-lg-4 col-xl-3 ${
+                    index % 2 === 0 ? "pe-5" : "ps-5"
+                  } mb-30 mb-md-50`}
                   align="center"
                   onClick={() => handleCategoryClick(category.apiCategory)}
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: "pointer" }}
                 >
                   <div className="info_box">
                     <div className="wrap_info">
                       <div className="icon_wrap">
                         {category.lucideIcon ? (
                           <>
-                            <category.lucideIcon className="blueImg" size={32} color="#3f71ef" />
-                            <category.lucideIcon className="whiteImg" size={32} color="#ffffff" />
+                            <category.lucideIcon
+                              className="blueImg"
+                              size={32}
+                              color="#3f71ef"
+                            />
+                            <category.lucideIcon
+                              className="whiteImg"
+                              size={32}
+                              color="#ffffff"
+                            />
                           </>
                         ) : category.iconBlue ? (
                           <>
-                            <img className="blueImg" src={category.iconBlue} alt="img" width={category.title === "Leadership and Administration" ? "70%" : ""} />
-                            <img className="whiteImg" src={category.iconWhite} alt="img" width={category.title === "Leadership and Administration" ? "70%" : ""} />
+                            <img
+                              className="blueImg"
+                              src={category.iconBlue}
+                              alt="img"
+                              width={
+                                category.title ===
+                                "Leadership and Administration"
+                                  ? "70%"
+                                  : ""
+                              }
+                            />
+                            <img
+                              className="whiteImg"
+                              src={category.iconWhite}
+                              alt="img"
+                              width={
+                                category.title ===
+                                "Leadership and Administration"
+                                  ? "70%"
+                                  : ""
+                              }
+                            />
                           </>
                         ) : null}
                       </div>
@@ -953,10 +1045,20 @@ const HomePage = () => {
 
               {/* Images between categories */}
               <div className="col-12 col-xl-3 mb-15 browse_categories_image">
-                <img src="/images/image.jpg" width="100%" style={{ borderRadius: '20px' }} alt="Education" />
+                <img
+                  src="/images/image.jpg"
+                  width="100%"
+                  style={{ borderRadius: "20px" }}
+                  alt="Education"
+                />
               </div>
               <div className="col-12 col-xl-3 mb-15 browse_categories_image1">
-                <img src="/images/image.jpg" width="100%" style={{ borderRadius: '20px' }} alt="Education" />
+                <img
+                  src="/images/image.jpg"
+                  width="100%"
+                  style={{ borderRadius: "20px" }}
+                  alt="Education"
+                />
               </div>
             </div>
           </div>
@@ -972,7 +1074,10 @@ const HomePage = () => {
                 </div>
                 <div className="text-white">
                   <h2 className="text-secondary">Your Ideal Jobs Awaits.</h2>
-                  <p className="text-dark fw-bold">Access over 1 Million Educational Opportunities and Find Your Ideal Role.</p>
+                  <p className="text-dark fw-bold">
+                    Access over 1 Million Educational Opportunities and Find
+                    Your Ideal Role.
+                  </p>
                 </div>
               </div>
               <div className="right_align">
@@ -980,7 +1085,13 @@ const HomePage = () => {
                   <i className="icon icon-search"></i> &nbsp; Search Job
                 </Link>
                 <Link to="/job-vacancies" className="btn btn-secondary btn-sm">
-                  <span className="btn-text"><i className="icon icon-users text-primary" style={{ fontSize: '13px' }}></i> &nbsp; Apply Job</span>
+                  <span className="btn-text">
+                    <i
+                      className="icon icon-users text-primary"
+                      style={{ fontSize: "13px" }}
+                    ></i>{" "}
+                    &nbsp; Apply Job
+                  </span>
                 </Link>
               </div>
             </div>
@@ -991,34 +1102,55 @@ const HomePage = () => {
         <section className="section section-theme-9 works_area">
           <div className="container">
             <div className="section-header text-center">
-              <h2><span className="text-outlined text-secondary">How It Works?</span></h2>
-              <p><b>for Job Seekers</b></p>
+              <h2>
+                <span className="text-outlined text-secondary">
+                  How It Works?
+                </span>
+              </h2>
+              <p>
+                <b>for Job Seekers</b>
+              </p>
             </div>
             <div className="row">
               {[
                 {
                   step: "01",
                   title: "Sign Up/Register",
-                  description: "Begin by creating a profile on our website. This step allows you to highlight your qualifications, experience, and skills to attract potential employers.",
-                  icon: "/images/img_14.svg"
+                  description:
+                    "Begin by creating a profile on our website. This step allows you to highlight your qualifications, experience, and skills to attract potential employers.",
+                  icon: "/images/img_14.svg",
                 },
                 {
                   step: "02",
                   title: "Career Search",
-                  description: "After setting up your profile, you can easily browse for job opportunities. Use filters like location, job title, or specific keywords to find the right match.",
-                  icon: "/images/img_15.svg"
+                  description:
+                    "After setting up your profile, you can easily browse for job opportunities. Use filters like location, job title, or specific keywords to find the right match.",
+                  icon: "/images/img_15.svg",
                 },
                 {
                   step: "03",
                   title: "Apply Now",
-                  description: "Once you find a job that interests you, simply apply directly through our platform, streamlining the process and saving you valuable time.",
-                  icon: "/images/img_16.svg"
+                  description:
+                    "Once you find a job that interests you, simply apply directly through our platform, streamlining the process and saving you valuable time.",
+                  icon: "/images/img_16.svg",
                 },
               ].map((step, index) => (
-                <div key={index} className="col-12 mb-30 mb-lg-0 col-lg-4 d-flex">
-                  <div className="works_info_column" style={{ border: '1px solid #063970', borderRadius: '5px', backgroundImage: 'url(/images/bg-visual-15.jpg)' }}>
+                <div
+                  key={index}
+                  className="col-12 mb-30 mb-lg-0 col-lg-4 d-flex"
+                >
+                  <div
+                    className="works_info_column"
+                    style={{
+                      border: "1px solid #063970",
+                      borderRadius: "5px",
+                      backgroundImage: "url(/images/bg-visual-15.jpg)",
+                    }}
+                  >
                     <div className="wrap">
-                      <strong className="title">{step.step}. {step.title}</strong>
+                      <strong className="title">
+                        {step.step}. {step.title}
+                      </strong>
                       <div className="img_holder shadow">
                         <img src={step.icon} alt="step" />
                       </div>
@@ -1035,56 +1167,87 @@ const HomePage = () => {
         <section className="section section-theme-1 section-how-works pt-45 pt-md-50 pt-lg-65 pt-xl-85 pt-xxl-110 pb-60 pb-md-80 pb-xl-85 pb-xxl-110 pb-xxxl-150 bg-light">
           <div className="container">
             <header className="section-header text-center mb-30 mb-md-45 mb-xl-60">
-              <h3 className="text-dark mb-0"><b>04. Get Hired</b></h3>
+              <h3 className="text-dark mb-0">
+                <b>04. Get Hired</b>
+              </h3>
             </header>
             <div className="row mb-lg-60 mb-xl-90">
               {[
                 {
                   step: "4.1",
                   title: "Interview Scheduling",
-                  description: "Employers can schedule interviews with selected candidates through the platform.",
-                  icon: "/images/line-icon06.png"
+                  description:
+                    "Employers can schedule interviews with selected candidates through the platform.",
+                  icon: "/images/line-icon06.png",
                 },
                 {
                   step: "4.2",
                   title: "Online Interviews",
-                  description: "Conduct interviews seamlessly with video integrated conferencing tools.",
-                  icon: "/images/line-icon07.png"
+                  description:
+                    "Conduct interviews seamlessly with video integrated conferencing tools.",
+                  icon: "/images/line-icon07.png",
                 },
                 {
                   step: "4.3",
                   title: "Offer Letter",
-                  description: "Employer can send job offers directly to candidates via the platform, simplifying the hiring process.",
-                  icon: "/images/line-icon08.png"
+                  description:
+                    "Employer can send job offers directly to candidates via the platform, simplifying the hiring process.",
+                  icon: "/images/line-icon08.png",
                 },
               ].map((step, index) => (
-                <div key={index} className="col-4 col-md-4 text-center mb-30 mb-md-0">
+                <div
+                  key={index}
+                  className="col-4 col-md-4 text-center mb-30 mb-md-0"
+                >
                   <div className="how-work-box">
                     <div className="icon bg-primary">
                       <img src={step.icon} alt="Step" />
                     </div>
                     <strong className="num">{step.step}</strong>
                     <strong className="h5 text-secondary">{step.title}</strong>
-                    <p align="center" style={{ fontSize: '14px' }}>{step.description}</p>
+                    <p align="center" style={{ fontSize: "14px" }}>
+                      {step.description}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
             <div className="row">
               <div className="col-12">
-                <div className="matched-jobs-block shadow border border-dark" style={{ backgroundImage: 'url(/images/bg-visual-15.jpg)' }}>
+                <div
+                  className="matched-jobs-block shadow border border-dark"
+                  style={{ backgroundImage: "url(/images/bg-visual-15.jpg)" }}
+                >
                   <div className="bg-pattern">
-                    <img src="/images/bg-pattern-overlay1.jpg" alt="bg Pattern" />
+                    <img
+                      src="/images/bg-pattern-overlay1.jpg"
+                      alt="bg Pattern"
+                    />
                   </div>
                   <div className="section-header">
-                    <h2 className="text-secondary">Get your Matched Jobs in a few <span className="text-outlined">minutes</span>.</h2>
-                    <p className="text-dark">Find your dream job & earn from the leading Employer. </p>
-                    <Link to="/post-job" className="btn btn-blue fw-bold border border-dark shadow">
-                      <span className="btn-text"><i className="icon-upload-cloud"></i> Upload Your CV</span>
+                    <h2 className="text-secondary">
+                      Get your Matched Jobs in a few{" "}
+                      <span className="text-outlined">minutes</span>.
+                    </h2>
+                    <p className="text-dark">
+                      Find your dream job & earn from the leading Employer.{" "}
+                    </p>
+                    <Link
+                      to="/post-job"
+                      className="btn btn-blue fw-bold border border-dark shadow"
+                    >
+                      <span className="btn-text">
+                        <i className="icon-upload-cloud"></i> Upload Your CV
+                      </span>
                     </Link>
                   </div>
                   <div className="image-holder">
-                    <img src="/images/image-circle.png" width="462" height="436" alt="Matched Jobs" />
+                    <img
+                      src="/images/image-circle.png"
+                      width="462"
+                      height="436"
+                      alt="Matched Jobs"
+                    />
                   </div>
                 </div>
               </div>
@@ -1093,160 +1256,202 @@ const HomePage = () => {
         </section>
 
         {/* Testimonials Section with Slider */}
-        <section className="section section-theme-9 featured_Jobs_Block" style={{ padding: '80px 0px' }}>
+        <section
+          className="section section-theme-9 featured_Jobs_Block"
+          style={{ padding: "80px 0px" }}
+        >
           <div className="container">
             <div className="client_testimonials">
               <header className="section-header">
                 <h2 className="text-secondary">Client's Testimonials</h2>
-                <p>1,00,000+ satisfied Employer and candidates. What they said.</p>
+                <p>
+                  1,00,000+ satisfied Employer and candidates. What they said.
+                </p>
               </header>
-              
-              <div className="testimonials-slider-container" style={{ position: 'relative', overflow: 'hidden' }}>
+
+              <div
+                className="testimonials-slider-container"
+                style={{ position: "relative", overflow: "hidden" }}
+              >
                 {/* Navigation Buttons */}
-                <button 
+                <button
                   onClick={prevSlide}
                   className="slider-nav prev-btn"
                   style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '10px',
-                    transform: 'translateY(-50%)',
+                    position: "absolute",
+                    top: "50%",
+                    left: "10px",
+                    transform: "translateY(-50%)",
                     zIndex: 10,
-                    background: 'rgba(63, 113, 239, 0.8)',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '40px',
-                    height: '40px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    color: 'white',
-                    transition: 'all 0.3s ease'
+                    background: "rgba(63, 113, 239, 0.8)",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    color: "white",
+                    transition: "all 0.3s ease",
                   }}
-                  onMouseEnter={(e) => e.target.style.background = 'rgba(63, 113, 239, 1)'}
-                  onMouseLeave={(e) => e.target.style.background = 'rgba(63, 113, 239, 0.8)'}
+                  onMouseEnter={(e) =>
+                    (e.target.style.background = "rgba(63, 113, 239, 1)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.background = "rgba(63, 113, 239, 0.8)")
+                  }
                 >
                   <ChevronLeft size={20} />
                 </button>
-                
-                <button 
+
+                <button
                   onClick={nextSlide}
                   className="slider-nav next-btn"
                   style={{
-                    position: 'absolute',
-                    top: '50%',
-                    right: '10px',
-                    transform: 'translateY(-50%)',
+                    position: "absolute",
+                    top: "50%",
+                    right: "10px",
+                    transform: "translateY(-50%)",
                     zIndex: 10,
-                    background: 'rgba(63, 113, 239, 0.8)',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '40px',
-                    height: '40px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    color: 'white',
-                    transition: 'all 0.3s ease'
+                    background: "rgba(63, 113, 239, 0.8)",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "40px",
+                    height: "40px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    color: "white",
+                    transition: "all 0.3s ease",
                   }}
-                  onMouseEnter={(e) => e.target.style.background = 'rgba(63, 113, 239, 1)'}
-                  onMouseLeave={(e) => e.target.style.background = 'rgba(63, 113, 239, 0.8)'}
+                  onMouseEnter={(e) =>
+                    (e.target.style.background = "rgba(63, 113, 239, 1)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.background = "rgba(63, 113, 239, 0.8)")
+                  }
                 >
                   <ChevronRight size={20} />
                 </button>
 
                 {/* Slides Container */}
-                <div 
+                <div
                   className="testimonials-slides"
                   style={{
-                    display: 'flex',
+                    display: "flex",
                     transform: `translateX(-${currentSlide * 100}%)`,
-                    transition: 'transform 0.5s ease-in-out',
-                    width: `${Math.ceil(testimonials.length / 3) * 100}%`
+                    transition: "transform 0.5s ease-in-out",
+                    width: `${Math.ceil(testimonials.length / 3) * 100}%`,
                   }}
                 >
-                  {Array(Math.ceil(testimonials.length / 3)).fill().map((_, slideIndex) => {
-                    const startIndex = slideIndex * 3;
-                    const endIndex = startIndex + 3;
-                    let currentTestimonials;
-                    
-                    // Handle wrapping around for the last slide
-                    if (endIndex > testimonials.length) {
-                      currentTestimonials = [
-                        ...testimonials.slice(startIndex),
-                        ...testimonials.slice(0, endIndex % testimonials.length)
-                      ];
-                    } else {
-                      currentTestimonials = testimonials.slice(startIndex, endIndex);
-                    }
+                  {Array(Math.ceil(testimonials.length / 3))
+                    .fill()
+                    .map((_, slideIndex) => {
+                      const startIndex = slideIndex * 3;
+                      const endIndex = startIndex + 3;
+                      let currentTestimonials;
 
-                    return (
-                      <div 
-                        key={slideIndex}
-                        className="testimonial-slide"
-                        style={{
-                          width: `${100 / Math.ceil(testimonials.length / 3)}%`,
-                          flexShrink: 0,
-                          padding: '0 15px'
-                        }}
-                      >
-                        <div className="row">
-                          {currentTestimonials.map((testimonial, index) => (
-                            <div key={`${slideIndex}-${index}`} className="col-md-4 mb-4">
-                              <div className="client_review border border-dark" style={{ height: '100%' }}>
-                                <div className="heading_bar">
-                                  <div className="text_wrap">
-                                    <strong className="h5">{testimonial.name}</strong>
-                                    <span className="text">{testimonial.role}</span>
+                      // Handle wrapping around for the last slide
+                      if (endIndex > testimonials.length) {
+                        currentTestimonials = [
+                          ...testimonials.slice(startIndex),
+                          ...testimonials.slice(
+                            0,
+                            endIndex % testimonials.length
+                          ),
+                        ];
+                      } else {
+                        currentTestimonials = testimonials.slice(
+                          startIndex,
+                          endIndex
+                        );
+                      }
+
+                      return (
+                        <div
+                          key={slideIndex}
+                          className="testimonial-slide"
+                          style={{
+                            width: `${
+                              100 / Math.ceil(testimonials.length / 3)
+                            }%`,
+                            flexShrink: 0,
+                            padding: "0 15px",
+                          }}
+                        >
+                          <div className="row">
+                            {currentTestimonials.map((testimonial, index) => (
+                              <div
+                                key={`${slideIndex}-${index}`}
+                                className="col-md-4 mb-4"
+                              >
+                                <div
+                                  className="client_review border border-dark"
+                                  style={{ height: "100%" }}
+                                >
+                                  <div className="heading_bar">
+                                    <div className="text_wrap">
+                                      <strong className="h5">
+                                        {testimonial.name}
+                                      </strong>
+                                      <span className="text">
+                                        {testimonial.role}
+                                      </span>
+                                    </div>
+                                    <div className="img_wrap">
+                                      <img src={testimonial.img} alt="Client" />
+                                    </div>
                                   </div>
-                                  <div className="img_wrap">
-                                    <img src={testimonial.img} alt="Client" />
+                                  <div className="stars_bar">
+                                    <div className="stars_wrap">
+                                      {[...Array(5)].map((_, i) => (
+                                        <i
+                                          key={i}
+                                          className="icon icon-star"
+                                        ></i>
+                                      ))}
+                                    </div>
                                   </div>
+                                  <p>"{testimonial.quote}"</p>
                                 </div>
-                                <div className="stars_bar">
-                                  <div className="stars_wrap">
-                                    {[...Array(5)].map((_, i) => (
-                                      <i key={i} className="icon icon-star"></i>
-                                    ))}
-                                  </div>
-                                </div>
-                                <p>"{testimonial.quote}"</p>
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
 
                 {/* Dots Navigation */}
-                <div 
+                <div
                   className="slider-dots"
                   style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    marginTop: '30px',
-                    gap: '10px'
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "30px",
+                    gap: "10px",
                   }}
                 >
-                  {Array(Math.ceil(testimonials.length / 3)).fill().map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => goToSlide(index)}
-                      style={{
-                        width: '12px',
-                        height: '12px',
-                        borderRadius: '50%',
-                        border: 'none',
-                        background: currentSlide === index ? '#3f71ef' : '#ccc',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.3s ease'
-                      }}
-                    />
-                  ))}
+                  {Array(Math.ceil(testimonials.length / 3))
+                    .fill()
+                    .map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => goToSlide(index)}
+                        style={{
+                          width: "12px",
+                          height: "12px",
+                          borderRadius: "50%",
+                          border: "none",
+                          background:
+                            currentSlide === index ? "#3f71ef" : "#ccc",
+                          cursor: "pointer",
+                          transition: "background-color 0.3s ease",
+                        }}
+                      />
+                    ))}
                 </div>
               </div>
             </div>
@@ -1259,13 +1464,23 @@ const HomePage = () => {
             <div className="row align-items-center">
               <div className="col-12 col-md-6 col-lg-5">
                 <div className="text">
-                  <h2 className="text-secondary" style={{ lineHeight: '48px' }}>App Available Now – Finds Them For You Right Job.</h2>
+                  <h2 className="text-secondary" style={{ lineHeight: "48px" }}>
+                    App Available Now – Finds Them For You Right Job.
+                  </h2>
                   <hr />
-                  <p>Download and install ont-time installable app for your android or IOS device and find people or jobs smart.</p>
+                  <p>
+                    Download and install ont-time installable app for your
+                    android or IOS device and find people or jobs smart.
+                  </p>
                   <div className="download-btns">
                     <Link className="btn-app btn-play-store blue-btn" to="#">
                       <div className="store-icon">
-                        <img src="/images/icon-play-store.png" width="28" height="30" alt="Google Play" />
+                        <img
+                          src="/images/icon-play-store.png"
+                          width="28"
+                          height="30"
+                          alt="Google Play"
+                        />
                       </div>
                       <div className="btn-text">
                         Download From <span>Google Play</span>
@@ -1273,7 +1488,12 @@ const HomePage = () => {
                     </Link>
                     <Link className="btn-app btn-app-store" to="#">
                       <div className="store-icon">
-                        <img src="/images/icon-app-store.png" width="32" height="38" alt="App Store" />
+                        <img
+                          src="/images/icon-app-store.png"
+                          width="32"
+                          height="38"
+                          alt="App Store"
+                        />
                       </div>
                       <div className="btn-text">
                         Download From <span>App Store</span>

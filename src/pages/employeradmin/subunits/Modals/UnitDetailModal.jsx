@@ -1,6 +1,6 @@
-import React from 'react';
-import axios from 'axios';
-import company01 from '../../../../assets/employer-admin/assets/img/company/company-01.svg';
+import React from "react";
+import axios from "axios";
+import company01 from "../../../../assets/employer-admin/assets/img/company/company-01.svg";
 
 const UnitDetailModal = ({ show, onClose, unit }) => {
   const [employerData, setEmployerData] = React.useState(null);
@@ -17,13 +17,15 @@ const UnitDetailModal = ({ show, onClose, unit }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`https://edujobzbackend.onrender.com/employer/fetchemployer/${unit.id}`);
+      const response = await axios.get(
+        `https://api.edprofio.com/employer/fetchemployer/${unit.id}`
+      );
       if (response.data) {
         setEmployerData(response.data);
       }
     } catch (err) {
-      console.error('Error fetching employer data:', err);
-      setError('Failed to load employer details');
+      console.error("Error fetching employer data:", err);
+      setError("Failed to load employer details");
     } finally {
       setLoading(false);
     }
@@ -31,10 +33,10 @@ const UnitDetailModal = ({ show, onClose, unit }) => {
 
   // Function to format date as dd/mm/yyyy
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
@@ -42,14 +44,17 @@ const UnitDetailModal = ({ show, onClose, unit }) => {
   if (!show) return null;
 
   return (
-    <div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+    <div
+      className="modal fade show"
+      style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+    >
       <div className="modal-dialog modal-dialog-centered modal-lg">
         <div className="modal-content">
           <div className="modal-header">
             <h4 className="modal-title">Unit Details</h4>
-            <button 
-              type="button" 
-              className="btn-close custom-btn-close" 
+            <button
+              type="button"
+              className="btn-close custom-btn-close"
               onClick={onClose}
               aria-label="Close"
             >
@@ -71,17 +76,33 @@ const UnitDetailModal = ({ show, onClose, unit }) => {
                 <div className="p-3">
                   <div className="d-flex justify-content-between align-items-center rounded bg-light p-3">
                     <div className="file-name-icon d-flex align-items-center">
-                      <a href="#" className="avatar avatar-md border rounded-circle flex-shrink-0 me-2">
+                      <a
+                        href="#"
+                        className="avatar avatar-md border rounded-circle flex-shrink-0 me-2"
+                      >
                         {employerData.userProfilePic ? (
-                          <img src={employerData.userProfilePic} className="img-fluid" alt="Profile" />
+                          <img
+                            src={employerData.userProfilePic}
+                            className="img-fluid"
+                            alt="Profile"
+                          />
                         ) : (
-                          <img src={company01} className="img-fluid" alt="Default" />
+                          <img
+                            src={company01}
+                            className="img-fluid"
+                            alt="Default"
+                          />
                         )}
                       </a>
                       <div>
-                        <p className="text-gray-9 fw-medium mb-0">{employerData.schoolName}</p>
+                        <p className="text-gray-9 fw-medium mb-0">
+                          {employerData.schoolName}
+                        </p>
                         <p>
-                          <a href={`mailto:${employerData.userEmail}`} className="__cf_email__">
+                          <a
+                            href={`mailto:${employerData.userEmail}`}
+                            className="__cf_email__"
+                          >
                             {employerData.userEmail}
                           </a>
                         </p>
@@ -93,7 +114,7 @@ const UnitDetailModal = ({ show, onClose, unit }) => {
                     </span> */}
                   </div>
                 </div>
-                
+
                 <div className="p-3">
                   <p className="text-gray-9 fw-medium">Basic Info</p>
                   <div className="pb-1 border-bottom mb-4">
@@ -107,30 +128,36 @@ const UnitDetailModal = ({ show, onClose, unit }) => {
                       <div className="col-md-4">
                         <div className="mb-3">
                           <p className="fs-12 mb-0">Phone Number</p>
-                          <p className="text-gray-9">{employerData.userMobile}</p>
+                          <p className="text-gray-9">
+                            {employerData.userMobile}
+                          </p>
                         </div>
                       </div>
                       <div className="col-md-4">
                         <div className="mb-3">
                           <p className="fs-12 mb-0">Website</p>
                           <p className="text-gray-9">
-                            {employerData.website || 'Not provided'}
+                            {employerData.website || "Not provided"}
                           </p>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="row align-items-center">
                       <div className="col-md-4">
                         <div className="mb-3">
                           <p className="fs-12 mb-0">Institution Type</p>
-                          <p className="text-gray-9">{employerData.institutionType}</p>
+                          <p className="text-gray-9">
+                            {employerData.institutionType}
+                          </p>
                         </div>
                       </div>
                       <div className="col-md-4">
                         <div className="mb-3">
                           <p className="fs-12 mb-0">Board</p>
-                          <p className="text-gray-9">{employerData.board || 'Not provided'}</p>
+                          <p className="text-gray-9">
+                            {employerData.board || "Not provided"}
+                          </p>
                         </div>
                       </div>
                       <div className="col-md-4">
@@ -143,30 +170,36 @@ const UnitDetailModal = ({ show, onClose, unit }) => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <p className="text-gray-9 fw-medium">Additional Details</p>
                   <div>
                     <div className="row align-items-center">
                       <div className="col-md-4">
                         <div className="mb-3">
                           <p className="fs-12 mb-0">Employer Type</p>
-                          <p className="text-gray-9">{employerData.employerType}</p>
+                          <p className="text-gray-9">
+                            {employerData.employerType}
+                          </p>
                         </div>
                       </div>
                       <div className="col-md-4">
                         <div className="mb-3">
                           <p className="fs-12 mb-0">Institution Name</p>
-                          <p className="text-gray-9">{employerData.institutionName}</p>
+                          <p className="text-gray-9">
+                            {employerData.institutionName}
+                          </p>
                         </div>
                       </div>
                       <div className="col-md-4">
                         <div className="mb-3">
                           <p className="fs-12 mb-0">Referral Code</p>
-                          <p className="text-gray-9">{employerData.referralCode}</p>
+                          <p className="text-gray-9">
+                            {employerData.referralCode}
+                          </p>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="row align-items-center">
                       <div className="col-md-4">
                         <div className="mb-3">
@@ -179,13 +212,17 @@ const UnitDetailModal = ({ show, onClose, unit }) => {
                       <div className="col-md-4">
                         <div className="mb-3">
                           <p className="fs-12 mb-0">Referral Count</p>
-                          <p className="text-gray-9">{employerData.referralCount}</p>
+                          <p className="text-gray-9">
+                            {employerData.referralCount}
+                          </p>
                         </div>
                       </div>
                       <div className="col-md-4">
                         <div className="mb-3">
                           <p className="fs-12 mb-0">Referral Rewards</p>
-                          <p className="text-gray-9">{employerData.referralRewards}</p>
+                          <p className="text-gray-9">
+                            {employerData.referralRewards}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -199,7 +236,11 @@ const UnitDetailModal = ({ show, onClose, unit }) => {
             )}
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onClose}
+            >
               Close
             </button>
           </div>

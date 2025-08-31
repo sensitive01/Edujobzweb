@@ -1,13 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
-  ArrowLeft, Circle, MapPin, Calendar, MessageCircle, ArrowUpRight, X,
-  Download, User, Settings, ChevronDown, Edit, Trash2,
-  MessageCircleCode
-} from 'lucide-react';
-import EmployerHeader from './EmployerHeader';
-import EmployerFooter from './EmployerFooter';
-import { getEventDetails } from '../../api/services/projectServices';
+  ArrowLeft,
+  Circle,
+  MapPin,
+  Calendar,
+  MessageCircle,
+  ArrowUpRight,
+  X,
+  Download,
+  User,
+  Settings,
+  ChevronDown,
+  Edit,
+  Trash2,
+  MessageCircleCode,
+} from "lucide-react";
+import EmployerHeader from "./EmployerHeader";
+import EmployerFooter from "./EmployerFooter";
+import { getEventDetails } from "../../api/services/projectServices";
 
 const EmployerEventDetails = () => {
   const { eventId } = useParams();
@@ -18,36 +29,36 @@ const EmployerEventDetails = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [toast, setToast] = useState({
     show: false,
-    message: '',
-    type: '' // 'success' or 'error'
+    message: "",
+    type: "", // 'success' or 'error'
   });
   const [formData, setFormData] = useState({
-    title: '',
-    category: '',
-    description: '',
-    eventDate: '',
-    startTime: '',
-    endTime: '',
-    venue: '',
-    priority: 'High',
-    status: 'Open',
-    coordinator: '',
-    bannerImage: ''
+    title: "",
+    category: "",
+    description: "",
+    eventDate: "",
+    startTime: "",
+    endTime: "",
+    venue: "",
+    priority: "High",
+    status: "Open",
+    coordinator: "",
+    bannerImage: "",
   });
 
   // Format date from dd/mm/yyyy to Date object
   const parseDate = (dateString) => {
     if (!dateString) return new Date();
-    const [day, month, year] = dateString.split('/');
+    const [day, month, year] = dateString.split("/");
     return new Date(`${year}-${month}-${day}`);
   };
 
   // Format date to dd/mm/yyyy for display
   const formatDate = (date) => {
-    if (!date) return '';
+    if (!date) return "";
     const d = new Date(date);
-    const day = d.getDate().toString().padStart(2, '0');
-    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, "0");
+    const month = (d.getMonth() + 1).toString().padStart(2, "0");
     const year = d.getFullYear();
     return `${day}/${month}/${year}`;
   };
@@ -59,7 +70,7 @@ const EmployerEventDetails = () => {
         setEvent(eventData);
 
         // Format the date from dd/mm/yyyy to yyyy-mm-dd for the date input
-        const [day, month, year] = eventData.eventDate.split('/');
+        const [day, month, year] = eventData.eventDate.split("/");
         const formattedDate = `${year}-${month}-${day}`;
 
         setFormData({
@@ -70,10 +81,10 @@ const EmployerEventDetails = () => {
           startTime: eventData.startTime,
           endTime: eventData.endTime,
           venue: eventData.venue,
-          priority: 'High',
-          status: eventData.status || 'Open',
+          priority: "High",
+          status: eventData.status || "Open",
           coordinator: eventData.coordinator,
-          bannerImage: eventData.bannerImage
+          bannerImage: eventData.bannerImage,
         });
         setLoading(false);
       } catch (err) {
@@ -87,9 +98,9 @@ const EmployerEventDetails = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -97,7 +108,7 @@ const EmployerEventDetails = () => {
     e.preventDefault();
     try {
       // Convert date back to dd/mm/yyyy format for API
-      const [year, month, day] = formData.eventDate.split('-');
+      const [year, month, day] = formData.eventDate.split("-");
       const formattedDate = `${day}/${month}/${year}`;
 
       const updatedEventData = {
@@ -109,19 +120,22 @@ const EmployerEventDetails = () => {
         endTime: formData.endTime,
         venue: formData.venue,
         coordinator: formData.coordinator,
-        status: formData.status
+        status: formData.status,
       };
 
-      const response = await fetch(`https://edujobzbackend.onrender.com/employer/updateevent/${eventId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedEventData)
-      });
+      const response = await fetch(
+        `https://api.edprofio.com/employer/updateevent/${eventId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedEventData),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to update event');
+        throw new Error("Failed to update event");
       }
 
       const updatedEvent = await response.json();
@@ -129,10 +143,10 @@ const EmployerEventDetails = () => {
       setShowEditModal(false);
 
       // Update the form data with the new values
-      const [newDay, newMonth, newYear] = updatedEvent.eventDate.split('/');
+      const [newDay, newMonth, newYear] = updatedEvent.eventDate.split("/");
       const newFormattedDate = `${newYear}-${newMonth}-${newDay}`;
 
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         title: updatedEvent.title,
         category: updatedEvent.category,
@@ -142,54 +156,64 @@ const EmployerEventDetails = () => {
         endTime: updatedEvent.endTime,
         venue: updatedEvent.venue,
         status: updatedEvent.status,
-        coordinator: updatedEvent.coordinator
+        coordinator: updatedEvent.coordinator,
       }));
 
       // Show success toast
       setToast({
         show: true,
-        message: 'Event updated successfully',
-        type: 'success'
+        message: "Event updated successfully",
+        type: "success",
       });
 
       // Hide toast after 3 seconds
       setTimeout(() => {
         setToast({ ...toast, show: false });
       }, 3000);
-
     } catch (err) {
       setError(err.message);
       setToast({
         show: true,
         message: err.message,
-        type: 'error'
+        type: "error",
       });
     }
   };
 
-  if (loading) return (
-    <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-      <div className="spinner-border text-primary" role="status">
-        <span className="visually-hidden">Loading...</span>
+  if (loading)
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "100vh" }}
+      >
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
       </div>
-    </div>
-  );
+    );
 
-  if (error) return (
-    <div className="alert alert-danger m-3">
-      Error: {error}
-      <button className="btn btn-sm btn-outline-danger ms-2" onClick={() => window.location.reload()}>
-        Retry
-      </button>
-    </div>
-  );
+  if (error)
+    return (
+      <div className="alert alert-danger m-3">
+        Error: {error}
+        <button
+          className="btn btn-sm btn-outline-danger ms-2"
+          onClick={() => window.location.reload()}
+        >
+          Retry
+        </button>
+      </div>
+    );
 
-  if (!event) return <div className="alert alert-warning m-3">Event not found</div>;
+  if (!event)
+    return <div className="alert alert-warning m-3">Event not found</div>;
 
   return (
     <>
       <EmployerHeader />
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+      >
         <div className="content">
           {/* Breadcrumb */}
           <div className="d-md-flex d-block align-items-center justify-content-between mb-3 p-3">
@@ -212,7 +236,8 @@ const EmployerEventDetails = () => {
                   <h5 className="text-primary fw-medium">Event Category</h5>
                   <div className="d-flex align-items-center">
                     <span className="badge bg-secondary me-3 d-flex align-items-center">
-                      <Circle className="fs-5 me-1" size={12} /> {event.category}
+                      <Circle className="fs-5 me-1" size={12} />{" "}
+                      {event.category}
                     </span>
                     <div className="dropdown">
                       <button className="dropdown-toggle px-2 py-1 btn btn-white d-inline-flex align-items-center">
@@ -236,20 +261,32 @@ const EmployerEventDetails = () => {
                               {event.title}
                             </h5>
                             <span className="badge bg-outline-pink d-flex align-items-center ms-1">
-                              <Circle className="fs-5 me-1" size={12} /> {event.status}
+                              <Circle className="fs-5 me-1" size={12} />{" "}
+                              {event.status}
                             </span>
                           </div>
                           <div className="d-flex align-items-center flex-wrap row-gap-2">
                             <p className="d-flex align-items-center mb-0 me-2">
-                              <MapPin className="text-primary me-1" size={14} /> Location
-                              <span className="text-dark ms-1">{event.venue}</span>
-                            </p> &nbsp; | &nbsp;
+                              <MapPin className="text-primary me-1" size={14} />{" "}
+                              Location
+                              <span className="text-dark ms-1">
+                                {event.venue}
+                              </span>
+                            </p>{" "}
+                            &nbsp; | &nbsp;
                             <p className="d-flex align-items-center mb-0 me-2">
-                              <Calendar className="text-primary me-1" size={14} />
+                              <Calendar
+                                className="text-primary me-1"
+                                size={14}
+                              />
                               {formatDate(parseDate(event.eventDate))}
-                            </p> &nbsp; | &nbsp;
+                            </p>{" "}
+                            &nbsp; | &nbsp;
                             <p className="d-flex align-items-center mb-0">
-                              <MessageCircleCode className="text-primary me-1" size={14} />
+                              <MessageCircleCode
+                                className="text-primary me-1"
+                                size={14}
+                              />
                               {event.totalRegistrations || 0} Participants
                             </p>
                           </div>
@@ -288,29 +325,41 @@ const EmployerEventDetails = () => {
                             <User size={20} />
                           </span>
                           <div>
-                            <h6 className="fw-medium mb-1">{event.coordinator}</h6>
+                            <h6 className="fw-medium mb-1">
+                              {event.coordinator}
+                            </h6>
                             <p>
                               <Calendar className="me-1" size={14} />
-                              Created on {new Date(event.createdAt).toLocaleDateString('en-GB')}
+                              Created on{" "}
+                              {new Date(event.createdAt).toLocaleDateString(
+                                "en-GB"
+                              )}
                             </p>
                           </div>
                         </div>
                         <div>
                           <div className="mb-3">
-                            <p>For any queries, please contact the event coordinator.</p>
+                            <p>
+                              For any queries, please contact the event
+                              coordinator.
+                            </p>
                           </div>
-                          {event.registrations && event.registrations.length > 0 && (
-                            <div className="mb-3">
-                              <h6>Registrations:</h6>
-                              <ul className="list-group">
-                                {event.registrations.map(reg => (
-                                  <li key={reg._id} className="list-group-item">
-                                    {reg.participantName} - {reg.status}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
+                          {event.registrations &&
+                            event.registrations.length > 0 && (
+                              <div className="mb-3">
+                                <h6>Registrations:</h6>
+                                <ul className="list-group">
+                                  {event.registrations.map((reg) => (
+                                    <li
+                                      key={reg._id}
+                                      className="list-group-item"
+                                    >
+                                      {reg.participantName} - {reg.status}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
                         </div>
                       </div>
                     </div>
@@ -382,15 +431,17 @@ const EmployerEventDetails = () => {
                   </div>
                   <div className="border-bottom p-3">
                     <span className="fs-12">Time</span>
-                    <p className="text-dark">{event.startTime} - {event.endTime}</p>
+                    <p className="text-dark">
+                      {event.startTime} - {event.endTime}
+                    </p>
                   </div>
                   <div className="p-3">
                     <span className="fs-12">Last Updated</span>
                     <p className="text-dark">
-                      {new Date(event.updatedAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
+                      {new Date(event.updatedAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
                       })}
                     </p>
                   </div>
@@ -405,17 +456,20 @@ const EmployerEventDetails = () => {
           <div
             className="modal fade show"
             style={{
-              display: 'block',
-              backgroundColor: 'rgba(0,0,0,0.5)',
-              position: 'fixed',
+              display: "block",
+              backgroundColor: "rgba(0,0,0,0.5)",
+              position: "fixed",
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              zIndex: 1050
+              zIndex: 1050,
             }}
           >
-            <div className="modal-dialog modal-dialog-centered modal-lg" style={{ zIndex: 1051 }}>
+            <div
+              className="modal-dialog modal-dialog-centered modal-lg"
+              style={{ zIndex: 1051 }}
+            >
               <div className="modal-content">
                 <div className="modal-header">
                   <h4 className="modal-title">Edit Event</h4>
@@ -454,7 +508,9 @@ const EmployerEventDetails = () => {
                             <option value="">Select</option>
                             <option value="Workshop">Workshop</option>
                             <option value="Seminar">Seminar</option>
-                            <option value="Online Webinar">Online Webinar</option>
+                            <option value="Online Webinar">
+                              Online Webinar
+                            </option>
                             <option value="Conference">Conference</option>
                             <option value="Campus Drive">Campus Drive</option>
                           </select>
@@ -512,7 +568,9 @@ const EmployerEventDetails = () => {
                           />
                         </div>
                         <div className="mb-3">
-                          <label className="form-label">Event Coordinator</label>
+                          <label className="form-label">
+                            Event Coordinator
+                          </label>
                           <input
                             type="text"
                             className="form-control"
@@ -523,7 +581,9 @@ const EmployerEventDetails = () => {
                           />
                         </div>
                         <div className="mb-3">
-                          <label className="form-label">Event Description</label>
+                          <label className="form-label">
+                            Event Description
+                          </label>
                           <textarea
                             className="form-control"
                             rows="5"
@@ -571,7 +631,9 @@ const EmployerEventDetails = () => {
         )}
         {toast.show && (
           <div
-            className={`toast show position-fixed top-0 end-0 m-3 ${toast.type === 'success' ? 'bg-success' : 'bg-danger'}`}
+            className={`toast show position-fixed top-0 end-0 m-3 ${
+              toast.type === "success" ? "bg-success" : "bg-danger"
+            }`}
             style={{ zIndex: 1100 }}
           >
             <div className="toast-body text-white d-flex justify-content-between align-items-center">

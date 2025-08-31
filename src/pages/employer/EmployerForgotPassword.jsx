@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 // Import images
-import logo from '../../assets/employer/assets/img/logo.svg';
-import bg1 from '../../assets/employer/assets/img/bg/bg-01.webp';
-import bg2 from '../../assets/employer/assets/img/bg/bg-02.png';
-import bg3 from '../../assets/employer/assets/img/bg/bg-03.webp';
-import authBg from '../../assets/employer/assets/img/bg/authentication-bg-04.svg';
+import logo from "../../assets/employer/assets/img/logo.svg";
+import bg1 from "../../assets/employer/assets/img/bg/bg-01.webp";
+import bg2 from "../../assets/employer/assets/img/bg/bg-02.png";
+import bg3 from "../../assets/employer/assets/img/bg/bg-03.webp";
+import authBg from "../../assets/employer/assets/img/bg/authentication-bg-04.svg";
 
 const EmployerForgotPassword = () => {
   const navigate = useNavigate();
@@ -15,72 +15,74 @@ const EmployerForgotPassword = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [formData, setFormData] = useState({
-    userMobile: ''
+    userMobile: "",
   });
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
+
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: null
+        [name]: null,
       }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.userMobile) {
-      newErrors.userMobile = 'Mobile number is required';
+      newErrors.userMobile = "Mobile number is required";
     } else if (!/^\d{10}$/.test(formData.userMobile)) {
-      newErrors.userMobile = 'Please enter a valid 10-digit mobile number';
+      newErrors.userMobile = "Please enter a valid 10-digit mobile number";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsLoading(true);
     setError(null);
     setSuccess(null);
-    
+
     try {
       const response = await axios.post(
-        'https://edujobzbackend.onrender.com/employer/employerforgotpassword',
+        "https://api.edprofio.com/employer/employerforgotpassword",
         {
-          userMobile: formData.userMobile
+          userMobile: formData.userMobile,
         }
       );
-      
+
       if (response.data.message === "OTP sent successfully") {
-        setSuccess('OTP has been sent to your mobile number');
+        setSuccess("OTP has been sent to your mobile number");
         // Navigate to OTP verification page with the mobile number
-        navigate('/employer/verify-otp', { state: { mobile: formData.userMobile, otp: response.data.otp } });
+        navigate("/employer/verify-otp", {
+          state: { mobile: formData.userMobile, otp: response.data.otp },
+        });
       } else {
-        setError(response.data.message || 'Failed to send OTP');
+        setError(response.data.message || "Failed to send OTP");
       }
     } catch (err) {
-      console.error('Forgot password error:', err);
+      console.error("Forgot password error:", err);
       if (err.response) {
         if (err.response.status === 404) {
-          setError('User not found with the provided mobile number');
+          setError("User not found with the provided mobile number");
         } else {
-          setError(err.response.data.message || 'Failed to send OTP');
+          setError(err.response.data.message || "Failed to send OTP");
         }
       } else {
-        setError('Network error. Please try again.');
+        setError("Network error. Please try again.");
       }
     } finally {
       setIsLoading(false);
@@ -103,7 +105,10 @@ const EmployerForgotPassword = () => {
                   </div>
                   <div className="authentication-card w-100">
                     <div className="authen-overlay-item border w-100">
-                      <h1 className="text-white display-1" style={{ textAlign: 'center' }}>
+                      <h1
+                        className="text-white display-1"
+                        style={{ textAlign: "center" }}
+                      >
                         Empowering Schools through seamless Staff management.
                       </h1>
                       <div className="my-4 mx-auto authen-overlay-img">
@@ -111,7 +116,8 @@ const EmployerForgotPassword = () => {
                       </div>
                       <div>
                         <p className="text-white fs-20 fw-semibold text-center">
-                          Efficiently manage your workforce, streamline <br /> operations effortlessly.
+                          Efficiently manage your workforce, streamline <br />{" "}
+                          operations effortlessly.
                         </p>
                       </div>
                     </div>
@@ -124,12 +130,20 @@ const EmployerForgotPassword = () => {
                     <form onSubmit={handleSubmit} className="vh-100">
                       <div className="vh-100 d-flex flex-column justify-content-between p-4">
                         <div className="mx-auto mb-4 text-center">
-                          <img src={logo} width="240px" className="img-fluid" alt="Logo" />
+                          <img
+                            src={logo}
+                            width="240px"
+                            className="img-fluid"
+                            alt="Logo"
+                          />
                         </div>
                         <div>
                           <div className="text-center mb-3">
                             <h2 className="mb-2">Forgot Password?</h2>
-                            <p className="mb-0">If you forgot your password, we'll send an OTP to your mobile number to reset your password.</p>
+                            <p className="mb-0">
+                              If you forgot your password, we'll send an OTP to
+                              your mobile number to reset your password.
+                            </p>
                           </div>
 
                           {error && (
@@ -152,14 +166,20 @@ const EmployerForgotPassword = () => {
                                 name="userMobile"
                                 value={formData.userMobile}
                                 onChange={handleChange}
-                                className={`form-control border-end-0 ${errors.userMobile ? 'is-invalid' : ''}`}
+                                className={`form-control border-end-0 ${
+                                  errors.userMobile ? "is-invalid" : ""
+                                }`}
                                 placeholder="Enter your registered mobile number"
                                 maxLength="10"
                               />
                               <span className="input-group-text border-start-0">
                                 <i className="ti ti-phone"></i>
                               </span>
-                              {errors.userMobile && <div className="invalid-feedback">{errors.userMobile}</div>}
+                              {errors.userMobile && (
+                                <div className="invalid-feedback">
+                                  {errors.userMobile}
+                                </div>
+                              )}
                             </div>
                           </div>
                           <div className="mb-3">
@@ -170,20 +190,32 @@ const EmployerForgotPassword = () => {
                             >
                               {isLoading ? (
                                 <>
-                                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                  <span
+                                    className="spinner-border spinner-border-sm me-2"
+                                    role="status"
+                                    aria-hidden="true"
+                                  ></span>
                                   Sending OTP...
                                 </>
-                              ) : 'Send OTP'}
+                              ) : (
+                                "Send OTP"
+                              )}
                             </button>
                           </div>
                           <div className="text-center">
-                            <h6 className="fw-normal text-dark mb-0">Return to
-                              <Link to="/employer/login" className="hover-a"> Sign In</Link>
+                            <h6 className="fw-normal text-dark mb-0">
+                              Return to
+                              <Link to="/employer/login" className="hover-a">
+                                {" "}
+                                Sign In
+                              </Link>
                             </h6>
                           </div>
                         </div>
                         <div className="mt-5 pb-4 text-center">
-                          <p className="mb-0 text-gray-9">Copyright &copy; 2025 - EduJobz</p>
+                          <p className="mb-0 text-gray-9">
+                            Copyright &copy; 2025 - EduJobz
+                          </p>
                         </div>
                       </div>
                     </form>

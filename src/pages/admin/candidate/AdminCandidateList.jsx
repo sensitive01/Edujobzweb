@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AddCandidateModal from '../addcandidatemodal/AddCandidateModal';
-import EditCandidateModal from '../addcandidatemodal/EditCandidatemodal';
-import defaultEmployeeReport from '../../../assets/employer-admin/assets/img/reports-img/employee-report-icon.svg';
-import defaultEmployeesuccess from '../../../assets/employer-admin/assets/img/reports-img/employee-report-success.svg';
-import defaultEmployeeinfo from '../../../assets/employer-admin/assets/img/reports-img/employee-report-info.svg';
-import defaultEmployeedanger from '../../../assets/employer-admin/assets/img/reports-img/employee-report-danger.svg';
-import user13 from '../../../assets/employer-admin/assets/img/users/user-13.jpg';
-import AdminFooter from '../layout/AdminFooter';
-import AdminHeader from '../layout/AdminHeader';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import AddCandidateModal from "../addcandidatemodal/AddCandidateModal";
+import EditCandidateModal from "../addcandidatemodal/EditCandidatemodal";
+import defaultEmployeeReport from "../../../assets/employer-admin/assets/img/reports-img/employee-report-icon.svg";
+import defaultEmployeesuccess from "../../../assets/employer-admin/assets/img/reports-img/employee-report-success.svg";
+import defaultEmployeeinfo from "../../../assets/employer-admin/assets/img/reports-img/employee-report-info.svg";
+import defaultEmployeedanger from "../../../assets/employer-admin/assets/img/reports-img/employee-report-danger.svg";
+import user13 from "../../../assets/employer-admin/assets/img/users/user-13.jpg";
+import AdminFooter from "../layout/AdminFooter";
+import AdminHeader from "../layout/AdminHeader";
 
 const AdminCandidateList = () => {
   const navigate = useNavigate();
@@ -16,11 +16,11 @@ const AdminCandidateList = () => {
   const [filteredCandidates, setFilteredCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedRole, setSelectedRole] = useState('All');
-  const [selectedStatus, setSelectedStatus] = useState('All');
-  const [sortBy, setSortBy] = useState('Last 7 Days');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedYear, setSelectedYear] = useState('This Year');
+  const [selectedRole, setSelectedRole] = useState("All");
+  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [sortBy, setSortBy] = useState("Last 7 Days");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedYear, setSelectedYear] = useState("This Year");
   const [selectedCandidates, setSelectedCandidates] = useState([]);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -33,16 +33,16 @@ const AdminCandidateList = () => {
   // Dynamic filter states
   const [jobCategories, setJobCategories] = useState({});
   const [jobTypes, setJobTypes] = useState({});
-  const [gender, setGender] = useState('All');
-  const [salaryRange, setSalaryRange] = useState({ min: '', max: '' });
-  const [location, setLocation] = useState('');
-  const [qualification, setQualification] = useState('');
-  const [experienceRange, setExperienceRange] = useState({ min: '', max: '' });
+  const [gender, setGender] = useState("All");
+  const [salaryRange, setSalaryRange] = useState({ min: "", max: "" });
+  const [location, setLocation] = useState("");
+  const [qualification, setQualification] = useState("");
+  const [experienceRange, setExperienceRange] = useState({ min: "", max: "" });
   const [dateRange, setDateRange] = useState({
-    start: '',
-    end: ''
+    start: "",
+    end: "",
   });
-  const [selectedDateRange, setSelectedDateRange] = useState('This Year');
+  const [selectedDateRange, setSelectedDateRange] = useState("This Year");
   const [showDateDropdown, setShowDateDropdown] = useState(false);
 
   const getDynamicDateRangeOptions = () => {
@@ -53,58 +53,80 @@ const AdminCandidateList = () => {
 
     return [
       {
-        label: 'Today',
-        value: 'today',
-        dateLabel: `${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`
+        label: "Today",
+        value: "today",
+        dateLabel: `${currentDate.toString().padStart(2, "0")}/${currentMonth
+          .toString()
+          .padStart(2, "0")}/${currentYear}`,
       },
       {
-        label: 'Yesterday',
-        value: 'yesterday',
+        label: "Yesterday",
+        value: "yesterday",
         dateLabel: (() => {
           const yesterday = new Date(today);
           yesterday.setDate(yesterday.getDate() - 1);
-          return `${yesterday.getDate().toString().padStart(2, '0')}/${(yesterday.getMonth() + 1).toString().padStart(2, '0')}/${yesterday.getFullYear()}`;
-        })()
+          return `${yesterday.getDate().toString().padStart(2, "0")}/${(
+            yesterday.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${yesterday.getFullYear()}`;
+        })(),
       },
       {
-        label: 'Last 7 Days',
-        value: 'last7days',
+        label: "Last 7 Days",
+        value: "last7days",
         dateLabel: (() => {
           const week = new Date(today);
           week.setDate(week.getDate() - 7);
-          return `${week.getDate().toString().padStart(2, '0')}/${(week.getMonth() + 1).toString().padStart(2, '0')}/${week.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
-        })()
+          return `${week.getDate().toString().padStart(2, "0")}/${(
+            week.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${week.getFullYear()} - ${currentDate
+            .toString()
+            .padStart(2, "0")}/${currentMonth
+            .toString()
+            .padStart(2, "0")}/${currentYear}`;
+        })(),
       },
       {
-        label: 'Last 30 Days',
-        value: 'last30days',
+        label: "Last 30 Days",
+        value: "last30days",
         dateLabel: (() => {
           const month = new Date(today);
           month.setDate(month.getDate() - 30);
-          return `${month.getDate().toString().padStart(2, '0')}/${(month.getMonth() + 1).toString().padStart(2, '0')}/${month.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
-        })()
+          return `${month.getDate().toString().padStart(2, "0")}/${(
+            month.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${month.getFullYear()} - ${currentDate
+            .toString()
+            .padStart(2, "0")}/${currentMonth
+            .toString()
+            .padStart(2, "0")}/${currentYear}`;
+        })(),
       },
       {
-        label: 'This Year',
-        value: 'thisyear',
-        dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`
+        label: "This Year",
+        value: "thisyear",
+        dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`,
       },
       {
-        label: 'Last Year',
-        value: 'lastyear',
-        dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`
+        label: "Last Year",
+        value: "lastyear",
+        dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`,
       },
       {
-        label: 'Custom Range',
-        value: 'custom',
-        dateLabel: 'Select dates'
-      }
+        label: "Custom Range",
+        value: "custom",
+        dateLabel: "Select dates",
+      },
     ];
   };
 
   const handleDateRangeSelect = (option) => {
-    if (option.value === 'custom') {
-      setSelectedDateRange('Custom Range');
+    if (option.value === "custom") {
+      setSelectedDateRange("Custom Range");
       return;
     }
 
@@ -113,31 +135,31 @@ const AdminCandidateList = () => {
     let startDate, endDate;
 
     switch (option.value) {
-      case 'today':
-        startDate = endDate = today.toISOString().split('T')[0];
+      case "today":
+        startDate = endDate = today.toISOString().split("T")[0];
         break;
-      case 'yesterday':
+      case "yesterday":
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
-        startDate = endDate = yesterday.toISOString().split('T')[0];
+        startDate = endDate = yesterday.toISOString().split("T")[0];
         break;
-      case 'last7days':
+      case "last7days":
         const week = new Date(today);
         week.setDate(week.getDate() - 7);
-        startDate = week.toISOString().split('T')[0];
-        endDate = today.toISOString().split('T')[0];
+        startDate = week.toISOString().split("T")[0];
+        endDate = today.toISOString().split("T")[0];
         break;
-      case 'last30days':
+      case "last30days":
         const month = new Date(today);
         month.setDate(month.getDate() - 30);
-        startDate = month.toISOString().split('T')[0];
-        endDate = today.toISOString().split('T')[0];
+        startDate = month.toISOString().split("T")[0];
+        endDate = today.toISOString().split("T")[0];
         break;
-      case 'thisyear':
+      case "thisyear":
         startDate = `${today.getFullYear()}-01-01`;
         endDate = `${today.getFullYear()}-12-31`;
         break;
-      case 'lastyear':
+      case "lastyear":
         startDate = `${today.getFullYear() - 1}-01-01`;
         endDate = `${today.getFullYear() - 1}-12-31`;
         break;
@@ -152,17 +174,19 @@ const AdminCandidateList = () => {
     const fetchCandidates = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://edujobzbackend.onrender.com/fetchallemployee');
+        const response = await fetch(
+          "https://api.edprofio.com/fetchallemployee"
+        );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch candidates');
+          throw new Error("Failed to fetch candidates");
         }
 
         const data = await response.json();
         setCandidates(data || []);
         setFilteredCandidates(data || []);
       } catch (err) {
-        console.error('Fetch error:', err);
+        console.error("Fetch error:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -176,8 +200,8 @@ const AdminCandidateList = () => {
   useEffect(() => {
     if (candidates.length > 0) {
       // Get unique specializations (as job categories)
-      const categories = [...new Set(
-        candidates.map(c => c.specialization).filter(Boolean))
+      const categories = [
+        ...new Set(candidates.map((c) => c.specialization).filter(Boolean)),
       ];
       const initialCategories = categories.reduce((acc, category) => {
         acc[category] = false;
@@ -185,9 +209,9 @@ const AdminCandidateList = () => {
       }, {});
 
       // Get unique job types (using gradeLevels as job types)
-      const types = [...new Set(
-        candidates.flatMap(c => c.gradeLevels).filter(Boolean)
-      )];
+      const types = [
+        ...new Set(candidates.flatMap((c) => c.gradeLevels).filter(Boolean)),
+      ];
       const initialTypes = types.reduce((acc, type) => {
         acc[type] = false;
         return acc;
@@ -210,7 +234,7 @@ const AdminCandidateList = () => {
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
 
-      filtered = filtered.filter(candidate => {
+      filtered = filtered.filter((candidate) => {
         if (!candidate.createdAt) return false;
         const createdDate = new Date(candidate.createdAt);
         return createdDate >= startDate && createdDate <= endDate;
@@ -218,49 +242,60 @@ const AdminCandidateList = () => {
     }
 
     // Role filter (using specialization as role)
-    if (selectedRole !== 'All') {
-      filtered = filtered.filter(candidate => candidate.specialization === selectedRole);
+    if (selectedRole !== "All") {
+      filtered = filtered.filter(
+        (candidate) => candidate.specialization === selectedRole
+      );
     }
 
     // Status filter (using verificationstatus as status)
-    if (selectedStatus !== 'All') {
-      filtered = filtered.filter(candidate => candidate.verificationstatus === selectedStatus);
+    if (selectedStatus !== "All") {
+      filtered = filtered.filter(
+        (candidate) => candidate.verificationstatus === selectedStatus
+      );
     }
 
     // Search term filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(candidate =>
-        candidate.userName?.toLowerCase().includes(term) ||
-        candidate.userEmail?.toLowerCase().includes(term) ||
-        candidate.specialization?.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (candidate) =>
+          candidate.userName?.toLowerCase().includes(term) ||
+          candidate.userEmail?.toLowerCase().includes(term) ||
+          candidate.specialization?.toLowerCase().includes(term)
       );
     }
 
     // Job Category filter (using specialization as category)
-    const selectedCategories = Object.keys(jobCategories).filter(cat => jobCategories[cat]);
+    const selectedCategories = Object.keys(jobCategories).filter(
+      (cat) => jobCategories[cat]
+    );
     if (selectedCategories.length > 0) {
-      filtered = filtered.filter(candidate =>
+      filtered = filtered.filter((candidate) =>
         selectedCategories.includes(candidate.specialization)
       );
     }
 
     // Job Type filter (using gradeLevels as job types)
-    const selectedJobTypes = Object.keys(jobTypes).filter(type => jobTypes[type]);
+    const selectedJobTypes = Object.keys(jobTypes).filter(
+      (type) => jobTypes[type]
+    );
     if (selectedJobTypes.length > 0) {
-      filtered = filtered.filter(candidate =>
-        candidate.gradeLevels && candidate.gradeLevels.some(type => selectedJobTypes.includes(type))
+      filtered = filtered.filter(
+        (candidate) =>
+          candidate.gradeLevels &&
+          candidate.gradeLevels.some((type) => selectedJobTypes.includes(type))
       );
     }
 
     // Gender filter
-    if (gender !== 'All') {
-      filtered = filtered.filter(candidate => candidate.gender === gender);
+    if (gender !== "All") {
+      filtered = filtered.filter((candidate) => candidate.gender === gender);
     }
 
     // Salary Range filter (using expectedSalary)
     if (salaryRange.min || salaryRange.max) {
-      filtered = filtered.filter(candidate => {
+      filtered = filtered.filter((candidate) => {
         const candidateSalary = candidate.expectedSalary || 0;
         const min = salaryRange.min ? parseInt(salaryRange.min) : 0;
         const max = salaryRange.max ? parseInt(salaryRange.max) : Infinity;
@@ -270,26 +305,30 @@ const AdminCandidateList = () => {
 
     // Location filter (using currentCity)
     if (location) {
-      filtered = filtered.filter(candidate =>
+      filtered = filtered.filter((candidate) =>
         candidate.currentCity?.toLowerCase().includes(location.toLowerCase())
       );
     }
 
     // Qualification filter (using education degree)
     if (qualification) {
-      filtered = filtered.filter(candidate =>
-        candidate.education && candidate.education.some(edu =>
-          edu.degree?.toLowerCase().includes(qualification.toLowerCase())
-        )
+      filtered = filtered.filter(
+        (candidate) =>
+          candidate.education &&
+          candidate.education.some((edu) =>
+            edu.degree?.toLowerCase().includes(qualification.toLowerCase())
+          )
       );
     }
 
     // Experience Range filter (using totalExperience)
     if (experienceRange.min || experienceRange.max) {
-      filtered = filtered.filter(candidate => {
+      filtered = filtered.filter((candidate) => {
         const candidateExp = candidate.totalExperience || 0;
         const min = experienceRange.min ? parseInt(experienceRange.min) : 0;
-        const max = experienceRange.max ? parseInt(experienceRange.max) : Infinity;
+        const max = experienceRange.max
+          ? parseInt(experienceRange.max)
+          : Infinity;
         return candidateExp >= min && candidateExp <= max;
       });
     }
@@ -301,10 +340,13 @@ const AdminCandidateList = () => {
   // Reset all filters
   const resetFilters = () => {
     // Reset job categories
-    const resetCategories = Object.keys(jobCategories).reduce((acc, category) => {
-      acc[category] = false;
-      return acc;
-    }, {});
+    const resetCategories = Object.keys(jobCategories).reduce(
+      (acc, category) => {
+        acc[category] = false;
+        return acc;
+      },
+      {}
+    );
 
     // Reset job types
     const resetTypes = Object.keys(jobTypes).reduce((acc, type) => {
@@ -314,29 +356,29 @@ const AdminCandidateList = () => {
 
     setJobCategories(resetCategories);
     setJobTypes(resetTypes);
-    setGender('All');
-    setSalaryRange({ min: '', max: '' });
-    setLocation('');
-    setQualification('');
-    setExperienceRange({ min: '', max: '' });
-    setDateRange({ start: '', end: '' });
-    setSelectedDateRange('This Year');
+    setGender("All");
+    setSalaryRange({ min: "", max: "" });
+    setLocation("");
+    setQualification("");
+    setExperienceRange({ min: "", max: "" });
+    setDateRange({ start: "", end: "" });
+    setSelectedDateRange("This Year");
     setFilteredCandidates(candidates);
   };
 
   // Handle job category checkbox change
   const handleJobCategoryChange = (category) => {
-    setJobCategories(prev => ({
+    setJobCategories((prev) => ({
       ...prev,
-      [category]: !prev[category]
+      [category]: !prev[category],
     }));
   };
 
   // Handle job type checkbox change
   const handleJobTypeChange = (type) => {
-    setJobTypes(prev => ({
+    setJobTypes((prev) => ({
       ...prev,
-      [type]: !prev[type]
+      [type]: !prev[type],
     }));
   };
 
@@ -359,20 +401,25 @@ const AdminCandidateList = () => {
   const filterCandidates = (role, status, searchTerm) => {
     let filtered = [...candidates];
 
-    if (role !== 'All') {
-      filtered = filtered.filter(candidate => candidate.specialization === role);
+    if (role !== "All") {
+      filtered = filtered.filter(
+        (candidate) => candidate.specialization === role
+      );
     }
 
-    if (status !== 'All') {
-      filtered = filtered.filter(candidate => candidate.verificationstatus === status);
+    if (status !== "All") {
+      filtered = filtered.filter(
+        (candidate) => candidate.verificationstatus === status
+      );
     }
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(candidate =>
-        candidate.userName?.toLowerCase().includes(term) ||
-        candidate.userEmail?.toLowerCase().includes(term) ||
-        candidate.specialization?.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (candidate) =>
+          candidate.userName?.toLowerCase().includes(term) ||
+          candidate.userEmail?.toLowerCase().includes(term) ||
+          candidate.specialization?.toLowerCase().includes(term)
       );
     }
 
@@ -381,7 +428,9 @@ const AdminCandidateList = () => {
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedCandidates(filteredCandidates.map(candidate => candidate._id));
+      setSelectedCandidates(
+        filteredCandidates.map((candidate) => candidate._id)
+      );
     } else {
       setSelectedCandidates([]);
     }
@@ -389,7 +438,9 @@ const AdminCandidateList = () => {
 
   const handleSelectCandidate = (candidateId) => {
     if (selectedCandidates.includes(candidateId)) {
-      setSelectedCandidates(selectedCandidates.filter(id => id !== candidateId));
+      setSelectedCandidates(
+        selectedCandidates.filter((id) => id !== candidateId)
+      );
     } else {
       setSelectedCandidates([...selectedCandidates, candidateId]);
     }
@@ -404,22 +455,26 @@ const AdminCandidateList = () => {
     try {
       if (candidateToDelete) {
         const response = await fetch(
-          `https://edujobzbackend.onrender.com/deleteemployee/${candidateToDelete._id}`,
+          `https://api.edprofio.com/deleteemployee/${candidateToDelete._id}`,
           {
-            method: 'DELETE'
+            method: "DELETE",
           }
         );
 
         if (!response.ok) {
-          throw new Error('Failed to delete candidate');
+          throw new Error("Failed to delete candidate");
         }
 
         // Remove the deleted candidate from state
-        setCandidates(candidates.filter(c => c._id !== candidateToDelete._id));
-        setFilteredCandidates(filteredCandidates.filter(c => c._id !== candidateToDelete._id));
+        setCandidates(
+          candidates.filter((c) => c._id !== candidateToDelete._id)
+        );
+        setFilteredCandidates(
+          filteredCandidates.filter((c) => c._id !== candidateToDelete._id)
+        );
       }
     } catch (err) {
-      console.error('Delete error:', err);
+      console.error("Delete error:", err);
       setError(err.message);
     } finally {
       setShowDeleteModal(false);
@@ -429,76 +484,82 @@ const AdminCandidateList = () => {
 
   const handleBlockStatusToggle = async (candidateId, currentStatus) => {
     try {
-      const newStatus = currentStatus === 'block' ? 'unblock' : 'block';
+      const newStatus = currentStatus === "block" ? "unblock" : "block";
 
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/admin/updateblockstatusemploye/${candidateId}`,
+        `https://api.edprofio.com/admin/updateblockstatusemploye/${candidateId}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ blockstatus: newStatus })
+          body: JSON.stringify({ blockstatus: newStatus }),
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to update block status');
+        throw new Error("Failed to update block status");
       }
 
       // Update the local state
-      setCandidates(candidates.map(candidate =>
-        candidate._id === candidateId
-          ? { ...candidate, blockstatus: newStatus }
-          : candidate
-      ));
+      setCandidates(
+        candidates.map((candidate) =>
+          candidate._id === candidateId
+            ? { ...candidate, blockstatus: newStatus }
+            : candidate
+        )
+      );
 
-      setFilteredCandidates(filteredCandidates.map(candidate =>
-        candidate._id === candidateId
-          ? { ...candidate, blockstatus: newStatus }
-          : candidate
-      ));
-
+      setFilteredCandidates(
+        filteredCandidates.map((candidate) =>
+          candidate._id === candidateId
+            ? { ...candidate, blockstatus: newStatus }
+            : candidate
+        )
+      );
     } catch (err) {
-      console.error('Error updating block status:', err);
+      console.error("Error updating block status:", err);
       setError(err.message);
     }
   };
 
   const handleVerificationStatusToggle = async (candidateId, currentStatus) => {
     try {
-      const newStatus = currentStatus === 'approved' ? 'pending' : 'approved';
+      const newStatus = currentStatus === "approved" ? "pending" : "approved";
 
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/admin/approveemployee/${candidateId}`,
+        `https://api.edprofio.com/admin/approveemployee/${candidateId}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ verificationstatus: newStatus })
+          body: JSON.stringify({ verificationstatus: newStatus }),
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to update verification status');
+        throw new Error("Failed to update verification status");
       }
 
       // Update the local state
-      setCandidates(candidates.map(candidate =>
-        candidate._id === candidateId
-          ? { ...candidate, verificationstatus: newStatus }
-          : candidate
-      ));
+      setCandidates(
+        candidates.map((candidate) =>
+          candidate._id === candidateId
+            ? { ...candidate, verificationstatus: newStatus }
+            : candidate
+        )
+      );
 
-      setFilteredCandidates(filteredCandidates.map(candidate =>
-        candidate._id === candidateId
-          ? { ...candidate, verificationstatus: newStatus }
-          : candidate
-      ));
-
+      setFilteredCandidates(
+        filteredCandidates.map((candidate) =>
+          candidate._id === candidateId
+            ? { ...candidate, verificationstatus: newStatus }
+            : candidate
+        )
+      );
     } catch (err) {
-      console.error('Error updating verification status:', err);
+      console.error("Error updating verification status:", err);
       setError(err.message);
     }
   };
@@ -510,14 +571,14 @@ const AdminCandidateList = () => {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'approved':
-        return 'border border-success text-success';
-      case 'pending':
-        return 'border border-warning text-warning';
-      case 'rejected':
-        return 'border border-danger text-danger';
+      case "approved":
+        return "border border-success text-success";
+      case "pending":
+        return "border border-warning text-warning";
+      case "rejected":
+        return "border border-danger text-danger";
       default:
-        return 'border border-purple text-purple';
+        return "border border-purple text-purple";
     }
   };
   useEffect(() => {
@@ -525,32 +586,32 @@ const AdminCandidateList = () => {
   }, [selectedRole, selectedStatus, searchTerm, dateRange]);
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   };
 
   const handleExport = (type) => {
     // Prepare data for export
-    const exportData = filteredCandidates.map(candidate => ({
+    const exportData = filteredCandidates.map((candidate) => ({
       ID: `Cand-${candidate._id.substring(candidate._id.length - 4)}`,
       Name: candidate.userName,
       Email: candidate.userEmail,
       Phone: candidate.userMobile,
-      Specialization: candidate.specialization || 'N/A',
+      Specialization: candidate.specialization || "N/A",
       Experience: `${candidate.totalExperience || 0} years`,
-      Location: candidate.currentCity || 'N/A',
-      Status: candidate.verificationstatus || 'pending',
-      'Created Date': formatDate(candidate.createdAt)
+      Location: candidate.currentCity || "N/A",
+      Status: candidate.verificationstatus || "pending",
+      "Created Date": formatDate(candidate.createdAt),
     }));
 
-    if (type === 'pdf') {
+    if (type === "pdf") {
       // Simple PDF export using browser print
-      const printWindow = window.open('', '_blank');
+      const printWindow = window.open("", "_blank");
       const htmlContent = `
       <html>
         <head>
@@ -566,15 +627,23 @@ const AdminCandidateList = () => {
           <table>
             <thead>
               <tr>
-                ${Object.keys(exportData[0]).map(key => `<th>${key}</th>`).join('')}
+                ${Object.keys(exportData[0])
+                  .map((key) => `<th>${key}</th>`)
+                  .join("")}
               </tr>
             </thead>
             <tbody>
-              ${exportData.map(row => `
+              ${exportData
+                .map(
+                  (row) => `
                 <tr>
-                  ${Object.values(row).map(value => `<td>${value}</td>`).join('')}
+                  ${Object.values(row)
+                    .map((value) => `<td>${value}</td>`)
+                    .join("")}
                 </tr>
-              `).join('')}
+              `
+                )
+                .join("")}
             </tbody>
           </table>
         </body>
@@ -583,19 +652,19 @@ const AdminCandidateList = () => {
       printWindow.document.write(htmlContent);
       printWindow.document.close();
       printWindow.print();
-    } else if (type === 'excel') {
+    } else if (type === "excel") {
       // CSV export (works in Excel)
-      const headers = Object.keys(exportData[0]).join(',');
+      const headers = Object.keys(exportData[0]).join(",");
       const csvContent = [
         headers,
-        ...exportData.map(row => Object.values(row).join(','))
-      ].join('\n');
+        ...exportData.map((row) => Object.values(row).join(",")),
+      ].join("\n");
 
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', 'candidates_export.csv');
+      link.setAttribute("download", "candidates_export.csv");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -617,7 +686,9 @@ const AdminCandidateList = () => {
         {/* Breadcrumb */}
         <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
           <div className="my-auto">
-            <h2>&nbsp; <i className="fa fa-users text-primary"></i> Candidates</h2>
+            <h2>
+              &nbsp; <i className="fa fa-users text-primary"></i> Candidates
+            </h2>
           </div>
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
             <div className="dropdown me-2">
@@ -626,20 +697,22 @@ const AdminCandidateList = () => {
                 onClick={() => setShowDateDropdown(!showDateDropdown)}
               >
                 <i className="ti ti-calendar me-1"></i>
-                {selectedDateRange || 'Select Date Range'}
+                {selectedDateRange || "Select Date Range"}
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${showDateDropdown ? 'show' : ''}`}
-                style={{ minWidth: '280px' }}
+                className={`dropdown-menu dropdown-menu-end p-3 ${
+                  showDateDropdown ? "show" : ""
+                }`}
+                style={{ minWidth: "280px" }}
               >
-                {selectedDateRange === 'Custom Range' ? (
+                {selectedDateRange === "Custom Range" ? (
                   // Custom Range Date Picker View
                   <li className="p-2">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <h6 className="mb-0">Select Date Range</h6>
                       <button
                         className="btn btn-sm btn-outline-secondary"
-                        onClick={() => setSelectedDateRange('')}
+                        onClick={() => setSelectedDateRange("")}
                       >
                         <i className="ti ti-arrow-left"></i> Back
                       </button>
@@ -648,12 +721,14 @@ const AdminCandidateList = () => {
                       <input
                         type="date"
                         className="form-control me-2"
-                        style={{ fontSize: '12px' }}
+                        style={{ fontSize: "12px" }}
                         value={dateRange.start}
                         onChange={(e) => {
                           setDateRange({ ...dateRange, start: e.target.value });
                           if (dateRange.end && e.target.value) {
-                            setSelectedDateRange(`${e.target.value} - ${dateRange.end}`);
+                            setSelectedDateRange(
+                              `${e.target.value} - ${dateRange.end}`
+                            );
                           }
                         }}
                         placeholder="Start Date"
@@ -662,12 +737,14 @@ const AdminCandidateList = () => {
                       <input
                         type="date"
                         className="form-control"
-                        style={{ fontSize: '12px' }}
+                        style={{ fontSize: "12px" }}
                         value={dateRange.end}
                         onChange={(e) => {
                           setDateRange({ ...dateRange, end: e.target.value });
                           if (dateRange.start && e.target.value) {
-                            setSelectedDateRange(`${dateRange.start} - ${e.target.value}`);
+                            setSelectedDateRange(
+                              `${dateRange.start} - ${e.target.value}`
+                            );
                           }
                         }}
                         min={dateRange.start}
@@ -678,8 +755,8 @@ const AdminCandidateList = () => {
                       <button
                         className="btn btn-sm btn-outline-secondary"
                         onClick={() => {
-                          setDateRange({ start: '', end: '' });
-                          setSelectedDateRange('');
+                          setDateRange({ start: "", end: "" });
+                          setSelectedDateRange("");
                           setShowDateDropdown(false);
                         }}
                       >
@@ -711,7 +788,9 @@ const AdminCandidateList = () => {
                           }}
                         >
                           <span>{option.label}</span>
-                          <small className="text-muted">{option.dateLabel}</small>
+                          <small className="text-muted">
+                            {option.dateLabel}
+                          </small>
                         </button>
                       </li>
                     ))}
@@ -725,18 +804,22 @@ const AdminCandidateList = () => {
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
                 data-bs-toggle="dropdown"
               >
-                {selectedRole || 'Role'}
+                {selectedRole || "Role"}
               </button>
               <ul className="dropdown-menu dropdown-menu-end p-3">
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleRoleFilter('All')}
+                    onClick={() => handleRoleFilter("All")}
                   >
                     All Roles
                   </button>
                 </li>
-                {Array.from(new Set(candidates.map(c => c.specialization).filter(Boolean))).map(role => (
+                {Array.from(
+                  new Set(
+                    candidates.map((c) => c.specialization).filter(Boolean)
+                  )
+                ).map((role) => (
                   <li key={role}>
                     <button
                       className="dropdown-item rounded-1"
@@ -754,13 +837,13 @@ const AdminCandidateList = () => {
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
                 data-bs-toggle="dropdown"
               >
-                {selectedStatus || 'Select Status'}
+                {selectedStatus || "Select Status"}
               </button>
               <ul className="dropdown-menu dropdown-menu-end p-3">
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('All')}
+                    onClick={() => handleStatusFilter("All")}
                   >
                     All Statuses
                   </button>
@@ -768,7 +851,7 @@ const AdminCandidateList = () => {
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('approved')}
+                    onClick={() => handleStatusFilter("approved")}
                   >
                     Approved
                   </button>
@@ -776,7 +859,7 @@ const AdminCandidateList = () => {
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('pending')}
+                    onClick={() => handleStatusFilter("pending")}
                   >
                     Pending
                   </button>
@@ -784,7 +867,7 @@ const AdminCandidateList = () => {
                 <li>
                   <button
                     className="dropdown-item rounded-1"
-                    onClick={() => handleStatusFilter('rejected')}
+                    onClick={() => handleStatusFilter("rejected")}
                   >
                     Rejected
                   </button>
@@ -801,19 +884,27 @@ const AdminCandidateList = () => {
               </button>
               <ul className="dropdown-menu dropdown-menu-end p-3">
                 <li>
-                  <button className="dropdown-item rounded-1">Recently Added</button>
+                  <button className="dropdown-item rounded-1">
+                    Recently Added
+                  </button>
                 </li>
                 <li>
                   <button className="dropdown-item rounded-1">Ascending</button>
                 </li>
                 <li>
-                  <button className="dropdown-item rounded-1">Descending</button>
+                  <button className="dropdown-item rounded-1">
+                    Descending
+                  </button>
                 </li>
                 <li>
-                  <button className="dropdown-item rounded-1">Last Month</button>
+                  <button className="dropdown-item rounded-1">
+                    Last Month
+                  </button>
                 </li>
                 <li>
-                  <button className="dropdown-item rounded-1">Last 7 Days</button>
+                  <button className="dropdown-item rounded-1">
+                    Last 7 Days
+                  </button>
                 </li>
               </ul>
             </div>
@@ -832,39 +923,60 @@ const AdminCandidateList = () => {
             </div>
 
             <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
-              <button className="btn btn-icon btn-sm me-1 toggle-theme" onClick={() => setShowFilterSidebar(true)}>
+              <button
+                className="btn btn-icon btn-sm me-1 toggle-theme"
+                onClick={() => setShowFilterSidebar(true)}
+              >
                 <i className="ti ti-filter"></i>
               </button>
             </div>
 
             <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
-              <button className="btn btn-icon btn-sm active bg-primary text-white me-1" onClick={() => navigate("/employer-admin/candidate-list")} >
+              <button
+                className="btn btn-icon btn-sm active bg-primary text-white me-1"
+                onClick={() => navigate("/employer-admin/candidate-list")}
+              >
                 <i className="ti ti-list-tree"></i>
               </button>
-              <button className="btn btn-icon btn-sm" onClick={() => navigate("/employer-admin/new-candidate")}>
-                <i className="ti ti-layout-grid" ></i>
+              <button
+                className="btn btn-icon btn-sm"
+                onClick={() => navigate("/employer-admin/new-candidate")}
+              >
+                <i className="ti ti-layout-grid"></i>
               </button>
             </div>
 
             <div className="dropdown me-2">
-              <button className="dropdown-toggle btn btn-white d-inline-flex align-items-center" data-bs-toggle="dropdown">
+              <button
+                className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                data-bs-toggle="dropdown"
+              >
                 <i className="ti ti-file-export me-1"></i>Export
               </button>
               <ul className="dropdown-menu dropdown-menu-end p-3">
                 <li>
-                  <button className="dropdown-item rounded-1" onClick={() => handleExport('pdf')}>
+                  <button
+                    className="dropdown-item rounded-1"
+                    onClick={() => handleExport("pdf")}
+                  >
                     <i className="ti ti-file-type-pdf me-1"></i>Export as PDF
                   </button>
                 </li>
                 <li>
-                  <button className="dropdown-item rounded-1" onClick={() => handleExport('excel')}>
+                  <button
+                    className="dropdown-item rounded-1"
+                    onClick={() => handleExport("excel")}
+                  >
                     <i className="ti ti-file-type-xls me-1"></i>Export as Excel
                   </button>
                 </li>
               </ul>
             </div>
 
-            <button className="btn btn-primary d-flex align-items-center" onClick={() => setShowAddCandidateModal(true)}>
+            <button
+              className="btn btn-primary d-flex align-items-center"
+              onClick={() => setShowAddCandidateModal(true)}
+            >
               <i className="ti ti-circle-plus me-2"></i>Add Candidate
             </button>
           </div>
@@ -880,17 +992,24 @@ const AdminCandidateList = () => {
                   <div className="card-body">
                     <div className="overflow-hidden d-flex mb-2 align-items-center">
                       <span className="me-2">
-                        <img src={defaultEmployeeReport} alt="Img" className="img-fluid" />
+                        <img
+                          src={defaultEmployeeReport}
+                          alt="Img"
+                          className="img-fluid"
+                        />
                       </span>
                       <div>
-                        <p className="fs-14 fw-bold mb-1 text-primary">Total Candidates</p>
+                        <p className="fs-14 fw-bold mb-1 text-primary">
+                          Total Candidates
+                        </p>
                         <h5>{candidates.length}</h5>
                       </div>
                     </div>
                     <div>
                       <p className="fs-12 fw-normal d-flex align-items-center text-truncate">
                         <span className="text-success fs-12 d-flex align-items-center me-1">
-                          <i className="ti ti-arrow-wave-right-up me-1"></i>+20.01%
+                          <i className="ti ti-arrow-wave-right-up me-1"></i>
+                          +20.01%
                         </span>
                         from last week
                       </p>
@@ -906,17 +1025,30 @@ const AdminCandidateList = () => {
                   <div className="card-body">
                     <div className="overflow-hidden d-flex mb-2 align-items-center">
                       <span className="me-2">
-                        <img src={defaultEmployeesuccess} alt="Img" className="img-fluid" />
+                        <img
+                          src={defaultEmployeesuccess}
+                          alt="Img"
+                          className="img-fluid"
+                        />
                       </span>
                       <div>
-                        <p className="fs-14 fw-bold mb-1 text-primary">Approved Candidates</p>
-                        <h5>{candidates.filter(c => c.verificationstatus === 'approved').length}</h5>
+                        <p className="fs-14 fw-bold mb-1 text-primary">
+                          Approved Candidates
+                        </p>
+                        <h5>
+                          {
+                            candidates.filter(
+                              (c) => c.verificationstatus === "approved"
+                            ).length
+                          }
+                        </h5>
                       </div>
                     </div>
                     <div>
                       <p className="fs-12 fw-normal d-flex align-items-center text-truncate">
                         <span className="text-success fs-12 d-flex align-items-center me-1">
-                          <i className="ti ti-arrow-wave-right-up me-1"></i>+20.01%
+                          <i className="ti ti-arrow-wave-right-up me-1"></i>
+                          +20.01%
                         </span>
                         from last week
                       </p>
@@ -932,22 +1064,33 @@ const AdminCandidateList = () => {
                   <div className="card-body">
                     <div className="overflow-hidden d-flex mb-2 align-items-center">
                       <span className="me-2">
-                        <img src={defaultEmployeeinfo} alt="Img" className="img-fluid" />
+                        <img
+                          src={defaultEmployeeinfo}
+                          alt="Img"
+                          className="img-fluid"
+                        />
                       </span>
                       <div>
-                        <p className="fs-14 fw-bold mb-1 text-primary">New Candidates</p>
-                        <h5>{candidates.filter(c => {
-                          const createdDate = new Date(c.createdAt);
-                          const sevenDaysAgo = new Date();
-                          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-                          return createdDate > sevenDaysAgo;
-                        }).length}</h5>
+                        <p className="fs-14 fw-bold mb-1 text-primary">
+                          New Candidates
+                        </p>
+                        <h5>
+                          {
+                            candidates.filter((c) => {
+                              const createdDate = new Date(c.createdAt);
+                              const sevenDaysAgo = new Date();
+                              sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                              return createdDate > sevenDaysAgo;
+                            }).length
+                          }
+                        </h5>
                       </div>
                     </div>
                     <div>
                       <p className="fs-12 fw-normal d-flex align-items-center text-truncate">
                         <span className="text-success fs-12 d-flex align-items-center me-1">
-                          <i className="ti ti-arrow-wave-right-up me-1"></i>+20.01%
+                          <i className="ti ti-arrow-wave-right-up me-1"></i>
+                          +20.01%
                         </span>
                         from last week
                       </p>
@@ -963,17 +1106,30 @@ const AdminCandidateList = () => {
                   <div className="card-body">
                     <div className="overflow-hidden d-flex mb-2 align-items-center">
                       <span className="me-2">
-                        <img src={defaultEmployeedanger} alt="Img" className="img-fluid" />
+                        <img
+                          src={defaultEmployeedanger}
+                          alt="Img"
+                          className="img-fluid"
+                        />
                       </span>
                       <div>
-                        <p className="fs-14 fw-bold mb-1 text-primary">Rejected Candidates</p>
-                        <h5>{candidates.filter(c => c.verificationstatus === 'rejected').length}</h5>
+                        <p className="fs-14 fw-bold mb-1 text-primary">
+                          Rejected Candidates
+                        </p>
+                        <h5>
+                          {
+                            candidates.filter(
+                              (c) => c.verificationstatus === "rejected"
+                            ).length
+                          }
+                        </h5>
                       </div>
                     </div>
                     <div>
                       <p className="fs-12 fw-normal d-flex align-items-center text-truncate">
                         <span className="text-success fs-12 d-flex align-items-center me-1">
-                          <i className="ti ti-arrow-wave-right-up me-1"></i>+20.01%
+                          <i className="ti ti-arrow-wave-right-up me-1"></i>
+                          +20.01%
                         </span>
                         from last week
                       </p>
@@ -990,7 +1146,9 @@ const AdminCandidateList = () => {
               <div className="card-header border-0 pb-0">
                 <div className="d-flex flex-wrap justify-content-between align-items-center row-gap-2">
                   <div className="d-flex align-items-center">
-                    <span className="me-2"><i className="ti ti-chart-bar text-danger"></i></span>
+                    <span className="me-2">
+                      <i className="ti ti-chart-bar text-danger"></i>
+                    </span>
                     <h5>Candidates</h5>
                   </div>
                   <div className="d-flex align-items-center">
@@ -1012,25 +1170,35 @@ const AdminCandidateList = () => {
                     </button>
                     <ul className="dropdown-menu dropdown-menu-end p-2">
                       <li>
-                        <button className="dropdown-item rounded-1">2025</button>
+                        <button className="dropdown-item rounded-1">
+                          2025
+                        </button>
                       </li>
                       <li>
-                        <button className="dropdown-item rounded-1">2024</button>
+                        <button className="dropdown-item rounded-1">
+                          2024
+                        </button>
                       </li>
                       <li>
-                        <button className="dropdown-item rounded-1">2023</button>
+                        <button className="dropdown-item rounded-1">
+                          2023
+                        </button>
                       </li>
                       <li>
-                        <button className="dropdown-item rounded-1">2022</button>
+                        <button className="dropdown-item rounded-1">
+                          2022
+                        </button>
                       </li>
                     </ul>
                   </div>
                 </div>
               </div>
               <div className="card-body py-0">
-                <div id="employee-reports" style={{ height: '200px' }}>
+                <div id="employee-reports" style={{ height: "200px" }}>
                   {/* Chart would go here */}
-                  <div className="text-center py-5">Candidate statistics chart</div>
+                  <div className="text-center py-5">
+                    Candidate statistics chart
+                  </div>
                 </div>
               </div>
             </div>
@@ -1049,7 +1217,11 @@ const AdminCandidateList = () => {
                           className="form-check-input"
                           type="checkbox"
                           id="select-all"
-                          checked={selectedCandidates.length === filteredCandidates.length && filteredCandidates.length > 0}
+                          checked={
+                            selectedCandidates.length ===
+                              filteredCandidates.length &&
+                            filteredCandidates.length > 0
+                          }
                           onChange={handleSelectAll}
                         />
                       </div>
@@ -1074,18 +1246,28 @@ const AdminCandidateList = () => {
                             <input
                               className="form-check-input"
                               type="checkbox"
-                              checked={selectedCandidates.includes(candidate._id)}
-                              onChange={() => handleSelectCandidate(candidate._id)}
+                              checked={selectedCandidates.includes(
+                                candidate._id
+                              )}
+                              onChange={() =>
+                                handleSelectCandidate(candidate._id)
+                              }
                             />
                           </div>
                         </td>
-                        <td>Cand-{candidate._id.substring(candidate._id.length - 4)}</td>
+                        <td>
+                          Cand-
+                          {candidate._id.substring(candidate._id.length - 4)}
+                        </td>
                         <td>
                           <div className="d-flex align-items-center file-name-icon">
-                            <a onClick={(e) => {
-                              e.preventDefault();
-                              viewCandidateDetails(candidate);
-                            }} className="avatar avatar-md">
+                            <a
+                              onClick={(e) => {
+                                e.preventDefault();
+                                viewCandidateDetails(candidate);
+                              }}
+                              className="avatar avatar-md"
+                            >
                               <img
                                 src={candidate.userProfilePic || user13}
                                 className="img-fluid rounded-circle"
@@ -1097,38 +1279,58 @@ const AdminCandidateList = () => {
                             </a>
                             <div className="ms-2">
                               <h6 className="fw-medium">
-                                <a onClick={(e) => {
-                                  e.preventDefault();
-                                  viewCandidateDetails(candidate);
-                                }} data-bs-toggle="offcanvas" data-bs-target="#candidate_details">
+                                <a
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    viewCandidateDetails(candidate);
+                                  }}
+                                  data-bs-toggle="offcanvas"
+                                  data-bs-target="#candidate_details"
+                                >
                                   {candidate.userName}
                                 </a>
                               </h6>
                               <span className="d-block mt-1">
-                                <a onClick={(e) => {
-                                  e.preventDefault();
-                                  viewCandidateDetails(candidate);
-                                }}>{candidate.currentCity}</a>
+                                <a
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    viewCandidateDetails(candidate);
+                                  }}
+                                >
+                                  {candidate.currentCity}
+                                </a>
                               </span>
                             </div>
                           </div>
                         </td>
                         <td>
-                          {candidate.specialization || 'N/A'}
+                          {candidate.specialization || "N/A"}
                           <br />
                           <span className="d-block mt-1">
-                            <a href="#">{candidate.totalExperience || 0} years of experience</a>
+                            <a href="#">
+                              {candidate.totalExperience || 0} years of
+                              experience
+                            </a>
                           </span>
                         </td>
                         <td>
                           <div className="action-icon d-inline-flex">
-                            <a href={`tel:${candidate.userMobile}`} className="me-2">
+                            <a
+                              href={`tel:${candidate.userMobile}`}
+                              className="me-2"
+                            >
                               <i className="ti ti-phone text-success"></i>
                             </a>
-                            <a href={`sms:${candidate.userMobile}`} className="me-2">
+                            <a
+                              href={`sms:${candidate.userMobile}`}
+                              className="me-2"
+                            >
                               <i className="ti ti-message"></i>
                             </a>
-                            <a href={`mailto:${candidate.userEmail}`} className="me-2">
+                            <a
+                              href={`mailto:${candidate.userEmail}`}
+                              className="me-2"
+                            >
                               <i className="ti ti-mail text-danger"></i>
                             </a>
                           </div>
@@ -1142,17 +1344,24 @@ const AdminCandidateList = () => {
                               rel="noopener noreferrer"
                               className="text-gray me-2 fs-16"
                             >
-                              <i className="ti ti-file-text"                            ></i>
+                              <i className="ti ti-file-text"></i>
                             </a>
                           </div>
                         </td>
                         <td>
                           <span
-                            className={`badge ${getStatusBadge(candidate.verificationstatus)}`}
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => handleVerificationStatusToggle(candidate._id, candidate.verificationstatus)}
+                            className={`badge ${getStatusBadge(
+                              candidate.verificationstatus
+                            )}`}
+                            style={{ cursor: "pointer" }}
+                            onClick={() =>
+                              handleVerificationStatusToggle(
+                                candidate._id,
+                                candidate.verificationstatus
+                              )
+                            }
                           >
-                            {candidate.verificationstatus || 'pending'}
+                            {candidate.verificationstatus || "pending"}
                           </span>
                         </td>
                         <td>
@@ -1161,11 +1370,18 @@ const AdminCandidateList = () => {
                               className="form-check-input"
                               type="checkbox"
                               role="switch"
-                              checked={candidate.blockstatus === 'unblock'}
-                              onChange={() => handleBlockStatusToggle(candidate._id, candidate.blockstatus)}
+                              checked={candidate.blockstatus === "unblock"}
+                              onChange={() =>
+                                handleBlockStatusToggle(
+                                  candidate._id,
+                                  candidate.blockstatus
+                                )
+                              }
                             />
                             <label className="form-check-label">
-                              {candidate.blockstatus === 'unblock' ? 'Unblock' : 'Blocked'}
+                              {candidate.blockstatus === "unblock"
+                                ? "Unblock"
+                                : "Blocked"}
                             </label>
                           </div>
                         </td>
@@ -1204,45 +1420,71 @@ const AdminCandidateList = () => {
         </div>
 
         {/* Filter Sidebar */}
-        <div className={`sidebar-themesettings offcanvas offcanvas-end ${showFilterSidebar ? 'show' : ''}`}
+        <div
+          className={`sidebar-themesettings offcanvas offcanvas-end ${
+            showFilterSidebar ? "show" : ""
+          }`}
           id="theme-setting"
-          style={{ visibility: showFilterSidebar ? 'visible' : 'hidden' }}>
+          style={{ visibility: showFilterSidebar ? "visible" : "hidden" }}
+        >
           <div className="offcanvas-header d-flex align-items-center justify-content-between bg-dark">
             <div>
               <h3 className="mb-1 text-white">Filter Candidates</h3>
               <p className="text-light">Search & Filter</p>
             </div>
-            <a href="#" className="custom-btn-close d-flex align-items-center justify-content-center text-white"
-              onClick={(e) => { e.preventDefault(); setShowFilterSidebar(false); }}>
+            <a
+              href="#"
+              className="custom-btn-close d-flex align-items-center justify-content-center text-white"
+              onClick={(e) => {
+                e.preventDefault();
+                setShowFilterSidebar(false);
+              }}
+            >
               <i className="ti ti-x"></i>
             </a>
           </div>
           <div className="themesettings-inner offcanvas-body">
-            <div className="accordion accordion-customicon1 accordions-items-seperate" id="settingtheme">
+            <div
+              className="accordion accordion-customicon1 accordions-items-seperate"
+              id="settingtheme"
+            >
               {/* Job Categories */}
               <div className="accordion-item">
                 <h2 className="accordion-header">
-                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#jobCategories" aria-expanded="true">
+                  <button
+                    className="accordion-button text-dark fs-16"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#jobCategories"
+                    aria-expanded="true"
+                  >
                     Job Categories
                   </button>
                 </h2>
-                <div id="jobCategories" className="accordion-collapse collapse show">
+                <div
+                  id="jobCategories"
+                  className="accordion-collapse collapse show"
+                >
                   <div className="accordion-body">
                     <div className="row gx-3">
                       <div className="form-group">
                         <div className="checkbox-limit">
                           <ul className="checkbox-list">
-                            {Object.keys(jobCategories).map(category => (
+                            {Object.keys(jobCategories).map((category) => (
                               <React.Fragment key={category}>
                                 <li>
                                   <label className="custom-checkbox">
                                     <input
                                       type="checkbox"
                                       checked={jobCategories[category]}
-                                      onChange={() => handleJobCategoryChange(category)}
+                                      onChange={() =>
+                                        handleJobCategoryChange(category)
+                                      }
                                     />
                                     <span className="fake-checkbox"></span>
-                                    <span className="label-text">{category}</span>
+                                    <span className="label-text">
+                                      {category}
+                                    </span>
                                   </label>
                                 </li>
                                 <br />
@@ -1259,7 +1501,13 @@ const AdminCandidateList = () => {
               {/* Job Types */}
               <div className="accordion-item">
                 <h2 className="accordion-header">
-                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#jobTypes" aria-expanded="true">
+                  <button
+                    className="accordion-button text-dark fs-16"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#jobTypes"
+                    aria-expanded="true"
+                  >
                     Job Types
                   </button>
                 </h2>
@@ -1269,7 +1517,7 @@ const AdminCandidateList = () => {
                       <div className="form-group">
                         <div className="checkbox-limit">
                           <ul className="checkbox-list">
-                            {Object.keys(jobTypes).map(type => (
+                            {Object.keys(jobTypes).map((type) => (
                               <React.Fragment key={type}>
                                 <li>
                                   <label className="custom-checkbox">
@@ -1296,11 +1544,20 @@ const AdminCandidateList = () => {
               {/* Gender */}
               <div className="accordion-item">
                 <h2 className="accordion-header">
-                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#genderFilter" aria-expanded="true">
+                  <button
+                    className="accordion-button text-dark fs-16"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#genderFilter"
+                    aria-expanded="true"
+                  >
                     Gender
                   </button>
                 </h2>
-                <div id="genderFilter" className="accordion-collapse collapse show">
+                <div
+                  id="genderFilter"
+                  className="accordion-collapse collapse show"
+                >
                   <div className="accordion-body">
                     <div className="d-flex align-items-center">
                       <div className="theme-width m-1 me-2">
@@ -1309,10 +1566,15 @@ const AdminCandidateList = () => {
                           name="gender"
                           id="allGender"
                           value="All"
-                          checked={gender === 'All'}
-                          onChange={() => setGender('All')}
+                          checked={gender === "All"}
+                          onChange={() => setGender("All")}
                         />
-                        <label htmlFor="allGender" className="d-block rounded fs-12">All</label>
+                        <label
+                          htmlFor="allGender"
+                          className="d-block rounded fs-12"
+                        >
+                          All
+                        </label>
                       </div>
                       <div className="theme-width m-1 me-2">
                         <input
@@ -1320,10 +1582,15 @@ const AdminCandidateList = () => {
                           name="gender"
                           id="maleGender"
                           value="male"
-                          checked={gender === 'male'}
-                          onChange={() => setGender('male')}
+                          checked={gender === "male"}
+                          onChange={() => setGender("male")}
                         />
-                        <label htmlFor="maleGender" className="d-block rounded fs-12">Male</label>
+                        <label
+                          htmlFor="maleGender"
+                          className="d-block rounded fs-12"
+                        >
+                          Male
+                        </label>
                       </div>
                       <div className="theme-width m-1 me-2">
                         <input
@@ -1331,10 +1598,15 @@ const AdminCandidateList = () => {
                           name="gender"
                           id="femaleGender"
                           value="female"
-                          checked={gender === 'female'}
-                          onChange={() => setGender('female')}
+                          checked={gender === "female"}
+                          onChange={() => setGender("female")}
                         />
-                        <label htmlFor="femaleGender" className="d-block rounded fs-12">Female</label>
+                        <label
+                          htmlFor="femaleGender"
+                          className="d-block rounded fs-12"
+                        >
+                          Female
+                        </label>
                       </div>
                       <div className="theme-width m-1">
                         <input
@@ -1342,10 +1614,15 @@ const AdminCandidateList = () => {
                           name="gender"
                           id="otherGender"
                           value="other"
-                          checked={gender === 'other'}
-                          onChange={() => setGender('other')}
+                          checked={gender === "other"}
+                          onChange={() => setGender("other")}
                         />
-                        <label htmlFor="otherGender" className="d-block rounded fs-12">Other</label>
+                        <label
+                          htmlFor="otherGender"
+                          className="d-block rounded fs-12"
+                        >
+                          Other
+                        </label>
                       </div>
                     </div>
                   </div>
@@ -1355,11 +1632,20 @@ const AdminCandidateList = () => {
               {/* Salary Range */}
               <div className="accordion-item">
                 <h2 className="accordion-header">
-                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#salaryRange" aria-expanded="true">
+                  <button
+                    className="accordion-button text-dark fs-16"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#salaryRange"
+                    aria-expanded="true"
+                  >
                     Salary Range
                   </button>
                 </h2>
-                <div id="salaryRange" className="accordion-collapse collapse show">
+                <div
+                  id="salaryRange"
+                  className="accordion-collapse collapse show"
+                >
                   <div className="accordion-body pb-0">
                     <div className="row gx-3">
                       <div className="form-group">
@@ -1369,14 +1655,24 @@ const AdminCandidateList = () => {
                             className="form-control"
                             placeholder="From"
                             value={salaryRange.min}
-                            onChange={(e) => setSalaryRange({ ...salaryRange, min: e.target.value })}
+                            onChange={(e) =>
+                              setSalaryRange({
+                                ...salaryRange,
+                                min: e.target.value,
+                              })
+                            }
                           />
                           <input
                             type="text"
                             className="form-control"
                             placeholder="To"
                             value={salaryRange.max}
-                            onChange={(e) => setSalaryRange({ ...salaryRange, max: e.target.value })}
+                            onChange={(e) =>
+                              setSalaryRange({
+                                ...salaryRange,
+                                max: e.target.value,
+                              })
+                            }
                           />
                         </div>
                       </div>
@@ -1388,11 +1684,20 @@ const AdminCandidateList = () => {
               {/* Location */}
               <div className="accordion-item">
                 <h2 className="accordion-header">
-                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#locationFilter" aria-expanded="true">
+                  <button
+                    className="accordion-button text-dark fs-16"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#locationFilter"
+                    aria-expanded="true"
+                  >
                     Location
                   </button>
                 </h2>
-                <div id="locationFilter" className="accordion-collapse collapse show">
+                <div
+                  id="locationFilter"
+                  className="accordion-collapse collapse show"
+                >
                   <div className="accordion-body">
                     <div className="d-flex align-items-center">
                       <input
@@ -1410,11 +1715,20 @@ const AdminCandidateList = () => {
               {/* Experience */}
               <div className="accordion-item">
                 <h2 className="accordion-header">
-                  <button className="accordion-button text-dark fs-16" type="button" data-bs-toggle="collapse" data-bs-target="#experienceFilter" aria-expanded="true">
+                  <button
+                    className="accordion-button text-dark fs-16"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#experienceFilter"
+                    aria-expanded="true"
+                  >
                     Experience (Years)
                   </button>
                 </h2>
-                <div id="experienceFilter" className="accordion-collapse collapse show">
+                <div
+                  id="experienceFilter"
+                  className="accordion-collapse collapse show"
+                >
                   <div className="accordion-body pb-0">
                     <div className="row gx-3">
                       <div className="form-group">
@@ -1424,14 +1738,24 @@ const AdminCandidateList = () => {
                             className="form-control"
                             placeholder="From"
                             value={experienceRange.min}
-                            onChange={(e) => setExperienceRange({ ...experienceRange, min: e.target.value })}
+                            onChange={(e) =>
+                              setExperienceRange({
+                                ...experienceRange,
+                                min: e.target.value,
+                              })
+                            }
                           />
                           <input
                             type="text"
                             className="form-control"
                             placeholder="To"
                             value={experienceRange.max}
-                            onChange={(e) => setExperienceRange({ ...experienceRange, max: e.target.value })}
+                            onChange={(e) =>
+                              setExperienceRange({
+                                ...experienceRange,
+                                max: e.target.value,
+                              })
+                            }
                           />
                         </div>
                       </div>
@@ -1463,7 +1787,10 @@ const AdminCandidateList = () => {
           </div>
         </div>
         {showFilterSidebar && (
-          <div className="modal-backdrop fade show" onClick={() => setShowFilterSidebar(false)}></div>
+          <div
+            className="modal-backdrop fade show"
+            onClick={() => setShowFilterSidebar(false)}
+          ></div>
         )}
 
         {/* Add Candidate Modal */}
@@ -1502,7 +1829,7 @@ const AdminCandidateList = () => {
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && (
-          <div className="modal fade show" style={{ display: 'block' }}>
+          <div className="modal fade show" style={{ display: "block" }}>
             <div className="modal-dialog modal-dialog-centered">
               <div className="modal-content">
                 <div className="modal-header">
@@ -1515,7 +1842,7 @@ const AdminCandidateList = () => {
                 </div>
                 <div className="modal-body">
                   <p>
-                    Are you sure you want to delete{' '}
+                    Are you sure you want to delete{" "}
                     <strong>{candidateToDelete?.userName}</strong>?
                   </p>
                 </div>

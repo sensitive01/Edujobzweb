@@ -1,58 +1,59 @@
-import React, { useState, useEffect } from 'react';
-import user13 from '../../assets/employer/assets/img/users/user-13.jpg';
+import React, { useState, useEffect } from "react";
+import user13 from "../../assets/employer/assets/img/users/user-13.jpg";
 // import AddNewCandidate from '../../components/common/AddNewCAndidate';
-import EmployerCandidatesDetails from './EmployerCandidatesDetails';
-import { FaArrowCircleUp } from 'react-icons/fa';
-import EmployerFooter from './EmployerFooter';
-import EmployerHeader from './EmployerHeader';
-import { useNavigate } from 'react-router-dom';
-import EmployeerChatSidebar from './EmployeerChatSidebar';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import defaultEmployeeAvatar from '../../assets/employer-admin/assets/img/profiles/avatar-12.jpg';
+import EmployerCandidatesDetails from "./EmployerCandidatesDetails";
+import { FaArrowCircleUp } from "react-icons/fa";
+import EmployerFooter from "./EmployerFooter";
+import EmployerHeader from "./EmployerHeader";
+import { useNavigate } from "react-router-dom";
+import EmployeerChatSidebar from "./EmployeerChatSidebar";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import defaultEmployeeAvatar from "../../assets/employer-admin/assets/img/profiles/avatar-12.jpg";
 
 const EmployeerSavedCandidates = () => {
   const [showCandidateModal, setShowCandidateModal] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
-  const [selectedRole, setSelectedRole] = useState('Role');
-  const [selectedStatus, setSelectedStatus] = useState('Select Status');
-  const [selectedSort, setSelectedSort] = useState('Sort By: Last 7 Days');
-  const [selectedExport, setSelectedExport] = useState('Export');
+  const [selectedRole, setSelectedRole] = useState("Role");
+  const [selectedStatus, setSelectedStatus] = useState("Select Status");
+  const [selectedSort, setSelectedSort] = useState("Sort By: Last 7 Days");
+  const [selectedExport, setSelectedExport] = useState("Export");
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [candidates, setCandidates] = useState([]);
   const [filteredCandidates, setFilteredCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dateRange, setDateRange] = useState({
-    start: '',
-    end: ''
+    start: "",
+    end: "",
   });
-  const [selectedDateRange, setSelectedDateRange] = useState('This Year');
+  const [selectedDateRange, setSelectedDateRange] = useState("This Year");
   const [showChatSidebar, setShowChatSidebar] = useState(false);
-  const [selectedCandidateForChat, setSelectedCandidateForChat] = useState(null);
+  const [selectedCandidateForChat, setSelectedCandidateForChat] =
+    useState(null);
   const [jobs, setJobs] = useState([]);
   const navigate = useNavigate();
 
   // Extract roles dynamically from candidates data
   const getUniqueRoles = (candidates) => {
     const roles = new Set();
-    candidates.forEach(candidate => {
+    candidates.forEach((candidate) => {
       if (candidate.jobrole) {
         roles.add(candidate.jobrole);
       }
     });
-    return ['All', ...Array.from(roles)];
+    return ["All", ...Array.from(roles)];
   };
 
   const statuses = [
-    'All',
-    'Pending',
-    'Hold',
-    'In Progress',
-    'Interview Scheduled',
-    'Hired',
-    'Rejected'
+    "All",
+    "Pending",
+    "Hold",
+    "In Progress",
+    "Interview Scheduled",
+    "Hired",
+    "Rejected",
   ];
 
   const getDynamicDateRangeOptions = () => {
@@ -63,64 +64,86 @@ const EmployeerSavedCandidates = () => {
 
     return [
       {
-        label: 'Today',
-        value: 'today',
-        dateLabel: `${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`
+        label: "Today",
+        value: "today",
+        dateLabel: `${currentDate.toString().padStart(2, "0")}/${currentMonth
+          .toString()
+          .padStart(2, "0")}/${currentYear}`,
       },
       {
-        label: 'Yesterday',
-        value: 'yesterday',
+        label: "Yesterday",
+        value: "yesterday",
         dateLabel: (() => {
           const yesterday = new Date(today);
           yesterday.setDate(yesterday.getDate() - 1);
-          return `${yesterday.getDate().toString().padStart(2, '0')}/${(yesterday.getMonth() + 1).toString().padStart(2, '0')}/${yesterday.getFullYear()}`;
-        })()
+          return `${yesterday.getDate().toString().padStart(2, "0")}/${(
+            yesterday.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${yesterday.getFullYear()}`;
+        })(),
       },
       {
-        label: 'Last 7 Days',
-        value: 'last7days',
+        label: "Last 7 Days",
+        value: "last7days",
         dateLabel: (() => {
           const week = new Date(today);
           week.setDate(week.getDate() - 7);
-          return `${week.getDate().toString().padStart(2, '0')}/${(week.getMonth() + 1).toString().padStart(2, '0')}/${week.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
-        })()
+          return `${week.getDate().toString().padStart(2, "0")}/${(
+            week.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${week.getFullYear()} - ${currentDate
+            .toString()
+            .padStart(2, "0")}/${currentMonth
+            .toString()
+            .padStart(2, "0")}/${currentYear}`;
+        })(),
       },
       {
-        label: 'Last 30 Days',
-        value: 'last30days',
+        label: "Last 30 Days",
+        value: "last30days",
         dateLabel: (() => {
           const month = new Date(today);
           month.setDate(month.getDate() - 30);
-          return `${month.getDate().toString().padStart(2, '0')}/${(month.getMonth() + 1).toString().padStart(2, '0')}/${month.getFullYear()} - ${currentDate.toString().padStart(2, '0')}/${currentMonth.toString().padStart(2, '0')}/${currentYear}`;
-        })()
+          return `${month.getDate().toString().padStart(2, "0")}/${(
+            month.getMonth() + 1
+          )
+            .toString()
+            .padStart(2, "0")}/${month.getFullYear()} - ${currentDate
+            .toString()
+            .padStart(2, "0")}/${currentMonth
+            .toString()
+            .padStart(2, "0")}/${currentYear}`;
+        })(),
       },
       {
-        label: 'This Year',
-        value: 'thisyear',
-        dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`
+        label: "This Year",
+        value: "thisyear",
+        dateLabel: `01/01/${currentYear} - 31/12/${currentYear}`,
       },
       {
-        label: 'Last Year',
-        value: 'lastyear',
-        dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`
+        label: "Last Year",
+        value: "lastyear",
+        dateLabel: `01/01/${currentYear - 1} - 31/12/${currentYear - 1}`,
       },
       {
-        label: 'Next Year',
-        value: 'nextyear',
-        dateLabel: `01/01/${currentYear + 1} - 31/12/${currentYear + 1}`
+        label: "Next Year",
+        value: "nextyear",
+        dateLabel: `01/01/${currentYear + 1} - 31/12/${currentYear + 1}`,
       },
       {
-        label: 'Custom Range',
-        value: 'custom',
-        dateLabel: 'Select dates'
-      }
+        label: "Custom Range",
+        value: "custom",
+        dateLabel: "Select dates",
+      },
     ];
   };
 
   const handleDateRangeSelect = (option) => {
-    if (option.value === 'custom') {
-      setSelectedDateRange('Custom Range');
-      setActiveDropdown('customRange'); // Keep dropdown open but switch to custom range view
+    if (option.value === "custom") {
+      setSelectedDateRange("Custom Range");
+      setActiveDropdown("customRange"); // Keep dropdown open but switch to custom range view
       return;
     }
 
@@ -129,35 +152,35 @@ const EmployeerSavedCandidates = () => {
     let startDate, endDate;
 
     switch (option.value) {
-      case 'today':
-        startDate = endDate = today.toISOString().split('T')[0];
+      case "today":
+        startDate = endDate = today.toISOString().split("T")[0];
         break;
-      case 'yesterday':
+      case "yesterday":
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
-        startDate = endDate = yesterday.toISOString().split('T')[0];
+        startDate = endDate = yesterday.toISOString().split("T")[0];
         break;
-      case 'last7days':
+      case "last7days":
         const week = new Date(today);
         week.setDate(week.getDate() - 7);
-        startDate = week.toISOString().split('T')[0];
-        endDate = today.toISOString().split('T')[0];
+        startDate = week.toISOString().split("T")[0];
+        endDate = today.toISOString().split("T")[0];
         break;
-      case 'last30days':
+      case "last30days":
         const month = new Date(today);
         month.setDate(month.getDate() - 30);
-        startDate = month.toISOString().split('T')[0];
-        endDate = today.toISOString().split('T')[0];
+        startDate = month.toISOString().split("T")[0];
+        endDate = today.toISOString().split("T")[0];
         break;
-      case 'thisyear':
+      case "thisyear":
         startDate = `${today.getFullYear()}-01-01`;
         endDate = `${today.getFullYear()}-12-31`;
         break;
-      case 'lastyear':
+      case "lastyear":
         startDate = `${today.getFullYear() - 1}-01-01`;
         endDate = `${today.getFullYear() - 1}-12-31`;
         break;
-      case 'nextyear':
+      case "nextyear":
         startDate = `${today.getFullYear() + 1}-01-01`;
         endDate = `${today.getFullYear() + 1}-12-31`;
         break;
@@ -170,11 +193,11 @@ const EmployeerSavedCandidates = () => {
   };
 
   const sortOptions = [
-    'Recently Added',
-    'Ascending',
-    'Descending',
-    'Last Month',
-    'Last 7 Days'
+    "Recently Added",
+    "Ascending",
+    "Descending",
+    "Last Month",
+    "Last 7 Days",
   ];
   const exportToPDF = () => {
     const content = `
@@ -191,21 +214,28 @@ const EmployeerSavedCandidates = () => {
         </tr>
       </thead>
       <tbody>
-        ${filteredCandidates.map(candidate => `
+        ${filteredCandidates
+          .map(
+            (candidate) => `
           <tr>
-            <td>${candidate.firstName} ${candidate.lastName || ''}</td>
-            <td>${candidate.email || 'N/A'}</td>
-            <td>${candidate.phone || 'N/A'}</td>
-            <td>${candidate.jobrole || 'N/A'}</td>
-            <td>${candidate.employapplicantstatus || 'N/A'}</td>
-            <td>${new Date(candidate.appliedDate).toLocaleDateString('en-GB') || 'N/A'}</td>
+            <td>${candidate.firstName} ${candidate.lastName || ""}</td>
+            <td>${candidate.email || "N/A"}</td>
+            <td>${candidate.phone || "N/A"}</td>
+            <td>${candidate.jobrole || "N/A"}</td>
+            <td>${candidate.employapplicantstatus || "N/A"}</td>
+            <td>${
+              new Date(candidate.appliedDate).toLocaleDateString("en-GB") ||
+              "N/A"
+            }</td>
           </tr>
-        `).join('')}
+        `
+          )
+          .join("")}
       </tbody>
     </table>
   `;
 
-    const printWindow = window.open('', '', 'width=800,height=600');
+    const printWindow = window.open("", "", "width=800,height=600");
     printWindow.document.write(`
     <html>
       <head>
@@ -233,44 +263,52 @@ const EmployeerSavedCandidates = () => {
   };
   const exportToExcel = () => {
     // Create CSV content
-    const headers = ['Name', 'Email', 'Phone', 'Job Role', 'Status', 'Applied Date'];
-    const rows = filteredCandidates.map(candidate => [
-      `"${candidate.firstName} ${candidate.lastName || ''}"`,
-      `"${candidate.email || 'N/A'}"`,
-      `"${candidate.phone || 'N/A'}"`,
-      `"${candidate.jobrole || 'N/A'}"`,
-      `"${candidate.employapplicantstatus || 'N/A'}"`,
-      `"${new Date(candidate.appliedDate).toLocaleDateString('en-GB') || 'N/A'}"`
+    const headers = [
+      "Name",
+      "Email",
+      "Phone",
+      "Job Role",
+      "Status",
+      "Applied Date",
+    ];
+    const rows = filteredCandidates.map((candidate) => [
+      `"${candidate.firstName} ${candidate.lastName || ""}"`,
+      `"${candidate.email || "N/A"}"`,
+      `"${candidate.phone || "N/A"}"`,
+      `"${candidate.jobrole || "N/A"}"`,
+      `"${candidate.employapplicantstatus || "N/A"}"`,
+      `"${
+        new Date(candidate.appliedDate).toLocaleDateString("en-GB") || "N/A"
+      }"`,
     ]);
 
     const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
-    ].join('\n');
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
 
     // Create download link
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.setAttribute('download', 'candidates_list.csv');
+    link.setAttribute("download", "candidates_list.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-
   const exportOptions = [
     {
-      label: 'Export as PDF',
-      icon: 'ti ti-file-type-pdf',
-      onClick: exportToPDF
+      label: "Export as PDF",
+      icon: "ti ti-file-type-pdf",
+      onClick: exportToPDF,
     },
     {
-      label: 'Export as Excel',
-      icon: 'ti ti-file-type-xls',
-      onClick: exportToExcel
-    }
+      label: "Export as Excel",
+      icon: "ti ti-file-type-xls",
+      onClick: exportToExcel,
+    },
   ];
 
   const [openSections, setOpenSections] = useState({
@@ -286,29 +324,29 @@ const EmployeerSavedCandidates = () => {
   const [filters, setFilters] = useState({
     jobCategories: [],
     jobTypes: [],
-    gender: '',
-    salaryFrom: '',
-    salaryTo: '',
-    location: '',
-    qualification: '',
-    experienceFrom: '',
-    experienceTo: '',
-    searchQuery: '',
-    status: ''
+    gender: "",
+    salaryFrom: "",
+    salaryTo: "",
+    location: "",
+    qualification: "",
+    experienceFrom: "",
+    experienceTo: "",
+    searchQuery: "",
+    status: "",
   });
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const employerData = JSON.parse(localStorage.getItem('employerData'));
+        const employerData = JSON.parse(localStorage.getItem("employerData"));
         if (!employerData) return;
 
         const response = await fetch(
-          `https://edujobzbackend.onrender.com/employer/fetchjob/${employerData._id}`,
+          `https://api.edprofio.com/employer/fetchjob/${employerData._id}`,
           {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('employerToken')}`
-            }
+              Authorization: `Bearer ${localStorage.getItem("employerToken")}`,
+            },
           }
         );
 
@@ -317,7 +355,7 @@ const EmployeerSavedCandidates = () => {
           setJobs(data || []);
         }
       } catch (error) {
-        console.error('Error fetching jobs:', error);
+        console.error("Error fetching jobs:", error);
       }
     };
 
@@ -328,32 +366,32 @@ const EmployeerSavedCandidates = () => {
     const fetchSavedCandidates = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('employerToken');
-        const employerData = JSON.parse(localStorage.getItem('employerData'));
+        const token = localStorage.getItem("employerToken");
+        const employerData = JSON.parse(localStorage.getItem("employerData"));
 
         if (!token || !employerData) {
-          navigate('/employer/login');
+          navigate("/employer/login");
           return;
         }
 
         const response = await fetch(
-          `https://edujobzbackend.onrender.com/employer/fetchfavcand/${employerData._id}`,
+          `https://api.edprofio.com/employer/fetchfavcand/${employerData._id}`,
           {
             headers: {
-              'Authorization': `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
 
         if (!response.ok) {
-          throw new Error('Failed to fetch Saved candidates');
+          throw new Error("Failed to fetch Saved candidates");
         }
 
         const data = await response.json();
         setCandidates(data.favouriteCandidates || []);
         setFilteredCandidates(data.favouriteCandidates || []);
       } catch (err) {
-        console.error('Fetch error:', err);
+        console.error("Fetch error:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -365,50 +403,57 @@ const EmployeerSavedCandidates = () => {
 
   const findJobIdForCandidate = (candidate) => {
     // Find the job that contains this candidate in its applications
-    const job = jobs.find(job =>
-      job.applications && job.applications.some(app =>
-        app.applicantId === candidate.applicantId ||
-        app.applicantId === candidate._id ||
-        app._id === candidate._id
-      )
+    const job = jobs.find(
+      (job) =>
+        job.applications &&
+        job.applications.some(
+          (app) =>
+            app.applicantId === candidate.applicantId ||
+            app.applicantId === candidate._id ||
+            app._id === candidate._id
+        )
     );
 
-    return job ? job._id : 'default-job-id';
+    return job ? job._id : "default-job-id";
   };
   useEffect(() => {
     filterCandidates();
   }, [filters, candidates, selectedSort, dateRange]);
 
-  const toggleFavoriteStatus = async (applicationId, employid, currentStatus) => {
+  const toggleFavoriteStatus = async (
+    applicationId,
+    employid,
+    currentStatus
+  ) => {
     try {
-      const token = localStorage.getItem('employerToken');
+      const token = localStorage.getItem("employerToken");
       if (!token) {
-        navigate('/employer/login');
+        navigate("/employer/login");
         return;
       }
 
       const response = await fetch(
-        `https://edujobzbackend.onrender.com/employer/updaee/${applicationId}/${employid}`,
+        `https://api.edprofio.com/employer/updaee/${applicationId}/${employid}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            favourite: !currentStatus
-          })
+            favourite: !currentStatus,
+          }),
         }
       );
 
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to update favorite status');
+        throw new Error(data.message || "Failed to update favorite status");
       }
       // Show toast notification based on the new status
       if (!currentStatus) {
-        toast.success('Candidate Saved to your list', {
+        toast.success("Candidate Saved to your list", {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -417,7 +462,7 @@ const EmployeerSavedCandidates = () => {
           draggable: true,
         });
       } else {
-        toast.info('Candidate Removed from Saved List', {
+        toast.info("Candidate Removed from Saved List", {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -427,16 +472,23 @@ const EmployeerSavedCandidates = () => {
         });
       }
       // Update state
-      setCandidates(prev => prev.map(candidate =>
-        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
-      ));
+      setCandidates((prev) =>
+        prev.map((candidate) =>
+          candidate._id === applicationId
+            ? { ...candidate, favourite: !currentStatus }
+            : candidate
+        )
+      );
 
-      setFilteredCandidates(prev => prev.map(candidate =>
-        candidate._id === applicationId ? { ...candidate, favourite: !currentStatus } : candidate
-      ));
-
+      setFilteredCandidates((prev) =>
+        prev.map((candidate) =>
+          candidate._id === applicationId
+            ? { ...candidate, favourite: !currentStatus }
+            : candidate
+        )
+      );
     } catch (error) {
-      console.error('Error updating favorite status:', error);
+      console.error("Error updating favorite status:", error);
       alert(`Error: ${error.message}`);
     }
   };
@@ -452,7 +504,7 @@ const EmployeerSavedCandidates = () => {
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
 
-      result = result.filter(candidate => {
+      result = result.filter((candidate) => {
         if (!candidate.appliedDate) return false;
 
         const appliedDate = new Date(candidate.appliedDate);
@@ -462,7 +514,7 @@ const EmployeerSavedCandidates = () => {
     // Search query filter
     if (filters.searchQuery.trim()) {
       const searchTerm = filters.searchQuery.toLowerCase().trim();
-      result = result.filter(candidate => {
+      result = result.filter((candidate) => {
         const searchFields = [
           candidate.firstName,
           candidate.lastName,
@@ -471,8 +523,11 @@ const EmployeerSavedCandidates = () => {
           candidate.jobrole,
           candidate.currentcity,
           candidate.qualification,
-          candidate.currentDesignation
-        ].filter(Boolean).join(' ').toLowerCase();
+          candidate.currentDesignation,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
 
         return searchFields.includes(searchTerm);
       });
@@ -480,16 +535,19 @@ const EmployeerSavedCandidates = () => {
 
     // Job role filter
     if (filters.jobCategories.length > 0) {
-      result = result.filter(candidate =>
+      result = result.filter((candidate) =>
         filters.jobCategories.includes(candidate.jobrole)
       );
     }
 
     // Location filter
     if (filters.location) {
-      result = result.filter(candidate =>
-        candidate.currentcity &&
-        candidate.currentcity.toLowerCase().includes(filters.location.toLowerCase())
+      result = result.filter(
+        (candidate) =>
+          candidate.currentcity &&
+          candidate.currentcity
+            .toLowerCase()
+            .includes(filters.location.toLowerCase())
       );
     }
 
@@ -498,7 +556,7 @@ const EmployeerSavedCandidates = () => {
       const from = parseInt(filters.experienceFrom) || 0;
       const to = parseInt(filters.experienceTo) || Infinity;
 
-      result = result.filter(candidate => {
+      result = result.filter((candidate) => {
         const exp = parseInt(candidate.experience) || 0;
         return exp >= from && exp <= to;
       });
@@ -506,27 +564,34 @@ const EmployeerSavedCandidates = () => {
 
     // Gender filter
     if (filters.gender) {
-      result = result.filter(candidate =>
-        candidate.gender &&
-        candidate.gender.toLowerCase() === filters.gender.toLowerCase()
+      result = result.filter(
+        (candidate) =>
+          candidate.gender &&
+          candidate.gender.toLowerCase() === filters.gender.toLowerCase()
       );
     }
 
     // Status filter
     if (filters.status) {
-      result = result.filter(candidate =>
-        candidate.employapplicantstatus &&
-        candidate.employapplicantstatus.toLowerCase() === filters.status.toLowerCase()
+      result = result.filter(
+        (candidate) =>
+          candidate.employapplicantstatus &&
+          candidate.employapplicantstatus.toLowerCase() ===
+            filters.status.toLowerCase()
       );
     }
 
     // Sort candidates
-    if (selectedSort.includes('Recently Added')) {
+    if (selectedSort.includes("Recently Added")) {
       result.sort((a, b) => new Date(b.appliedDate) - new Date(a.appliedDate));
-    } else if (selectedSort.includes('Ascending')) {
-      result.sort((a, b) => (a.firstName || '').localeCompare(b.firstName || ''));
-    } else if (selectedSort.includes('Descending')) {
-      result.sort((a, b) => (b.firstName || '').localeCompare(a.firstName || ''));
+    } else if (selectedSort.includes("Ascending")) {
+      result.sort((a, b) =>
+        (a.firstName || "").localeCompare(b.firstName || "")
+      );
+    } else if (selectedSort.includes("Descending")) {
+      result.sort((a, b) =>
+        (b.firstName || "").localeCompare(a.firstName || "")
+      );
     }
 
     setFilteredCandidates(result);
@@ -534,33 +599,33 @@ const EmployeerSavedCandidates = () => {
 
   const getStatusBadgeClass = (status) => {
     switch (status?.toLowerCase()) {
-      case 'Saved':
-        return 'bg-success';
-      case 'rejected':
-        return 'bg-danger';
-      case 'in progress':
-      case 'interview scheduled':
-        return 'bg-info';
-      case 'pending':
-        return 'bg-warning';
-      case 'applied':
-        return 'bg-primary';
-      case 'on hold':
-        return 'bg-secondary';
+      case "Saved":
+        return "bg-success";
+      case "rejected":
+        return "bg-danger";
+      case "in progress":
+      case "interview scheduled":
+        return "bg-info";
+      case "pending":
+        return "bg-warning";
+      case "applied":
+        return "bg-primary";
+      case "on hold":
+        return "bg-secondary";
       default:
-        return 'bg-secondary';
+        return "bg-secondary";
     }
   };
 
   const toggleSection = (section) => {
-    setOpenSections(prev => ({
+    setOpenSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
   const handleCheckboxChange = (type, value) => {
-    setFilters(prev => {
+    setFilters((prev) => {
       const currentValues = [...prev[type]];
       const index = currentValues.indexOf(value);
 
@@ -572,23 +637,23 @@ const EmployeerSavedCandidates = () => {
 
       return {
         ...prev,
-        [type]: currentValues
+        [type]: currentValues,
       };
     });
   };
 
   const handleRadioChange = (e) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      gender: e.target.value
+      gender: e.target.value,
     }));
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -596,23 +661,23 @@ const EmployeerSavedCandidates = () => {
     setFilters({
       jobCategories: [],
       jobTypes: [],
-      gender: '',
-      salaryFrom: '',
-      salaryTo: '',
-      location: '',
-      qualification: '',
-      experienceFrom: '',
-      experienceTo: '',
-      searchQuery: '',
-      status: ''
+      gender: "",
+      salaryFrom: "",
+      salaryTo: "",
+      location: "",
+      qualification: "",
+      experienceFrom: "",
+      experienceTo: "",
+      searchQuery: "",
+      status: "",
     });
     setDateRange({
-      start: '',
-      end: ''
+      start: "",
+      end: "",
     });
-    setSelectedRole('Role');
-    setSelectedStatus('Select Status');
-    setSelectedSort('Sort By: Last 7 Days');
+    setSelectedRole("Role");
+    setSelectedStatus("Select Status");
+    setSelectedSort("Sort By: Last 7 Days");
   };
 
   const handleSubmit = () => {
@@ -628,15 +693,15 @@ const EmployeerSavedCandidates = () => {
   };
 
   const handleSubmitCandidate = (candidateData) => {
-    console.log('Note Submitted', candidateData);
+    console.log("Note Submitted", candidateData);
   };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const searchQuery = e.target.elements.search?.value || '';
-    setFilters(prev => ({
+    const searchQuery = e.target.elements.search?.value || "";
+    setFilters((prev) => ({
       ...prev,
-      searchQuery
+      searchQuery,
     }));
   };
 
@@ -694,7 +759,10 @@ const EmployeerSavedCandidates = () => {
         {/* Breadcrumb */}
         <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
           <div className="my-auto">
-            <h2>&nbsp;<i className="fa fa-users text-primary"></i> Saved Candidates</h2>
+            <h2>
+              &nbsp;<i className="fa fa-users text-primary"></i> Saved
+              Candidates
+            </h2>
           </div>
 
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
@@ -702,22 +770,35 @@ const EmployeerSavedCandidates = () => {
             <div className="dropdown me-2">
               <button
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                onClick={() => toggleDropdown('dateRange')}
+                onClick={() => toggleDropdown("dateRange")}
               >
-                <i className="ti ti-calendar me-1"></i>{selectedDateRange}
+                <i className="ti ti-calendar me-1"></i>
+                {selectedDateRange}
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'dateRange' || activeDropdown === 'customRange' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'dateRange' || activeDropdown === 'customRange' ? 'block' : 'none', minWidth: '280px' }}
+                className={`dropdown-menu dropdown-menu-end p-3 ${
+                  activeDropdown === "dateRange" ||
+                  activeDropdown === "customRange"
+                    ? "show"
+                    : ""
+                }`}
+                style={{
+                  display:
+                    activeDropdown === "dateRange" ||
+                    activeDropdown === "customRange"
+                      ? "block"
+                      : "none",
+                  minWidth: "280px",
+                }}
               >
-                {activeDropdown === 'customRange' ? (
+                {activeDropdown === "customRange" ? (
                   // Custom Range Date Picker View
                   <li className="p-2">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <h6 className="mb-0">Select Date Range</h6>
                       <button
                         className="btn btn-sm btn-outline-secondary"
-                        onClick={() => setActiveDropdown('dateRange')}
+                        onClick={() => setActiveDropdown("dateRange")}
                       >
                         <i className="ti ti-arrow-left"></i> Back
                       </button>
@@ -726,12 +807,14 @@ const EmployeerSavedCandidates = () => {
                       <input
                         type="date"
                         className="form-control me-2"
-                        style={{ fontSize: '12px' }}
+                        style={{ fontSize: "12px" }}
                         value={dateRange.start}
                         onChange={(e) => {
                           setDateRange({ ...dateRange, start: e.target.value });
                           if (dateRange.end && e.target.value) {
-                            setSelectedDateRange(`${e.target.value} - ${dateRange.end}`);
+                            setSelectedDateRange(
+                              `${e.target.value} - ${dateRange.end}`
+                            );
                           }
                         }}
                         placeholder="Start Date"
@@ -740,12 +823,14 @@ const EmployeerSavedCandidates = () => {
                       <input
                         type="date"
                         className="form-control"
-                        style={{ fontSize: '12px' }}
+                        style={{ fontSize: "12px" }}
                         value={dateRange.end}
                         onChange={(e) => {
                           setDateRange({ ...dateRange, end: e.target.value });
                           if (dateRange.start && e.target.value) {
-                            setSelectedDateRange(`${dateRange.start} - ${e.target.value}`);
+                            setSelectedDateRange(
+                              `${dateRange.start} - ${e.target.value}`
+                            );
                           }
                         }}
                         min={dateRange.start}
@@ -756,8 +841,8 @@ const EmployeerSavedCandidates = () => {
                       <button
                         className="btn btn-sm btn-outline-secondary"
                         onClick={() => {
-                          setDateRange({ start: '', end: '' });
-                          setSelectedDateRange('This Year');
+                          setDateRange({ start: "", end: "" });
+                          setSelectedDateRange("This Year");
                           closeAllDropdowns();
                         }}
                       >
@@ -786,7 +871,9 @@ const EmployeerSavedCandidates = () => {
                           onClick={() => handleDateRangeSelect(option)}
                         >
                           <span>{option.label}</span>
-                          <small className="text-muted">{option.dateLabel}</small>
+                          <small className="text-muted">
+                            {option.dateLabel}
+                          </small>
                         </button>
                       </li>
                     ))}
@@ -799,13 +886,17 @@ const EmployeerSavedCandidates = () => {
             <div className="dropdown me-2">
               <button
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                onClick={() => toggleDropdown('role')}
+                onClick={() => toggleDropdown("role")}
               >
                 {selectedRole}
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'role' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'role' ? 'block' : 'none' }}
+                className={`dropdown-menu dropdown-menu-end p-3 ${
+                  activeDropdown === "role" ? "show" : ""
+                }`}
+                style={{
+                  display: activeDropdown === "role" ? "block" : "none",
+                }}
               >
                 {roles.map((role) => (
                   <li key={role}>
@@ -813,9 +904,9 @@ const EmployeerSavedCandidates = () => {
                       className="dropdown-item rounded-1"
                       onClick={() => {
                         setSelectedRole(role);
-                        setFilters(prev => ({
+                        setFilters((prev) => ({
                           ...prev,
-                          jobCategories: role === 'All' ? [] : [role]
+                          jobCategories: role === "All" ? [] : [role],
                         }));
                         closeAllDropdowns();
                       }}
@@ -831,13 +922,17 @@ const EmployeerSavedCandidates = () => {
             <div className="dropdown me-2">
               <button
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                onClick={() => toggleDropdown('status')}
+                onClick={() => toggleDropdown("status")}
               >
                 {selectedStatus}
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'status' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'status' ? 'block' : 'none' }}
+                className={`dropdown-menu dropdown-menu-end p-3 ${
+                  activeDropdown === "status" ? "show" : ""
+                }`}
+                style={{
+                  display: activeDropdown === "status" ? "block" : "none",
+                }}
               >
                 {statuses.map((status) => (
                   <li key={status}>
@@ -845,9 +940,9 @@ const EmployeerSavedCandidates = () => {
                       className="dropdown-item rounded-1"
                       onClick={() => {
                         setSelectedStatus(status);
-                        setFilters(prev => ({
+                        setFilters((prev) => ({
                           ...prev,
-                          status: status === 'All' ? '' : status
+                          status: status === "All" ? "" : status,
                         }));
                         closeAllDropdowns();
                       }}
@@ -863,13 +958,17 @@ const EmployeerSavedCandidates = () => {
             <div className="dropdown me-2">
               <button
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                onClick={() => toggleDropdown('sort')}
+                onClick={() => toggleDropdown("sort")}
               >
                 {selectedSort}
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'sort' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'sort' ? 'block' : 'none' }}
+                className={`dropdown-menu dropdown-menu-end p-3 ${
+                  activeDropdown === "sort" ? "show" : ""
+                }`}
+                style={{
+                  display: activeDropdown === "sort" ? "block" : "none",
+                }}
               >
                 {sortOptions.map((option) => (
                   <li key={option}>
@@ -889,10 +988,16 @@ const EmployeerSavedCandidates = () => {
 
             {/* View Toggle */}
             <div className="d-flex align-items-center border bg-white rounded p-1 me-2 icon-list">
-              <button className="btn btn-icon btn-sm me-1" onClick={() => navigate("/employer/candidate-list")}>
+              <button
+                className="btn btn-icon btn-sm me-1"
+                onClick={() => navigate("/employer/candidate-list")}
+              >
                 <i className="ti ti-list-tree"></i>
               </button>
-              <button className="btn btn-icon btn-sm active bg-secondary text-white" onClick={() => navigate("/employer/new-candidate")}>
+              <button
+                className="btn btn-icon btn-sm active bg-secondary text-white"
+                onClick={() => navigate("/employer/new-candidate")}
+              >
                 <i className="ti ti-layout-grid"></i>
               </button>
             </div>
@@ -901,13 +1006,19 @@ const EmployeerSavedCandidates = () => {
             <div className="dropdown me-2">
               <button
                 className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                onClick={() => toggleDropdown('export')}
+                onClick={() => toggleDropdown("export")}
               >
-                <i className="ti ti-file-export me-1"></i>{selectedExport}
+                <i className="ti ti-file-export me-1"></i>
+                {selectedExport}
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === 'export' ? 'show' : ''}`}
-                style={{ display: activeDropdown === 'export' ? 'block' : 'none', marginLeft: '-65px', }}
+                className={`dropdown-menu dropdown-menu-end p-3 ${
+                  activeDropdown === "export" ? "show" : ""
+                }`}
+                style={{
+                  display: activeDropdown === "export" ? "block" : "none",
+                  marginLeft: "-65px",
+                }}
               >
                 {exportOptions.map((option) => (
                   <li key={option.label}>
@@ -918,7 +1029,8 @@ const EmployeerSavedCandidates = () => {
                         closeAllDropdowns();
                       }}
                     >
-                      <i className={`${option.icon} me-1`}></i>{option.label}
+                      <i className={`${option.icon} me-1`}></i>
+                      {option.label}
                     </button>
                   </li>
                 ))}
@@ -934,7 +1046,10 @@ const EmployeerSavedCandidates = () => {
               {/* Filter Sidebar */}
               <div className="col-lg-3 col-md-6 card card-body">
                 <div className="themesettings-inner offcanvas-body">
-                  <div className="accordion accordion-customicon1 accordions-items-seperate" id="settingtheme">
+                  <div
+                    className="accordion accordion-customicon1 accordions-items-seperate"
+                    id="settingtheme"
+                  >
                     <h3 className="mb-1 text-secondary">Filter Candidates</h3>
                     <p className="text-dark">Search & Filter</p>
 
@@ -944,38 +1059,53 @@ const EmployeerSavedCandidates = () => {
                         <button
                           className="accordion-button text-dark fs-16 align-items-center justify-content-between"
                           type="button"
-                          onClick={() => toggleSection('jobCategory')}
+                          onClick={() => toggleSection("jobCategory")}
                         >
                           Select Job Category
                           <span>
                             <FaArrowCircleUp
-                              className={`text-primary transition-all duration-300 ${openSections.jobCategory ? 'rotate-180' : ''}`}
+                              className={`text-primary transition-all duration-300 ${
+                                openSections.jobCategory ? "rotate-180" : ""
+                              }`}
                               size={20}
                             />
                           </span>
                         </button>
                       </h2>
                       <div
-                        className={`accordion-collapse collapse ${openSections.jobCategory ? 'show' : ''}`}
+                        className={`accordion-collapse collapse ${
+                          openSections.jobCategory ? "show" : ""
+                        }`}
                       >
                         <div className="accordion-body">
                           <div className="row gx-3">
                             <div className="form-group">
                               <div className="checkbox-limit">
                                 <ul className="checkbox-list">
-                                  {roles.filter(role => role !== 'All').map(category => (
-                                    <li className="mb-2" key={category}>
-                                      <label className="custom-checkbox">
-                                        <input
-                                          type="checkbox"
-                                          checked={filters.jobCategories.includes(category)}
-                                          onChange={() => handleCheckboxChange('jobCategories', category)}
-                                        />
-                                        <span className="fake-checkbox"></span>
-                                        <span className="label-text">{category}</span>
-                                      </label>
-                                    </li>
-                                  ))}
+                                  {roles
+                                    .filter((role) => role !== "All")
+                                    .map((category) => (
+                                      <li className="mb-2" key={category}>
+                                        <label className="custom-checkbox">
+                                          <input
+                                            type="checkbox"
+                                            checked={filters.jobCategories.includes(
+                                              category
+                                            )}
+                                            onChange={() =>
+                                              handleCheckboxChange(
+                                                "jobCategories",
+                                                category
+                                              )
+                                            }
+                                          />
+                                          <span className="fake-checkbox"></span>
+                                          <span className="label-text">
+                                            {category}
+                                          </span>
+                                        </label>
+                                      </li>
+                                    ))}
                                 </ul>
                               </div>
                             </div>
@@ -984,25 +1114,30 @@ const EmployeerSavedCandidates = () => {
                       </div>
                     </div>
 
-
                     {/* Gender Accordion */}
                     <div className="accordion-item">
                       <h2 className="accordion-header">
                         <button
                           className="accordion-button text-dark fs-16 align-items-center justify-content-between"
                           type="button"
-                          onClick={() => toggleSection('gender')}
+                          onClick={() => toggleSection("gender")}
                         >
                           Gender
                           <span>
                             <FaArrowCircleUp
-                              className={`text-primary transition-all duration-300 ${openSections.gender ? 'rotate-180' : ''}`}
+                              className={`text-primary transition-all duration-300 ${
+                                openSections.gender ? "rotate-180" : ""
+                              }`}
                               size={20}
                             />
                           </span>
                         </button>
                       </h2>
-                      <div className={`accordion-collapse collapse ${openSections.gender ? 'show' : ''}`}>
+                      <div
+                        className={`accordion-collapse collapse ${
+                          openSections.gender ? "show" : ""
+                        }`}
+                      >
                         <div className="accordion-body">
                           <div className="d-flex align-items-center">
                             <div className="theme-width m-0 me-2">
@@ -1011,10 +1146,15 @@ const EmployeerSavedCandidates = () => {
                                 id="male"
                                 name="gender"
                                 value="male"
-                                checked={filters.gender === 'male'}
+                                checked={filters.gender === "male"}
                                 onChange={handleRadioChange}
                               />
-                              <label htmlFor="male" className="d-block rounded fs-12">Male</label>
+                              <label
+                                htmlFor="male"
+                                className="d-block rounded fs-12"
+                              >
+                                Male
+                              </label>
                             </div>
                             <div className="theme-width m-0">
                               <input
@@ -1022,10 +1162,15 @@ const EmployeerSavedCandidates = () => {
                                 id="female"
                                 name="gender"
                                 value="female"
-                                checked={filters.gender === 'female'}
+                                checked={filters.gender === "female"}
                                 onChange={handleRadioChange}
                               />
-                              <label htmlFor="female" className="d-block rounded fs-12">Female</label>
+                              <label
+                                htmlFor="female"
+                                className="d-block rounded fs-12"
+                              >
+                                Female
+                              </label>
                             </div>
                             <div className="theme-width m-1">
                               <input
@@ -1036,13 +1181,17 @@ const EmployeerSavedCandidates = () => {
                                 checked={!filters.gender}
                                 onChange={handleRadioChange}
                               />
-                              <label htmlFor="any" className="d-block rounded fs-12">Any</label>
+                              <label
+                                htmlFor="any"
+                                className="d-block rounded fs-12"
+                              >
+                                Any
+                              </label>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-
 
                     {/* Location Accordion */}
                     <div className="accordion-item">
@@ -1050,18 +1199,24 @@ const EmployeerSavedCandidates = () => {
                         <button
                           className="accordion-button text-dark fs-16 align-items-center justify-content-between"
                           type="button"
-                          onClick={() => toggleSection('location')}
+                          onClick={() => toggleSection("location")}
                         >
                           Location
                           <span>
                             <FaArrowCircleUp
-                              className={`text-primary transition-all duration-300 ${openSections.location ? 'rotate-180' : ''}`}
+                              className={`text-primary transition-all duration-300 ${
+                                openSections.location ? "rotate-180" : ""
+                              }`}
                               size={20}
                             />
                           </span>
                         </button>
                       </h2>
-                      <div className={`accordion-collapse collapse ${openSections.location ? 'show' : ''}`}>
+                      <div
+                        className={`accordion-collapse collapse ${
+                          openSections.location ? "show" : ""
+                        }`}
+                      >
                         <div className="accordion-body">
                           <div className="d-flex align-items-center">
                             <input
@@ -1084,18 +1239,24 @@ const EmployeerSavedCandidates = () => {
                         <button
                           className="accordion-button text-dark fs-16 align-items-center justify-content-between"
                           type="button"
-                          onClick={() => toggleSection('qualification')}
+                          onClick={() => toggleSection("qualification")}
                         >
                           Qualification
                           <span>
                             <FaArrowCircleUp
-                              className={`text-primary transition-all duration-300 ${openSections.qualification ? 'rotate-180' : ''}`}
+                              className={`text-primary transition-all duration-300 ${
+                                openSections.qualification ? "rotate-180" : ""
+                              }`}
                               size={20}
                             />
                           </span>
                         </button>
                       </h2>
-                      <div className={`accordion-collapse collapse ${openSections.qualification ? 'show' : ''}`}>
+                      <div
+                        className={`accordion-collapse collapse ${
+                          openSections.qualification ? "show" : ""
+                        }`}
+                      >
                         <div className="accordion-body">
                           <div className="row gx-3">
                             <input
@@ -1118,18 +1279,24 @@ const EmployeerSavedCandidates = () => {
                         <button
                           className="accordion-button text-dark fs-16 align-items-center justify-content-between"
                           type="button"
-                          onClick={() => toggleSection('experience')}
+                          onClick={() => toggleSection("experience")}
                         >
                           Experience
                           <span>
                             <FaArrowCircleUp
-                              className={`text-primary transition-all duration-300 ${openSections.experience ? 'rotate-180' : ''}`}
+                              className={`text-primary transition-all duration-300 ${
+                                openSections.experience ? "rotate-180" : ""
+                              }`}
                               size={20}
                             />
                           </span>
                         </button>
                       </h2>
-                      <div className={`accordion-collapse collapse ${openSections.experience ? 'show' : ''}`}>
+                      <div
+                        className={`accordion-collapse collapse ${
+                          openSections.experience ? "show" : ""
+                        }`}
+                      >
                         <div className="accordion-body pb-0">
                           <div className="row gx-3">
                             <div className="price-inputs d-flex mb-3">
@@ -1196,7 +1363,13 @@ const EmployeerSavedCandidates = () => {
                           placeholder="Search Candidates (name, email, skills, etc.)"
                           defaultValue={filters.searchQuery}
                         />
-                        <button type="submit" className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }}>Search</button>
+                        <button
+                          type="submit"
+                          className="btn btn-secondary"
+                          style={{ whiteSpace: "nowrap" }}
+                        >
+                          Search
+                        </button>
                       </div>
                     </form>
                   </div>
@@ -1205,20 +1378,30 @@ const EmployeerSavedCandidates = () => {
                 {/* Candidates Count */}
                 <div className="mb-3">
                   <span className="badge bg-warning">
-                    {filteredCandidates.length} {filteredCandidates.length === 1 ? 'Saved candidate' : 'Saved candidates'} found
+                    {filteredCandidates.length}{" "}
+                    {filteredCandidates.length === 1
+                      ? "Saved candidate"
+                      : "Saved candidates"}{" "}
+                    found
                   </span>
                 </div>
 
                 {/* Candidates Grid */}
                 <div className="row">
                   {filteredCandidates.length > 0 ? (
-                    filteredCandidates.map(candidate => (
-                      <div key={candidate._id} className="col-xxl-12 col-xl-4 col-md-6">
+                    filteredCandidates.map((candidate) => (
+                      <div
+                        key={candidate._id}
+                        className="col-xxl-12 col-xl-4 col-md-6"
+                      >
                         <div className="card">
                           <div className="card-body">
                             <div className="d-flex align-items-center justify-content-between mb-2">
                               <div className="d-flex align-items-center">
-                                <a href="javascript:void(0);" className="avatar flex-shrink-0">
+                                <a
+                                  href="javascript:void(0);"
+                                  className="avatar flex-shrink-0"
+                                >
                                   <img
                                     src={candidate.profileurl || user13}
                                     className="img-fluid h-auto w-auto"
@@ -1231,25 +1414,45 @@ const EmployeerSavedCandidates = () => {
                                 </a>
                                 <div className="ms-2">
                                   <h6 className="fs-14 fw-medium text-truncate text-primary mb-1">
-                                    <a className="text-secondary" href="#"
+                                    <a
+                                      className="text-secondary"
+                                      href="#"
                                       onClick={(e) => {
                                         e.preventDefault();
                                         viewCandidateDetails(candidate);
-                                      }}>
-                                      {candidate.firstName} {candidate.lastName || ''} &nbsp; | &nbsp;
+                                      }}
+                                    >
+                                      {candidate.firstName}{" "}
+                                      {candidate.lastName || ""} &nbsp; | &nbsp;
                                       <span className="text-dark">
-                                        <i className="ti ti-eye"></i> View Profile
+                                        <i className="ti ti-eye"></i> View
+                                        Profile
                                       </span>
                                     </a>
                                   </h6>
                                   <p className="fs-13">
-                                    <b>Saved On:</b> {new Date(candidate.appliedDate).toLocaleDateString('en-GB')}
-                                    <span className={`badge ${getStatusBadgeClass(candidate.employapplicantstatus)}`}>
-                                      {candidate.employapplicantstatus || 'Pending'}
-                                    </span> &nbsp; | &nbsp;
+                                    <b>Saved On:</b>{" "}
+                                    {new Date(
+                                      candidate.appliedDate
+                                    ).toLocaleDateString("en-GB")}
+                                    <span
+                                      className={`badge ${getStatusBadgeClass(
+                                        candidate.employapplicantstatus
+                                      )}`}
+                                    >
+                                      {candidate.employapplicantstatus ||
+                                        "Pending"}
+                                    </span>{" "}
+                                    &nbsp; | &nbsp;
                                     {candidate.resume?.url && (
-                                      <a href={candidate.resume.url} className="fw-medium text-primary" target="_blank" rel="noopener noreferrer">
-                                        <i className="ti ti-download"></i> Download Resume
+                                      <a
+                                        href={candidate.resume.url}
+                                        className="fw-medium text-primary"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                      >
+                                        <i className="ti ti-download"></i>{" "}
+                                        Download Resume
                                       </a>
                                     )}
                                   </p>
@@ -1257,12 +1460,18 @@ const EmployeerSavedCandidates = () => {
                               </div>
                               <div className="d-flex align-items-center">
                                 {candidate.phone && (
-                                  <a href={`tel:${candidate.phone}`} className="btn btn-light text-success btn-icon btn-sm me-1">
+                                  <a
+                                    href={`tel:${candidate.phone}`}
+                                    className="btn btn-light text-success btn-icon btn-sm me-1"
+                                  >
                                     <i className="ti ti-phone fs-16"></i>
                                   </a>
                                 )}
                                 {candidate.email && (
-                                  <a href={`mailto:${candidate.email}`} className="btn btn-light btn-icon text-danger btn-sm me-1">
+                                  <a
+                                    href={`mailto:${candidate.email}`}
+                                    className="btn btn-light btn-icon text-danger btn-sm me-1"
+                                  >
                                     <i className="ti ti-mail-bolt fs-16"></i>
                                   </a>
                                 )}
@@ -1271,11 +1480,13 @@ const EmployeerSavedCandidates = () => {
                                   className="btn btn-light text-info btn-icon text-info btn-sm me-1"
                                   onClick={(e) => {
                                     e.preventDefault();
-                                    const jobId = findJobIdForCandidate(candidate);
+                                    const jobId =
+                                      findJobIdForCandidate(candidate);
                                     setSelectedCandidateForChat({
                                       ...candidate,
                                       jobId: jobId,
-                                      applicantId: candidate.applicantId || candidate._id
+                                      applicantId:
+                                        candidate.applicantId || candidate._id,
                                     });
                                     setShowChatSidebar(true);
                                   }}
@@ -1284,40 +1495,84 @@ const EmployeerSavedCandidates = () => {
                                 </a>
                                 <a
                                   href="#"
-                                  className={`btn btn-light ${candidate.favourite ? 'text-danger' : 'text-primary'} btn-icon btn-sm`}
+                                  className={`btn btn-light ${
+                                    candidate.favourite
+                                      ? "text-danger"
+                                      : "text-primary"
+                                  } btn-icon btn-sm`}
                                   onClick={(e) => {
                                     e.preventDefault();
-                                    const employerData = JSON.parse(localStorage.getItem('employerData'));
-                                    toggleFavoriteStatus(candidate._id, employerData._id, candidate.favourite || false);
+                                    const employerData = JSON.parse(
+                                      localStorage.getItem("employerData")
+                                    );
+                                    toggleFavoriteStatus(
+                                      candidate._id,
+                                      employerData._id,
+                                      candidate.favourite || false
+                                    );
                                   }}
-                                  style={candidate.favourite ? { backgroundColor: '#ffd700', borderColor: 'white' } : {}}
+                                  style={
+                                    candidate.favourite
+                                      ? {
+                                          backgroundColor: "#ffd700",
+                                          borderColor: "white",
+                                        }
+                                      : {}
+                                  }
                                 >
                                   <i
                                     className={`ti ti-bookmark fs-16`}
-                                    style={candidate.favourite ? { color: 'white' } : {}}
+                                    style={
+                                      candidate.favourite
+                                        ? { color: "white" }
+                                        : {}
+                                    }
                                   ></i>
                                 </a>
                               </div>
                             </div>
                             <div className="bg-light rounder p-2">
                               <div className="d-flex align-items-center justify-content-between mb-2">
-                                <span><b>Experience</b> : {candidate.experience || '0'} Years</span>
-                                <span><b>Job Role</b> : {candidate.jobrole || 'Not specified'}</span>
+                                <span>
+                                  <b>Experience</b> :{" "}
+                                  {candidate.experience || "0"} Years
+                                </span>
+                                <span>
+                                  <b>Job Role</b> :{" "}
+                                  {candidate.jobrole || "Not specified"}
+                                </span>
                               </div>
                               <div className="d-flex align-items-center justify-content-between mb-2">
-                                <span><b>Gender</b> : {candidate.gender || 'Not specified'}</span>
-                                <span><b>Email</b> : {candidate.email || 'Not specified'}</span>
+                                <span>
+                                  <b>Gender</b> :{" "}
+                                  {candidate.gender || "Not specified"}
+                                </span>
+                                <span>
+                                  <b>Email</b> :{" "}
+                                  {candidate.email || "Not specified"}
+                                </span>
                               </div>
                               <div className="d-flex align-items-center justify-content-between mb-2">
-                                <span><b>Phone</b> : {candidate.phone || 'Not specified'}</span>
-                                <span><b>Qualification</b> : {candidate.qualification || 'Not specified'}</span>
+                                <span>
+                                  <b>Phone</b> :{" "}
+                                  {candidate.phone || "Not specified"}
+                                </span>
+                                <span>
+                                  <b>Qualification</b> :{" "}
+                                  {candidate.qualification || "Not specified"}
+                                </span>
                               </div>
                               <div className="d-flex align-items-center justify-content-between">
-                                <span><b>Current Location</b> : {candidate.currentcity || 'Not specified'}</span>
+                                <span>
+                                  <b>Current Location</b> :{" "}
+                                  {candidate.currentcity || "Not specified"}
+                                </span>
                                 <span>
                                   <button
                                     className="fs-10 fw-bold badge bg-warning"
-                                    onClick={() => viewCandidateDetails(candidate)}
+                                    onClick={() =>
+                                      viewCandidateDetails(candidate)
+                                    }
                                   >
                                     <i className="ti ti-eye"></i> View Profile
                                   </button>
@@ -1330,16 +1585,25 @@ const EmployeerSavedCandidates = () => {
                     ))
                   ) : (
                     <div className="col-12 text-center py-5">
-                      <img src={defaultEmployeeAvatar} alt="No Saved candidates found" width="150" className="mb-3" />
+                      <img
+                        src={defaultEmployeeAvatar}
+                        alt="No Saved candidates found"
+                        width="150"
+                        className="mb-3"
+                      />
                       <h4>No Saved candidates found</h4>
-                      <p className="text-muted">Try adjusting your search filters</p>
+                      <p className="text-muted">
+                        Try adjusting your search filters
+                      </p>
                     </div>
                   )}
 
                   {filteredCandidates.length > 0 && (
                     <div className="col-md-12">
                       <div align="right" className="mb-4">
-                        <a href="#" className="btn btn-secondary"><i className="ti ti-loader-3 me-1"></i>Load More</a>
+                        <a href="#" className="btn btn-secondary">
+                          <i className="ti ti-loader-3 me-1"></i>Load More
+                        </a>
                       </div>
                     </div>
                   )}
@@ -1383,4 +1647,3 @@ const EmployeerSavedCandidates = () => {
 };
 
 export default EmployeerSavedCandidates;
-

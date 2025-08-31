@@ -31,7 +31,7 @@
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
 //     setError('');
-    
+
 //     if (!otp) {
 //       setError('Please enter the OTP');
 //       return;
@@ -41,8 +41,8 @@
 //       setIsLoading(true);
 //       const payload = { otp };
 //       console.log('Sending OTP verification request with payload:', payload);
-      
-//       const response = await axios.post('https://edujobzbackend.onrender.com/verify-otp', payload);
+
+//       const response = await axios.post('https://api.edprofio.com/verify-otp', payload);
 //       console.log('OTP verification response:', response.data);
 
 //       if (response.data.success) {
@@ -63,8 +63,8 @@
 //       setResendLoading(true);
 //       const payload = { userMobile: mobile };
 //       console.log('Sending OTP resend request with payload:', payload);
-      
-//       const response = await axios.post('https://edujobzbackend.onrender.com/resend-otp', payload);
+
+//       const response = await axios.post('https://api.edprofio.com/resend-otp', payload);
 //       console.log('OTP resend response:', response.data);
 
 //       if (response.data.message === "OTP sent successfully") {
@@ -96,7 +96,7 @@
 //             <div className="jobplugin__userbox bg-light shadow">
 //               <span className="jobplugin__userbox-bar jobplugin__bg-primary"></span>
 //               <span className="jobplugin__userbox-bar"></span>
-              
+
 //               <h1 className="text-secondary h3 mb-4">Verify OTP</h1>
 //               <p className="mb-4">Enter the OTP sent to your mobile number</p>
 
@@ -152,19 +152,19 @@
 
 // export default OTPVerificationPage;
 
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const OTPVerificationPage = () => {
-  const [otp, setOtp] = useState('');
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [otp, setOtp] = useState("");
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [countdown, setCountdown] = useState(30);
-  const [mobile, setMobile] = useState('');
-  const [receivedOtp, setReceivedOtp] = useState('');
+  const [mobile, setMobile] = useState("");
+  const [receivedOtp, setReceivedOtp] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -174,10 +174,10 @@ const OTPVerificationPage = () => {
       if (location.state.otp) {
         setReceivedOtp(location.state.otp);
         setSuccessMessage(`OTP sent successfully: ${location.state.otp}`);
-        setTimeout(() => setSuccessMessage(''), 10000); // Hide after 10 seconds
+        setTimeout(() => setSuccessMessage(""), 10000); // Hide after 10 seconds
       }
     } else {
-      navigate('/forgot-password');
+      navigate("/forgot-password");
     }
   }, [location, navigate]);
 
@@ -191,29 +191,34 @@ const OTPVerificationPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    
+    setError("");
+
     if (!otp) {
-      setError('Please enter the OTP');
+      setError("Please enter the OTP");
       return;
     }
 
     try {
       setIsLoading(true);
       const payload = { otp };
-      console.log('Sending OTP verification request with payload:', payload);
-      
-      const response = await axios.post('https://edujobzbackend.onrender.com/verify-otp', payload);
-      console.log('OTP verification response:', response.data);
+      console.log("Sending OTP verification request with payload:", payload);
+
+      const response = await axios.post(
+        "https://api.edprofio.com/verify-otp",
+        payload
+      );
+      console.log("OTP verification response:", response.data);
 
       if (response.data.success) {
-        navigate('/reset-password', { state: { mobile } });
+        navigate("/reset-password", { state: { mobile } });
       } else {
-        setError(response.data.message || 'OTP verification failed');
+        setError(response.data.message || "OTP verification failed");
       }
     } catch (err) {
-      console.error('OTP verification error:', err.response?.data || err);
-      setError(err.response?.data?.message || 'Failed to verify OTP. Please try again.');
+      console.error("OTP verification error:", err.response?.data || err);
+      setError(
+        err.response?.data?.message || "Failed to verify OTP. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -223,23 +228,28 @@ const OTPVerificationPage = () => {
     try {
       setResendLoading(true);
       const payload = { userMobile: mobile };
-      console.log('Sending OTP resend request with payload:', payload);
-      
-      const response = await axios.post('https://edujobzbackend.onrender.com/resend-otp', payload);
-      console.log('OTP resend response:', response.data);
+      console.log("Sending OTP resend request with payload:", payload);
+
+      const response = await axios.post(
+        "https://api.edprofio.com/resend-otp",
+        payload
+      );
+      console.log("OTP resend response:", response.data);
 
       if (response.data.message === "OTP sent successfully") {
         setReceivedOtp(response.data.otp);
         setSuccessMessage(`New OTP sent successfully: ${response.data.otp}`);
-        setTimeout(() => setSuccessMessage(''), 10000); // Hide after 10 seconds
+        setTimeout(() => setSuccessMessage(""), 10000); // Hide after 10 seconds
         setCountdown(30);
-        setError('');
+        setError("");
       } else {
-        setError(response.data.message || 'Failed to resend OTP');
+        setError(response.data.message || "Failed to resend OTP");
       }
     } catch (err) {
-      console.error('Resend OTP error:', err.response?.data || err);
-      setError(err.response?.data?.message || 'Failed to resend OTP. Please try again.');
+      console.error("Resend OTP error:", err.response?.data || err);
+      setError(
+        err.response?.data?.message || "Failed to resend OTP. Please try again."
+      );
     } finally {
       setResendLoading(false);
     }
@@ -260,16 +270,22 @@ const OTPVerificationPage = () => {
             <div className="jobplugin__userbox bg-light shadow">
               <span className="jobplugin__userbox-bar jobplugin__bg-primary"></span>
               <span className="jobplugin__userbox-bar"></span>
-              
+
               <h1 className="text-secondary h3 mb-4">Verify OTP</h1>
               <p className="mb-4">Enter the OTP sent to your mobile number</p>
 
-              {error && (
-                <div className="alert alert-danger mb-4">{error}</div>
-              )}
+              {error && <div className="alert alert-danger mb-4">{error}</div>}
 
               {successMessage && (
-                <div className="alert alert-success mb-4" style={{ position: 'fixed', right: '20px', top: '20px', zIndex: 1000 }}>
+                <div
+                  className="alert alert-success mb-4"
+                  style={{
+                    position: "fixed",
+                    right: "20px",
+                    top: "20px",
+                    zIndex: 1000,
+                  }}
+                >
                   {successMessage}
                 </div>
               )}
@@ -294,7 +310,7 @@ const OTPVerificationPage = () => {
                     className="jobplugin__button large jobplugin__bg-primary hover:jobplugin__bg-secondary"
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Verifying...' : 'Verify OTP'}
+                    {isLoading ? "Verifying..." : "Verify OTP"}
                   </button>
                 </div>
               </form>
@@ -308,7 +324,7 @@ const OTPVerificationPage = () => {
                     disabled={resendLoading}
                     className="text-primary hover:underline bg-transparent border-none"
                   >
-                    {resendLoading ? 'Sending...' : 'Resend OTP'}
+                    {resendLoading ? "Sending..." : "Resend OTP"}
                   </button>
                 )}
               </div>
