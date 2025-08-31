@@ -6,7 +6,7 @@ import AboutPage from './pages/public/About';
 import CareersPage from './pages/public/Careers';
 import BlogsPage from './pages/public/Blogs';
 import BlogDetailsPage from './pages/public/Blogs/[id]';
-import JobsPage from './pages/public/Jobs/Index';
+import JobsPage from './pages/public/Jobs/JobsPage';
 import JobsPageList from './pages/public/Jobs/JobsPageList';
 import JobPageMapGrid from './pages/public/Jobs/JobPageMapGrid';
 import JobsFilter from './pages/public/Jobs/JobsFilter';
