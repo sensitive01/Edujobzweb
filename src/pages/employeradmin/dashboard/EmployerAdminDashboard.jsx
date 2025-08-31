@@ -4,7 +4,7 @@ import EmployerAdminHeader from '../Layout/EmployerAdminHeader';
 import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
 import AddTodoModal from './modal/AddTodoModal';
 import AddTeacherModal from './modal/AddteacherModal';
-import AddLeavesModal from './modal/AddleavesModal';
+import AddLeavesModal from './modal/AddLeavesModal';
 import AddUserModal from './modal/AddUserModal';
 import user19 from '../../../assets/employer-admin/assets/img/profiles/avatar-31.jpg';
 // Add these imports at the top of your file with the other imports
