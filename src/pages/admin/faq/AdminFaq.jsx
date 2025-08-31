@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import AdminHeader from '../Layout/AdminHeader';
-import AdminFooter from '../Layout/AdminFooter';
+import AdminHeader from '../layout/AdminHeader';
+import AdminFooter from '../layout/AdminFooter';
 
 
 const AdminFaq = () => {
