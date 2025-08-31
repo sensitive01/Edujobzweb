@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import logo from '../../../assets/employer-admin/assets/img/logo.svg';
-import AdminHeader from '../Layout/AdminHeader';
-import AdminFooter from '../Layout/AdminFooter';
+import AdminHeader from '../layout/AdminHeader';
+import AdminFooter from '../layout/AdminFooter';
 
 const AdminSubscribers = () => {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
