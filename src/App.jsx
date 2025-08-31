@@ -67,7 +67,7 @@ import EmployeerPlansGrid from './pages/employer/Plans/EmployeerPlansGrid';
 import FAQs from './pages/employer/Faqs/FAQs';
 import AdminLoginPage from './pages/admin/login/login';
 import AdminRegister from './pages/admin/register/register';
-import EmployerAdminLoginPage from './pages/employeradmin/Login/Login';
+import EmployerAdminLoginPage from './pages/employeradmin/login/EmployerAdminLoginPage';
 import EmployerAdminRegister from './pages/employeradmin/Register/Register';
 import EmployerAdminForgotPassword from './pages/employeradmin/forgotpassword/EmployerAdminForgotPassword';
 import EmployerAdminChangePassword from './pages/employeradmin/forgotpassword/EmployerAdminChangePassword';
