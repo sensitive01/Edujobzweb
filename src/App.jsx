@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/public/Home';
 import AboutPage from './pages/public/About';
@@ -293,6 +293,10 @@ function App() {
             </Routes>
           </Layout>
         } />
+<Route 
+  path='/edprofio-privacy-policy.html' 
+  element={<Navigate to="/edprofio-privacy-policy.html" replace />} 
+/>
         <Route path='*' element={<NotFoundPage />} />
       </Routes>
     </Router>
