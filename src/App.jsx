@@ -128,6 +128,7 @@ import AdminEvents from './pages/admin/events/Events';
 import CalenderReminder from './pages/admin/calender/CalenderReminder';
 import AdminFaq from './pages/admin/faq/AdminFaq';
 import AdminSupport from './pages/admin/support/AdminSupport';
+import PrivacyPolicy from './pages/policy/PrivacyPolicy';
 
 function App() {
   return (
@@ -293,10 +294,13 @@ function App() {
             </Routes>
           </Layout>
         } />
-<Route 
-  path='/edprofio-privacy-policy.html' 
-  element={<Navigate to="/edprofio-privacy-policy.html" replace />} 
-/>
+         <Route 
+           path='/edprofio-privacy-policy.html' 
+           element={<Navigate to="/edprofio-privacy-policy.html" replace />} 
+           />
+                   <Route path='/privacy-policy' element={<PrivacyPolicy />} />
+
+
         <Route path='*' element={<NotFoundPage />} />
       </Routes>
     </Router>
