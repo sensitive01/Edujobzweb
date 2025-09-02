@@ -9,7 +9,7 @@ const EmployersPage = () => {
           <div className="row">
             <div className="col-12">
               <div className="subvisual-textbox">
-                <h1 className="mb-0 text-primary">Employers Associated with EduJobz</h1>
+                <h1 className="mb-0 text-primary">Employers Associated with EdProfio</h1>
                 <p>Feel free to get in touch with us. Need Help?</p>
               </div>
             </div>
@@ -26,7 +26,7 @@ const EmployersPage = () => {
               <div className="col-12">
                 {/* Page subheader */}
                 <header className="page-subheader mb-30 mb-md-40 d-lg-flex align-items-center justify-content-between">
-                  <h3 className="h6 mb-25 ms-20 mb-lg-0 text-secondary">1,00,000+ Schools Connected with EduJobz</h3>
+                  <h3 className="h6 mb-25 ms-20 mb-lg-0 text-secondary">1,00,000+ Schools Connected with EdProfio</h3>
                   <div className="subhead-filters">
                     <div className="subhead-filters-item">
                       <label>Sort By</label>

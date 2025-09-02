@@ -14,7 +14,7 @@ const AboutPage = () => {
           <div className="row">
             <div className="col-12">
               <div className="subvisual-textbox pb-0">
-                <h1 className="text-primary mb-0">About EduJobz</h1>
+                <h1 className="text-primary mb-0">About EdProfio</h1>
                 <p>Connect educators with teaching opportunities across various institutions</p>
               </div>
             </div>
@@ -30,14 +30,14 @@ const AboutPage = () => {
             <div className="row" style={{padding: "0px 100px"}}>
               <div className="col-12 col-lg-7 mb-35 mb-lg-0">
                 <div className="textbox">
-                  <img src="/images/logo - dark.png" width="50%" alt="EduJobz Logo" />
-                  <h2 className="text-secondary mb-0">Welcome to EduJobz</h2>
+                  <img src="/images/logo - dark.png" width="50%" alt="EdProfio Logo" />
+                  <h2 className="text-secondary mb-0">Welcome to EdProfio</h2>
                   <p className="fw-bold text-dark">A Platform for Educators at Every Level</p>
                   <hr className="mb-20" />
                   <p style={{textAlign: "justify"}}>
-                    Welcome to Edujobz, the premier platform designed to connect educational institutions with passionate and skilled edu-professionals. 
+                    Welcome to EdProfio, the premier platform designed to connect educational institutions with passionate and skilled edu-professionals. 
                     Whether you are an institution seeking top talent or a candidate pursuing your dream role in the education domain sector, 
-                    Edujobz helps bridge the gap with efficiency and precision.
+                    EdProfio helps bridge the gap with efficiency and precision.
                   </p>
                 </div>
               </div>
@@ -51,23 +51,23 @@ const AboutPage = () => {
             <div className="row">
               <div className="col-12 col-lg-12 mt-60">
                 <Tabs defaultActiveKey="why-choose" id="about-tabs" className="nav-tabs-line">
-                  <Tab eventKey="why-choose" title="Why Choose Edujobz?" className="border border-dark shadow p-20" style={{borderRadius: "10px"}}>
+                  <Tab eventKey="why-choose" title="Why Choose EdProfio?" className="border border-dark shadow p-20" style={{borderRadius: "10px"}}>
                     <p style={{textAlign: "justify"}}>
-                      At Edujobz, we understand the unique needs of the educational industry. Our platform serves a variety of educational institutions, 
+                      At EdProfio, we understand the unique needs of the educational industry. Our platform serves a variety of educational institutions, 
                       including schools, colleges, universities, training centres, and EdTech organizations, providing a robust and efficient recruitment solutions. 
                       For job seekers, we offer diverse opportunities across teaching, administration, research, and EdTech roles.
                     </p>
                   </Tab>
-                  <Tab eventKey="benefit" title="Who Can Benefit from Edujobz?" className="border border-dark shadow p-20" style={{borderRadius: "10px"}}>
+                  <Tab eventKey="benefit" title="Who Can Benefit from EdProfio?" className="border border-dark shadow p-20" style={{borderRadius: "10px"}}>
                     <p style={{textAlign: "justify"}}>
                       Whether you are an educator, administrator, counsellor, researcher, or EdTech specialist or a company, 
-                      Edujobz is your reliable partner in advancing your career and achieving professional success.
+                      EdProfio is your reliable partner in advancing your career and achieving professional success.
                     </p>
                   </Tab>
                   <Tab eventKey="mission" title="Our Mission" className="border border-dark shadow p-20" style={{borderRadius: "10px"}}>
                     <p style={{textAlign: "justify"}}>
                       Our mission is to empower educational growth by connecting the right talent with the right opportunities. 
-                      With our intuitive interface, powerful search filters, and tailored recommendations, Edujobz makes job searching and recruitment easier.
+                      With our intuitive interface, powerful search filters, and tailored recommendations, EdProfio makes job searching and recruitment easier.
                     </p>
                   </Tab>
                 </Tabs>

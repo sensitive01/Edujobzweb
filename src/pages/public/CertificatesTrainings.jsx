@@ -633,7 +633,7 @@ const CertificatesTrainings = () => {
     price:
       training.paymentStatus === "paid" ? `$${training.paidAmount}` : "Free",
     avatar: [avatar1, avatar2, avatar3][index % 3],
-    name: "EduJobz Instructor",
+    name: "EdProfio Instructor",
     rating:
       "4." + ((index % 5) + 1) + ` (${training.enrollerList?.length || 0})`,
     trainingData: training,
@@ -943,7 +943,7 @@ const CertificatesTrainings = () => {
                       <img src={userImage} alt="Training Instructor" />
                     </div>
                     <strong className="jobplugin__catalog-admin__name">
-                      EduJobz Instructor
+                      EdProfio Instructor
                     </strong>
                   </div>
                   <span className="jobplugin__section-box__ratings jobplugin__bg-primary">

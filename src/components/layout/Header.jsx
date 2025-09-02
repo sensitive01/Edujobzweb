@@ -207,7 +207,7 @@ const Header = () => {
                   <ul className="dropdown-menu" aria-labelledby="aboutDropdown">
                     <li>
                       <Link className="dropdown-item" to="/about-us" onClick={handleLinkClick}>
-                        About Edujobz
+                        About EdProfio
                       </Link>
                     </li>
                     <li>
@@ -608,7 +608,7 @@ const Header = () => {
                   onMouseEnter={(e) => e.target.style.backgroundColor = '#ffa500'}
                   onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                 >
-                  About Edujobz
+                  About EdProfio
                 </Link>
                 <Link
                   to="/careers"

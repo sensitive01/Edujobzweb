@@ -280,7 +280,7 @@
 //                                                     </div> */}
 //                                                 </div>
 //                                                 <div className="mt-5 pb-4 text-center">
-//                                                     <p className="mb-0 text-gray-9">Copyright &copy; 2025 - EduJobz</p>
+//                                                     <p className="mb-0 text-gray-9">Copyright &copy; 2025 - EdProfio</p>
 //                                                 </div>
 //                                             </div>
 //                                         </form>
@@ -578,7 +578,7 @@ const AdminLoginPage = () => {
                         </div>
                         <div className="mt-5 pb-4 text-center">
                           <p className="mb-0 text-gray-9">
-                            Copyright &copy; 2025 - EduJobz
+                            Copyright &copy; 2025 - EdProfio
                           </p>
                         </div>
                       </div>

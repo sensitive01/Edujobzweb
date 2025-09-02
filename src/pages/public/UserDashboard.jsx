@@ -166,7 +166,7 @@ const UserDashboard = () => {
       >
         <h4 className="text-primary mb-3">
           <FaHeart className="me-2" />
-          Welcome to EduJobz, {employerData?.firstName}!
+          Welcome to EdProfio, {employerData?.firstName}!
         </h4>
         <p className="mb-3">
           Great to have you on board! Your profile is{" "}

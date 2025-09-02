@@ -331,7 +331,7 @@
 //                             </button>
 //                             <ul className="dropdown-menu dropdown-menu-end p-3">
 //                                 <li><button className="dropdown-item rounded-1" onClick={() => setOrganizerFilter('All')}>All</button></li>
-//                                 <li><button className="dropdown-item rounded-1" onClick={() => setOrganizerFilter('Edujobz')}>Edujobz</button></li>
+//                                 <li><button className="dropdown-item rounded-1" onClick={() => setOrganizerFilter('Edujobz')}>EdProfio</button></li>
 //                                 <li><button className="dropdown-item rounded-1" onClick={() => setOrganizerFilter('Other')}>Other</button></li>
 //                             </ul>
 //                         </div>
@@ -1233,7 +1233,7 @@ const EmployerAdminEnrollment = () => {
                     className="dropdown-item rounded-1"
                     onClick={() => setOrganizerFilter("Edujobz")}
                   >
-                    Edujobz
+                    EdProfio
                   </button>
                 </li>
                 <li>
@@ -1736,7 +1736,7 @@ const EmployerAdminEnrollment = () => {
                             : "Other"}
                         </p>
                         <p className="mb-1">{selectedEvent.venue}</p>
-                        <p className="mb-1">contact@edujobz.com</p>
+                        <p className="mb-1">contact@edprofio.com</p>
                       </div>
                     </div>
                     <div className="col-md-5">

@@ -30,7 +30,7 @@ const Footer = () => {
                       <i className="icon icon-email"></i> &nbsp; Email:
                     </strong>
                     <span className="sub-text">
-                      <a href="mailto:support@edujobz.com">support@edujobz.com</a>
+                      <a href="mailto:support@edprofio.com">support@edprofio.com</a>
                     </span>
                   </li>
                   <li>
@@ -82,7 +82,7 @@ const Footer = () => {
               <div className="finder bg-white border border-primary shadow" style={{ border: '1px solid #fff' }}>
                 <strong className="h3 text-dark">Let Employers Find You</strong>
                 <p align="justify" className="text-secondary">
-                  Advertise your jobs to millions of candidates and search 15.8 million CVs through EduJobz.
+                  Advertise your jobs to millions of candidates and search 15.8 million CVs through EdProfio.
                 </p>
                 <Link className="btn_upload bg-light-sky border border-secondary" to="/upload-cv">
                   <i className="icon icon-upload-cloud"></i>
@@ -93,7 +93,7 @@ const Footer = () => {
           </div>
           <div className="bottom-footer">
             <p>
-              Copyright © 2025 <Link to="/">EduJobz</Link>. All Rights Reserved. 
+              Copyright © 2025 <Link to="/">EdProfio</Link>. All Rights Reserved. 
               Powered by <a href="https://sensitive.co.in/">Sensitive Technologies</a>.
             </p>
             <ul className="social_links">

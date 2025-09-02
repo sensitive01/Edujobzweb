@@ -502,7 +502,7 @@ const AdminHeader = () => {
                         </span>
                         <div>
                           <h5 className="mb-0 text-primary">
-                            {profileData.employeradminUsername || "EduJobz"}
+                            {profileData.employeradminUsername || "EdProfio"}
                           </h5>
                           <p className="fs-12 fw-medium mb-0">
                             <a href="/admin/school-profile">

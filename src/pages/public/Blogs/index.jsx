@@ -12,7 +12,7 @@ const BlogsPage = () => {
           <div className="row">
             <div className="col-12">
               <div className="subvisual-textbox">
-                <h1 className="text-primary mb-0">EduJobz Blogs</h1>
+                <h1 className="text-primary mb-0">EdProfio Blogs</h1>
                 <p>Feel free to get in touch with us. Need Help?</p>
               </div>
             </div>

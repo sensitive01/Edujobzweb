@@ -336,7 +336,7 @@
 //           <div className="row">
 //             <div className="col-12">
 //               <div className="subvisual-textbox">
-//                 <h1 className="text-primary mb-0">Careers @ EduJobz</h1>
+//                 <h1 className="text-primary mb-0">Careers @ EdProfio</h1>
 //                 <p>job duties, job responsibilities, and skills required</p>
 //               </div>
 //             </div>
@@ -1710,7 +1710,7 @@ const CombinedJobsPage = () => {
           <div className="row">
             <div className="col-12">
               <div className="subvisual-textbox">
-                <h1 className="text-primary mb-0">Careers @ EduJobz</h1>
+                <h1 className="text-primary mb-0">Careers @ EdProfio</h1>
                 <p>job duties, job responsibilities, and skills required</p>
               </div>
             </div>

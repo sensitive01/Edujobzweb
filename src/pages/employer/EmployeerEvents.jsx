@@ -513,7 +513,7 @@ const EmployeerEvents = () => {
                           className="dropdown-item rounded-1"
                           onClick={() => setOrganizerFilter("Edujobz")}
                         >
-                          Edujobz
+                          EdProfio
                         </button>
                       </li>
                       <li>

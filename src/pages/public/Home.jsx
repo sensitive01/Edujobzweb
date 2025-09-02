@@ -189,7 +189,7 @@
 //           <div className="row justify-content-between">
 //             <div className="col-12 col-lg-12 col-xl-12 position-relative">
 //               <div className="visual-textbox">
-//                 <h2 align="center" className="text-secondary mb-0">Edujobz: A Platform for Educators at Every Level</h2>
+//                 <h2 align="center" className="text-secondary mb-0">EdProfio: A Platform for Educators at Every Level</h2>
 //                 <p align="center" className="text-dark">
 //                   Discover <b className="text-primary">294,881+</b> Open Positions Within Our Network of <b className="text-primary">11,921</b> Educational Partners.
 //                 </p>
@@ -614,7 +614,7 @@ const HomePage = () => {
       role: "Excellent platform for educators",
       img: "/images/img_36.jpg",
       quote:
-        "I found my dream teaching job through Edujobz. The platform made it so easy to connect with schools that matched my qualifications.",
+        "I found my dream teaching job through EdProfio. The platform made it so easy to connect with schools that matched my qualifications.",
     },
     {
       name: "Michael Chen",
@@ -628,7 +628,7 @@ const HomePage = () => {
       role: "Life-changing opportunity",
       img: "/images/img_38.jpg",
       quote:
-        "Moving to a new country was stressful, but Edujobz helped me find a teaching position quickly. The support was exceptional.",
+        "Moving to a new country was stressful, but EdProfio helped me find a teaching position quickly. The support was exceptional.",
     },
   ];
 
@@ -861,7 +861,7 @@ const HomePage = () => {
             <div className="col-12 col-lg-12 col-xl-12 position-relative">
               <div className="visual-textbox">
                 <h2 align="center" className="text-secondary mb-0">
-                  Edujobz: A Platform for Educators at Every Level
+                  EdProfio: A Platform for Educators at Every Level
                 </h2>
                 <p align="center" className="text-dark">
                   Discover <b className="text-primary">294,881+</b> Open
