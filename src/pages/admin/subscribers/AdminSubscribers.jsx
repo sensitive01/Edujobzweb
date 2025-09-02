@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import logo from "../../../assets/employer-admin/assets/img/logo.svg";
+import logo from "../../../assets/employer-admin/assets/img/logo - dark.png";
 import AdminHeader from "../layout/AdminHeader";
 import AdminFooter from "../layout/AdminFooter";
 

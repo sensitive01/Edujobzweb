@@ -301,7 +301,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 // Import images
-import logo from "../../../assets/admin/assets/img/logo.svg";
+import logo from "../../../assets/admin/assets/img/logo - dark.png";
 import bg1 from "../../../assets/admin/assets/img/bg/bg-01.webp";
 import bg2 from "../../../assets/admin/assets/img/bg/bg-02.png";
 import bg3 from "../../../assets/admin/assets/img/bg/bg-03.webp";

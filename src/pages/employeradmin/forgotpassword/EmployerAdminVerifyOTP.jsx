@@ -304,7 +304,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Import images
-import logo from '../../../assets/employer-admin/assets/img/logo.svg';
+import logo from '../../../assets/employer-admin/assets/img/logo - dark.png';
 import bg1 from '../../../assets/employer-admin/assets/img/bg/bg-01.webp';
 import bg2 from '../../../assets/employer-admin/assets/img/bg/bg-02.png';
 import bg3 from '../../../assets/employer-admin/assets/img/bg/bg-03.webp';

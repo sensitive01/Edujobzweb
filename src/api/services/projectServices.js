@@ -362,3 +362,14 @@ export const verifyTheUserExistOrNot = async (email) => {
     throw error.response?.data?.message || error.message;
   }
 };
+
+export const getJobAndEmployerCount = async () => {
+  try {
+    const response = await projectServices.get(
+      `/employer/get-job-and-employer-count`
+    );
+    return response;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};

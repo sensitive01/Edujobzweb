@@ -569,6 +569,7 @@ import {
 } from "lucide-react";
 import { FaSquarePen, FaSuitcase, FaUsers } from "react-icons/fa6";
 import { IoDocumentText } from "react-icons/io5";
+import { getJobAndEmployerCount } from "../../api/services/projectServices";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -585,6 +586,8 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [jobCount, setJobCount] = useState(0);
+  const [employerCount, setEmployerCount] = useState(0);
 
   // Testimonials data
   const testimonials = [
@@ -728,6 +731,17 @@ const HomePage = () => {
     fetchJobData();
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await getJobAndEmployerCount();
+      if (response.status === 200) {
+        setEmployerCount(response.data.employerCount);
+        setJobCount(response.data.jobCount);
+      }
+    };
+    fetchData();
+  }, []);
+
   const handleSearch = (e) => {
     e.preventDefault();
 
@@ -864,9 +878,13 @@ const HomePage = () => {
                   EdProfio: A Platform for Educators at Every Level
                 </h2>
                 <p align="center" className="text-dark">
-                  Discover <b className="text-primary">294,881+</b> Open
-                  Positions Within Our Network of{" "}
-                  <b className="text-primary">11,921</b> Educational Partners.
+                  Discover{" "}
+                  <b className="text-primary">
+                    {jobCount > 0 ? `${jobCount}+` : jobCount}
+                  </b>{" "}
+                  Open Positions Within Our Network of{" "}
+                  <b className="text-primary">{employerCount}</b> Educational
+                  Partners.
                 </p>
 
                 {/* Search Form */}

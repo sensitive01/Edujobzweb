@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import logo from '../../../assets/employer-admin/assets/img/logo.svg';
+import logo from '../../../assets/employer-admin/assets/img/logo - dark.png';
 import company01 from '../../../assets/employer-admin/assets/img/company/company-01.svg';
 import company02 from '../../../assets/employer-admin/assets/img/company/company-02.svg';
 import company03 from '../../../assets/employer-admin/assets/img/company/company-03.svg';

@@ -4,7 +4,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
 
 // Import images
-import logo from '../../../assets/employer-admin/assets/img/logo.svg';
+import logo from '../../../assets/employer-admin/assets/img/logo - dark.png';
 import bg1 from '../../../assets/employer-admin/assets/img/bg/bg-01.webp';
 import bg2 from '../../../assets/employer-admin/assets/img/bg/bg-02.png';
 import bg3 from '../../../assets/employer-admin/assets/img/bg/bg-03.webp';
@@ -517,49 +517,7 @@ const handleSubmit = async (e) => {
                               <Link to="/employer-admin/login" className="hover-a">Sign In</Link>
                             </h6>
                           </div>
-                          <div className="login-or">
-                            <span className="span-or">Or</span>
-                          </div>
-                          <div className="mt-2">
-                            <div className="d-flex align-items-center justify-content-center flex-wrap">
-                              <div className="text-center me-2 flex-fill">
-                                <button
-                                  type="button"
-                                  className="br-10 p-2 btn btn-info d-flex align-items-center justify-content-center"
-                                >
-                                  <img
-                                    className="img-fluid m-1"
-                                    src={facebookLogo}
-                                    alt="Facebook"
-                                  />
-                                </button>
-                              </div>
-                              <div className="text-center me-2 flex-fill">
-                                <button
-                                  type="button"
-                                  className="br-10 p-2 btn btn-outline-light border d-flex align-items-center justify-content-center"
-                                >
-                                  <img
-                                    className="img-fluid m-1"
-                                    src={googleLogo}
-                                    alt="Google"
-                                  />
-                                </button>
-                              </div>
-                              <div className="text-center flex-fill">
-                                <button
-                                  type="button"
-                                  className="bg-dark br-10 p-2 btn btn-dark d-flex align-items-center justify-content-center"
-                                >
-                                  <img
-                                    className="img-fluid m-1"
-                                    src={appleLogo}
-                                    alt="Apple"
-                                  />
-                                </button>
-                              </div>
-                            </div>
-                          </div>
+                    
                         </div>
                         <div className="mt-5 pb-4 text-center">
                           <p className="mb-0 text-gray-9">Copyright &copy; 2025 - EdProfio</p>
