@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import JobsFilter from "./JobsFilter";
 import { useLocation } from "react-router-dom";
 import defaultEmployeeAvatar from "../../../assets/employer-admin/assets/img/profiles/avatar-12.jpg";
+import jobImage from "../../../../public/images/jobImage.jpg";
 const JobsPage = () => {
   const location = useLocation();
   const [allJobListings, setAllJobListings] = useState([]);
@@ -724,17 +725,13 @@ const JobCard = ({
       </span>
       <div className="img-holder">
         <img
-          src={
-            companyLogo.startsWith("http")
-              ? companyLogo
-              : `/images/${companyLogo}`
-          }
+          src={jobImage}
           width="78"
           height="78"
           alt={companyName}
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = "/images/default-company-logo.jpg";
+            e.target.src = { jobImage };
           }}
         />
 

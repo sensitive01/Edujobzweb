@@ -1,11 +1,29 @@
-import { Search } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import { Search } from "lucide-react";
+import React, { useState, useEffect } from "react";
 
 const Jobsbreadcrumb = ({ onFilterChange }) => {
-  const [keyword, setKeyword] = useState('All Keywords');
-  const [location, setLocation] = useState('All Locations');
+  // Default locations array
+  const defaultLocations = [
+    "All Locations",
+    "Bengaluru",
+    "Kanakapura",
+    "Mysuru",
+    "Ramnagar",
+    "Tumakuru",
+    "Hassan",
+    "Chikmagalur",
+    "Mangalore",
+    "Puttur",
+    "Chennai",
+    "Coimbatore",
+    "India",
+    "Remote",
+  ];
+
+  const [keyword, setKeyword] = useState("All Keywords");
+  const [location, setLocation] = useState("All Locations");
   const [keywords, setKeywords] = useState([]);
-  const [locations, setLocations] = useState([]);
+  const [locations, setLocations] = useState(defaultLocations); // Initialize with default locations
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -13,30 +31,30 @@ const Jobsbreadcrumb = ({ onFilterChange }) => {
     const fetchFilterOptions = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://api.edprofio.com/employer/fetchjobs');
+        const response = await fetch(
+          "https://api.edprofio.com/employer/fetchjobs"
+        );
         if (!response.ok) {
-          throw new Error('Failed to fetch filter options');
+          throw new Error("Failed to fetch filter options");
         }
         const data = await response.json();
-        const jobKeywords = [...new Set(
-          data.flatMap(job => [
-            job.jobTitle,
-            job.category
-          ])
-        )].filter(Boolean);
-        const jobLocations = [...new Set(
-          data.flatMap(job => 
-            job.isRemote ? ['Remote'] : [job.location]
-          )
-        )].filter(Boolean);
-        setKeywords(['All Keywords', ...jobKeywords]);
-        setLocations(['All Locations', ...jobLocations]);
-        
+
+        // Get unique job keywords from titles and categories
+        const jobKeywords = [
+          ...new Set(data.flatMap((job) => [job.jobTitle, job.category])),
+        ].filter(Boolean);
+
+        // Set keywords (from API data)
+        setKeywords(["All Keywords", ...jobKeywords]);
+
+        // Keep using default locations (don't override with API data)
+        setLocations(defaultLocations);
+
         setError(null);
       } catch (err) {
         setError(err.message);
-        setKeywords(['All Keywords']);
-        setLocations(['All Locations']);
+        setKeywords(["All Keywords"]);
+        setLocations(defaultLocations); // Fallback to default locations on error
       } finally {
         setLoading(false);
       }
@@ -49,8 +67,8 @@ const Jobsbreadcrumb = ({ onFilterChange }) => {
     e.preventDefault();
     if (onFilterChange) {
       onFilterChange({
-        keyword: keyword === 'All Keywords' ? '' : keyword,
-        location: location === 'All Locations' ? '' : location
+        keyword: keyword === "All Keywords" ? "" : keyword,
+        location: location === "All Locations" ? "" : location,
       });
     }
   };
@@ -74,12 +92,16 @@ const Jobsbreadcrumb = ({ onFilterChange }) => {
           <div className="col-12">
             <div className="subvisual-textbox pb-0">
               <h1 className="text-white mb-0">Jobs</h1>
-              <p className="text-primary">job duties, job responsibilities, and skills required</p>
+              <p className="text-primary">
+                job duties, job responsibilities, and skills required
+              </p>
             </div>
             <form className="form-search form-inline" onSubmit={handleSubmit}>
               <div className="fields-holder bg-white text-black d-flex flex-wrap flex-md-nowrap">
-                <div className="form-group" style={{ borderRight: 'none' }}>
-                  <label htmlFor="keyword" className="text-secondary">Keyword</label>
+                <div className="form-group" style={{ borderRight: "none" }}>
+                  <label htmlFor="keyword" className="text-secondary">
+                    Keyword
+                  </label>
                   <div className="form-input">
                     {loading ? (
                       <select className="select2" disabled>
@@ -91,7 +113,11 @@ const Jobsbreadcrumb = ({ onFilterChange }) => {
                         className="select2"
                         value={keyword}
                         onChange={(e) => setKeyword(e.target.value)}
-                        style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
+                        style={{
+                          border: "none",
+                          outline: "none",
+                          boxShadow: "none",
+                        }}
                       >
                         {keywords.map((kw, index) => (
                           <option key={`kw-${index}`} value={kw}>
@@ -103,38 +129,39 @@ const Jobsbreadcrumb = ({ onFilterChange }) => {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="location" className="text-secondary">Location</label>
+                  <label htmlFor="location" className="text-secondary">
+                    Location
+                  </label>
                   <div className="form-input">
-                    {loading ? (
-                      <select className="select2" disabled>
-                        <option>Loading...</option>
-                      </select>
-                    ) : (
-                      <select
-                        id="location"
-                        className="select2"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        style={{ border: 'none', outline: 'none', boxShadow: 'none' }}
-                      >
-                        {locations.map((loc, index) => (
-                          <option key={`loc-${index}`} value={loc}>
-                            {loc}
-                          </option>
-                        ))}
-                      </select>
-                    )}
+                    <select
+                      id="location"
+                      className="select2"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      style={{
+                        border: "none",
+                        outline: "none",
+                        boxShadow: "none",
+                      }}
+                      disabled={loading}
+                    >
+                      {locations.map((loc, index) => (
+                        <option key={`loc-${index}`} value={loc}>
+                          {loc}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
-              <button 
-                className="btn btn-light-sky btn-sm" 
+              <button
+                className="btn btn-light-sky btn-sm"
                 type="submit"
                 disabled={loading}
               >
                 <span className="btn-text">
-                  <Search className="me-1" size={16} /> 
-                  {loading ? 'Loading...' : 'Find Job'}
+                  <Search className="me-1" size={16} />
+                  {loading ? "Loading..." : "Find Job"}
                 </span>
               </button>
             </form>
