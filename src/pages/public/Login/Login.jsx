@@ -180,26 +180,23 @@ const LoginPage = () => {
       console.log("Extracted user info:", { email, name }); // Debug log
 
       const isExistresponse = await verifyTheUserExistOrNot(email);
-      console.log("User existence check:", isExistresponse); // Debug log
+      console.log("User existence check:", isExistresponse);
 
-      const { exists, candidateData } = isExistresponse;
+      const { exists, candidateData ,token} = isExistresponse;
 
       if (exists) {
-        // User exists - complete login
-        console.log("User exists, logging in..."); // Debug log
+   
+        console.log("User exists, logging in..."); 
 
-        // Generate a token or use existing one
-        const authToken =
-          candidateData.token ||
-          `google-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+     
 
-        localStorage.setItem("authToken", authToken);
+        localStorage.setItem("authToken", token);
         localStorage.setItem("userData", JSON.stringify(candidateData));
         localStorage.setItem("userType", "employee");
 
         navigate("/dashboard");
       } else {
-        // User doesn't exist - handle appropriately
+   
         console.log("User doesn't exist"); // Debug log
         navigate(
           `/employee-registration?isgoogle=true&email=${encodeURIComponent(
