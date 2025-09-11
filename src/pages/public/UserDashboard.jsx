@@ -54,6 +54,7 @@ const UserDashboard = () => {
 
         // Fetch employer data
         const data = await getEmployeeDetails(userData._id, token);
+        console.log("userData", data);
         setEmployerData(data);
 
         let appliedCount = 0;
@@ -157,63 +158,91 @@ const UserDashboard = () => {
     return percentage;
   };
 
-  // New User Welcome Component
-  const NewUserWelcome = () => (
+  // Welcome Component for All Users
+  const WelcomeMessage = () => (
     <div className="jobplugin__dashboard-block">
       <div
-        className="alert alert-info border border-primary"
-        style={{ borderRadius: "10px", padding: "20px", marginBottom: "20px" }}
+        className="alert alert-info border border-dark shadow"
+        style={{
+          borderRadius: "10px",
+          padding: "20px",
+          marginBottom: "20px",
+          borderWidth: "2px",
+        }}
       >
         <h4 className="text-primary mb-3">
           <FaHeart className="me-2" />
-          Welcome to EdProfio, {employerData?.firstName}!
+          Welcome to EdProfio, {employerData?.userName}!
         </h4>
         <p className="mb-3">
           Great to have you on board! Your profile is{" "}
           {calculateProfileCompletion(employerData)}% complete. Here's how you
           can get started:
         </p>
-        <div className="row">
-          <div className="col-md-4 mb-3">
-            <div className="card border-primary">
-              <div className="card-body text-center">
+        <div className="row align-items-stretch">
+          <div className="col-md-4 mb-3 d-flex">
+            <div
+              className="card border-primary w-100 d-flex flex-column"
+              style={{ borderWidth: "2px" }}
+            >
+              <div className="card-body text-center d-flex flex-column">
                 <FaEdit className="text-primary mb-2" size={30} />
                 <h6>Complete Your Profile</h6>
-                <p className="small">Add more details to attract employers</p>
-                <Link
-                  to={`/employee/edit/${employerData?._id}`}
-                  className="btn btn-primary btn-sm"
-                >
-                  Update Profile
-                </Link>
+                <p className="small flex-grow-1">
+                  Add more details to attract employers
+                </p>
+                <div className="mt-auto">
+                  <Link
+                    to={`/employee/edit/${employerData?._id}`}
+                    className="btn btn-primary btn-sm w-100"
+                  >
+                    Update Profile
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-          <div className="col-md-4 mb-3">
-            <div className="card border-success">
-              <div className="card-body text-center">
+          <div className="col-md-4 mb-3 d-flex">
+            <div
+              className="card border-success w-100 d-flex flex-column"
+              style={{ borderWidth: "2px" }}
+            >
+              <div className="card-body text-center d-flex flex-column">
                 <FaSearch className="text-success mb-2" size={30} />
                 <h6>Browse Jobs</h6>
-                <p className="small">
+                <p className="small flex-grow-1">
                   Explore {stats.matchingJobs} available opportunities
                 </p>
-                <Link to="/jobs" className="btn btn-success btn-sm">
-                  View Jobs
-                </Link>
+                <div className="mt-auto">
+                  <Link
+                    to="/job-vacancies"
+                    className="btn btn-success btn-sm w-100"
+                  >
+                    View Jobs
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-          <div className="col-md-4 mb-3">
-            <div className="card border-warning">
-              <div className="card-body text-center">
+          <div className="col-md-4 mb-3 d-flex">
+            <div
+              className="card border-warning w-100 d-flex flex-column"
+              style={{ borderWidth: "2px" }}
+            >
+              <div className="card-body text-center d-flex flex-column">
                 <FaBriefcase className="text-warning mb-2" size={30} />
                 <h6>Apply for Jobs</h6>
-                <p className="small">
+                <p className="small flex-grow-1">
                   Start applying to positions that match your skills
                 </p>
-                <Link to="/jobs" className="btn btn-warning btn-sm">
-                  Start Applying
-                </Link>
+                <div className="mt-auto">
+                  <Link
+                    to="/job-vacancies"
+                    className="btn btn-warning btn-sm w-100"
+                  >
+                    Start Applying
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -221,55 +250,6 @@ const UserDashboard = () => {
       </div>
     </div>
   );
-
-  // Empty State Component for Stats
-  const EmptyStateMessage = ({ type, count }) => {
-    const messages = {
-      appliedJobs: {
-        title: "No Applied Jobs Yet",
-        message:
-          "Start browsing and applying to positions that match your skills!",
-        actionText: "Browse Jobs",
-        actionLink: "/jobs",
-      },
-      shortlistedJobs: {
-        title: "No Shortlisted Jobs",
-        message:
-          "Save interesting positions for later by clicking the heart icon!",
-        actionText: "Find Jobs to Shortlist",
-        actionLink: "/jobs",
-      },
-      matchingJobs: {
-        title: "No Matching Jobs Found",
-        message: "Complete your profile to get better matches!",
-        actionText: "Complete Profile",
-        actionLink: `/employee/edit/${employerData?._id}`,
-      },
-    };
-
-    if (count > 0) return null;
-
-    const config = messages[type];
-    if (!config) return null;
-
-    return (
-      <div className="mt-auto">
-        <small
-          className="text-muted d-block mb-2"
-          style={{ fontSize: "0.75rem", lineHeight: "1.2" }}
-        >
-          {config.message}
-        </small>
-        <Link
-          to={config.actionLink}
-          className="btn btn-outline-primary btn-sm w-100"
-          style={{ fontSize: "0.75rem" }}
-        >
-          {config.actionText}
-        </Link>
-      </div>
-    );
-  };
 
   if (loading) {
     return (
@@ -342,7 +322,10 @@ const UserDashboard = () => {
               <div className="jobplugin__dashboard">
                 {/* Profile Block */}
                 <div className="jobplugin__profile">
-                  <div className="jobplugin__profile-intro border border-dark shadow">
+                  <div
+                    className="jobplugin__profile-intro border border-dark shadow"
+                    style={{ borderWidth: "2px" }}
+                  >
                     <div className="jobplugin__profile-intro__left">
                       <div className="jobplugin__profile-intro__image border-primary">
                         <div className="jobplugin__profile-intro__avatar">
@@ -364,7 +347,7 @@ const UserDashboard = () => {
                       <div className="jobplugin__profile-intro__Textbox">
                         <div className="jobplugin__profile-intro__info mb-0">
                           <h1 className="h5">
-                            {employerData.firstName} {employerData.lastName}
+                            {employerData.userName} {employerData.lastName}
                           </h1>
                           <span className="jobplugin__article-toprated">
                             {isNewUser ? "New Member" : "Verified Employee"}
@@ -384,140 +367,291 @@ const UserDashboard = () => {
                   </div>
                 </div>
 
-                {/* Show welcome message for new users */}
-                {isNewUser && <NewUserWelcome />}
+                {/* Show welcome message for all users */}
+                <WelcomeMessage />
 
                 {/* Stats Dashboard Block */}
-                <div className="jobplugin__dashboard-block">
+                <div className="jobplugin__dashboard-block ">
                   <div className="container-fluid">
-                    <div className="row g-4">
-                      <div className="col-lg-3 col-md-6 col-sm-12">
+                    <div className="row g-4 m-6">
+                      <div className="col-lg-3 col-md-6 ">
                         <div
-                          className="jobplugin__dashboard-stats jobplugin__border-primary h-100 p-4"
-                          style={{ minHeight: "200px" }}
+                          className="card bg-white border-2 h-100 shadow-sm"
+                          style={{
+                            borderRadius: "16px",
+                            borderColor: "grey",
+                            transition: "all 0.3s ease",
+                            cursor: "pointer",
+                            
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform =
+                              "translateY(-4px)";
+                            e.currentTarget.style.boxShadow =
+                              "0 8px 25px rgba(0,0,0,0.12)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = "translateY(0)";
+                            e.currentTarget.style.boxShadow =
+                              "0 2px 8px rgba(0,0,0,0.06)";
+                          }}
                         >
-                          <i className="jobplugin__dashboard-tooltip bg-light-sky">
-                            <span className="jobplugin__text-primary rj-icon rj-info"></span>
-                          </i>
-                          <span className="jobplugin__dashboard-stats__subtitle d-block mb-3">
-                            Profile Score
-                          </span>
-                          <strong
-                            className="jobplugin__dashboard-stats__number text-primary d-block mb-2"
-                            style={{ fontSize: "2.5rem" }}
-                          >
-                            {calculateProfileCompletion(employerData)}%
-                          </strong>
-                          <p className="text-muted small mb-3">
-                            (Based on input data)
-                          </p>
-                          {calculateProfileCompletion(employerData) < 80 && (
-                            <div className="mt-auto">
-                              <Link
-                                to={`/employee/edit/${employerData._id}`}
-                                className="btn btn-outline-primary btn-sm w-100"
+                          <div className="card-body p-4 text-center">
+                            <div className="d-flex justify-content-between align-items-center mb-3" >
+                              <h6
+                                className="text-muted fw-semibold mb-0"
+                                style={{ fontSize: "13px", }}
                               >
-                                Complete Profile
-                              </Link>
+                                Profile Score
+                              </h6>
+                              <div
+                                className="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                style={{ width: "26px", height: "26px" }}
+                              >
+                                <i
+                                  className="text-primary"
+                                  style={{ fontSize: "20px" }}
+                                >
+                                  i
+                                </i>
+                              </div>
                             </div>
-                          )}
+                            <div className="mb-3">
+                              <h1
+                                className="text-primary fw-bold mb-1"
+                                style={{ fontSize: "2.8rem", lineHeight: "1" }}
+                              >
+                                {calculateProfileCompletion(employerData)}%
+                              </h1>
+                              <p
+                                className="text-muted mb-0"
+                                style={{ fontSize: "12px" }}
+                              >
+                                Based on input data
+                              </p>
+                            </div>
+                            <Link
+                              to={`/employee/edit/${employerData._id}`}
+                              className="btn btn-primary fw-semibold px-4 py-2"
+                              style={{
+                                borderRadius: "12px",
+                                fontSize: "13px",
+                                minHeight: "38px",
+                              }}
+                            >
+                              Complete Profile
+                            </Link>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="col-lg-3 col-md-6 col-sm-12">
+                      <div className="col-lg-3 col-md-6 ">
                         <div
-                          className="jobplugin__dashboard-stats h-100 p-4"
+                          className="card bg-white border-2 h-100 shadow-sm "
                           style={{
-                            minHeight: "200px",
-                            border: "1px solid #dee2e6",
-                            borderRadius: "8px",
+                            borderRadius: "16px",
+                            borderColor: "grey",
+                            transition: "all 0.3s ease",
+                            cursor: "pointer",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform =
+                              "translateY(-4px)";
+                            e.currentTarget.style.boxShadow =
+                              "0 8px 25px rgba(0,0,0,0.12)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = "translateY(0)";
+                            e.currentTarget.style.boxShadow =
+                              "0 2px 8px rgba(0,0,0,0.06)";
                           }}
                         >
-                          <i className="jobplugin__dashboard-tooltip bg-light-sky">
-                            <span className="jobplugin__text-primary rj-icon rj-info"></span>
-                          </i>
-                          <span className="jobplugin__dashboard-stats__subtitle d-block mb-3">
-                            Matching Jobs
-                          </span>
-                          <strong
-                            className="jobplugin__dashboard-stats__number text-primary d-block mb-2"
-                            style={{ fontSize: "2.5rem" }}
-                          >
-                            {stats.matchingJobs}
-                          </strong>
-                          <p className="text-muted small mb-3">
-                            (Currently active)
-                          </p>
-                          <EmptyStateMessage
-                            type="matchingJobs"
-                            count={stats.matchingJobs}
-                          />
+                          <div className="card-body p-4 text-center ">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                              <h6
+                                className="text-muted fw-semibold mb-0"
+                                style={{ fontSize: "13px" }}
+                              >
+                                Matching Jobs
+                              </h6>
+                              <div
+                                className="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                style={{ width: "26px", height: "26px" }}
+                              >
+                                <i
+                                  className="text-primary"
+                                  style={{ fontSize: "20px" }}
+                                >
+                                  i
+                                </i>
+                              </div>
+                            </div>
+                            <div className="mb-3">
+                              <h1
+                                className="text-warning fw-bold mb-1"
+                                style={{ fontSize: "2.8rem", lineHeight: "1" }}
+                              >
+                                {stats.matchingJobs}
+                              </h1>
+                              <p
+                                className="text-muted mb-0"
+                                style={{ fontSize: "12px" }}
+                              >
+                                Currently active
+                              </p>
+                            </div>
+                            <Link
+                              to="/job-vacancies"
+                              className="btn btn-success fw-semibold px-4 py-2"
+                              style={{
+                                borderRadius: "12px",
+                                fontSize: "13px",
+                                minHeight: "38px",
+                              }}
+                            >
+                              Browse Jobs
+                            </Link>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="col-lg-3 col-md-6 col-sm-12">
+                      <div className="col-lg-3 col-md-6">
                         <div
-                          className="jobplugin__dashboard-stats h-100 p-4"
+                          className="card bg-white border-2 h-100 shadow-sm"
                           style={{
-                            minHeight: "200px",
-                            border: "1px solid #dee2e6",
-                            borderRadius: "8px",
+                            borderRadius: "16px",
+                            borderColor: "grey",
+                            transition: "all 0.3s ease",
+                            cursor: "pointer",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform =
+                              "translateY(-4px)";
+                            e.currentTarget.style.boxShadow =
+                              "0 8px 25px rgba(0,0,0,0.12)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = "translateY(0)";
+                            e.currentTarget.style.boxShadow =
+                              "0 2px 8px rgba(0,0,0,0.06)";
                           }}
                         >
-                          <i className="jobplugin__dashboard-tooltip bg-light-sky">
-                            <span className="jobplugin__text-primary rj-icon rj-info"></span>
-                          </i>
-                          <span className="jobplugin__dashboard-stats__subtitle d-block mb-3">
-                            Applied Jobs
-                          </span>
-                          <strong
-                            className="jobplugin__dashboard-stats__number text-primary d-block mb-2"
-                            style={{ fontSize: "2.5rem" }}
-                          >
-                            {stats.appliedJobs}
-                          </strong>
-                          <p className="text-muted small mb-3">
-                            {stats.appliedJobs === 0
-                              ? "(Get started!)"
-                              : "(Total applied)"}
-                          </p>
-                          <EmptyStateMessage
-                            type="appliedJobs"
-                            count={stats.appliedJobs}
-                          />
+                          <div className="card-body p-4 text-center">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                              <h6
+                                className="text-muted fw-semibold mb-0"
+                                style={{ fontSize: "13px" }}
+                              >
+                                Applied Jobs
+                              </h6>
+                              <div
+                                className="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                style={{ width: "26px", height: "26px" }}
+                              >
+                                <i
+                                  className="text-primary"
+                                  style={{ fontSize: "20px" }}
+                                >
+                                  i
+                                </i>
+                              </div>
+                            </div>
+                            <div className="mb-3">
+                              <h1
+                                className="text-info fw-bold mb-1"
+                                style={{ fontSize: "2.8rem", lineHeight: "1" }}
+                              >
+                                {stats.appliedJobs}
+                              </h1>
+                              <p
+                                className="text-muted mb-0"
+                                style={{ fontSize: "12px" }}
+                              >
+                                Total applied
+                              </p>
+                            </div>
+                            <Link
+                              to="/applied-jobs"
+                              className="btn btn-info fw-semibold px-4 py-2"
+                              style={{
+                                borderRadius: "12px",
+                                fontSize: "13px",
+                                minHeight: "38px",
+                              }}
+                            >
+                              View Applied
+                            </Link>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="col-lg-3 col-md-6 col-sm-12">
+                      <div className="col-lg-3 col-md-6">
                         <div
-                          className="jobplugin__dashboard-stats h-100 p-4"
+                          className="card bg-white border-2 h-100 shadow-sm"
                           style={{
-                            minHeight: "200px",
-                            border: "1px solid #dee2e6",
-                            borderRadius: "8px",
+                            borderRadius: "16px",
+                            borderColor: "grey",
+                            transition: "all 0.3s ease",
+                            cursor: "pointer",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform =
+                              "translateY(-4px)";
+                            e.currentTarget.style.boxShadow =
+                              "0 8px 25px rgba(0,0,0,0.12)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = "translateY(0)";
+                            e.currentTarget.style.boxShadow =
+                              "0 2px 8px rgba(0,0,0,0.06)";
                           }}
                         >
-                          <i className="jobplugin__dashboard-tooltip bg-light-sky">
-                            <span className="jobplugin__text-primary rj-icon rj-info"></span>
-                          </i>
-                          <span className="jobplugin__dashboard-stats__subtitle d-block mb-3">
-                            Shortlisted Jobs
-                          </span>
-                          <strong
-                            className="jobplugin__dashboard-stats__number text-primary d-block mb-2"
-                            style={{ fontSize: "2.5rem" }}
-                          >
-                            {stats.shortlistedJobs}
-                          </strong>
-                          <p className="text-muted small mb-3">
-                            {stats.shortlistedJobs === 0
-                              ? "(Save favorites!)"
-                              : "(Saved jobs)"}
-                          </p>
-                          <EmptyStateMessage
-                            type="shortlistedJobs"
-                            count={stats.shortlistedJobs}
-                          />
+                          <div className="card-body p-4 text-center">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                              <h6
+                                className="text-muted fw-semibold mb-0"
+                                style={{ fontSize: "13px" }}
+                              >
+                                Shortlisted Jobs
+                              </h6>
+                              <div
+                                className="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                style={{ width: "26px", height: "26px" }}
+                              >
+                                <i
+                                  className="text-primary"
+                                  style={{ fontSize: "20px" }}
+                                >
+                                  i
+                                </i>
+                              </div>
+                            </div>
+                            <div className="mb-3">
+                              <h1
+                                className="text-danger fw-bold mb-1"
+                                style={{ fontSize: "2.8rem", lineHeight: "1" }}
+                              >
+                                {stats.shortlistedJobs}
+                              </h1>
+                              <p
+                                className="text-muted mb-0"
+                                style={{ fontSize: "12px" }}
+                              >
+                                Saved jobs
+                              </p>
+                            </div>
+                            <Link
+                              to="/shortlisted-jobs"
+                              className="btn btn-danger fw-semibold px-4 py-2"
+                              style={{
+                                borderRadius: "12px",
+                                fontSize: "13px",
+                                minHeight: "38px",
+                              }}
+                            >
+                              View Saved
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -527,7 +661,10 @@ const UserDashboard = () => {
                 {/* Additional Tips for New Users */}
                 {isNewUser && (
                   <div className="jobplugin__dashboard-block">
-                    <div className="card border-info">
+                    <div
+                      className="card border-info"
+                      style={{ borderWidth: "2px" }}
+                    >
                       <div className="card-header bg-info text-white">
                         <h5 className="mb-0">💡 Quick Tips to Get Started</h5>
                       </div>

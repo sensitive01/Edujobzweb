@@ -1,7 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FaHome, FaBriefcase, FaUsers, FaGraduationCap, FaUniversity, FaUserCircle, FaSignOutAlt, FaTimes, FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { useLoginCleanup } from '../../hooks/useLoginCleanup';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import {
+  FaHome,
+  FaBriefcase,
+  FaUsers,
+  FaGraduationCap,
+  FaUniversity,
+  FaUserCircle,
+  FaSignOutAlt,
+  FaTimes,
+  FaChevronDown,
+  FaChevronUp,
+} from "react-icons/fa";
+import { useLoginCleanup } from "../../hooks/useLoginCleanup";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,22 +25,22 @@ const Header = () => {
   useLoginCleanup();
 
   useEffect(() => {
-    const authToken = localStorage.getItem('authToken');
-    const userType = localStorage.getItem('userType');
-    
+    const authToken = localStorage.getItem("authToken");
+    const userType = localStorage.getItem("userType");
+
     // Only set as logged in if we have both token and user type
     setIsLoggedIn(!!authToken && !!userType);
   }, [location]);
 
   useEffect(() => {
     if (isMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isMenuOpen]);
 
@@ -43,26 +54,26 @@ const Header = () => {
   };
 
   const handleProfileClick = () => {
-    const userType = localStorage.getItem('userType');
-    if (userType === 'employee') {
-      navigate('/dashboard');
+    const userType = localStorage.getItem("userType");
+    if (userType === "employee") {
+      navigate("/dashboard");
     } else {
-      navigate('/employer/dashboard');
+      navigate("/employer/dashboard");
     }
     setIsMenuOpen(false);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('employerToken');
-    localStorage.removeItem('userData');
-    localStorage.removeItem('userType');
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("employerToken");
+    localStorage.removeItem("userData");
+    localStorage.removeItem("userType");
     setIsLoggedIn(false);
-    navigate('/login');
+    navigate("/login");
   };
 
   const handleLogin = () => {
-    navigate('/login');
+    navigate("/login");
     setIsMenuOpen(false);
   };
 
@@ -81,12 +92,27 @@ const Header = () => {
 
   return (
     <>
-      <header className="header header-theme-9 bg-secondary" style={{ padding: '10px 0px' }}>
-        <div className="container" style={{ maxWidth: '1440px' }}>
+      <header
+        className="header header-theme-9 bg-secondary"
+        style={{ padding: "10px 0px" }}
+      >
+        <div className="container" style={{ maxWidth: "1440px" }}>
           <strong className="logo">
             <Link to="/">
-              <img className="normal-logo" src="/images/logo.png" width="175" height="43" alt="Job Circle" />
-              <img className="sticky-logo" src="/images/logo.png" width="175" height="43" alt="Job Circle" />
+              <img
+                className="normal-logo"
+                src="/images/logo.png"
+                width="175"
+                height="43"
+                alt="Job Circle"
+              />
+              <img
+                className="sticky-logo"
+                src="/images/logo.png"
+                width="175"
+                height="43"
+                alt="Job Circle"
+              />
             </Link>
           </strong>
 
@@ -96,77 +122,106 @@ const Header = () => {
               onClick={toggleMenu}
               aria-label="Toggle navigation"
               style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '5px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: '30px',
-                height: '30px'
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: "5px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "30px",
+                height: "30px",
               }}
             >
-              <span style={{
-                display: 'block',
-                width: '20px',
-                height: '2px',
-                backgroundColor: '#fff',
-                margin: '2px 0',
-                transition: '0.3s'
-              }}></span>
-              <span style={{
-                display: 'block',
-                width: '20px',
-                height: '2px',
-                backgroundColor: '#fff',
-                margin: '2px 0',
-                transition: '0.3s'
-              }}></span>
-              <span style={{
-                display: 'block',
-                width: '20px',
-                height: '2px',
-                backgroundColor: '#fff',
-                margin: '2px 0',
-                transition: '0.3s'
-              }}></span>
+              <span
+                style={{
+                  display: "block",
+                  width: "20px",
+                  height: "2px",
+                  backgroundColor: "#fff",
+                  margin: "2px 0",
+                  transition: "0.3s",
+                }}
+              ></span>
+              <span
+                style={{
+                  display: "block",
+                  width: "20px",
+                  height: "2px",
+                  backgroundColor: "#fff",
+                  margin: "2px 0",
+                  transition: "0.3s",
+                }}
+              ></span>
+              <span
+                style={{
+                  display: "block",
+                  width: "20px",
+                  height: "2px",
+                  backgroundColor: "#fff",
+                  margin: "2px 0",
+                  transition: "0.3s",
+                }}
+              ></span>
             </button>
 
             {/* Desktop Navigation */}
             <div className="nav-drop d-none d-lg-block">
               <ul className="navigation">
-                <li style={{ padding: '0px 15px' }}>
+                <li style={{ padding: "0px 15px" }}>
                   <Link to="/" onClick={handleLinkClick}>
                     <FaHome /> &nbsp; Home
                   </Link>
                 </li>
 
-                <li style={{ padding: '0px 15px' }}>
+                <li style={{ padding: "0px 15px" }}>
                   <Link to="/job-vacancies" onClick={handleLinkClick}>
                     <FaBriefcase /> &nbsp; Jobs
                   </Link>
                 </li>
 
-                <li style={{ padding: '0px 15px' }} className="dropdown">
-                  <a className="dropdown-toggle" href="#" role="button" id="employerDropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false">
+                <li style={{ padding: "0px 15px" }} className="dropdown">
+                  <a
+                    className="dropdown-toggle"
+                    href="#"
+                    role="button"
+                    id="employerDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
                     <FaUniversity /> &nbsp; Employer
                   </a>
-                  <ul className="dropdown-menu" aria-labelledby="employerDropdown">
+                  <ul
+                    className="dropdown-menu"
+                    aria-labelledby="employerDropdown"
+                  >
                     <li>
-                      <Link className="dropdown-item" to="/employer/login" onClick={handleLinkClick}>
+                      <Link
+                        className="dropdown-item"
+                        to="/employer/login"
+                        onClick={handleLinkClick}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         Login / Signup
                       </Link>
                     </li>
                     <li>
-                      <Link className="dropdown-item" to="/employer" onClick={handleLinkClick}>
+                      <Link
+                        className="dropdown-item"
+                        to="/employer"
+                        onClick={handleLinkClick}
+                      >
                         Employer
                       </Link>
                     </li>
                     <li>
-                      <Link className="dropdown-item" to="/subscription-plan" onClick={handleLinkClick}>
+                      <Link
+                        className="dropdown-item"
+                        to="/subscription-plan"
+                        onClick={handleLinkClick}
+                      >
                         Plan & Subscription
                       </Link>
                     </li>
@@ -199,80 +254,111 @@ const Header = () => {
                   </ul>
                 </li> */}
 
-                <li style={{ padding: '0px 15px' }} className="dropdown">
-                  <a className="dropdown-toggle" href="#" role="button" id="aboutDropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false">
+                <li style={{ padding: "0px 15px" }} className="dropdown">
+                  <a
+                    className="dropdown-toggle"
+                    href="#"
+                    role="button"
+                    id="aboutDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
                     <FaGraduationCap /> &nbsp; About Us
                   </a>
                   <ul className="dropdown-menu" aria-labelledby="aboutDropdown">
                     <li>
-                      <Link className="dropdown-item" to="/about-us" onClick={handleLinkClick}>
+                      <Link
+                        className="dropdown-item"
+                        to="/about-us"
+                        onClick={handleLinkClick}
+                      >
                         About EdProfio
                       </Link>
                     </li>
                     <li>
-                      <Link className="dropdown-item" to="/careers" onClick={handleLinkClick}>
+                      <Link
+                        className="dropdown-item"
+                        to="/careers"
+                        onClick={handleLinkClick}
+                      >
                         Careers
                       </Link>
                     </li>
                     <li>
-                      <Link className="dropdown-item" to="/blogs" onClick={handleLinkClick}>
+                      <Link
+                        className="dropdown-item"
+                        to="/blogs"
+                        onClick={handleLinkClick}
+                      >
                         Blogs / Press Release
                       </Link>
                     </li>
                   </ul>
                 </li>
 
-                <li style={{ padding: '0px 10px' }}>
+                <li style={{ padding: "0px 10px" }}>
                   <Link
                     className="btn btn-white btn-sm"
                     to="/job-vacancies"
                     onClick={handleLinkClick}
                   >
                     <span className="btn-text text-secondary">
-                      <i className="icon icon-user" style={{ fontSize: '14px' }}></i> Apply Now
+                      <i
+                        className="icon icon-user"
+                        style={{ fontSize: "14px" }}
+                      ></i>{" "}
+                      Apply Now
                     </span>
                   </Link>
                 </li>
 
-                <li style={{ padding: '0px 10px' }}>
+                <li style={{ padding: "0px 10px" }}>
                   <Link
                     className="btn btn-white btn-sm"
                     to="/post-job"
                     onClick={handleLinkClick}
                   >
                     <span className="btn-text text-secondary">
-                      <i className="icon icon-briefcase3" style={{ fontSize: '14px' }}></i> &nbsp; Post Jobs FREE
+                      <i
+                        className="icon icon-briefcase3"
+                        style={{ fontSize: "14px" }}
+                      ></i>{" "}
+                      &nbsp; Post Jobs FREE
                     </span>
                   </Link>
                 </li>
 
-                <li style={{ padding: '0px 5px' }} className="text-login">
+                <li style={{ padding: "0px 5px" }} className="text-login">
                   <button
                     onClick={handleAccountClick}
                     style={{
-                      backgroundColor: '#063970',
-                      color: '#fff',
-                      border: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '8px 12px',
-                      gap: '6px',
-                      fontSize: '16px',
-                      fontFamily: 'poppins, sans-serif',
-                      fontWeight: '400',
-                      cursor: 'pointer'
+                      backgroundColor: "#063970",
+                      color: "#fff",
+                      border: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "8px 12px",
+                      gap: "6px",
+                      fontSize: "16px",
+                      fontFamily: "poppins, sans-serif",
+                      fontWeight: "400",
+                      cursor: "pointer",
                     }}
                   >
                     {isLoggedIn ? (
                       <>
-                        <FaUserCircle style={{ fontSize: '14px', color: '#fff' }} />
+                        <FaUserCircle
+                          style={{ fontSize: "14px", color: "#fff" }}
+                        />
                         My Account
                       </>
                     ) : (
                       <>
-                        <i className="icon icon-users" style={{ fontSize: '14px', color: '#fff' }}></i>
-                       Candidate Login
+                        <i
+                          className="icon icon-users"
+                          style={{ fontSize: "14px", color: "#fff" }}
+                        ></i>
+                        Candidate Login
                       </>
                     )}
                   </button>
@@ -288,14 +374,14 @@ const Header = () => {
         <div
           className="mobile-nav-overlay d-lg-none"
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: 0,
             left: 0,
-            width: '100%',
-            height: '100vh',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            width: "100%",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
             zIndex: 999,
-            display: 'block'
+            display: "block",
           }}
           onClick={toggleMenu}
         />
@@ -303,125 +389,137 @@ const Header = () => {
 
       {/* Mobile Navigation Menu */}
       <div
-        className={`mobile-nav-menu d-lg-none ${isMenuOpen ? 'open' : ''}`}
+        className={`mobile-nav-menu d-lg-none ${isMenuOpen ? "open" : ""}`}
         style={{
-          position: 'fixed',
+          position: "fixed",
           top: 0,
-          right: isMenuOpen ? 0 : '-100%',
-          width: '280px',
-          height: '100vh',
-          backgroundColor: '#063970',
+          right: isMenuOpen ? 0 : "-100%",
+          width: "280px",
+          height: "100vh",
+          backgroundColor: "#063970",
           zIndex: 1000,
-          transition: 'right 0.3s ease-in-out',
-          overflowY: 'auto',
-          paddingTop: '20px'
+          transition: "right 0.3s ease-in-out",
+          overflowY: "auto",
+          paddingTop: "20px",
         }}
       >
         {/* Close button */}
         <button
           onClick={toggleMenu}
           style={{
-            position: 'absolute',
-            top: '15px',
-            left: '15px',
-            background: 'none',
-            border: 'none',
-            color: '#ffa500',
-            fontSize: '24px',
-            cursor: 'pointer',
-            padding: '5px'
+            position: "absolute",
+            top: "15px",
+            left: "15px",
+            background: "none",
+            border: "none",
+            color: "#ffa500",
+            fontSize: "24px",
+            cursor: "pointer",
+            padding: "5px",
           }}
         >
           <FaTimes />
         </button>
 
         {/* Mobile Navigation Items */}
-        <div style={{ padding: '50px 0 20px 0' }}>
+        <div style={{ padding: "50px 0 20px 0" }}>
           {/* Home */}
-          <div style={{ marginBottom: '8px' }}>
+          <div style={{ marginBottom: "8px" }}>
             <Link
               to="/"
               onClick={handleLinkClick}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '12px 20px',
-                color: '#fff',
-                textDecoration: 'none',
-                fontSize: '16px',
-                fontWeight: '400',
-                borderBottom: '1px solid rgba(255,255,255,0.1)'
+                display: "flex",
+                alignItems: "center",
+                padding: "12px 20px",
+                color: "#fff",
+                textDecoration: "none",
+                fontSize: "16px",
+                fontWeight: "400",
+                borderBottom: "1px solid rgba(255,255,255,0.1)",
               }}
             >
-              <FaHome style={{ marginRight: '12px', fontSize: '16px' }} />
+              <FaHome style={{ marginRight: "12px", fontSize: "16px" }} />
               Home
             </Link>
           </div>
 
           {/* Jobs */}
-          <div style={{ marginBottom: '8px' }}>
+          <div style={{ marginBottom: "8px" }}>
             <Link
               to="/job-vacancies"
               onClick={handleLinkClick}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '12px 20px',
-                color: '#fff',
-                textDecoration: 'none',
-                fontSize: '16px',
-                fontWeight: '400',
-                borderBottom: '1px solid rgba(255,255,255,0.1)'
+                display: "flex",
+                alignItems: "center",
+                padding: "12px 20px",
+                color: "#fff",
+                textDecoration: "none",
+                fontSize: "16px",
+                fontWeight: "400",
+                borderBottom: "1px solid rgba(255,255,255,0.1)",
               }}
             >
-              <FaBriefcase style={{ marginRight: '12px', fontSize: '16px' }} />
+              <FaBriefcase style={{ marginRight: "12px", fontSize: "16px" }} />
               Jobs
             </Link>
           </div>
 
           {/* Employer Dropdown */}
-          <div style={{ marginBottom: '8px' }}>
+          <div style={{ marginBottom: "8px" }}>
             <button
-              onClick={() => toggleDropdown('employer')}
+              onClick={() => toggleDropdown("employer")}
               style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '12px 20px',
-                color: '#ff9800',
-                background: 'none',
-                border: 'none',
-                fontSize: '16px',
-                fontWeight: '400',
-                cursor: 'pointer',
-                borderBottom: '1px solid rgba(255,255,255,0.1)'
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "12px 20px",
+                color: "#ff9800",
+                background: "none",
+                border: "none",
+                fontSize: "16px",
+                fontWeight: "400",
+                cursor: "pointer",
+                borderBottom: "1px solid rgba(255,255,255,0.1)",
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <FaUniversity style={{ marginRight: '12px', fontSize: '16px' }} />
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <FaUniversity
+                  style={{ marginRight: "12px", fontSize: "16px" }}
+                />
                 Employer
               </div>
-              {openDropdown === 'employer' ? <FaChevronUp /> : <FaChevronDown />}
+              {openDropdown === "employer" ? (
+                <FaChevronUp />
+              ) : (
+                <FaChevronDown />
+              )}
             </button>
 
-            {openDropdown === 'employer' && (
-              <div style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
+            {openDropdown === "employer" && (
+              <div style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
                 <Link
                   to="/employer/login"
                   onClick={handleLinkClick}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
-                    display: 'block',
-                    padding: '12px 20px 12px 52px',
-                    color: '#fff',
-                    textDecoration: 'none',
-                    fontSize: '14px',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    backgroundColor: '#ffa500',
-                    transition: 'background-color 0.3s ease'
+                    display: "block",
+                    padding: "12px 20px 12px 52px",
+                    color: "#fff",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    borderBottom: "1px solid rgba(255,255,255,0.1)",
+                    backgroundColor: "#ffa500",
+                    transition: "background-color 0.3s ease",
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#ff8c00'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = '#ffa500'}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#ff8c00")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "#ffa500")
+                  }
                 >
                   Login / Signup
                 </Link>
@@ -429,16 +527,20 @@ const Header = () => {
                   to="/dashboard"
                   onClick={handleLinkClick}
                   style={{
-                    display: 'block',
-                    padding: '12px 20px 12px 52px',
-                    color: '#fff',
-                    textDecoration: 'none',
-                    fontSize: '14px',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    transition: 'background-color 0.3s ease'
+                    display: "block",
+                    padding: "12px 20px 12px 52px",
+                    color: "#fff",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    borderBottom: "1px solid rgba(255,255,255,0.1)",
+                    transition: "background-color 0.3s ease",
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#ffa500'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#ffa500")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "transparent")
+                  }
                 >
                   Dashboard
                 </Link>
@@ -446,16 +548,20 @@ const Header = () => {
                   to="/employer"
                   onClick={handleLinkClick}
                   style={{
-                    display: 'block',
-                    padding: '12px 20px 12px 52px',
-                    color: '#fff',
-                    textDecoration: 'none',
-                    fontSize: '14px',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    transition: 'background-color 0.3s ease'
+                    display: "block",
+                    padding: "12px 20px 12px 52px",
+                    color: "#fff",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    borderBottom: "1px solid rgba(255,255,255,0.1)",
+                    transition: "background-color 0.3s ease",
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#ffa500'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#ffa500")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "transparent")
+                  }
                 >
                   Employer
                 </Link>
@@ -463,16 +569,20 @@ const Header = () => {
                   to="/subscription-plan"
                   onClick={handleLinkClick}
                   style={{
-                    display: 'block',
-                    padding: '12px 20px 12px 52px',
-                    color: '#fff',
-                    textDecoration: 'none',
-                    fontSize: '14px',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    transition: 'background-color 0.3s ease'
+                    display: "block",
+                    padding: "12px 20px 12px 52px",
+                    color: "#fff",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    borderBottom: "1px solid rgba(255,255,255,0.1)",
+                    transition: "background-color 0.3s ease",
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#ffa500'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#ffa500")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "transparent")
+                  }
                 >
                   Plan & Subscription
                 </Link>
@@ -481,48 +591,56 @@ const Header = () => {
           </div>
 
           {/* Candidates Dropdown */}
-          <div style={{ marginBottom: '8px' }}>
+          <div style={{ marginBottom: "8px" }}>
             <button
-              onClick={() => toggleDropdown('candidates')}
+              onClick={() => toggleDropdown("candidates")}
               style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '12px 20px',
-                color: '#fff',
-                background: 'none',
-                border: 'none',
-                fontSize: '16px',
-                fontWeight: '400',
-                cursor: 'pointer',
-                borderBottom: '1px solid rgba(255,255,255,0.1)'
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "12px 20px",
+                color: "#fff",
+                background: "none",
+                border: "none",
+                fontSize: "16px",
+                fontWeight: "400",
+                cursor: "pointer",
+                borderBottom: "1px solid rgba(255,255,255,0.1)",
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <FaUsers style={{ marginRight: '12px', fontSize: '16px' }} />
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <FaUsers style={{ marginRight: "12px", fontSize: "16px" }} />
                 Candidates
               </div>
-              {openDropdown === 'candidates' ? <FaChevronUp /> : <FaChevronDown />}
+              {openDropdown === "candidates" ? (
+                <FaChevronUp />
+              ) : (
+                <FaChevronDown />
+              )}
             </button>
 
-            {openDropdown === 'candidates' && (
-              <div style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
+            {openDropdown === "candidates" && (
+              <div style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
                 {!isLoggedIn && (
                   <Link
                     to="/employee-registration"
                     onClick={handleLinkClick}
                     style={{
-                      display: 'block',
-                      padding: '12px 20px 12px 52px',
-                      color: '#fff',
-                      textDecoration: 'none',
-                      fontSize: '14px',
-                      borderBottom: '1px solid rgba(255,255,255,0.1)',
-                      transition: 'background-color 0.3s ease'
+                      display: "block",
+                      padding: "12px 20px 12px 52px",
+                      color: "#fff",
+                      textDecoration: "none",
+                      fontSize: "14px",
+                      borderBottom: "1px solid rgba(255,255,255,0.1)",
+                      transition: "background-color 0.3s ease",
                     }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = '#ffa500'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    onMouseEnter={(e) =>
+                      (e.target.style.backgroundColor = "#ffa500")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.backgroundColor = "transparent")
+                    }
                   >
                     Login / Signup
                   </Link>
@@ -531,16 +649,20 @@ const Header = () => {
                   to="/dashboard"
                   onClick={handleLinkClick}
                   style={{
-                    display: 'block',
-                    padding: '12px 20px 12px 52px',
-                    color: '#fff',
-                    textDecoration: 'none',
-                    fontSize: '14px',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    transition: 'background-color 0.3s ease'
+                    display: "block",
+                    padding: "12px 20px 12px 52px",
+                    color: "#fff",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    borderBottom: "1px solid rgba(255,255,255,0.1)",
+                    transition: "background-color 0.3s ease",
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#ffa500'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#ffa500")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "transparent")
+                  }
                 >
                   Dashboard
                 </Link>
@@ -548,16 +670,20 @@ const Header = () => {
                   to="/job-vacancies"
                   onClick={handleLinkClick}
                   style={{
-                    display: 'block',
-                    padding: '12px 20px 12px 52px',
-                    color: '#fff',
-                    textDecoration: 'none',
-                    fontSize: '14px',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    transition: 'background-color 0.3s ease'
+                    display: "block",
+                    padding: "12px 20px 12px 52px",
+                    color: "#fff",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    borderBottom: "1px solid rgba(255,255,255,0.1)",
+                    transition: "background-color 0.3s ease",
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#ffa500'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#ffa500")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "transparent")
+                  }
                 >
                   Jobs
                 </Link>
@@ -566,47 +692,53 @@ const Header = () => {
           </div>
 
           {/* About Us Dropdown */}
-          <div style={{ marginBottom: '8px' }}>
+          <div style={{ marginBottom: "8px" }}>
             <button
-              onClick={() => toggleDropdown('about')}
+              onClick={() => toggleDropdown("about")}
               style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '12px 20px',
-                color: '#fff',
-                background: 'none',
-                border: 'none',
-                fontSize: '16px',
-                fontWeight: '400',
-                cursor: 'pointer',
-                borderBottom: '1px solid rgba(255,255,255,0.1)'
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "12px 20px",
+                color: "#fff",
+                background: "none",
+                border: "none",
+                fontSize: "16px",
+                fontWeight: "400",
+                cursor: "pointer",
+                borderBottom: "1px solid rgba(255,255,255,0.1)",
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <FaGraduationCap style={{ marginRight: '12px', fontSize: '16px' }} />
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <FaGraduationCap
+                  style={{ marginRight: "12px", fontSize: "16px" }}
+                />
                 About Us
               </div>
-              {openDropdown === 'about' ? <FaChevronUp /> : <FaChevronDown />}
+              {openDropdown === "about" ? <FaChevronUp /> : <FaChevronDown />}
             </button>
 
-            {openDropdown === 'about' && (
-              <div style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
+            {openDropdown === "about" && (
+              <div style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
                 <Link
                   to="/about-us"
                   onClick={handleLinkClick}
                   style={{
-                    display: 'block',
-                    padding: '12px 20px 12px 52px',
-                    color: '#fff',
-                    textDecoration: 'none',
-                    fontSize: '14px',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    transition: 'background-color 0.3s ease'
+                    display: "block",
+                    padding: "12px 20px 12px 52px",
+                    color: "#fff",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    borderBottom: "1px solid rgba(255,255,255,0.1)",
+                    transition: "background-color 0.3s ease",
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#ffa500'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#ffa500")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "transparent")
+                  }
                 >
                   About EdProfio
                 </Link>
@@ -614,16 +746,20 @@ const Header = () => {
                   to="/careers"
                   onClick={handleLinkClick}
                   style={{
-                    display: 'block',
-                    padding: '12px 20px 12px 52px',
-                    color: '#fff',
-                    textDecoration: 'none',
-                    fontSize: '14px',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    transition: 'background-color 0.3s ease'
+                    display: "block",
+                    padding: "12px 20px 12px 52px",
+                    color: "#fff",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    borderBottom: "1px solid rgba(255,255,255,0.1)",
+                    transition: "background-color 0.3s ease",
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#ffa500'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#ffa500")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "transparent")
+                  }
                 >
                   Careers
                 </Link>
@@ -631,16 +767,20 @@ const Header = () => {
                   to="/blogs"
                   onClick={handleLinkClick}
                   style={{
-                    display: 'block',
-                    padding: '12px 20px 12px 52px',
-                    color: '#fff',
-                    textDecoration: 'none',
-                    fontSize: '14px',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    transition: 'background-color 0.3s ease'
+                    display: "block",
+                    padding: "12px 20px 12px 52px",
+                    color: "#fff",
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    borderBottom: "1px solid rgba(255,255,255,0.1)",
+                    transition: "background-color 0.3s ease",
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#ffa500'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#ffa500")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "transparent")
+                  }
                 >
                   Blogs / Press Release
                 </Link>
@@ -649,26 +789,34 @@ const Header = () => {
           </div>
 
           {/* Action Buttons */}
-          <div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+          <div
+            style={{
+              padding: "20px",
+              borderTop: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
             <Link
               to="/job-vacancies"
               onClick={handleLinkClick}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '12px 20px',
-                backgroundColor: '#fff',
-                color: '#063970',
-                textDecoration: 'none',
-                fontSize: '16px',
-                fontWeight: '500',
-                borderRadius: '25px',
-                marginBottom: '12px',
-                border: 'none'
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "12px 20px",
+                backgroundColor: "#fff",
+                color: "#063970",
+                textDecoration: "none",
+                fontSize: "16px",
+                fontWeight: "500",
+                borderRadius: "25px",
+                marginBottom: "12px",
+                border: "none",
               }}
             >
-              <i className="icon icon-user" style={{ fontSize: '14px', marginRight: '8px' }}></i>
+              <i
+                className="icon icon-user"
+                style={{ fontSize: "14px", marginRight: "8px" }}
+              ></i>
               Apply Now
             </Link>
 
@@ -676,50 +824,58 @@ const Header = () => {
               to="/post-job"
               onClick={handleLinkClick}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '12px 20px',
-                backgroundColor: 'rgba(255,255,255,0.1)',
-                color: '#fff',
-                textDecoration: 'none',
-                fontSize: '16px',
-                fontWeight: '500',
-                borderRadius: '25px',
-                marginBottom: '20px',
-                border: '1px solid rgba(255,255,255,0.3)'
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "12px 20px",
+                backgroundColor: "rgba(255,255,255,0.1)",
+                color: "#fff",
+                textDecoration: "none",
+                fontSize: "16px",
+                fontWeight: "500",
+                borderRadius: "25px",
+                marginBottom: "20px",
+                border: "1px solid rgba(255,255,255,0.3)",
               }}
             >
-              <i className="icon icon-briefcase3" style={{ fontSize: '14px', marginRight: '8px' }}></i>
+              <i
+                className="icon icon-briefcase3"
+                style={{ fontSize: "14px", marginRight: "8px" }}
+              ></i>
               Post Jobs FREE
             </Link>
 
             <button
               onClick={isLoggedIn ? handleProfileClick : handleLogin}
               style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '12px 20px',
-                backgroundColor: 'transparent',
-                color: '#fff',
-                border: 'none',
-                fontSize: '16px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                borderTop: '1px solid rgba(255,255,255,0.1)',
-                paddingTop: '20px'
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "12px 20px",
+                backgroundColor: "transparent",
+                color: "#fff",
+                border: "none",
+                fontSize: "16px",
+                fontWeight: "500",
+                cursor: "pointer",
+                borderTop: "1px solid rgba(255,255,255,0.1)",
+                paddingTop: "20px",
               }}
             >
               {isLoggedIn ? (
                 <>
-                  <FaUserCircle style={{ fontSize: '16px', marginRight: '8px' }} />
+                  <FaUserCircle
+                    style={{ fontSize: "16px", marginRight: "8px" }}
+                  />
                   My Account
                 </>
               ) : (
                 <>
-                  <i className="icon icon-users" style={{ fontSize: '16px', marginRight: '8px' }}></i>
+                  <i
+                    className="icon icon-users"
+                    style={{ fontSize: "16px", marginRight: "8px" }}
+                  ></i>
                   Login
                 </>
               )}

@@ -56,6 +56,16 @@ const Footer = () => {
   const handleCategoryClick = (category) => {
     // Navigate to job vacancies with category filter
     navigate(`/job-vacancies?category=${encodeURIComponent(category)}`);
+    // Reload the page
+    window.location.reload();
+  };
+
+  const handleLinkClick = (path) => {
+    // Navigate to the path and then reload
+    navigate(path);
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
   // Default categories as fallback
@@ -154,38 +164,102 @@ const Footer = () => {
                     <strong className="h5 text-primary">Quick Links</strong>
                     <ul className="footer-links">
                       <li>
-                        <Link to="/job-vacancies">Browse Jobs</Link>
+                        <Link
+                          to="/job-vacancies"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleLinkClick("/job-vacancies");
+                          }}
+                        >
+                          Browse Jobs
+                        </Link>
                       </li>
                       <li>
-                        <Link to="/candidates">Browse Candidates</Link>
+                        <Link
+                          to="/candidates"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleLinkClick("/candidates");
+                          }}
+                        >
+                          Browse Candidates
+                        </Link>
                       </li>
                       {isLoggedIn ? (
                         <li>
-                          <Link to="/dashboard">Candidate Dashboard</Link>
+                          <Link
+                            to="/dashboard"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleLinkClick("/dashboard");
+                            }}
+                          >
+                            Candidate Dashboard
+                          </Link>
                         </li>
                       ) : (
                         <li>
-                          <Link to="/login">Candidate Login</Link>
+                          <Link
+                            to="/login"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleLinkClick("/login");
+                            }}
+                          >
+                            Candidate Login
+                          </Link>
                         </li>
                       )}
 
                       {isLoggedIn ? (
                         <li>
-                          <Link to="/job-alerts">Job Alerts</Link>
+                          <Link
+                            to="/job-alerts"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleLinkClick("/job-alerts");
+                            }}
+                          >
+                            Job Alerts
+                          </Link>
                         </li>
                       ) : (
                         <li>
-                          <Link to="/login">Job Alerts</Link>
+                          <Link
+                            to="/login"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleLinkClick("/login");
+                            }}
+                          >
+                            Job Alerts
+                          </Link>
                         </li>
                       )}
 
                       {isLoggedIn ? (
                         <li>
-                          <Link to="/saved-jobs">My Bookmarks</Link>
+                          <Link
+                            to="/saved-jobs"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleLinkClick("/saved-jobs");
+                            }}
+                          >
+                            My Bookmarks
+                          </Link>
                         </li>
                       ) : (
                         <li>
-                          <Link to="/login">My Bookmarks</Link>
+                          <Link
+                            to="/login"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleLinkClick("/login");
+                            }}
+                          >
+                            My Bookmarks
+                          </Link>
                         </li>
                       )}
                     </ul>
@@ -209,7 +283,15 @@ const Footer = () => {
                       ))}
                       {displayCategories.length > 7 && (
                         <li>
-                          <Link to="/job-vacancies">View All Categories</Link>
+                          <Link
+                            to="/job-vacancies"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleLinkClick("/job-vacancies");
+                            }}
+                          >
+                            View All Categories
+                          </Link>
                         </li>
                       )}
                     </ul>
@@ -231,6 +313,10 @@ const Footer = () => {
                   <Link
                     className="btn_upload bg-light-sky border border-secondary"
                     to="/dashboard"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleLinkClick("/dashboard");
+                    }}
                   >
                     <i className="icon icon-upload-cloud"></i>
                     <span className="text">Upload Your CV</span>
@@ -239,6 +325,10 @@ const Footer = () => {
                   <Link
                     className="btn_upload bg-light-sky border border-secondary"
                     to="/login"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleLinkClick("/login");
+                    }}
                   >
                     <i className="icon icon-upload-cloud"></i>
                     <span className="text">Upload Your CV</span>
@@ -249,9 +339,25 @@ const Footer = () => {
           </div>
           <div className="bottom-footer">
             <p>
-              Copyright © 2025 <Link to="/">EdProfio</Link>. All Rights
-              Reserved. Powered by{" "}
-              <a href="https://sensitive.co.in/">Sensitive Technologies</a>.
+              Copyright © 2025{" "}
+              <Link
+                to="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleLinkClick("/");
+                }}
+              >
+                EdProfio
+              </Link>
+              . All Rights Reserved. Powered by{" "}
+              <a
+                href="https://sensitive.co.in/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Sensitive Technologies
+              </a>
+              .
             </p>
             <ul className="social_links">
               <li>

@@ -4,6 +4,8 @@ import JobsFilter from "./JobsFilter";
 import { Filter, Search, X, Bookmark, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import defaultEmployeeAvatar from "../../../assets/employer/assets/img/profiles/avatar-12.jpg";
+import jobImage from "../../../../public/images/jobImage.jpg"
+
 
 const JobsPageList = () => {
   const [allJobListings, setAllJobListings] = useState([]);
@@ -578,7 +580,7 @@ const JobCard = ({ job, navigate }) => {
             style={{ position: "relative", width: "78px", height: "78px" }}
           >
             <img
-              src={job.companyLogo || "/images/default-company-logo.jpg"}
+              src={jobImage}
               width="78"
               height="78"
               alt={job.companyName}

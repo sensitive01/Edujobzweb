@@ -5,6 +5,7 @@ import JobsFilter from "./JobsFilter";
 import { useLocation } from "react-router-dom";
 import defaultEmployeeAvatar from "../../../assets/employer-admin/assets/img/profiles/avatar-12.jpg";
 import jobImage from "../../../../public/images/jobImage.jpg";
+
 const JobsPage = () => {
   const location = useLocation();
   const [allJobListings, setAllJobListings] = useState([]);
@@ -280,6 +281,7 @@ const JobsPage = () => {
       </div>
     );
   }
+
   const handleBreadcrumbFilter = ({ keyword, location }) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -322,113 +324,126 @@ const JobsPage = () => {
           <div className="container">
             <div className="row">
               <div className="col-12">
-                <header className="page-subheader mb-30 mb-md-40 d-lg-flex align-items-center justify-content-between">
-                  <span></span>
-                  <div className="subhead-filters">
-                    {loading ? (
-                      <div
-                        style={{
-                          width: "150px",
-                          height: "24px",
-                          backgroundColor: "#e0e0e0",
-                          borderRadius: "4px",
-                        }}
-                      ></div>
-                    ) : (
-                      <h2
-                        className="h6 mb-25 mb-lg-0 text-dark me-3"
-                        style={{
-                          letterSpacing: "1px",
-                          fontSize: "1.25rem",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        <b>
-                          {filters.category
-                            ? `${filteredJobListings.length} ${filters.category} Jobs Found`
-                            : `${filteredJobListings.length} Jobs Found`}
-                        </b>
-                      </h2>
-                    )}
-                    <div className="col-md-4 d-flex">
-                      <button
-                        type="button"
-                        className="btn btn-primary btn-sm me-2 flex-grow-1"
-                        onClick={() => setShowFilters(!showFilters)}
-                      >
-                        <Search size={16} /> Filter Jobs
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-outline-secondary btn-sm"
-                        onClick={clearFilters}
-                        disabled={
-                          !filters.jobType &&
-                          !filters.location &&
-                          !filters.experienceLevel &&
-                          !filters.searchQuery &&
-                          !filters.sort
-                        }
-                      >
-                        <i className="fas fa-times"></i>
-                      </button>
+                <header className="page-subheader mb-30 mb-md-40">
+                  <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    {/* Job Count */}
+                    <div className="job-count">
+                      {loading ? (
+                        <div
+                          style={{
+                            width: "150px",
+                            height: "24px",
+                            backgroundColor: "#e0e0e0",
+                            borderRadius: "4px",
+                          }}
+                        ></div>
+                      ) : (
+                        <h2
+                          className="h6 mb-0 text-dark"
+                          style={{
+                            letterSpacing: "1px",
+                            fontSize: "1.25rem",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          <b>
+                            {filters.category
+                              ? `${filteredJobListings.length} ${filters.category} Jobs Found`
+                              : `${filteredJobListings.length} Jobs Found`}
+                          </b>
+                        </h2>
+                      )}
                     </div>
-                    <div className="col-md-3">
-                      <select
-                        name="sort"
-                        className="form-select form-select-sm"
-                        value={filters.sort}
-                        onChange={handleFilterChange}
-                      >
-                        <option value="">Sort by</option>
-                        <option value="newest">Newest</option>
-                        <option value="oldest">Oldest</option>
-                        <option value="salary-high">Salary High</option>
-                        <option value="salary-low">Salary Low</option>
-                      </select>
-                    </div>
-                    <div className="grid-buttons">
-                      <a
-                        href="job-vacancies-list"
-                        className="btn btn-list"
-                        type="button"
-                      >
-                        <img
-                          src="/images/list-icon.svg"
-                          width="20"
-                          height="20"
-                          alt="List"
-                        />
-                      </a>{" "}
-                      &nbsp;
-                      <a
-                        href="job-vacancies"
-                        className="btn btn-grid active"
-                        type="button"
-                      >
-                        <img
-                          src="/images/grid-icon.svg"
-                          width="22"
-                          height="22"
-                          alt="Grid"
-                        />
-                      </a>{" "}
-                      &nbsp;
-                      <a
-                        href="job-vacancies-map"
-                        className="btn btn-grid bg-white"
-                        type="button"
-                      >
-                        <img
-                          src="/images/icons8-place-marker.gif"
-                          width="22"
-                          height="22"
-                          alt="Grid"
-                        />
-                      </a>
+
+                    {/* Controls Container */}
+                    <div className="d-flex flex-wrap align-items-center gap-2">
+                      {/* Filter and Clear Buttons */}
+                      <div className="d-flex gap-2">
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          onClick={() => setShowFilters(!showFilters)}
+                        >
+                          <Search size={16} className="me-1" /> Filter Jobs
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary btn-sm"
+                          onClick={clearFilters}
+                          disabled={
+                            !filters.jobType &&
+                            !filters.location &&
+                            !filters.experienceLevel &&
+                            !filters.searchQuery &&
+                            !filters.sort
+                          }
+                        >
+                          <i className="fas fa-times"></i>
+                        </button>
+                      </div>
+
+                      {/* Sort Dropdown */}
+                      <div className="sort-dropdown" style={{ minWidth: "120px" }}>
+                        <select
+                          name="sort"
+                          className="form-select form-select-sm"
+                          value={filters.sort}
+                          onChange={handleFilterChange}
+                        >
+                          <option value="">Sort by</option>
+                          <option value="newest">Newest</option>
+                          <option value="oldest">Oldest</option>
+                          <option value="salary-high">Salary High</option>
+                          <option value="salary-low">Salary Low</option>
+                        </select>
+                      </div>
+
+                      {/* View Toggle Buttons */}
+                      <div className="view-toggle-buttons d-flex gap-1">
+                        <a
+                          href="job-vacancies-list"
+                          className="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
+                          style={{ width: "40px", height: "36px" }}
+                          title="List View"
+                        >
+                          <img
+                            src="/images/list-icon.svg"
+                            width="18"
+                            height="18"
+                            alt="List"
+                          />
+                        </a>
+                        <a
+                          href="job-vacancies"
+                          className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
+                          style={{ width: "40px", height: "36px" }}
+                          title="Grid View"
+                        >
+                          <img
+                            src="/images/grid-icon.svg"
+                            width="18"
+                            height="18"
+                            alt="Grid"
+                          />
+                        </a>
+                        <a
+                          href="job-vacancies-map"
+                          className="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
+                          style={{ width: "40px", height: "36px" }}
+                          title="Map View"
+                        >
+                          <img
+                            src="/images/icons8-place-marker.gif"
+                            width="18"
+                            height="18"
+                            alt="Map"
+                          />
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </header>
+
                 <div className="row justify-content-center">
                   {loading ? (
                     Array(jobsPerPage)
@@ -488,6 +503,7 @@ const JobsPage = () => {
                     </div>
                   )}
                 </div>
+
                 {!loading && filteredJobListings.length > jobsPerPage && (
                   <div className="pagination-block pt-20 pt-lg-30 pt-xl-50 pb-0">
                     <div className="container d-flex align-items-center justify-content-center">
@@ -553,6 +569,7 @@ const JobsPage = () => {
             </div>
           </div>
         </section>
+
         <section className="section section-theme-1 section-downloads pt-35 pt-md-60 pb-50 pb-md-75 pb-lg-75 pb-xl-110 pb-xxl-140">
           <br />
           <div className="container">
@@ -612,7 +629,7 @@ const JobsPage = () => {
         </section>
       </main>
 
-      {/* Add shimmer animation */}
+      {/* Updated styles */}
       <style>{`
         @keyframes shimmer {
           0% {
@@ -622,67 +639,103 @@ const JobsPage = () => {
             transform: translateX(100%);
           }
         }
-          .img-holder {
-  position: relative;
-  margin-bottom: 20px;
-}
 
-.employer-profile-pic {
-  transition: all 0.3s ease;
-}
+        .img-holder {
+          position: relative;
+          margin-bottom: 20px;
+        }
 
-.employer-profile-pic:hover {
-  transform: scale(1.1);
-}
+        .employer-profile-pic {
+          transition: all 0.3s ease;
+        }
 
-.filter-sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1000;
-  display: flex;
-}
+        .employer-profile-pic:hover {
+          transform: scale(1.1);
+        }
 
-.filter-sidebar-backdrop {
-  flex: 1;
-  background-color: rgba(0, 0, 0, 0.5);
-}
+        .filter-sidebar-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 1000;
+          display: flex;
+        }
 
-.custom-filters {
-  width: 320px;
-  height: 100vh;
-  background: white;
-  overflow-y: auto;
-  padding: 20px;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 1001;
-}
+        .filter-sidebar-backdrop {
+          flex: 1;
+          background-color: rgba(0, 0, 0, 0.5);
+        }
 
-/* Add responsive behavior */
-@media (max-width: 768px) {
-  .custom-filters {
-    width: 280px;
-  }
-}
-  .featured-category-box {
-  position: relative;
-  cursor: pointer;
-}
+        .custom-filters {
+          width: 320px;
+          height: 100vh;
+          background: white;
+          overflow-y: auto;
+          padding: 20px;
+          box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+          position: relative;
+          z-index: 1001;
+        }
 
-.job-card-link:hover ~ .textbox .btn-dark-yellow,
-.job-card-link:focus ~ .textbox .btn-dark-yellow {
-  background-color: #ffc107;
-  border-color: #ffc107;
-  color: #000;
-}
+        .featured-category-box {
+          position: relative;
+          cursor: pointer;
+        }
 
-/* Ensure pointer events work correctly */
-.btn-dark-yellow {
-  pointer-events: auto;
-}
+        .job-card-link:hover ~ .textbox .btn-dark-yellow,
+        .job-card-link:focus ~ .textbox .btn-dark-yellow {
+          background-color: #ffc107;
+          border-color: #ffc107;
+          color: #000;
+        }
+
+        .btn-dark-yellow {
+          pointer-events: auto;
+        }
+
+        /* Responsive adjustments for header */
+        @media (max-width: 991px) {
+          .page-subheader .d-flex {
+            flex-direction: column;
+            align-items: stretch !important;
+          }
+          
+          .job-count {
+            text-align: center;
+            margin-bottom: 1rem;
+          }
+          
+          .view-toggle-buttons {
+            justify-content: center;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .custom-filters {
+            width: 280px;
+          }
+          
+          .page-subheader .d-flex > div:last-child {
+            justify-content: center;
+          }
+          
+          .sort-dropdown {
+            min-width: 100px !important;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .page-subheader .d-flex > div:last-child {
+            flex-direction: column;
+            gap: 1rem !important;
+          }
+          
+          .view-toggle-buttons {
+            order: -1;
+          }
+        }
       `}</style>
     </>
   );
