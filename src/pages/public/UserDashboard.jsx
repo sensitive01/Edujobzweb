@@ -641,7 +641,7 @@ const UserDashboard = () => {
                               </p>
                             </div>
                             <Link
-                              to="/shortlisted-jobs"
+                              to="/shortlisted"
                               className="btn btn-danger fw-semibold px-4 py-2"
                               style={{
                                 borderRadius: "12px",
