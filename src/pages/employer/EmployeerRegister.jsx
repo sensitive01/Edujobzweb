@@ -518,11 +518,11 @@ const EmployeeRegister = () => {
       const response = await axios.post(
         `${VITE_BASE_URL}/sendemailotp`,
         {
-          email: formData.userEmail,
+          userEmail: formData.userEmail,
         }
       );
 
-      if (response.data.success) {
+      if (response.status===200) {
         setIsOtpSent(true);
         setOtpError("");
       } else {
@@ -547,14 +547,14 @@ const EmployeeRegister = () => {
 
     try {
       const response = await axios.post(
-        `${VITE_BASE_URL}/verify-otp`,
+        `${VITE_BASE_URL}/verifyemailotp`,
         {
-          email: formData.userEmail,
+          userEmail: formData.userEmail,
           otp,
         }
       );
 
-      if (response.data.success) {
+      if (response.status===200) {
         setIsOtpVerified(true);
         setOtpError("");
       } else {
