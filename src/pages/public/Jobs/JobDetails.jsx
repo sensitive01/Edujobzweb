@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Bookmark, CheckCircle, Share2 } from "lucide-react";
+import defaultLogo from "../../../../public/images/jobImage.jpg"
 
 const JobDetails = () => {
   const { id } = useParams();
@@ -98,6 +99,7 @@ const JobDetails = () => {
   const handleViewSavedJobs = () => {
     navigate("/saved-jobs");
   };
+
   const handleApplyNow = () => {
     if (!applicantId) {
       localStorage.setItem("redirectAfterLogin", `/apply/${job._id}`);
@@ -148,16 +150,21 @@ const JobDetails = () => {
 
   return (
     <>
-      {/* Sub Visual of the page */}
-      <div className="subvisual-block subvisual-theme-1 bg-secondary d-flex pt-60 pt-md-90 pb-30 text-white">
+      {/* Sub Visual of the page - Updated with better spacing and styling */}
+      <div className="job-header-section">
         <div className="container position-relative text-center">
           <div className="row">
             <div className="col-12">
-              <div className="subvisual-textbox">
-                <h1 className="text-primary mb-0">{job.jobTitle}</h1>
-                <p>
-                  {job.companyName} • {job.location}
-                </p>
+              <div className="job-header-content">
+                <h1 className="job-title-hero">{job.jobTitle}</h1>
+                <div className="job-meta-info">
+                  <span className="company-name">{job.companyName}</span>
+                  <span className="location-info">
+                    <i className="icon-map-pin"></i>
+                    {job.isRemote ? "Remote" : job.location}
+                    {job.isRemote && job.location ? ` (${job.location})` : ""}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -180,7 +187,7 @@ const JobDetails = () => {
                   </span>
                 </li>
               </ul>
-              <h2>{job.jobTitle}</h2>
+              <h2 className="job-title-secondary">{job.jobTitle}</h2>
               <div className="social-info">
                 <strong className="title">Social Sharing:</strong>
                 <ul className="social-networks">
@@ -239,7 +246,7 @@ const JobDetails = () => {
             <div className="row">
               <div className="col-12 col-md-7 col-xl-8">
                 <div className="text-holder">
-                  <h3 className="text-secondary">Overview</h3>
+                  <h3 className="section-heading text-secondary">Overview</h3>
                   <p>
                     {job.description ||
                       "No overview provided for this position."}
@@ -247,7 +254,9 @@ const JobDetails = () => {
                 </div>
 
                 <div className="text-holder">
-                  <h3 className="text-secondary">Job Description</h3>
+                  <h3 className="section-heading text-secondary">
+                    Job Description
+                  </h3>
                   <p>
                     {job.description || "No detailed description provided."}
                   </p>
@@ -262,7 +271,7 @@ const JobDetails = () => {
                   >
                     <div className="company-logo">
                       <img
-                        src="/images/default-company-logo.jpg"
+                        src={defaultLogo}
                         width="198"
                         height="198"
                         alt={job.companyName}
@@ -282,7 +291,7 @@ const JobDetails = () => {
                           }}
                         >
                           <img
-                            src={job.employerProfilePic}
+                            src={job.employerProfilePic||defaultLogo}
                             width="50"
                             height="50"
                             alt="Employer"
@@ -296,7 +305,9 @@ const JobDetails = () => {
                       )}
                     </div>
                     <div className="textbox">
-                      <h4 className="text-secondary">{job.companyName}</h4>
+                      <h4 className="company-name-heading text-secondary">
+                        {job.companyName}
+                      </h4>
                       <p>{job.category}</p>
                       {job.companyUrl && (
                         <p>
@@ -337,11 +348,6 @@ const JobDetails = () => {
                         <span className="text">{job.applydatetime}</span>
                       </li>
                     </ul>
-                    {/* <a href={`/apply/${job._id}`} className="btn btn-secondary btn-sm">
-                      <span className="btn-text">
-                        <CheckCircle className="text-primary" size={18} /> &nbsp; Apply Now
-                      </span>
-                    </a> */}
                     <a
                       onClick={handleApplyNow}
                       className="btn btn-secondary btn-sm"
@@ -362,7 +368,9 @@ const JobDetails = () => {
             <div className="row">
               <div className="col-12 col-md-6 col-xl-6">
                 <div className="text-holder">
-                  <h3 className="text-secondary">Skills Required</h3>
+                  <h3 className="section-heading text-secondary">
+                    Skills Required
+                  </h3>
                   <ul className="check-list">
                     {job.skills && job.skills.length > 0 ? (
                       job.skills.map((skill, index) => (
@@ -377,7 +385,7 @@ const JobDetails = () => {
 
               <div className="col-12 col-md-6 col-xl-6">
                 <div className="text-holder">
-                  <h3 className="text-secondary">Benefits</h3>
+                  <h3 className="section-heading text-secondary">Benefits</h3>
                   <p>{job.benefits || "No benefits information provided"}</p>
                 </div>
               </div>
@@ -388,7 +396,9 @@ const JobDetails = () => {
             <div className="row">
               <div className="col-12 col-md-6 col-xl-6">
                 <div className="text-holder">
-                  <h3 className="text-secondary">Application Instructions</h3>
+                  <h3 className="section-heading text-secondary">
+                    Application Instructions
+                  </h3>
                   <p>
                     {job.applicationInstructions ||
                       "No specific instructions provided"}
@@ -398,7 +408,9 @@ const JobDetails = () => {
 
               <div className="col-12 col-md-6 col-xl-6">
                 <div className="text-holder note-box bg-light-sky border border-none">
-                  <h3 className="text-secondary">Contact Information:</h3>
+                  <h3 className="contact-heading text-secondary">
+                    Contact Information:
+                  </h3>
                   <hr />
                   <p style={{ textAlign: "justify" }}>
                     {job.contactEmail && (
@@ -415,67 +427,202 @@ const JobDetails = () => {
                   </p>
                 </div>
               </div>
-
-              <header className="job-details-header mb-30 mb-md-45 mb-lg-60">
-                <div className="company-info-job">
-                  <ul className="job-info-list">
-                    <li>
-                      <strong className="text-secondary">Salary:</strong>
-                      <span className="text">
-                        ₹{job.salaryFrom} to ₹{job.salaryTo} /{" "}
-                        {job.salaryType || "month"}
-                      </span>
-                    </li>
-                    <li>
-                      <strong className="text-secondary">Experience:</strong>
-                      <span className="text">
-                        {job.experienceLevel || "Not specified"}
-                      </span>
-                    </li>
-                    <li>
-                      <strong className="text-secondary">Job Type:</strong>
-                      <span className="text">{job.jobType}</span>
-                    </li>
-                    <li>
-                      <strong className="text-secondary">Posted:</strong>
-                      <span className="text">{job.applydatetime}</span>
-                    </li>
-                  </ul>
-                  <a
-                    onClick={handleApplyNow}
-                    className="btn btn-secondary btn-sm"
-                    style={{ cursor: "pointer" }}
-                  >
-                    <span className="btn-text">
-                      <CheckCircle className="text-primary" size={18} /> &nbsp;
-                      Apply Now
-                    </span>
-                  </a>
-                </div>
-              </header>
             </div>
           </div>
         </section>
       </main>
 
       <style>{`
-      .company-logo {
-  position: relative;
-  margin: 0 auto;
-  width: 198px;
-  height: 198px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #eee;
-}
+        /* Job Header Section - Professional Clean Design */
+        .job-header-section {
+          background: #f8f9fa;
+          border-bottom: 1px solid #dee2e6;
+          margin-top: 90px; /* Space from navigation bar */
+          padding: 40px 0;
+          color: #333;
+        }
 
-.employer-profile-pic {
-  transition: all 0.3s ease;
-}
+        .job-header-content {
+          position: relative;
+        }
 
-.employer-profile-pic:hover {
-  transform: scale(1.1);
-}
+        .job-title-hero {
+          font-size: 2.5rem;
+          font-weight: 600;
+          margin-bottom: 20px;
+          color: #2c3e50;
+          line-height: 1.2;
+        }
+
+        .job-meta-info {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 20px;
+          flex-wrap: wrap;
+          margin-top: 15px;
+        }
+
+        .company-name {
+          font-size: 1.1rem;
+          font-weight: 500;
+          color: #495057;
+          background: #e9ecef;
+          padding: 8px 16px;
+          border-radius: 6px;
+          border: 1px solid #ced4da;
+        }
+
+        .location-info {
+          font-size: 1rem;
+          font-weight: 400;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color: #6c757d;
+          background: #ffffff;
+          padding: 8px 14px;
+          border-radius: 6px;
+          border: 1px solid #ced4da;
+        }
+
+        .location-info i {
+          font-size: 1rem;
+        }
+
+        /* Company Logo - Professional */
+        .company-logo {
+          position: relative;
+          margin: 0 auto;
+          width: 198px;
+          height: 198px;
+          border-radius: 8px;
+          overflow: hidden;
+          border: 2px solid #dee2e6;
+          background: #fff;
+        }
+
+        .employer-profile-pic {
+          transition: none;
+        }
+
+        /* Professional Section Titles */
+        .job-title-secondary {
+          font-size: 1.8rem;
+          font-weight: 600;
+          color: #2c3e50 !important;
+          margin-bottom: 20px;
+          padding-bottom: 10px;
+          border-bottom: 2px solid #007bff;
+        }
+
+        /* Clean Section Headings */
+        .section-heading {
+          font-size: 1.4rem;
+          font-weight: 600;
+          margin-bottom: 20px !important;
+          color: #2c3e50 !important;
+          padding-left: 0;
+        }
+
+        .section-heading::before {
+          display: none;
+        }
+
+        /* Professional Company Info */
+        .company-name-heading {
+          font-size: 1.3rem;
+          font-weight: 600;
+          margin-bottom: 10px !important;
+          color: #2c3e50 !important;
+        }
+
+        /* Clean Contact Heading */
+        .contact-heading {
+          font-size: 1.2rem;
+          font-weight: 600;
+          margin-bottom: 15px !important;
+          color: #495057 !important;
+        }
+
+        /* Simple Info Labels */
+        .info-label {
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: #495057 !important;
+        }
+
+        /* Clean Company Info Box */
+        .company-info-box {
+          border-radius: 8px;
+          border: 1px solid #dee2e6;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive Design - Clean and Professional */
+        @media (max-width: 768px) {
+          .job-header-section {
+            margin-top: 80px;
+            padding: 30px 0;
+          }
+
+          .job-title-hero {
+            font-size: 2rem;
+          }
+          
+          .job-title-secondary {
+            font-size: 1.5rem;
+          }
+          
+          .section-heading {
+            font-size: 1.3rem;
+          }
+
+          .job-meta-info {
+            gap: 15px;
+          }
+
+          .company-name {
+            font-size: 1rem;
+          }
+
+          .location-info {
+            font-size: 0.9rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .job-header-section {
+            margin-top: 70px;
+            padding: 25px 0;
+          }
+
+          .job-title-hero {
+            font-size: 1.8rem;
+          }
+          
+          .job-title-secondary {
+            font-size: 1.4rem;
+          }
+          
+          .section-heading {
+            font-size: 1.2rem;
+          }
+
+          .job-meta-info {
+            flex-direction: column;
+            gap: 10px;
+          }
+
+          .company-name, .location-info {
+            font-size: 0.95rem;
+          }
+        }
+
+        /* Remove fancy transitions */
+        * {
+          transition: none;
+        }
       `}</style>
     </>
   );

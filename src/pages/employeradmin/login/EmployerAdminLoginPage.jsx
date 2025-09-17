@@ -97,7 +97,8 @@ const EmployerAdminLoginPage = () => {
         <div className="container-fuild">
           <div className="w-100 overflow-hidden position-relative flex-wrap d-block vh-100">
             <div className="row">
-              <div className="col-lg-5">
+              {/* Changed from col-lg-5 to col-lg-8 to match first layout */}
+              <div className="col-lg-8">
                 <div className="login-background position-relative d-lg-flex align-items-center justify-content-center d-none flex-wrap vh-100">
                   <div className="bg-overlay-img">
                     <img src={bg1} className="bg-1" alt="Background 1" />
@@ -106,16 +107,19 @@ const EmployerAdminLoginPage = () => {
                   </div>
                   <div className="authentication-card w-100">
                     <div className="authen-overlay-item border w-100">
-                      <h1 className="text-white display-1">
-                        Empowering Schools <br /> through seamless Staff <br />{" "}
-                        management.
+                      {/* Updated text alignment to match first layout */}
+                      <h1
+                        className="text-white display-1"
+                        style={{ textAlign: "center" }}
+                      >
+                        Empowering Schools through seamless Staff management.
                       </h1>
                       <div className="my-4 mx-auto authen-overlay-img">
                         <img src={authBg} alt="Authentication Background" />
                       </div>
                       <div>
                         <p className="text-white fs-20 fw-semibold text-center">
-                          Efficiently manage your workforce, streamline <br />{" "}
+                          Efficiently manage your workforce, streamline <br />
                           operations effortlessly.
                         </p>
                       </div>
@@ -123,9 +127,11 @@ const EmployerAdminLoginPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="col-lg-7 col-md-12 col-sm-12">
+              {/* Changed from col-lg-7 to col-lg-4 to match first layout */}
+              <div className="col-lg-4 col-md-12 col-sm-12">
                 <div className="row justify-content-center align-items-center vh-100 overflow-auto flex-wrap">
-                  <div className="col-md-7 mx-auto vh-100">
+                  {/* Changed from col-md-7 to col-lg-10 to match first layout */}
+                  <div className="col-lg-10 mx-auto vh-100">
                     <form onSubmit={handleSubmit} className="vh-100">
                       <div className="vh-100 d-flex flex-column justify-content-between p-4">
                         <div className="mx-auto mb-4 text-center">

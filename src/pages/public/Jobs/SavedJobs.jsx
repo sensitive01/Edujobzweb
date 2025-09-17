@@ -1,16 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { FaCog, FaChevronRight, FaBookmark, FaSearch } from "react-icons/fa";
+import { 
+  FaCog, 
+  FaChevronRight, 
+  FaBookmark, 
+  FaSearch, 
+  FaArrowLeft, 
+  FaArrowRight 
+} from "react-icons/fa";
 import { IoLocationOutline } from "react-icons/io5";
 import { GiArchiveRegister } from "react-icons/gi";
 import Sidebar from "../../../components/layout/Sidebar";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import jobImage from "../../../../public/images/jobImage.jpg"
 
 const SavedJobs = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [savedJobs, setSavedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 9;
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -58,6 +68,64 @@ const SavedJobs = () => {
     fetchSavedJobs();
   }, []);
 
+  // Calculate pagination values
+  const totalJobs = savedJobs.length;
+  const totalPages = Math.ceil(totalJobs / jobsPerPage);
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = savedJobs.slice(indexOfFirstJob, indexOfLastJob);
+
+  // Change page
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+      // Scroll to top when page changes
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      // Show all pages if total pages are less than max visible
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Show first page, current page and surrounding pages, and last page
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pageNumbers.push(i);
+        }
+        if (totalPages > 4) {
+          pageNumbers.push('...');
+          pageNumbers.push(totalPages);
+        }
+      } else if (currentPage >= totalPages - 2) {
+        pageNumbers.push(1);
+        if (totalPages > 4) {
+          pageNumbers.push('...');
+        }
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pageNumbers.push(i);
+        }
+      } else {
+        pageNumbers.push(1);
+        pageNumbers.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pageNumbers.push(i);
+        }
+        pageNumbers.push('...');
+        pageNumbers.push(totalPages);
+      }
+    }
+    
+    return pageNumbers;
+  };
+
   const handleUnsaveJob = async (jobId) => {
     try {
       const userData = JSON.parse(localStorage.getItem("userData"));
@@ -68,7 +136,14 @@ const SavedJobs = () => {
         jobId: jobId,
       });
 
-      setSavedJobs(savedJobs.filter((job) => job._id !== jobId));
+      const updatedJobs = savedJobs.filter((job) => job._id !== jobId);
+      setSavedJobs(updatedJobs);
+      
+      // Adjust current page if needed after removing a job
+      const newTotalPages = Math.ceil(updatedJobs.length / jobsPerPage);
+      if (currentPage > newTotalPages && newTotalPages > 0) {
+        setCurrentPage(newTotalPages);
+      }
     } catch (err) {
       console.error("Error unsaving job:", err);
     }
@@ -114,6 +189,11 @@ const SavedJobs = () => {
                   <p className="jobplugin__settings-head__text">
                     Your bookmarked jobs appear here
                   </p>
+                  {totalJobs > 0 && (
+                    <p className="text-muted small">
+                      Showing {indexOfFirstJob + 1}-{Math.min(indexOfLastJob, totalJobs)} of {totalJobs} saved jobs
+                    </p>
+                  )}
                 </div>
 
                 {error ? (
@@ -121,7 +201,7 @@ const SavedJobs = () => {
                 ) : savedJobs.length > 0 ? (
                   <>
                     <div className="row justify-content-center">
-                      {savedJobs.map((job) => (
+                      {currentJobs.map((job) => (
                         <div
                           key={job._id}
                           className="col-12 col-sm-6 col-lg-4 col-xl-4 mb-15 mb-md-30"
@@ -134,7 +214,7 @@ const SavedJobs = () => {
                               <img
                                 src={
                                   job.companyLogo ||
-                                  "images/default-company-logo.jpg"
+                                  jobImage
                                 }
                                 width="78"
                                 height="78"
@@ -159,7 +239,7 @@ const SavedJobs = () => {
                                   }}
                                 >
                                   <img
-                                    src={job.employerProfilePic}
+                                    src={job.employerProfilePic||jobImage}
                                     width="40"
                                     height="40"
                                     alt="Employer"
@@ -231,6 +311,68 @@ const SavedJobs = () => {
                         </div>
                       ))}
                     </div>
+
+                    {/* Only show pagination if there are more than 9 jobs */}
+                    {totalPages > 1 && (
+                      <div className="pagination-block pt-20 pt-lg-30 pt-xl-50 pb-0">
+                        <div className="container d-flex align-items-center justify-content-center">
+                          <ul className="pagination">
+                            {/* Previous button */}
+                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                              <a 
+                                className="page-link" 
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handlePageChange(currentPage - 1);
+                                }}
+                              >
+                                <FaArrowLeft className="icon-arrow-left1" />
+                              </a>
+                            </li>
+
+                            {/* Page numbers */}
+                            {getPageNumbers().map((pageNum, index) => (
+                              pageNum === '...' ? (
+                                <li key={`ellipsis-${index}`} className="page-item disabled">
+                                  <span className="page-link">...</span>
+                                </li>
+                              ) : (
+                                <li 
+                                  key={pageNum} 
+                                  className={`page-item ${currentPage === pageNum ? 'active' : ''}`}
+                                >
+                                  <a 
+                                    className="page-link" 
+                                    href="#"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handlePageChange(pageNum);
+                                    }}
+                                  >
+                                    {pageNum}
+                                  </a>
+                                </li>
+                              )
+                            ))}
+
+                            {/* Next button */}
+                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                              <a 
+                                className="page-link" 
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handlePageChange(currentPage + 1);
+                                }}
+                              >
+                                <FaArrowRight className="icon-arrow-right" />
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <div className="empty-state text-center py-5 px-3">
@@ -259,20 +401,28 @@ const SavedJobs = () => {
       <style>
         {`
         .img-holder {
-  position: relative;
-  width: 78px;
-  height: 78px;
-  margin: 0 auto 15px;
-}
+          position: relative;
+          width: 78px;
+          height: 78px;
+          margin: 0 auto 15px;
+        }
 
-.employer-profile-pic {
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
+        .employer-profile-pic {
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
 
-.employer-profile-pic:hover {
-  transform: scale(1.1);
-}
+        .employer-profile-pic:hover {
+          transform: scale(1.1);
+        }
+
+        .pagination .page-link {
+          cursor: pointer;
+        }
+
+        .pagination .page-item.disabled .page-link {
+          cursor: not-allowed;
+        }
         `}
       </style>
     </>

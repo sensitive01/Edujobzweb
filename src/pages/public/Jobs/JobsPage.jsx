@@ -383,7 +383,10 @@ const JobsPage = () => {
                       </div>
 
                       {/* Sort Dropdown */}
-                      <div className="sort-dropdown" style={{ minWidth: "120px" }}>
+                      <div
+                        className="sort-dropdown"
+                        style={{ minWidth: "120px" }}
+                      >
                         <select
                           name="sort"
                           className="form-select form-select-sm"
@@ -424,6 +427,7 @@ const JobsPage = () => {
                             width="18"
                             height="18"
                             alt="Grid"
+                            style={{ color: "white" }}
                           />
                         </a>
                         <a
@@ -644,6 +648,9 @@ const JobsPage = () => {
           position: relative;
           margin-bottom: 20px;
         }
+          .btn-primary img {
+  filter: brightness(0) invert(1);
+}
 
         .employer-profile-pic {
           transition: all 0.3s ease;

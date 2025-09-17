@@ -13,6 +13,7 @@ const JobVacanciesListWthMap = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [jobsPerPage] = useState(7);
+  const [currentView, setCurrentView] = useState("list"); // Added for view state
   const [filterOptions, setFilterOptions] = useState({
     jobTypes: [],
     locations: [],
@@ -292,8 +293,31 @@ const JobVacanciesListWthMap = () => {
                     <div className="grid-buttons">
                       <a
                         href="job-vacancies-list-with-map"
-                        className="btn btn-list active"
+                        className={`btn btn-list ${
+                          currentView === "list" ? "active" : ""
+                        }`}
                         type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setCurrentView("list");
+                          // Add navigation logic here if needed
+                        }}
+                        style={{
+                          backgroundColor:
+                            currentView === "list" ? "white" : "#f8f9fa",
+                          border: "1px solid #dee2e6",
+                          color: currentView === "list" ? "#495057" : "#6c757d",
+                          boxShadow:
+                            currentView === "list"
+                              ? "0 2px 8px rgba(0,0,0,0.15)"
+                              : "none",
+                          padding: "8px 12px",
+                          borderRadius: "6px",
+                          transition: "all 0.2s ease",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
                       >
                         <img
                           src="/images/list-icon.svg"
@@ -304,8 +328,32 @@ const JobVacanciesListWthMap = () => {
                       </a>
                       <a
                         href="job-vacancies-grid-with-map"
-                        className="btn btn-grid bg-light"
+                        className={`btn btn-grid ${
+                          currentView === "grid" ? "active" : ""
+                        }`}
                         type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setCurrentView("grid");
+                          // Add navigation logic here if needed
+                        }}
+                        style={{
+                          backgroundColor:
+                            currentView === "grid" ? "white" : "#f8f9fa",
+                          border: "1px solid #dee2e6",
+                          color: currentView === "grid" ? "#495057" : "#6c757d",
+                          boxShadow:
+                            currentView === "grid"
+                              ? "0 2px 8px rgba(0,0,0,0.15)"
+                              : "none",
+                          padding: "8px 12px",
+                          borderRadius: "6px",
+                          transition: "all 0.2s ease",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginLeft: "4px",
+                        }}
                       >
                         <img
                           src="/images/grid-icon.svg"
@@ -315,22 +363,58 @@ const JobVacanciesListWthMap = () => {
                         />
                       </a>
                       <button
-                        className="btn btn-filters filters-opener bg-light"
+                        className="btn btn-filters filters-opener"
                         type="button"
                         onClick={() => setShowFilters(true)}
+                        style={{
+                          backgroundColor: "#f8f9fa",
+                          border: "1px solid #dee2e6",
+                          color: "#6c757d",
+                          padding: "8px 12px",
+                          borderRadius: "6px",
+                          transition: "all 0.2s ease",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginLeft: "4px",
+                        }}
                       >
                         <Filter size={18} />
                       </button>
                       <a
                         href="job-vacancies-list"
-                        className="btn btn-grid active"
+                        className={`btn btn-map ${
+                          currentView === "map" ? "active" : ""
+                        }`}
                         type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setCurrentView("map");
+                          // Add navigation logic here if needed
+                        }}
+                        style={{
+                          backgroundColor:
+                            currentView === "map" ? "white" : "#f8f9fa",
+                          border: "1px solid #dee2e6",
+                          color: currentView === "map" ? "#495057" : "#6c757d",
+                          boxShadow:
+                            currentView === "map"
+                              ? "0 2px 8px rgba(0,0,0,0.15)"
+                              : "none",
+                          padding: "8px 12px",
+                          borderRadius: "6px",
+                          transition: "all 0.2s ease",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginLeft: "4px",
+                        }}
                       >
                         <img
                           src="/images/icons8-place-marker.gif"
                           width="22"
                           height="22"
-                          alt="Grid"
+                          alt="Map View"
                         />
                       </a>
                     </div>
@@ -501,7 +585,7 @@ const JobVacanciesListWthMap = () => {
         </div>
       )}
 
-      {/* Add some CSS for the filter overlay */}
+      {/* Enhanced CSS */}
       <style jsx>{`
         .filter-overlay {
           position: fixed;
@@ -526,6 +610,19 @@ const JobVacanciesListWthMap = () => {
           top: 0;
           height: 100vh;
           overflow: hidden;
+        }
+        .grid-buttons {
+          display: flex;
+          gap: 0;
+        }
+        .grid-buttons .btn:hover {
+          background-color: white !important;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .grid-buttons .btn.active {
+          background-color: white !important;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+          border-color: #007bff !important;
         }
       `}</style>
     </>

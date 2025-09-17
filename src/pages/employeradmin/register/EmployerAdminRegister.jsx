@@ -105,10 +105,10 @@ const EmployerAdminRegister = () => {
 
     try {
       const response = await axios.post(`${VITE_BASE_URL}/sendemailotp`, {
-        email: formData.employeradminEmail
+        userEmail: formData.employeradminEmail
       });
 
-      if (response.data.success) {
+      if (response.status===200) {
         setIsOtpSent(true);
         setOtpError('');
       } else {
@@ -132,12 +132,12 @@ const EmployerAdminRegister = () => {
     setOtpError('');
 
     try {
-      const response = await axios.post(`${VITE_BASE_URL}/verify-otp`, {
-        email: formData.employeradminEmail,
+      const response = await axios.post(`${VITE_BASE_URL}/verifyemailotp`, {
+        userEmail: formData.employeradminEmail,
         otp
       });
 
-      if (response.data.success) {
+      if (response.status===200) {
         setIsOtpVerified(true);
         setOtpError('');
       } else {
