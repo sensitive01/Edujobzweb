@@ -753,6 +753,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
 const AddUnitModal = ({ show, onClose }) => {
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("basic-info");
   const [showPositionsModal, setShowPositionsModal] = useState(false);
@@ -868,7 +869,7 @@ const AddUnitModal = ({ show, onClose }) => {
 
     try {
       const response = await axios.post(
-        "https://edujobemailverification.onrender.com/api/send-otp",
+        `${VITE_BASE_URL}/sendemailotp`,
         {
           email: formData.userEmail,
         }
@@ -899,7 +900,7 @@ const AddUnitModal = ({ show, onClose }) => {
 
     try {
       const response = await axios.post(
-        "https://edujobemailverification.onrender.com/api/verify-otp",
+        `${VITE_BASE_URL}/verify-otp`,
         {
           email: formData.userEmail,
           otp,

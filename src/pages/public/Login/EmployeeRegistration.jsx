@@ -9,6 +9,7 @@ import { usePasswordToggle } from "../../../hooks/usePasswordToggle";
 import { useAutoClearMessages } from "../../../hooks/useAutoClearMessages";
 
 const EmployeeRegistration = () => {
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const params = Object.fromEntries(queryParams.entries());
@@ -100,13 +101,13 @@ const EmployeeRegistration = () => {
 
     try {
       const response = await axios.post(
-        "https://edujobemailverification.onrender.com/api/send-otp",
+        `${VITE_BASE_URL}/sendemailotp`,
         {
-          email: values.userEmail,
+          userEmail: values.userEmail,
         }
       );
 
-      if (response.data.success) {
+      if (response.status===200) {
         setIsOtpSent(true);
         setOtpError("");
       } else {
@@ -130,14 +131,14 @@ const EmployeeRegistration = () => {
 
     try {
       const response = await axios.post(
-        "https://edujobemailverification.onrender.com/api/verify-otp",
+        `${VITE_BASE_URL}/verifyemailotp`,
         {
-          email: values.userEmail,
+          userEmail: values.userEmail,
           otp,
         }
       );
 
-      if (response.data.success) {
+      if (response.status===200) {
         setIsOtpVerified(true);
         setOtpError("");
       } else {

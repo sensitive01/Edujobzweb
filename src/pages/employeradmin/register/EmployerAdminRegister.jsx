@@ -15,6 +15,7 @@ import appleLogo from '../../../assets/employer-admin/assets/img/icons/apple-log
 import { registerEmployerAdmin } from '../../../api/services/projectServices';
 
 const EmployerAdminRegister = () => {
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL
   const [formData, setFormData] = useState({
     employeradminUsername: '',
     employeradminEmail: '',
@@ -103,7 +104,7 @@ const EmployerAdminRegister = () => {
     setOtpError('');
 
     try {
-      const response = await axios.post('https://edujobemailverification.onrender.com/api/send-otp', {
+      const response = await axios.post(`${VITE_BASE_URL}/sendemailotp`, {
         email: formData.employeradminEmail
       });
 
@@ -131,7 +132,7 @@ const EmployerAdminRegister = () => {
     setOtpError('');
 
     try {
-      const response = await axios.post('https://edujobemailverification.onrender.com/api/verify-otp', {
+      const response = await axios.post(`${VITE_BASE_URL}/verify-otp`, {
         email: formData.employeradminEmail,
         otp
       });

@@ -607,6 +607,7 @@ import { useEmployeeRegistration } from "../../hooks/useEmployeeRegistration";
 import axios from "axios";
 
 const PostJob = () => {
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL
   const [formData, setFormData] = useState({
     companyName: "",
     jobTitle: "",
@@ -705,7 +706,7 @@ const PostJob = () => {
 
     try {
       const response = await axios.post(
-        "https://edujobemailverification.onrender.com/api/send-otp",
+        `${VITE_BASE_URL}/sendemailotp`,
         {
           email: formData.contactEmail,
         }
@@ -736,7 +737,7 @@ const PostJob = () => {
 
     try {
       const response = await axios.post(
-        "https://edujobemailverification.onrender.com/api/verify-otp",
+        `${VITE_BASE_URL}/verify-otp`,
         {
           email: formData.contactEmail,
           otp,

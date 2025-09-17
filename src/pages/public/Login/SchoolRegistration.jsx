@@ -9,6 +9,7 @@ import { usePasswordToggle } from '../../../hooks/usePasswordToggle';
 import { useAutoClearMessages } from '../../../hooks/useAutoClearMessages';
 
 const SchoolRegistration = () => {
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL
   const navigate = useNavigate();
   const { schoolregister, isLoading, error, success, clearMessages } = useEmployeeRegistration();
   const [passwordInputType, passwordIcon, togglePassword] = usePasswordToggle();
@@ -58,11 +59,11 @@ const SchoolRegistration = () => {
     setOtpError('');
 
     try {
-      const response = await axios.post('https://edujobemailverification.onrender.com/api/send-otp', {
-        email: values.userEmail
+      const response = await axios.post(`${VITE_BASE_URL}/sendemailotp`, {
+        userEmail: values.userEmail
       });
 
-      if (response.data.success) {
+      if (response.status===200) {
         setIsOtpSent(true);
         setOtpError('');
       } else {
@@ -86,12 +87,12 @@ const SchoolRegistration = () => {
     setOtpError('');
 
     try {
-      const response = await axios.post('https://edujobemailverification.onrender.com/api/verify-otp', {
-        email: values.userEmail,
+      const response = await axios.post(`${VITE_BASE_URL}/verifyemailotp`, {
+        userEmail: values.userEmail,
         otp
       });
 
-      if (response.data.success) {
+      if (response.status===200) {
         setIsOtpVerified(true);
         setOtpError('');
       } else {

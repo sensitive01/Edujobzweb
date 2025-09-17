@@ -448,6 +448,7 @@ import googleLogo from "../../assets/employer/assets/img/icons/google-logo.svg";
 import appleLogo from "../../assets/employer/assets/img/icons/apple-logo.svg";
 
 const EmployeeRegister = () => {
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     schoolName: "",
@@ -515,7 +516,7 @@ const EmployeeRegister = () => {
 
     try {
       const response = await axios.post(
-        "https://edujobemailverification.onrender.com/api/send-otp",
+        `${VITE_BASE_URL}/sendemailotp`,
         {
           email: formData.userEmail,
         }
@@ -546,7 +547,7 @@ const EmployeeRegister = () => {
 
     try {
       const response = await axios.post(
-        "https://edujobemailverification.onrender.com/api/verify-otp",
+        `${VITE_BASE_URL}/verify-otp`,
         {
           email: formData.userEmail,
           otp,
