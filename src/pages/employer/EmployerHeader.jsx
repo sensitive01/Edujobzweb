@@ -15,7 +15,7 @@ import {
   X,
   Grid,
 } from "lucide-react";
-import user19 from "../../assets/employer/assets/img/logo - dark.png";
+import user19 from "../../../public/images/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
 
@@ -165,7 +165,7 @@ const EmployerHeader = () => {
   return (
     <>
       <header
-        className="bg-white border-bottom px-4 fixed-top"
+        className="bg-secondary border-bottom px-4 py-2 fixed-top"
         style={{
           borderColor: "#e5e7eb",
         }}
@@ -191,22 +191,22 @@ const EmployerHeader = () => {
             <div className="d-flex align-items-center">
               <Link
                 to="/employer/dashboard"
-                className="d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none"
+                className="d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none nav-link-hover"
               >
-                <i class="ti ti-layout-grid-remove text-primary me-1"></i>
-                <span className="text-dark">dashboard</span>
+                <i className="ti ti-layout-grid-remove text-primary me-1"></i>
+                <span className="text-white">dashboard</span>
               </Link>
               <div className="position-relative me-1">
                 <div
-                  className="d-flex align-items-center fw-medium px-3 py-2 rounded dropdown"
+                  className="d-flex align-items-center fw-medium px-3 py-2 rounded dropdown nav-link-hover"
                   onClick={() => {
                     setCandidatesDropdown(!candidatesDropdown);
                     setJobsDropdown(false);
                   }}
                   style={{ cursor: "pointer" }}
                 >
-                  <i class="ti ti-user-circle text-primary me-1"></i>
-                  <span className="text-dark">Candidates</span>
+                  <i className="ti ti-user-circle text-primary me-1"></i>
+                  <span className="text-white">Candidates</span>
                   <ChevronDown className="ms-1" size={16} />
                 </div>
 
@@ -247,15 +247,15 @@ const EmployerHeader = () => {
               </div>
               <div className="position-relative me-1">
                 <div
-                  className="d-flex align-items-center fw-medium px-3 py-2 rounded dropdown"
+                  className="d-flex align-items-center fw-medium px-3 py-2 rounded dropdown nav-link-hover"
                   onClick={() => {
                     setJobsDropdown(!jobsDropdown);
                     setCandidatesDropdown(false);
                   }}
                   style={{ cursor: "pointer" }}
                 >
-                  <i class="ti ti-smart-home text-primary me-1"></i>
-                  <span className="text-dark">Jobs</span>
+                  <i className="ti ti-smart-home text-primary me-1"></i>
+                  <span className="text-white">Jobs</span>
                   <ChevronDown className="me-2" size={16} />
                 </div>
                 {jobsDropdown && (
@@ -295,38 +295,38 @@ const EmployerHeader = () => {
               </div>
               <Link
                 to="/employer/messages"
-                className="d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none"
+                className="d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none nav-link-hover"
               >
-                <i class="ti ti-brand-hipchat text-primary me-1"></i>
-                <span className="text-dark">Messages</span>
+                <i className="ti ti-brand-hipchat text-primary me-1"></i>
+                <span className="text-white">Messages</span>
               </Link>
               <Link
                 to="/employer/plans-grid"
-                className="d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none"
+                className="d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none nav-link-hover"
               >
-                <i class="ti ti-star text-primary me-1"></i>
-                <span className="text-dark">Upgrade Plan</span>
+                <i className="ti ti-star text-primary me-1"></i>
+                <span className="text-white">Upgrade Plan</span>
               </Link>
-              <Link
+              {/* <Link
                 to="/employer/events"
-                className="d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none"
+                className="d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none nav-link-hover"
               >
-                <i class="ti ti-home text-primary me-1"></i>
+                <i className="ti ti-home text-primary me-1"></i>
                 <span className="text-dark">Events</span>
-              </Link>
+              </Link> */}
               <Link
                 to="/employer/calendar-events"
-                className="d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none"
+                className="d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none nav-link-hover"
               >
-                <i class="ti ti-dashboard text-primary me-1"></i>
-                <span className="text-dark">Reminder</span>
+                <i className="ti ti-dashboard text-primary me-1"></i>
+                <span className="text-white">Reminder</span>
               </Link>
               <Link
                 to="/employer/FAQs"
-                className="d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none"
+                className="d-flex align-items-center fw-medium px-3 py-2 rounded me-1 menu text-decoration-none nav-link-hover"
               >
-                <i class="ti ti-info-circle text-primary me-1"></i>
-                <span className="text-dark">FAQ</span>
+                <i className="ti ti-info-circle text-primary me-1"></i>
+                <span className="text-white">FAQ</span>
               </Link>
             </div>
           </nav>
@@ -336,12 +336,12 @@ const EmployerHeader = () => {
             {/* Desktop Right Items */}
             <div className="d-none d-lg-flex align-items-center">
               {/* Fullscreen Button */}
-              <button className="btn btn-link p-2 text-secondary me-2">
+              {/* <button className="btn btn-link p-2 text-secondary me-2">
                 <Maximize2 size={16} />
-              </button>
+              </button> */}
 
               {/* Support Button with Badge */}
-              <Link
+              {/* <Link
                 to="/employer/support"
                 className="btn btn-link p-2 text-secondary me-2 position-relative text-decoration-none"
               >
@@ -359,10 +359,10 @@ const EmployerHeader = () => {
                 >
                   5
                 </span>
-              </Link>
+              </Link> */}
 
               {/* Ads Button */}
-              <Link
+              {/* <Link
                 to="#"
                 className="btn fw-medium me-2 text-decoration-none"
                 style={{
@@ -374,12 +374,12 @@ const EmployerHeader = () => {
                 }}
               >
                 Ads
-              </Link>
+              </Link> */}
             </div>
 
             {/* Notification Dropdown */}
             <div className="me-2 position-relative" ref={notificationRef}>
-              <button
+              {/* <button
                 className="btn btn-link p-2 text-secondary position-relative"
                 onClick={() => {
                   setNotificationDropdown(!notificationDropdown);
@@ -390,7 +390,7 @@ const EmployerHeader = () => {
                 <span className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
                   <span className="visually-hidden">New alerts</span>
                 </span>
-              </button>
+              </button> */}
 
               {notificationDropdown && (
                 <div
@@ -502,7 +502,7 @@ const EmployerHeader = () => {
             </div>
 
             {/* Profile Dropdown */}
-            <div className="dropdown position-relative" ref={profileRef}>
+            <div className="dropdown position-relative " ref={profileRef}>
               <button
                 className="btn btn-link p-0 border-0"
                 onClick={() => {
@@ -510,7 +510,7 @@ const EmployerHeader = () => {
                   setNotificationDropdown(false);
                 }}
               >
-                <div className="avatar avatar-sm">
+                <div className="avatar avatar-md">
                   {profilePic ? (
                     <img
                       src={profilePic}
@@ -523,7 +523,10 @@ const EmployerHeader = () => {
                       }}
                     />
                   ) : (
-                    <span className="avatar-initial rounded-circle bg-primary">
+                    <span
+                      className="avatar-initial rounded-circle bg-white"
+                      style={{ color: "black" }}
+                    >
                       A
                     </span>
                   )}
@@ -621,7 +624,7 @@ const EmployerHeader = () => {
                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                 onClick={closeMobileMenu}
               >
-                <i class="ti ti-layout-grid-remove text-primary me-1"></i>
+                <i className="ti ti-layout-grid-remove text-primary me-1"></i>
                 <span className="text-dark">dashboard</span>
               </Link>
               <div className="mb-2">
@@ -636,7 +639,7 @@ const EmployerHeader = () => {
                   }}
                 >
                   <div className="d-flex align-items-center">
-                    <i class="ti ti-user-circle text-primary me-1"></i>
+                    <i className="ti ti-user-circle text-primary me-1"></i>
                     <span className="text-dark">Candidates</span>
                   </div>
                   <ChevronDown
@@ -674,7 +677,7 @@ const EmployerHeader = () => {
                   }}
                 >
                   <div className="d-flex align-items-center">
-                    <i class="ti ti-smart-home text-primary me-1"></i>
+                    <i className="ti ti-smart-home text-primary me-1"></i>
                     <span className="text-dark">Jobs</span>
                   </div>
                   <ChevronDown
@@ -707,7 +710,7 @@ const EmployerHeader = () => {
                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                 onClick={closeMobileMenu}
               >
-                <i class="ti ti-brand-hipchat text-primary me-1"></i>
+                <i className="ti ti-brand-hipchat text-primary me-1"></i>
                 <span className="text-dark">Messages</span>
               </Link>
               <Link
@@ -715,7 +718,7 @@ const EmployerHeader = () => {
                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                 onClick={closeMobileMenu}
               >
-                <i class="ti ti-star text-primary me-1"></i>
+                <i className="ti ti-star text-primary me-1"></i>
                 <span className="text-dark">Upgrade Plan</span>
               </Link>
               <Link
@@ -723,7 +726,7 @@ const EmployerHeader = () => {
                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                 onClick={closeMobileMenu}
               >
-                <i class="ti ti-home text-primary me-1"></i>
+                <i className="ti ti-home text-primary me-1"></i>
                 <span className="text-dark">Events</span>
               </Link>
               <Link
@@ -731,7 +734,7 @@ const EmployerHeader = () => {
                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                 onClick={closeMobileMenu}
               >
-                <i class="ti ti-dashboard text-primary me-1"></i>
+                <i className="ti ti-dashboard text-primary me-1"></i>
                 <span className="text-dark">Reminder</span>
               </Link>
               <Link
@@ -739,7 +742,7 @@ const EmployerHeader = () => {
                 className="d-flex align-items-center fw-medium px-3 py-2 rounded mb-2 menu text-decoration-none mobile-menu-item"
                 onClick={closeMobileMenu}
               >
-                <i class="ti ti-info-circle text-primary me-1"></i>
+                <i className="ti ti-info-circle text-primary me-1"></i>
                 <span className="text-dark">FAQ</span>
               </Link>
             </div>
@@ -784,129 +787,159 @@ const EmployerHeader = () => {
           </div>
         )}
 
-        <style jsx>{`
-          .dropdown:hover {
-            background-color: #f8f9fa !important;
-            color: #374151 !important;
-          }
-
-          .text-secondary:hover {
-            color: #374151 !important;
-          }
-          .menu:hover {
-            color: #f9ab00 !important;
-          }
-          .btn-link:hover {
-            background-color: #f8f9fa !important;
-          }
-          .dropdown-item:hover {
-            background-color: #f8f9fa !important;
-            color: #f97316 !important;
-          }
-          .notification-dropdown {
-            background-color: white;
-            border: 1px solid #dee2e6;
-            border-radius: 0.375rem;
-          }
-          .avatar {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-          }
-          .avatar-sm {
-            width: 32px;
-            height: 32px;
-            font-size: 0.875rem;
-          }
-          .avatar-lg {
-            width: 48px;
-            height: 48px;
-            font-size: 1.25rem;
-          }
-          .avatar-initial {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-          }
-          .bg-primary {
-            background-color: #f9ab00 !important;
-          }
-
-          /* Mobile Menu Styles */
-          .mobile-menu {
-            animation: slideDown 0.3s ease-out;
-          }
-
-          @keyframes slideDown {
-            from {
-              opacity: 0;
-              transform: translateY(-10px);
+        <style jsx>
+          {`
+            /* Updated hover styles for navigation links */
+            .nav-link-hover:hover {
+              background-color: #f8f9fa !important;
             }
-            to {
-              opacity: 1;
-              transform: translateY(0);
+
+            .nav-link-hover:hover span {
+              color: #000 !important;
             }
-          }
 
-          .mobile-dropdown-header:hover {
-            background-color: #f8f9fa !important;
-          }
+            .dropdown:hover {
+              background-color: #f8f9fa !important;
+            }
 
-          .mobile-dropdown-item:hover {
-            background-color: #f8f9fa !important;
-            color: #f97316 !important;
-          }
+            .dropdown:hover span {
+              color: #000 !important;
+            }
 
-          .mobile-menu-item:hover {
-            background-color: #f8f9fa !important;
-          }
+            .text-secondary:hover {
+              color: #374151 !important;
+            }
 
-          .transition-transform {
-            transition: transform 0.2s ease;
-          }
+            .menu:hover {
+              color: #f9ab00 !important;
+            }
 
-          .rotate-180 {
-            transform: rotate(180deg);
-          }
+            .btn-link:hover {
+              background-color: #f8f9fa !important;
+            }
 
-          /* Responsive Notification Dropdown */
-          @media (max-width: 575px) {
+            .dropdown-item:hover {
+              background-color: #f8f9fa !important;
+              color: #f97316 !important;
+            }
+
             .notification-dropdown {
-              width: 300px !important;
-              right: -100px !important;
+              background-color: white;
+              border: 1px solid #dee2e6;
+              border-radius: 0.375rem;
             }
-          }
 
-          @media (max-width: 480px) {
-            .notification-dropdown {
-              width: 280px !important;
-              right: -120px !important;
+            .avatar {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-weight: 600;
             }
-          }
 
-          /* Responsive Profile Dropdown */
-          @media (max-width: 575px) {
-            .dropdown-menu.show {
-              width: 250px !important;
-              right: -50px !important;
+            .avatar-sm {
+              width: 32px;
+              height: 32px;
+              font-size: 0.875rem;
             }
-          }
 
-          @media (max-width: 480px) {
-            .dropdown-menu.show {
-              width: 220px !important;
-              right: -70px !important;
+            /* Updated profile avatar size */
+            .avatar-md {
+              width: 44px;
+              height: 44px;
+              font-size: 1rem;
             }
-          }
 
-          body {
-            padding-top: 70px;
-          }
-        `}</style>
+            .avatar-lg {
+              width: 48px;
+              height: 48px;
+              font-size: 1.25rem;
+            }
+
+            .avatar-initial {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 100%;
+              height: 100%;
+            }
+
+            .bg-primary {
+              background-color: #f9ab00 !important;
+            }
+
+            /* Mobile Menu Styles */
+            .mobile-menu {
+              animation: slideDown 0.3s ease-out;
+            }
+
+            @keyframes slideDown {
+              from {
+                opacity: 0;
+                transform: translateY(-10px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+
+            .mobile-dropdown-header:hover {
+              background-color: #f8f9fa !important;
+            }
+
+            .mobile-dropdown-item:hover {
+              background-color: #f8f9fa !important;
+              color: #f97316 !important;
+            }
+
+            .mobile-menu-item:hover {
+              background-color: #f8f9fa !important;
+            }
+
+            .transition-transform {
+              transition: transform 0.2s ease;
+            }
+
+            .rotate-180 {
+              transform: rotate(180deg);
+            }
+
+            /* Responsive Notification Dropdown */
+            @media (max-width: 575px) {
+              .notification-dropdown {
+                width: 300px !important;
+                right: -100px !important;
+              }
+            }
+
+            @media (max-width: 480px) {
+              .notification-dropdown {
+                width: 280px !important;
+                right: -120px !important;
+              }
+            }
+
+            /* Responsive Profile Dropdown */
+            @media (max-width: 575px) {
+              .dropdown-menu.show {
+                width: 250px !important;
+                right: -50px !important;
+              }
+            }
+
+            @media (max-width: 480px) {
+              .dropdown-menu.show {
+                width: 220px !important;
+                right: -70px !important;
+              }
+            }
+
+            body {
+              padding-top: 70px;
+            }
+          `}
+        </style>
       </header>
     </>
   );

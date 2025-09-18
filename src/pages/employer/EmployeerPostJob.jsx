@@ -22,6 +22,7 @@ import EmployerHeader from "./EmployerHeader";
 import EmployerFooter from "./EmployerFooter";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import defaultImage from "../../../public/images/jobImage.jpg";
 
 // Main Jobs Component
 const EmployeerPostJob = () => {
@@ -1402,10 +1403,7 @@ const JobCard = ({ job, onStatusChange }) => {
                 <a href="#" className="me-2">
                   <span className="avatar avatar-lg bg-gray">
                     <img
-                      src={
-                        job.employerProfilePic ||
-                        "employeer/assets/img/icons/default.svg"
-                      }
+                      src={job.employerProfilePic || defaultImage}
                       style={{
                         width: "48px",
                         height: "48px",
@@ -1415,7 +1413,7 @@ const JobCard = ({ job, onStatusChange }) => {
                       alt="employer"
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = "employeer/assets/img/icons/default.svg";
+                        e.target.src = defaultImage;
                       }}
                     />
                   </span>

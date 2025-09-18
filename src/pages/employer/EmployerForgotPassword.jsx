@@ -3,21 +3,36 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 // Import images
-import logo from "../../assets/employer/assets/img/logo.svg";
+import logo from "../../../public/images/logo2.png";
 import bg1 from "../../assets/employer/assets/img/bg/bg-01.webp";
 import bg2 from "../../assets/employer/assets/img/bg/bg-02.png";
 import bg3 from "../../assets/employer/assets/img/bg/bg-03.webp";
 import authBg from "../../assets/employer/assets/img/bg/authentication-bg-04.svg";
 
 const EmployerForgotPassword = () => {
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+
+  // Form state
   const [formData, setFormData] = useState({
-    userMobile: "",
+    userEmail: "",
   });
   const [errors, setErrors] = useState({});
+
+  // OTP state
+  const [otp, setOtp] = useState("");
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+
+  // Loading states
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+
+  // Message states
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [otpError, setOtpError] = useState("");
+  const [otpSuccess, setOtpSuccess] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,62 +47,154 @@ const EmployerForgotPassword = () => {
         [name]: null,
       }));
     }
+
+    // Clear messages when user types
+    if (error) setError(null);
+    if (success) setSuccess(null);
   };
 
-  const validateForm = () => {
+  const validateEmail = () => {
     const newErrors = {};
 
-    if (!formData.userMobile) {
-      newErrors.userMobile = "Mobile number is required";
-    } else if (!/^\d{10}$/.test(formData.userMobile)) {
-      newErrors.userMobile = "Please enter a valid 10-digit mobile number";
+    if (!formData.userEmail) {
+      newErrors.userEmail = "Email address is required";
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.userEmail)) {
+        newErrors.userEmail = "Please enter a valid email address";
+      }
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const validateOtp = () => {
+    if (!otp) {
+      setOtpError("Please enter the OTP");
+      return false;
+    }
+    if (!/^\d{6}$/.test(otp)) {
+      setOtpError("Please enter a valid 6-digit OTP");
+      return false;
+    }
+    return true;
+  };
+
+  // Send OTP to email
+  const sendOtp = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    if (!validateEmail()) return;
 
-    setIsLoading(true);
+    setIsSendingOtp(true);
     setError(null);
     setSuccess(null);
+    setOtpError("");
+    setOtpSuccess("");
 
     try {
       const response = await axios.post(
-        "https://api.edprofio.com/employer/employerforgotpassword",
+        `${VITE_BASE_URL}/employer/sendemailotpforgot`,
         {
-          userMobile: formData.userMobile,
+          userEmail: formData.userEmail,
+        },
+        {
+          validateStatus: function (status) {
+            return status >= 200 && status < 500; // Handle all expected status codes
+          },
         }
       );
 
-      if (response.data.message === "OTP sent successfully") {
-        setSuccess("OTP has been sent to your mobile number");
-        // Navigate to OTP verification page with the mobile number
-        navigate("/employer/verify-otp", {
-          state: { mobile: formData.userMobile, otp: response.data.otp },
-        });
+      if (response.status === 200) {
+        setIsOtpSent(true);
+        setOtpSuccess("OTP has been sent to your email address");
+        setSuccess("Please check your email for the OTP");
+      } else if (response.status === 404) {
+        setError("No account found with this email address");
+      } else if (response.status === 400) {
+        setError(response.data.message || "Invalid request");
       } else {
         setError(response.data.message || "Failed to send OTP");
       }
     } catch (err) {
       console.error("Forgot password error:", err);
       if (err.response) {
-        if (err.response.status === 404) {
-          setError("User not found with the provided mobile number");
-        } else {
-          setError(err.response.data.message || "Failed to send OTP");
-        }
+        setError(err.response.data.message || "Failed to send OTP");
       } else {
         setError("Network error. Please try again.");
       }
     } finally {
-      setIsLoading(false);
+      setIsSendingOtp(false);
     }
   };
+
+  // Verify OTP
+  const verifyOtp = async () => {
+    if (!validateOtp()) return;
+
+    setIsVerifyingOtp(true);
+    setOtpError("");
+    setOtpSuccess("");
+
+    try {
+      const response = await axios.post(
+        `${VITE_BASE_URL}/employer/verifyemailotpforgot`,
+        {
+          userEmail: formData.userEmail,
+          otp: otp,
+        }
+      );
+
+      if (response.status === 200) {
+        setIsOtpVerified(true);
+        setOtpSuccess("OTP verified successfully!");
+        setSuccess("Email verified! You can now reset your password.");
+
+        // Navigate to reset password page with verified email
+        setTimeout(() => {
+          navigate("/employer/reset-password", {
+            state: {
+              email: formData.userEmail,
+              verified: true,
+            },
+          });
+        }, 1500);
+      } else {
+        setOtpError(response.data.error || "Invalid OTP");
+        setIsOtpVerified(false);
+      }
+    } catch (error) {
+      console.error("OTP verification error:", error);
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        "OTP verification failed";
+      setOtpError(errorMessage);
+      setIsOtpVerified(false);
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
+  // Resend OTP
+  const resendOtp = async () => {
+    setOtp(""); // Clear current OTP
+    setIsOtpSent(false);
+    setIsOtpVerified(false);
+    await sendOtp({ preventDefault: () => {} }); // Call sendOtp without form submission
+  };
+
+  // Get current message to display
+  const getCurrentMessage = () => {
+    if (error) return { type: "error", message: error };
+    if (success) return { type: "success", message: success };
+    if (otpError) return { type: "error", message: otpError };
+    if (otpSuccess) return { type: "success", message: otpSuccess };
+    return null;
+  };
+
+  const currentMessage = getCurrentMessage();
 
   return (
     <div className="bg-white">
@@ -127,7 +234,7 @@ const EmployerForgotPassword = () => {
               <div className="col-lg-4 col-md-12 col-sm-12">
                 <div className="row justify-content-center align-items-center vh-100 overflow-auto flex-wrap">
                   <div className="col-md-10 mx-auto vh-100">
-                    <form onSubmit={handleSubmit} className="vh-100">
+                    <form onSubmit={sendOtp} className="vh-100">
                       <div className="vh-100 d-flex flex-column justify-content-between p-4">
                         <div className="mx-auto mb-4 text-center">
                           <img
@@ -141,67 +248,163 @@ const EmployerForgotPassword = () => {
                           <div className="text-center mb-3">
                             <h2 className="mb-2">Forgot Password?</h2>
                             <p className="mb-0">
-                              If you forgot your password, we'll send an OTP to
-                              your mobile number to reset your password.
+                              {!isOtpSent
+                                ? "Enter your registered email address and we'll send you an OTP to reset your password."
+                                : "Enter the 6-digit OTP sent to your email address."}
                             </p>
                           </div>
 
-                          {error && (
-                            <div className="alert alert-danger mb-3">
-                              {error}
+                          {/* Consolidated message display */}
+                          {currentMessage && (
+                            <div
+                              className={`alert ${
+                                currentMessage.type === "error"
+                                  ? "alert-danger"
+                                  : "alert-success"
+                              } mb-3`}
+                              role="alert"
+                            >
+                              {currentMessage.message}
                             </div>
                           )}
 
-                          {success && (
-                            <div className="alert alert-success mb-3">
-                              {success}
-                            </div>
-                          )}
+                          {!isOtpVerified && (
+                            <>
+                              <div className="mb-3">
+                                <label className="form-label">
+                                  Email Address
+                                </label>
+                                <div className="input-group">
+                                  <input
+                                    type="email"
+                                    name="userEmail"
+                                    value={formData.userEmail}
+                                    onChange={handleChange}
+                                    className={`form-control border-end-0 ${
+                                      errors.userEmail ? "is-invalid" : ""
+                                    }`}
+                                    placeholder="Enter your registered email address"
+                                    disabled={isOtpSent}
+                                  />
+                                  <span className="input-group-text border-start-0">
+                                    <i className="ti ti-mail"></i>
+                                  </span>
+                                  {errors.userEmail && (
+                                    <div className="invalid-feedback">
+                                      {errors.userEmail}
+                                    </div>
+                                  )}
+                                </div>
 
-                          <div className="mb-3">
-                            <label className="form-label">Mobile Number</label>
-                            <div className="input-group">
-                              <input
-                                type="text"
-                                name="userMobile"
-                                value={formData.userMobile}
-                                onChange={handleChange}
-                                className={`form-control border-end-0 ${
-                                  errors.userMobile ? "is-invalid" : ""
-                                }`}
-                                placeholder="Enter your registered mobile number"
-                                maxLength="10"
-                              />
-                              <span className="input-group-text border-start-0">
-                                <i className="ti ti-phone"></i>
-                              </span>
-                              {errors.userMobile && (
-                                <div className="invalid-feedback">
-                                  {errors.userMobile}
+                                {/* OTP Input and Verification */}
+                                {isOtpSent && (
+                                  <div className="mt-3">
+                                    <div className="d-flex align-items-center">
+                                      <input
+                                        type="text"
+                                        placeholder="Enter 6-digit OTP"
+                                        value={otp}
+                                        onChange={(e) =>
+                                          setOtp(
+                                            e.target.value
+                                              .replace(/\D/g, "")
+                                              .slice(0, 6)
+                                          )
+                                        }
+                                        className="form-control me-2"
+                                        style={{ width: "200px" }}
+                                        maxLength="6"
+                                        disabled={isOtpVerified}
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={verifyOtp}
+                                        className={`btn ${
+                                          isOtpVerified
+                                            ? "btn-success"
+                                            : "btn-primary"
+                                        }`}
+                                        disabled={
+                                          isVerifyingOtp ||
+                                          isOtpVerified ||
+                                          !otp
+                                        }
+                                      >
+                                        {isVerifyingOtp
+                                          ? "Verifying..."
+                                          : isOtpVerified
+                                          ? "Verified"
+                                          : "Verify OTP"}
+                                      </button>
+                                    </div>
+
+                                    {/* Resend OTP option */}
+                                    {!isOtpVerified && (
+                                      <div className="mt-2">
+                                        <small className="text-muted">
+                                          Didn't receive the OTP?{" "}
+                                          <button
+                                            type="button"
+                                            onClick={resendOtp}
+                                            className="btn btn-link p-0 text-decoration-underline"
+                                            style={{ fontSize: "inherit" }}
+                                            disabled={isSendingOtp}
+                                          >
+                                            {isSendingOtp
+                                              ? "Sending..."
+                                              : "Resend OTP"}
+                                          </button>
+                                        </small>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Send OTP Button */}
+                              {!isOtpSent && (
+                                <div className="mb-3">
+                                  <button
+                                    type="submit"
+                                    className="btn btn-primary w-100"
+                                    disabled={isSendingOtp}
+                                  >
+                                    {isSendingOtp ? (
+                                      <>
+                                        <span
+                                          className="spinner-border spinner-border-sm me-2"
+                                          role="status"
+                                          aria-hidden="true"
+                                        ></span>
+                                        Sending OTP...
+                                      </>
+                                    ) : (
+                                      "Send OTP"
+                                    )}
+                                  </button>
                                 </div>
                               )}
+                            </>
+                          )}
+
+                          {/* Success state after OTP verification */}
+                          {isOtpVerified && (
+                            <div className="text-center">
+                              <div className="mb-4">
+                                <i
+                                  className="ti ti-check-circle text-success"
+                                  style={{ fontSize: "48px" }}
+                                ></i>
+                                <h4 className="text-success mt-2">
+                                  Email Verified!
+                                </h4>
+                                <p className="text-muted">
+                                  Redirecting to password reset page...
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                          <div className="mb-3">
-                            <button
-                              type="submit"
-                              className="btn btn-primary w-100"
-                              disabled={isLoading}
-                            >
-                              {isLoading ? (
-                                <>
-                                  <span
-                                    className="spinner-border spinner-border-sm me-2"
-                                    role="status"
-                                    aria-hidden="true"
-                                  ></span>
-                                  Sending OTP...
-                                </>
-                              ) : (
-                                "Send OTP"
-                              )}
-                            </button>
-                          </div>
+                          )}
+
                           <div className="text-center">
                             <h6 className="fw-normal text-dark mb-0">
                               Return to

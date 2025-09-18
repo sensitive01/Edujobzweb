@@ -373,3 +373,15 @@ export const getJobAndEmployerCount = async () => {
     throw error.response?.data?.message || error.message;
   }
 };
+
+
+export const getEmployerDashboardData = async (employerId) => {
+  try {
+    const response = await projectServices.get(
+      `/employer/get-employer-dashnoard-count/${employerId}`
+    );
+    return response;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};
