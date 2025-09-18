@@ -13,6 +13,7 @@ import {
 import { FaSquarePen, FaSuitcase, FaUsers } from "react-icons/fa6";
 import { IoDocumentText } from "react-icons/io5";
 import { getJobAndEmployerCount } from "../../api/services/projectServices";
+import defaultAvatar from "../../../public/images/avatar-04.jpg"
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -76,14 +77,14 @@ const HomePage = () => {
     {
       name: "Michael Chen",
       role: "Highly recommended",
-      img: "/images/img_37.jpg",
+      img: defaultAvatar,
       quote:
         "As a school administrator, I've hired several qualified candidates through this platform. It saves us so much time in the recruitment process.",
     },
     {
       name: "Priya Patel",
       role: "Life-changing opportunity",
-      img: "/images/img_38.jpg",
+      img: defaultAvatar,
       quote:
         "Moving to a new country was stressful, but EdProfio helped me find a teaching position quickly. The support was exceptional.",
     },
@@ -556,7 +557,6 @@ const HomePage = () => {
             </div>
           </div>
         </section>
-
         {/* Jobs Waiting Section */}
         <section className="section section-theme-9 jobs_waiting bg-light-sky">
           <div className="container">
@@ -590,7 +590,6 @@ const HomePage = () => {
             </div>
           </div>
         </section>
-
         {/* How It Works Section */}
         <section className="section section-theme-9 works_area">
           <div className="container">
@@ -655,7 +654,6 @@ const HomePage = () => {
             </div>
           </div>
         </section>
-
         {/* Get Hired Section */}
         <section className="section section-theme-1 section-how-works pt-45 pt-md-50 pt-lg-65 pt-xl-85 pt-xxl-110 pb-60 pb-md-80 pb-xl-85 pb-xxl-110 pb-xxxl-150 bg-light">
           <div className="container">
@@ -748,7 +746,7 @@ const HomePage = () => {
             </div>
           </div>
         </section>
-
+    
         {/* Testimonials Section with Manual Slider */}
         <section
           className="section section-theme-9 featured_Jobs_Block"
@@ -890,82 +888,37 @@ const HomePage = () => {
                     <ChevronRight size={24} />
                   </button>
 
-                  {/* Slides Container */}
-                  <div
-                    className="testimonials-slides"
-                    style={{
-                      display: "flex",
-                      transform: `translateX(-${currentSlide * 100}%)`,
-                      transition: "transform 0.5s ease-in-out",
-                      width: `${totalSlides * 100}%`,
-                      position: "relative",
-                      zIndex: 1,
-                    }}
-                  >
-                    {Array(totalSlides)
-                      .fill()
-                      .map((_, slideIndex) => {
-                        const startIndex = slideIndex * 3;
-                        const endIndex = startIndex + 3;
-                        const slideTestimonials = testimonials.slice(
-                          startIndex,
-                          endIndex
-                        );
-
-                        return (
-                          <div
-                            key={slideIndex}
-                            className="testimonial-slide"
-                            style={{
-                              width: `${100 / totalSlides}%`,
-                              flexShrink: 0,
-                              padding: "0 15px",
-                            }}
-                          >
-                            <div className="row">
-                              {slideTestimonials.map((testimonial, index) => (
-                                <div
-                                  key={`${slideIndex}-${index}`}
-                                  className="col-md-4 mb-4"
-                                >
-                                  <div
-                                    className="client_review border border-dark"
-                                    style={{ height: "100%" }}
-                                  >
-                                    <div className="heading_bar">
-                                      <div className="text_wrap">
-                                        <strong className="h5">
-                                          {testimonial.name}
-                                        </strong>
-                                        <span className="text">
-                                          {testimonial.role}
-                                        </span>
-                                      </div>
-                                      <div className="img_wrap">
-                                        <img
-                                          src={testimonial.img}
-                                          alt="Client"
-                                        />
-                                      </div>
-                                    </div>
-                                    <div className="stars_bar">
-                                      <div className="stars_wrap">
-                                        {[...Array(5)].map((_, i) => (
-                                          <i
-                                            key={i}
-                                            className="icon icon-star"
-                                          ></i>
-                                        ))}
-                                      </div>
-                                    </div>
-                                    <p>"{testimonial.quote}"</p>
-                                  </div>
-                                </div>
+                  {/* Slides Container - Show current 3 testimonials */}
+                  <div className="row">
+                    {getCurrentTestimonials().map((testimonial, index) => (
+                      <div
+                        key={`current-${currentSlide}-${index}`}
+                        className="col-md-4 mb-4"
+                      >
+                        <div
+                          className="client_review border border-dark"
+                          style={{ height: "100%" }}
+                        >
+                          <div className="heading_bar">
+                            <div className="text_wrap">
+                              <strong className="h5">{testimonial.name}</strong>
+                              <span className="text">{testimonial.role}</span>
+                            </div>
+                            <div className="img_wrap">
+                              <img src={testimonial.img} alt="Client" />
+                            </div>
+                          </div>
+                          <div className="stars_bar">
+                            <div className="stars_wrap">
+                              {[...Array(5)].map((_, i) => (
+                                <i key={i} className="icon icon-star"></i>
                               ))}
                             </div>
                           </div>
-                        );
-                      })}
+                          <p>"{testimonial.quote}"</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Dots Navigation */}
@@ -1002,7 +955,6 @@ const HomePage = () => {
             </div>
           </div>
         </section>
-
         {/* App Download Section */}
         <section className="apps-block section-theme-9 bg-light-sky">
           <div className="container">
