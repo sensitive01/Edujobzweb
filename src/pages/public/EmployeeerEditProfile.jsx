@@ -286,78 +286,7 @@ const EmployeeerEditProfile = () => {
     }));
   };
 
-  //   const handleProfilePicChange = async (e) => {
-  //   if (e.target.files && e.target.files[0]) {
-  //     const file = e.target.files[0];
 
-  //     // Client-side validation
-  //     if (!file.type.match('image.*')) {
-  //       setError('Please select an image file (JPEG, PNG)');
-  //       return;
-  //     }
-  //     if (file.size > 10 * 1024 * 1024) { // Match backend limit (10MB)
-  //       setError('Image size should be less than 10MB');
-  //       return;
-  //     }
-
-  //     // Show preview while uploading
-  //     const reader = new FileReader();
-  //     reader.onload = (event) => {
-  //       setEmployeeData(prev => ({
-  //         ...prev,
-  //         profileImage: event.target.result
-  //       }));
-  //     };
-  //     reader.readAsDataURL(file);
-
-  //     try {
-  //       const token = localStorage.getItem('authToken');
-  //       if (!token) {
-  //         navigate('/login');
-  //         return;
-  //       }
-
-  //       const formData = new FormData();
-  //       formData.append('file', file);
-
-  //       setUploading(prev => ({ ...prev, profileImage: true }));
-  //       setError(null);
-
-  //       // Make sure this matches your backend route exactly
-  //       const response = await axios.put(
-  //         `https://api.edprofio.com/uploadfile/${id}`,
-  //         formData,
-  //         {
-  //           params: {
-  //             fileType: 'profileImage'
-  //           },
-  //           headers: {
-  //             'Content-Type': 'multipart/form-data',
-  //             'Authorization': `Bearer ${token}`
-  //           }
-  //         }
-  //       );
-
-  //       if (response.data && response.data.file && response.data.file.url) {
-  //         setEmployeeData(prev => ({
-  //           ...prev,
-  //           profileImage: response.data.file.url,
-  //           userProfilePic: response.data.file.url
-  //         }));
-  //       } else {
-  //         throw new Error('Invalid response from server');
-  //       }
-  //     } catch (err) {
-  //       console.error('Upload error:', err);
-  //       setError(err.response?.data?.message ||
-  //                err.message ||
-  //                'Failed to upload image. Please try again.');
-  //     } finally {
-  //       setUploading(prev => ({ ...prev, profileImage: false }));
-  //     }
-  //   }
-  // };
-  // Resume Upload Handler
 
   const handleProfilePicChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
