@@ -9,7 +9,7 @@ import { usePasswordToggle } from "../../../hooks/usePasswordToggle";
 import { useAutoClearMessages } from "../../../hooks/useAutoClearMessages";
 
 const EmployeeRegistration = () => {
-  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const params = Object.fromEntries(queryParams.entries());
@@ -17,9 +17,8 @@ const EmployeeRegistration = () => {
   const isGoogle = params.isgoogle === "true";
   const googleEmail = params.email || "";
   const googleName = params.name || "";
-  const prefilledEmail = params.email || ""; // Get email from query params
+  const prefilledEmail = params.email || "";
 
-  // Debug: Log the query params
   console.log("Query params:", params);
   console.log("Prefilled email:", prefilledEmail);
   console.log("Google name:", googleName);
@@ -34,8 +33,9 @@ const EmployeeRegistration = () => {
   // State for OTP functionality
   const [otp, setOtp] = useState("");
   const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isOtpVerified, setIsOtpVerified] = useState(!!prefilledEmail); // Auto-verify if email from query
+  const [isOtpVerified, setIsOtpVerified] = useState(!!prefilledEmail);
   const [otpError, setOtpError] = useState("");
+  const [otpSuccess, setOtpSuccess] = useState("");
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
@@ -60,7 +60,6 @@ const EmployeeRegistration = () => {
   // Effect to prefill form data from query parameters
   useEffect(() => {
     if (prefilledEmail && !values.userEmail) {
-      // Create a synthetic event for email
       const emailEvent = {
         target: {
           name: "userEmail",
@@ -72,7 +71,6 @@ const EmployeeRegistration = () => {
     }
 
     if (googleName && !values.userName) {
-      // Create a synthetic event for name
       const nameEvent = {
         target: {
           name: "userName",
@@ -98,23 +96,36 @@ const EmployeeRegistration = () => {
 
     setIsSendingOtp(true);
     setOtpError("");
+    setOtpSuccess("");
 
     try {
       const response = await axios.post(
         `${VITE_BASE_URL}/sendemailotp`,
         {
           userEmail: values.userEmail,
+        },
+        {
+          validateStatus: function (status) {
+            return status === 200 || status === 401;
+          },
         }
       );
 
-      if (response.status===200) {
+      console.log("otp", response);
+
+      if (response.status === 200) {
         setIsOtpSent(true);
+        setOtpSuccess("OTP sent to your email successfully");
         setOtpError("");
+      } else if (response.status === 401) {
+        setOtpError(
+          response.data.message || response.data.error || "User already exists"
+        );
       } else {
         setOtpError(response.data.error || "Failed to send OTP");
       }
     } catch (error) {
-      setOtpError(error.response?.data?.error || "Failed to send OTP");
+      setOtpError("Network error. Please try again.");
     } finally {
       setIsSendingOtp(false);
     }
@@ -128,18 +139,17 @@ const EmployeeRegistration = () => {
 
     setIsVerifyingOtp(true);
     setOtpError("");
+    setOtpSuccess("");
 
     try {
-      const response = await axios.post(
-        `${VITE_BASE_URL}/verifyemailotp`,
-        {
-          userEmail: values.userEmail,
-          otp,
-        }
-      );
+      const response = await axios.post(`${VITE_BASE_URL}/verifyemailotp`, {
+        userEmail: values.userEmail,
+        otp,
+      });
 
-      if (response.status===200) {
+      if (response.status === 200) {
         setIsOtpVerified(true);
+        setOtpSuccess("Email verified successfully!");
         setOtpError("");
       } else {
         setOtpError(response.data.error || "Invalid OTP");
@@ -152,6 +162,26 @@ const EmployeeRegistration = () => {
       setIsVerifyingOtp(false);
     }
   };
+
+  // Function to get the current message to display
+  const getCurrentMessage = () => {
+    // Priority: Registration errors/success > OTP errors > OTP success
+    if (error) {
+      return { type: "error", message: error };
+    }
+    if (success) {
+      return { type: "success", message: "Registration successful!" };
+    }
+    if (otpError) {
+      return { type: "error", message: otpError };
+    }
+    if (otpSuccess) {
+      return { type: "success", message: otpSuccess };
+    }
+    return null;
+  };
+
+  const currentMessage = getCurrentMessage();
 
   return (
     <>
@@ -187,18 +217,17 @@ const EmployeeRegistration = () => {
 
               <form onSubmit={handleSubmit}>
                 <div className="jobplugin__form">
-                  {/* Error message */}
-                  {error && (
+                  {/* Consolidated message display */}
+                  {currentMessage && (
                     <div className="jobplugin__form-row">
-                      <div className="alert alert-danger">{error}</div>
-                    </div>
-                  )}
-
-                  {/* Success message */}
-                  {success && (
-                    <div className="jobplugin__form-row">
-                      <div className="alert alert-success">
-                        Registration successful!
+                      <div
+                        className={`alert ${
+                          currentMessage.type === "error"
+                            ? "alert-danger"
+                            : "alert-success"
+                        }`}
+                      >
+                        {currentMessage.message}
                       </div>
                     </div>
                   )}
@@ -227,7 +256,6 @@ const EmployeeRegistration = () => {
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       {prefilledEmail ? (
-                        // Simple email field when prefilled (no OTP verification needed)
                         <>
                           <input
                             type="email"
@@ -251,7 +279,6 @@ const EmployeeRegistration = () => {
                           </small>
                         </>
                       ) : (
-                        // OTP verification layout when email is not prefilled
                         <>
                           <div
                             style={{
@@ -260,7 +287,6 @@ const EmployeeRegistration = () => {
                               alignItems: "center",
                             }}
                           >
-                            {/* Email field - takes more space */}
                             <div style={{ flex: 2 }}>
                               <input
                                 type="email"
@@ -281,7 +307,6 @@ const EmployeeRegistration = () => {
                               )}
                             </div>
 
-                            {/* OTP field - smaller width */}
                             <div style={{ flex: 1 }}>
                               <input
                                 type="text"
@@ -295,7 +320,6 @@ const EmployeeRegistration = () => {
                               />
                             </div>
 
-                            {/* Verify/Send OTP button */}
                             <div style={{ flex: 1 }}>
                               {!isOtpSent ? (
                                 <button
@@ -343,19 +367,19 @@ const EmployeeRegistration = () => {
                             </div>
                           </div>
 
-                          {/* Status messages for OTP */}
-                          {isOtpSent && !isOtpVerified && (
-                            <small className="text-muted">
-                              OTP sent to your email
-                            </small>
-                          )}
-                          {isOtpVerified && (
+                          {/* Keep only status messages, not error messages */}
+                          {isOtpSent &&
+                            !isOtpVerified &&
+                            !otpError &&
+                            !otpSuccess && (
+                              <small className="text-muted">
+                                OTP sent to your email
+                              </small>
+                            )}
+                          {isOtpVerified && !otpSuccess && (
                             <small className="text-success">
                               Email verified successfully!
                             </small>
-                          )}
-                          {otpError && (
-                            <div className="text-danger">{otpError}</div>
                           )}
                         </>
                       )}

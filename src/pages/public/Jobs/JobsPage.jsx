@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Jobsbreadcrumb from "./Jobsbreadcrumb";
 import { Search } from "lucide-react";
 import JobsFilter from "./JobsFilter";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom"; // Added useNavigate and Link
 import defaultEmployeeAvatar from "../../../assets/employer-admin/assets/img/profiles/avatar-12.jpg";
 import jobImage from "../../../../public/images/jobImage.jpg";
 
@@ -401,10 +401,10 @@ const JobsPage = () => {
                         </select>
                       </div>
 
-                      {/* View Toggle Buttons */}
+                      {/* View Toggle Buttons - Updated to use Link */}
                       <div className="view-toggle-buttons d-flex gap-1">
-                        <a
-                          href="job-vacancies-list"
+                        <Link
+                          to="/job-vacancies-list"
                           className="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
                           style={{ width: "40px", height: "36px" }}
                           title="List View"
@@ -415,9 +415,9 @@ const JobsPage = () => {
                             height="18"
                             alt="List"
                           />
-                        </a>
-                        <a
-                          href="job-vacancies"
+                        </Link>
+                        <Link
+                          to="/job-vacancies"
                           className="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
                           style={{ width: "40px", height: "36px" }}
                           title="Grid View"
@@ -429,9 +429,9 @@ const JobsPage = () => {
                             alt="Grid"
                             style={{ color: "white" }}
                           />
-                        </a>
-                        <a
-                          href="job-vacancies-map"
+                        </Link>
+                        <Link
+                          to="/job-vacancies-map"
                           className="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
                           style={{ width: "40px", height: "36px" }}
                           title="Map View"
@@ -442,7 +442,7 @@ const JobsPage = () => {
                             height="18"
                             alt="Map"
                           />
-                        </a>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -748,7 +748,7 @@ const JobsPage = () => {
   );
 };
 
-// Job Card Component
+// Job Card Component - Updated with useNavigate
 const JobCard = ({
   id,
   postedTime,
@@ -763,11 +763,18 @@ const JobCard = ({
   experienceLevel,
   employerProfilePic,
 }) => {
+  const navigate = useNavigate(); // Add useNavigate hook
+
+  const handleJobClick = (e) => {
+    e.preventDefault();
+    navigate(`/job-details/${id}`);
+  };
+
   return (
     <article className="featured-category-box pt-20">
-      <a
-        href={`/job-details/${id}`}
-        className="job-card-link"
+      {/* Replace anchor with clickable div */}
+      <div
+        onClick={handleJobClick}
         style={{
           position: "absolute",
           top: 0,
@@ -775,7 +782,7 @@ const JobCard = ({
           right: 0,
           bottom: 0,
           zIndex: 1,
-          opacity: 0, // Make it invisible but clickable
+          cursor: "pointer",
         }}
         aria-label={`View details for ${jobTitle} position at ${companyName}`}
       />
@@ -791,7 +798,7 @@ const JobCard = ({
           alt={companyName}
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = { jobImage };
+            e.target.src = jobImage;
           }}
         />
 
@@ -849,10 +856,11 @@ const JobCard = ({
             <b className="text-primary">Job Type:</b> {jobType}
           </span>
         </div>
-        <a
-          href={`/job-details/${id}`}
+        {/* Replace anchor with button */}
+        <button
+          onClick={handleJobClick}
           className="btn btn-dark-yellow btn-sm"
-          style={{ position: "relative", zIndex: 2 }} // Ensure button stays above the overlay
+          style={{ position: "relative", zIndex: 2 }}
         >
           <span className="btn-text">
             <span className="text">
@@ -861,7 +869,7 @@ const JobCard = ({
             </span>
             <i className="icon-chevron-right"></i>
           </span>
-        </a>
+        </button>
       </div>
     </article>
   );

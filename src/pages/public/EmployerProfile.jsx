@@ -1,9 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { FaArrowLeft, FaPowerOff, FaEdit, FaLink, FaFilePdf, FaKey, FaTimes } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
-import { getEmployeeDetails, 
-  changePassword
- } from '../../api/services/projectServices';
+import React, { useEffect, useState } from "react";
+import {
+  FaArrowLeft,
+  FaPowerOff,
+  FaEdit,
+  FaLink,
+  FaFilePdf,
+  FaKey,
+  FaTimes,
+} from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  getEmployeeDetails,
+  changePassword,
+} from "../../api/services/projectServices";
 
 const EmployeProfile = () => {
   const [employeeData, setEmployeeData] = useState(null);
@@ -11,29 +20,29 @@ const EmployeProfile = () => {
   const [error, setError] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
-  const [passwordError, setPasswordError] = useState('');
+  const [passwordError, setPasswordError] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const userData = JSON.parse(localStorage.getItem('userData'));
+        const token = localStorage.getItem("authToken");
+        const userData = JSON.parse(localStorage.getItem("userData"));
 
         if (!token || !userData) {
-          navigate('/login');
+          navigate("/login");
           return;
         }
 
         const data = await getEmployeeDetails(userData._id, token);
         setEmployeeData(data);
       } catch (err) {
-        setError(err.message || 'Failed to fetch employee data');
+        setError(err.message || "Failed to fetch employee data");
       } finally {
         setLoading(false);
       }
@@ -43,61 +52,64 @@ const EmployeProfile = () => {
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    navigate('/login');
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
+    navigate("/login");
   };
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
-    setPasswordData(prev => ({
+    setPasswordData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    setPasswordError('');
+    setPasswordError("");
   };
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation
-    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
-      setPasswordError('All fields are required');
+    if (
+      !passwordData.currentPassword ||
+      !passwordData.newPassword ||
+      !passwordData.confirmPassword
+    ) {
+      setPasswordError("All fields are required");
       return;
     }
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordError('New password and confirm password do not match');
+      setPasswordError("New password and confirm password do not match");
       return;
     }
 
     if (passwordData.newPassword.length < 6) {
-      setPasswordError('New password must be at least 6 characters long');
+      setPasswordError("New password must be at least 6 characters long");
       return;
     }
 
     try {
       setPasswordLoading(true);
-      const token = localStorage.getItem('authToken');
-      const userData = JSON.parse(localStorage.getItem('userData'));
+      const token = localStorage.getItem("authToken");
+      const userData = JSON.parse(localStorage.getItem("userData"));
 
       await changePassword({
         userId: userData._id,
         currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword
+        newPassword: passwordData.newPassword,
       });
 
       // Success - close modal and show success message
       setShowPasswordModal(false);
       setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
       });
-      alert('Password changed successfully!');
-      
+      alert("Password changed successfully!");
     } catch (err) {
-      setPasswordError(err.message || 'Failed to change password');
+      setPasswordError(err.message || "Failed to change password");
     } finally {
       setPasswordLoading(false);
     }
@@ -106,30 +118,32 @@ const EmployeProfile = () => {
   const closePasswordModal = () => {
     setShowPasswordModal(false);
     setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
     });
-    setPasswordError('');
+    setPasswordError("");
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'Present';
-    const [month, year] = dateString.split('/');
+    if (!dateString) return "Present";
+    const [month, year] = dateString.split("/");
     return `${month}/${year}`;
   };
 
   const formatDOB = (dobString) => {
-    if (!dobString) return 'Not specified';
-    const [day, month, year] = dobString.split('/');
+    if (!dobString) return "Not specified";
+    const [day, month, year] = dobString.split("/");
     return `${day}/${month}/${year}`;
   };
 
   const formatDuration = (seconds) => {
-    if (!seconds) return '00:00';
+    if (!seconds) return "00:00";
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   if (loading) {
@@ -156,7 +170,11 @@ const EmployeProfile = () => {
                   <div className="jobplugin__profile-intro__image border-primary">
                     <div className="jobplugin__profile-intro__avatar">
                       <img
-                        src={employeeData.userProfilePic || employeeData.profileImage || 'images/img-profile.jpg'}
+                        src={
+                          employeeData.userProfilePic ||
+                          employeeData.profileImage ||
+                          "images/img-profile.jpg"
+                        }
                         alt={employeeData.userName}
                       />
                     </div>
@@ -171,11 +189,15 @@ const EmployeProfile = () => {
                     <div className="jobplugin__profile-intro__info mb-0">
                       <h1 className="h5">{employeeData.userName}</h1>
                       {employeeData.isVerified && (
-                        <span className="jobplugin__article-toprated">Verified</span>
+                        <span className="jobplugin__article-toprated">
+                          Verified
+                        </span>
                       )}
                     </div>
                     <address className="jobplugin__profile-intro__address">
-                      {employeeData.currentCity || employeeData.city || 'Location not specified'}
+                      {employeeData.currentCity ||
+                        employeeData.city ||
+                        "Location not specified"}
                     </address>
                     {employeeData.specialization && (
                       <div className="jobplugin__profile-intro__specialization">
@@ -185,7 +207,10 @@ const EmployeProfile = () => {
                   </div>
                 </div>
                 <div className="jobplugin__profile-intro__right">
-                  <Link to="/dashboard" className="jobplugin__button jobplugin__bg-white jobplugin__border-primary hover:jobplugin__bg-white small text-black">
+                  <Link
+                    to="/dashboard"
+                    className="jobplugin__button jobplugin__bg-white jobplugin__border-primary hover:jobplugin__bg-white small text-black"
+                  >
                     <FaArrowLeft /> &nbsp; Back to Dashboard
                   </Link>
                   <button
@@ -205,26 +230,26 @@ const EmployeProfile = () => {
 
               {/* Password Change Modal */}
               {showPasswordModal && (
-                <div 
-                  className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
-                  style={{zIndex: 1050, backgroundColor: 'rgba(0,0,0,0.5)'}}
+                <div
+                  className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                  style={{ zIndex: 1050, backgroundColor: "rgba(0,0,0,0.5)" }}
                 >
-                  <div 
-                    className="bg-white shadow-lg" 
+                  <div
+                    className="bg-white shadow-lg"
                     style={{
-                      maxWidth: '380px', 
-                      width: '90%',
-                      borderRadius: '8px'
+                      maxWidth: "380px",
+                      width: "90%",
+                      borderRadius: "8px",
                     }}
                   >
                     {/* Modal Header */}
                     <div className="px-3 py-3 border-bottom d-flex justify-content-between align-items-center">
                       <h5 className="mb-0 fw-bold">Change Password</h5>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="border-0 bg-transparent"
                         onClick={closePasswordModal}
-                        style={{cursor: 'pointer'}}
+                        style={{ cursor: "pointer" }}
                       >
                         <FaTimes />
                       </button>
@@ -234,7 +259,11 @@ const EmployeProfile = () => {
                     <div className="px-3 py-3">
                       <form onSubmit={handlePasswordSubmit}>
                         <div className="mb-3">
-                          <label htmlFor="currentPassword" className="form-label mb-1" style={{fontSize: '14px'}}>
+                          <label
+                            htmlFor="currentPassword"
+                            className="form-label mb-1"
+                            style={{ fontSize: "14px" }}
+                          >
                             Current Password
                           </label>
                           <input
@@ -244,13 +273,17 @@ const EmployeProfile = () => {
                             name="currentPassword"
                             value={passwordData.currentPassword}
                             onChange={handlePasswordChange}
-                            style={{borderRadius: '6px', padding: '8px 12px'}}
+                            style={{ borderRadius: "6px", padding: "8px 12px" }}
                             required
                           />
                         </div>
 
                         <div className="mb-3">
-                          <label htmlFor="newPassword" className="form-label mb-1" style={{fontSize: '14px'}}>
+                          <label
+                            htmlFor="newPassword"
+                            className="form-label mb-1"
+                            style={{ fontSize: "14px" }}
+                          >
                             New Password
                           </label>
                           <input
@@ -261,13 +294,17 @@ const EmployeProfile = () => {
                             value={passwordData.newPassword}
                             onChange={handlePasswordChange}
                             minLength="6"
-                            style={{borderRadius: '6px', padding: '8px 12px'}}
+                            style={{ borderRadius: "6px", padding: "8px 12px" }}
                             required
                           />
                         </div>
 
                         <div className="mb-3">
-                          <label htmlFor="confirmPassword" className="form-label mb-1" style={{fontSize: '14px'}}>
+                          <label
+                            htmlFor="confirmPassword"
+                            className="form-label mb-1"
+                            style={{ fontSize: "14px" }}
+                          >
                             Confirm Password
                           </label>
                           <input
@@ -277,35 +314,38 @@ const EmployeProfile = () => {
                             name="confirmPassword"
                             value={passwordData.confirmPassword}
                             onChange={handlePasswordChange}
-                            style={{borderRadius: '6px', padding: '8px 12px'}}
+                            style={{ borderRadius: "6px", padding: "8px 12px" }}
                             required
                           />
                         </div>
 
                         {passwordError && (
-                          <div className="alert alert-danger py-2 mb-3" style={{fontSize: '13px'}}>
+                          <div
+                            className="alert alert-danger py-2 mb-3"
+                            style={{ fontSize: "13px" }}
+                          >
                             {passwordError}
                           </div>
                         )}
 
                         {/* Modal Footer */}
                         <div className="d-flex gap-2 justify-content-end">
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             className="btn btn-sm btn-secondary"
                             onClick={closePasswordModal}
                             disabled={passwordLoading}
-                            style={{padding: '6px 16px'}}
+                            style={{ padding: "6px 16px" }}
                           >
                             Cancel
                           </button>
-                          <button 
-                            type="submit" 
+                          <button
+                            type="submit"
                             className="btn btn-sm btn-primary"
                             disabled={passwordLoading}
-                            style={{padding: '6px 16px'}}
+                            style={{ padding: "6px 16px" }}
                           >
-                            {passwordLoading ? 'Changing...' : 'Change'}
+                            {passwordLoading ? "Changing..." : "Change"}
                           </button>
                         </div>
                       </form>
@@ -335,7 +375,8 @@ const EmployeProfile = () => {
                       <ul className="jobplugin__profile-box__links">
                         <li>
                           <span className="jobplugin__profile-box__links-text">
-                            <strong>Phone:</strong> {employeeData.userMobile || 'Not provided'}
+                            <strong>Phone:</strong>{" "}
+                            {employeeData.userMobile || "Not provided"}
                           </span>
                         </li>
                         <li>
@@ -406,14 +447,22 @@ const EmployeProfile = () => {
                           <div>
                             <div className="d-flex align-items-center mb-2">
                               <div className="flex-grow">
-                                <p className="mb-0">{employeeData.introductionAudio.name}</p>
+                                <p className="mb-0">
+                                  {employeeData.introductionAudio.name}
+                                </p>
                                 <small className="text-muted">
-                                  Duration: {formatDuration(employeeData.introductionAudio.duration)}
+                                  Duration:{" "}
+                                  {formatDuration(
+                                    employeeData.introductionAudio.duration
+                                  )}
                                 </small>
                               </div>
                             </div>
                             <audio controls className="w-100 mt-2">
-                              <source src={employeeData.introductionAudio.url} type="audio/mpeg" />
+                              <source
+                                src={employeeData.introductionAudio.url}
+                                type="audio/mpeg"
+                              />
                               Your browser does not support the audio element.
                             </audio>
                           </div>
@@ -432,7 +481,9 @@ const EmployeProfile = () => {
                             <div className="p-3">
                               <div className="d-flex align-items-center mb-2">
                                 <div className="flex-grow">
-                                  <p className="mb-0">{employeeData.profileVideo.name}</p>
+                                  <p className="mb-0">
+                                    {employeeData.profileVideo.name}
+                                  </p>
                                 </div>
                               </div>
                             </div>
@@ -440,9 +491,16 @@ const EmployeProfile = () => {
                               <video
                                 controls
                                 className="w-100"
-                                poster={employeeData.profileVideo.thumbnail || employeeData.profileImage || 'images/img-profile.jpg'}
+                                poster={
+                                  employeeData.profileVideo.thumbnail ||
+                                  employeeData.profileImage ||
+                                  "images/img-profile.jpg"
+                                }
                               >
-                                <source src={employeeData.profileVideo.url} type="video/mp4" />
+                                <source
+                                  src={employeeData.profileVideo.url}
+                                  type="video/mp4"
+                                />
                                 Your browser does not support the video tag.
                               </video>
                             </div>
@@ -451,13 +509,18 @@ const EmployeProfile = () => {
                           <div className="bg-light rounded-lg p-3 text-center text-muted">
                             <div className="ratio ratio-16x9">
                               <img
-                                src={employeeData.profileImage || 'images/img-profile.jpg'}
+                                src={
+                                  employeeData.profileImage ||
+                                  "images/img-profile.jpg"
+                                }
                                 alt="Profile"
                                 className="img-fluid"
-                                style={{ objectFit: 'cover' }}
+                                style={{ objectFit: "cover" }}
                               />
                             </div>
-                            <p className="mt-2 mb-0">No video profile available</p>
+                            <p className="mt-2 mb-0">
+                              No video profile available
+                            </p>
                           </div>
                         )}
                       </div>
@@ -481,12 +544,27 @@ const EmployeProfile = () => {
                     </div>
                     <div className="jobplugin__profile-box__body">
                       <div className="jobplugin__profile-box__list-textbox">
-                        <p><strong>Gender:</strong> {employeeData.gender || 'Not specified'}</p>
-                        <p><strong>Date of Birth:</strong> {formatDOB(employeeData.dob)}</p>
-                        <p><strong>Marital Status:</strong> {employeeData.maritalStatus || 'Not specified'}</p>
-                        <p><strong>Total Experience:</strong> {employeeData.totalExperience || 'Not specified'}</p>
+                        <p>
+                          <strong>Gender:</strong>{" "}
+                          {employeeData.gender || "Not specified"}
+                        </p>
+                        <p>
+                          <strong>Date of Birth:</strong>{" "}
+                          {formatDOB(employeeData.dob)}
+                        </p>
+                        <p>
+                          <strong>Marital Status:</strong>{" "}
+                          {employeeData.maritalStatus || "Not specified"}
+                        </p>
+                        <p>
+                          <strong>Total Experience:</strong>{" "}
+                          {employeeData.totalExperience || "Not specified"}
+                        </p>
                         {employeeData.expectedSalary && (
-                          <p><strong>Expected Salary:</strong> ₹{employeeData.expectedSalary.toLocaleString()}</p>
+                          <p>
+                            <strong>Expected Salary:</strong> ₹
+                            {employeeData.expectedSalary.toLocaleString()}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -509,12 +587,21 @@ const EmployeProfile = () => {
                     </div>
                     <div className="jobplugin__profile-box__body">
                       <div className="jobplugin__profile-box__list-textbox">
-                        <p>{employeeData.addressLine1 || 'Address not specified'}</p>
-                        {employeeData.addressLine2 && <p>{employeeData.addressLine2}</p>}
-                        <p>{employeeData.city || ''}, {employeeData.state || ''}</p>
-                        <p>PIN: {employeeData.pincode || ''}</p>
+                        <p>
+                          {employeeData.addressLine1 || "Address not specified"}
+                        </p>
+                        {employeeData.addressLine2 && (
+                          <p>{employeeData.addressLine2}</p>
+                        )}
+                        <p>
+                          {employeeData.city || ""}, {employeeData.state || ""}
+                        </p>
+                        <p>PIN: {employeeData.pincode || ""}</p>
                         {employeeData.preferredLocation && (
-                          <p><strong>Preferred Location:</strong> {employeeData.preferredLocation}</p>
+                          <p>
+                            <strong>Preferred Location:</strong>{" "}
+                            {employeeData.preferredLocation}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -539,7 +626,10 @@ const EmployeProfile = () => {
                       <div className="jobplugin__profile-box__body">
                         <div className="jobplugin__profile-box__skills">
                           {employeeData.gradeLevels.map((grade, index) => (
-                            <span key={index} className="jobplugin__profile-box__skill-tag">
+                            <span
+                              key={index}
+                              className="jobplugin__profile-box__skill-tag"
+                            >
                               {grade}
                             </span>
                           ))}
@@ -563,7 +653,11 @@ const EmployeProfile = () => {
                     <div className="jobplugin__profile-block__body">
                       <div className="jobplugin__profile-block__textarea">
                         <div className="jobplugin__profile-block__textbox">
-                          <p>{employeeData.profilesummary || employeeData.coverLetter || 'No profile summary available.'}</p>
+                          <p>
+                            {employeeData.profilesummary ||
+                              employeeData.coverLetter ||
+                              "No profile summary available."}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -582,11 +676,17 @@ const EmployeProfile = () => {
                     <div className="jobplugin__profile-block__body">
                       {employeeData.education?.length > 0 ? (
                         employeeData.education.map((edu, index) => (
-                          <div key={index} className="jobplugin__profile-block__textarea mb-4">
+                          <div
+                            key={index}
+                            className="jobplugin__profile-block__textarea mb-4"
+                          >
                             <div className="jobplugin__profile-block__textbox">
                               <h3 className="h5">{edu.degree}</h3>
                               <p>{edu.institution}</p>
-                              <p>{edu.type} | {formatDate(edu.startDate)} - {formatDate(edu.endDate)}</p>
+                              <p>
+                                {edu.type} | {formatDate(edu.startDate)} -{" "}
+                                {formatDate(edu.endDate)}
+                              </p>
                             </div>
                           </div>
                         ))
@@ -613,16 +713,25 @@ const EmployeProfile = () => {
                     <div className="jobplugin__profile-block__body">
                       {employeeData.workExperience?.length > 0 ? (
                         employeeData.workExperience.map((exp, index) => (
-                          <div key={index} className="jobplugin__profile-block__textarea mb-4">
+                          <div
+                            key={index}
+                            className="jobplugin__profile-block__textarea mb-4"
+                          >
                             <div className="jobplugin__profile-block__textbox">
                               <h3 className="h5">{exp.position}</h3>
                               <p>{exp.company}</p>
-                              <p>{exp.employmentType} | {formatDate(exp.startDate)} - {formatDate(exp.endDate)}</p>
-                              {exp.description && <p className="mt-2">{exp.description}</p>}
+                              <p>
+                                {exp.employmentType} |{" "}
+                                {formatDate(exp.startDate)} -{" "}
+                                {formatDate(exp.endDate)}
+                              </p>
+                              {exp.description && (
+                                <p className="mt-2">{exp.description}</p>
+                              )}
                             </div>
                           </div>
                         ))
-                      ) : employeeData.totalExperience === 'Fresher' ? (
+                      ) : employeeData.totalExperience === "Fresher" ? (
                         <div className="jobplugin__profile-block__textarea">
                           <div className="jobplugin__profile-block__textbox">
                             <p>Fresher (No work experience)</p>
@@ -652,7 +761,10 @@ const EmployeProfile = () => {
                       <div className="jobplugin__profile-block__textarea">
                         <div className="jobplugin__profile-block__textbox">
                           {employeeData.resume?.url ? (
-                            <p>
+                            <p className="flex items-center">
+                              <span className="font-semibold mr-2">
+                                Resume:
+                              </span>
                               <a
                                 href={employeeData.resume.url}
                                 target="_blank"
@@ -660,14 +772,18 @@ const EmployeProfile = () => {
                                 className="flex items-center hover:text-primary"
                               >
                                 <FaFilePdf className="mr-2" />
-                                {employeeData.resume.name || 'Download Resume'}
+                                {employeeData.resume.name || "Download Resume"}
                               </a>
                             </p>
                           ) : (
                             <p>No resume uploaded yet.</p>
                           )}
+
                           {employeeData.coverLetterFile?.url ? (
-                            <p className="mt-2">
+                            <p className="flex items-center mt-2">
+                              <span className="font-semibold mr-2">
+                                Cover Letter:
+                              </span>
                               <a
                                 href={employeeData.coverLetterFile.url}
                                 target="_blank"
@@ -675,11 +791,12 @@ const EmployeProfile = () => {
                                 className="flex items-center hover:text-primary"
                               >
                                 <FaFilePdf className="mr-2" />
-                                {employeeData.coverLetterFile.name || 'Download Cover Letter'}
+                                {employeeData.coverLetterFile.name ||
+                                  "Download Cover Letter"}
                               </a>
                             </p>
                           ) : (
-                            <p>No cover letter uploaded yet.</p>
+                            <p>No resume cover letter uploaded yet.</p>
                           )}
                         </div>
                       </div>
@@ -735,7 +852,10 @@ const EmployeProfile = () => {
                           <div className="jobplugin__profile-block__textbox">
                             <div className="jobplugin__profile-box__skills">
                               {employeeData.languages.map((language, index) => (
-                                <span key={index} className="jobplugin__profile-box__skill-tag">
+                                <span
+                                  key={index}
+                                  className="jobplugin__profile-box__skill-tag"
+                                >
                                   {language}
                                 </span>
                               ))}

@@ -19,6 +19,7 @@ import {
 import axios from "axios";
 
 const EmployeeerEditProfile = () => {
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
   const { id } = useParams();
   const navigate = useNavigate();
   const [employeeData, setEmployeeData] = useState({
@@ -286,8 +287,6 @@ const EmployeeerEditProfile = () => {
     }));
   };
 
-
-
   const handleProfilePicChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -336,7 +335,7 @@ const EmployeeerEditProfile = () => {
         setUploading((prev) => ({ ...prev, profileImage: true }));
 
         const response = await axios.put(
-          `https://api.edprofio.com/uploadfile/${id}`,
+          `${VITE_BASE_URL}/uploadfile/${id}`,
           formData,
           {
             params: {
@@ -381,39 +380,105 @@ const EmployeeerEditProfile = () => {
   const handleResumeChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (!file.type.match("application/pdf")) {
-        setError("Please select a PDF file for resume");
+
+      // Clear any previous errors
+      setError(null);
+
+      // Validate file size (10MB limit) - optional, you can remove this too if needed
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        setError("File size should be less than 10MB");
+        e.target.value = ""; // Reset file input
         return;
       }
-      setResumeFile(file);
+
+      setResumeFile(file); // store the file
 
       try {
         const token = localStorage.getItem("authToken");
+        if (!token) {
+          navigate("/login");
+          return;
+        }
+
         const formData = new FormData();
         formData.append("file", file);
 
         setUploading((prev) => ({ ...prev, resume: true }));
 
-        const response = await axios.put(
-          `https://api.edprofio.com/uploadfile/${id}?fileType=resume`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${token}`,
+        // Try the current endpoint format first
+        let response;
+        try {
+          response = await axios.put(
+            `${VITE_BASE_URL}/uploadfile/${id}?fileType=resume`,
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+        } catch (firstError) {
+          // If that fails, try the alternative endpoint format (same as profile image)
+          console.log("First endpoint failed, trying alternative format...");
+          response = await axios.put(
+            `${VITE_BASE_URL}/uploadfile/${id}`,
+            formData,
+            {
+              params: {
+                fileType: "resume",
+              },
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+        }
+
+        // Check if response has the expected structure
+        if (response.data?.file?.url && response.data?.file?.name) {
+          setEmployeeData((prev) => ({
+            ...prev,
+            resume: {
+              name: response.data.file.name,
+              url: response.data.file.url,
             },
-          }
+          }));
+          setError(null); // Clear any previous errors on success
+        } else if (response.data?.url && response.data?.name) {
+          // Alternative response structure
+          setEmployeeData((prev) => ({
+            ...prev,
+            resume: {
+              name: response.data.name,
+              url: response.data.url,
+            },
+          }));
+          setError(null); // Clear any previous errors on success
+        } else {
+          console.log("Unexpected response structure:", response.data);
+          throw new Error("Invalid response structure from server");
+        }
+
+        console.log("Resume uploaded successfully:", response.data);
+      } catch (err) {
+        console.error("Resume upload error:", err);
+        console.error("Error details:", {
+          message: err.message,
+          response: err.response?.data,
+          status: err.response?.status,
+        });
+
+        setError(
+          err.response?.data?.message ||
+            err.response?.data?.error ||
+            err.message ||
+            "Failed to upload resume. Please try again."
         );
 
-        setEmployeeData((prev) => ({
-          ...prev,
-          resume: {
-            name: response.data.file.name,
-            url: response.data.file.url,
-          },
-        }));
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to upload resume");
+        // Reset file input on error
+        e.target.value = "";
       } finally {
         setUploading((prev) => ({ ...prev, resume: false }));
       }
@@ -424,10 +489,8 @@ const EmployeeerEditProfile = () => {
   const handleCoverLetterChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (!file.type.match("application/pdf")) {
-        setError("Please select a PDF file for cover letter");
-        return;
-      }
+
+      // ✅ no file type restriction
       setCoverLetterFile(file);
 
       try {
@@ -438,11 +501,10 @@ const EmployeeerEditProfile = () => {
         setUploading((prev) => ({ ...prev, coverLetter: true }));
 
         const response = await axios.put(
-          `https://api.edprofio.com/uploadfile/${id}?fileType=coverLetter`,
+          `${VITE_BASE_URL}/uploadfile/${id}?fileType=coverLetter`,
           formData,
           {
             headers: {
-              "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${token}`,
             },
           }
@@ -464,6 +526,7 @@ const EmployeeerEditProfile = () => {
       }
     }
   };
+
   const handleProfileVideoChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -487,7 +550,7 @@ const EmployeeerEditProfile = () => {
         setUploadProgress((prev) => ({ ...prev, video: 0 }));
 
         const response = await axios.put(
-          `https://api.edprofio.com/uploadprofilevideo/${id}`,
+          `${VITE_BASE_URL}/uploadprofilevideo/${id}`,
           formData,
           {
             headers: {
@@ -560,7 +623,7 @@ const EmployeeerEditProfile = () => {
         setUploadProgress((prev) => ({ ...prev, audio: 0 }));
 
         const response = await axios.put(
-          `https://api.edprofio.com/uploadintroaudio/${id}`,
+          `${VITE_BASE_URL}/uploadintroaudio/${id}`,
           formData,
           {
             headers: {
@@ -658,10 +721,6 @@ const EmployeeerEditProfile = () => {
 
   if (loading) {
     return <div className="text-center py-5">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="alert alert-danger">{error}</div>;
   }
 
   return (
@@ -856,13 +915,12 @@ const EmployeeerEditProfile = () => {
                       </div>
                       <div className="jobplugin__profile-box__body">
                         <div className="form-group mb-3">
-                          <label>Resume (PDF)</label>
+                          <label>Resume</label>
                           <div className="input-group">
                             <input
                               type="file"
                               className="form-control"
                               onChange={handleResumeChange}
-                              accept="application/pdf"
                               disabled={uploading.resume}
                               style={inputStyle}
                             />
@@ -881,15 +939,25 @@ const EmployeeerEditProfile = () => {
                               Current: {employeeData.resume.name}
                             </small>
                           )}
+                          {employeeData.resume?.url && (
+                            <small className="text-success d-block">
+                              <a
+                                href={employeeData.resume.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                View Resume
+                              </a>
+                            </small>
+                          )}
                         </div>
-                        <div className="form-group mb-3">
-                          <label>Cover Letter (PDF)</label>
+                     <div className="form-group mb-3">
+                          <label>Cover Letter</label>
                           <div className="input-group">
                             <input
                               type="file"
                               className="form-control"
                               onChange={handleCoverLetterChange}
-                              accept="application/pdf"
                               disabled={uploading.coverLetter}
                               style={inputStyle}
                             />
@@ -906,6 +974,17 @@ const EmployeeerEditProfile = () => {
                           {employeeData.coverLetterFile?.name && (
                             <small className="text-muted">
                               Current: {employeeData.coverLetterFile.name}
+                            </small>
+                          )}
+                          {employeeData.coverLetterFile?.url && (
+                            <small className="text-success d-block">
+                              <a
+                                href={employeeData.coverLetterFile.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                View Cover Letter
+                              </a>
                             </small>
                           )}
                         </div>
