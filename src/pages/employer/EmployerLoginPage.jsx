@@ -75,7 +75,7 @@ const EmployerLoginPage = () => {
         localStorage.setItem('rememberEmployer', 'true');
       }
       
-      navigate('/employer/new-candidate');
+      navigate('/employer/dashboard');
       
     } catch (err) {
       console.error('Login error:', err);
