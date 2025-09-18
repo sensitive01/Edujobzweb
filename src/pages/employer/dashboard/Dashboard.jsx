@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import EmployerHeader from "../EmployerHeader";
 import EmployerFooter from "../EmployerFooter";
 import { getEmployerDashboardData } from "../../../api/services/projectServices";
-import defaultImage from "../../../../public/images/jobImage.jpg"
+import defaultImage from "../../../../public/images/jobImage.jpg";
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState({
@@ -26,7 +26,7 @@ const Dashboard = () => {
       try {
         setLoading(true);
         const response = await getEmployerDashboardData(employerData?._id);
-        if (response.status===200) {
+        if (response.status === 200) {
           setDashboardData(response.data.counts);
         }
       } catch (error) {
@@ -41,6 +41,58 @@ const Dashboard = () => {
     }
   }, []);
 
+  useEffect(() => {
+    // Add CSS for hover effects
+    const style = document.createElement("style");
+    style.textContent = `
+      .clickable-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+      }
+      
+      .clickable-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-color: #007bff;
+      }
+      
+      .clickable-overview-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: #f8f9fa !important;
+      }
+      
+      .clickable-overview-card:hover {
+        background-color: #e9ecef !important;
+        transform: translateY(-1px);
+      }
+      
+      .card-link {
+        text-decoration: none;
+        color: inherit;
+      }
+      
+      .card-link:hover {
+        color: inherit;
+        text-decoration: none;
+      }
+      
+      .stat-number {
+        transition: color 0.3s ease;
+      }
+      
+      .clickable-card:hover .stat-number {
+        color: #007bff !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   if (!employerData || !employerData._id) {
     navigate("/employer/login");
     return null;
@@ -52,6 +104,23 @@ const Dashboard = () => {
 
   const handlePostJob = () => {
     navigate("/employer/post-jobs");
+  };
+
+  // Navigation handlers for overview cards
+  const handleAppliedCandidates = () => {
+    navigate("/employer/applied-candidates");
+  };
+
+  const handleShortlistedCandidates = () => {
+    navigate("/employer/shortlisted-candidates");
+  };
+
+  const handleRejectedCandidates = () => {
+    navigate("#");
+  };
+
+  const handlePendingCandidates = () => {
+    navigate("/employer/applied-candidates");
   };
 
   if (loading) {
@@ -80,11 +149,7 @@ const Dashboard = () => {
           <div className="card-body d-flex align-items-center justify-content-between flex-wrap pb-1">
             <div className="d-flex align-items-center mb-3">
               <span className="avatar avatar-xl flex-shrink-0">
-                <img
-                  src={defaultImage}
-                  className="rounded-circle"
-                  alt="img"
-                />
+                <img src={defaultImage} className="rounded-circle" alt="img" />
               </span>
               <div className="ms-3">
                 <h3 className="mb-2">
@@ -146,13 +211,16 @@ const Dashboard = () => {
             </div>
             <div className="border rounded">
               <div className="row gx-0">
-                <div className="col-md col-sm-6 border-end bg-light">
+                <div
+                  className="col-md col-sm-6 border-end clickable-overview-card"
+                  onClick={handleAppliedCandidates}
+                >
                   <div className="p-3">
                     <span className="fw-medium mb-1 d-block">
                       Applied Candidates
                     </span>
                     <div className="d-flex align-items-center justify-content-between">
-                      <h5 className="text-primary">
+                      <h5 className="text-primary stat-number">
                         {dashboardData.appliedCount}
                       </h5>
                       <span className="badge badge-primary d-inline-flex align-items-center">
@@ -162,13 +230,16 @@ const Dashboard = () => {
                     </div>
                   </div>
                 </div>
-                <div className="col-md col-sm-6 border-end bg-light">
+                <div
+                  className="col-md col-sm-6 border-end clickable-overview-card"
+                  onClick={handleShortlistedCandidates}
+                >
                   <div className="p-3">
                     <span className="fw-medium mb-1 d-block">
                       Shortlisted Candidates
                     </span>
                     <div className="d-flex align-items-center justify-content-between">
-                      <h5 className="text-success">
+                      <h5 className="text-success stat-number">
                         {dashboardData.shortlistedCount}
                       </h5>
                       <span className="badge badge-success d-inline-flex align-items-center">
@@ -178,13 +249,16 @@ const Dashboard = () => {
                     </div>
                   </div>
                 </div>
-                <div className="col-md col-sm-6 border-end bg-light">
+                <div
+                  className="col-md col-sm-6 border-end clickable-overview-card"
+                  onClick={handleRejectedCandidates}
+                >
                   <div className="p-3">
                     <span className="fw-medium mb-1 d-block">
                       Rejected Candidates
                     </span>
                     <div className="d-flex align-items-center justify-content-between">
-                      <h5 className="text-danger">
+                      <h5 className="text-danger stat-number">
                         {dashboardData.rejectedCount}
                       </h5>
                       <span className="badge badge-danger d-inline-flex align-items-center">
@@ -194,13 +268,16 @@ const Dashboard = () => {
                     </div>
                   </div>
                 </div>
-                <div className="col-md col-sm-6 bg-light">
+                <div
+                  className="col-md col-sm-6 clickable-overview-card"
+                  onClick={handlePendingCandidates}
+                >
                   <div className="p-3">
                     <span className="fw-medium mb-1 d-block">
                       Pending for Review
                     </span>
                     <div className="d-flex align-items-center justify-content-between">
-                      <h5 className="text-warning">
+                      <h5 className="text-warning stat-number">
                         {dashboardData.pendingCount}
                       </h5>
                       <span className="badge badge-warning d-inline-flex align-items-center">
@@ -218,7 +295,10 @@ const Dashboard = () => {
         {/* Statistics Cards */}
         <div className="row">
           <div className="col-xl-3 col-sm-6 d-flex">
-            <div className="card flex-fill">
+            <div
+              className="card flex-fill clickable-card"
+              onClick={() => navigate("/employer/post-jobs")}
+            >
               <div className="card-body">
                 <div className="d-flex align-items-center justify-content-between">
                   <span className="avatar avatar-md bg-primary mb-3">
@@ -231,27 +311,22 @@ const Dashboard = () => {
                 </div>
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
-                    <h2 className="mb-1">
-                      <a
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigate("/employer/jobs");
-                        }}
-                        className="text-decoration-none"
-                      >
-                        {dashboardData.totalJobs}
-                      </a>
+                    <h2 className="mb-1 stat-number">
+                      {dashboardData.totalJobs}
                     </h2>
                     <p className="fs-13">Total Jobs Posted</p>
                   </div>
+                  <i className="ti ti-arrow-up-right fs-16 text-muted"></i>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="col-xl-3 col-sm-6 d-flex">
-            <div className="card flex-fill">
+            <div
+              className="card flex-fill clickable-card"
+              onClick={() => navigate("/employer/post-jobs")}
+            >
               <div className="card-body">
                 <div className="d-flex align-items-center justify-content-between">
                   <span className="avatar avatar-md bg-success mb-3">
@@ -261,27 +336,22 @@ const Dashboard = () => {
                 </div>
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
-                    <h2 className="mb-1">
-                      <a
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigate("/employer/jobs?filter=active");
-                        }}
-                        className="text-decoration-none"
-                      >
-                        {dashboardData.activeJobs}
-                      </a>
+                    <h2 className="mb-1 stat-number">
+                      {dashboardData.activeJobs}
                     </h2>
                     <p className="fs-13">Hiring Active Jobs</p>
                   </div>
+                  <i className="ti ti-arrow-up-right fs-16 text-muted"></i>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="col-xl-3 col-sm-6 d-flex">
-            <div className="card flex-fill">
+            <div
+              className="card flex-fill clickable-card"
+              onClick={() => navigate("/employer/post-jobs")}
+            >
               <div className="card-body">
                 <div className="d-flex align-items-center justify-content-between">
                   <span className="avatar avatar-md bg-warning mb-3">
@@ -293,27 +363,22 @@ const Dashboard = () => {
                 </div>
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
-                    <h2 className="mb-1">
-                      <a
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigate("/employer/interviews");
-                        }}
-                        className="text-decoration-none"
-                      >
-                        {dashboardData.interviewScheduledCount}
-                      </a>
+                    <h2 className="mb-1 stat-number">
+                      {dashboardData.interviewScheduledCount}
                     </h2>
                     <p className="fs-13">Upcoming Interviews</p>
                   </div>
+                  <i className="ti ti-arrow-up-right fs-16 text-muted"></i>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="col-xl-3 col-sm-6 d-flex">
-            <div className="card flex-fill">
+            <div
+              className="card flex-fill clickable-card"
+              onClick={() => navigate("#")}
+            >
               <div className="card-body">
                 <div className="d-flex align-items-center justify-content-between">
                   <span className="avatar avatar-md bg-info mb-3">
@@ -323,20 +388,10 @@ const Dashboard = () => {
                 </div>
                 <div className="d-flex align-items-center justify-content-between">
                   <div>
-                    <h2 className="mb-1">
-                      <a
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigate("/employer/plan");
-                        }}
-                        className="text-decoration-none"
-                      >
-                        30
-                      </a>
-                    </h2>
+                    <h2 className="mb-1 stat-number">30</h2>
                     <p className="fs-13">Plan Validity (Days)</p>
                   </div>
+                  <i className="ti ti-arrow-up-right fs-16 text-muted"></i>
                 </div>
               </div>
             </div>
