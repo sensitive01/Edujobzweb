@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
 import { Modal } from 'react-bootstrap';
+import edProfiologo from "../../../public/images/logo2.png"
 
 
 
@@ -30,7 +31,7 @@ const AboutPage = () => {
             <div className="row" style={{padding: "0px 100px"}}>
               <div className="col-12 col-lg-7 mb-35 mb-lg-0">
                 <div className="textbox">
-                  <img src="/images/logo - dark.png" width="50%" alt="EdProfio Logo" />
+                  <img src={edProfiologo} width="30%" alt="EdProfio Logo" />
                   <h2 className="text-secondary mb-0">Welcome to EdProfio</h2>
                   <p className="fw-bold text-dark">A Platform for Educators at Every Level</p>
                   <hr className="mb-20" />
