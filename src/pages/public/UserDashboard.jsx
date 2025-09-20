@@ -11,12 +11,16 @@ import {
   FaBriefcase,
   FaHeart,
   FaCog,
+  FaClock,
+  FaTimes,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { getEmployeeDetails } from "../../api/services/projectServices";
 import axios from "axios";
 
 const UserDashboard = () => {
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [employerData, setEmployerData] = useState(null);
@@ -26,6 +30,8 @@ const UserDashboard = () => {
     matchingJobs: 0,
     appliedJobs: 0,
     shortlistedJobs: 0,
+    pendingJob:0,
+    
   });
   const [isNewUser, setIsNewUser] = useState(false);
   const navigate = useNavigate();
@@ -61,11 +67,13 @@ const UserDashboard = () => {
         let appliedCount = 0;
         let shortlistedCount = 0;
         let matchingCount = 0;
+        let rejectedCount = 0
+        let pendingJob = 0
 
         try {
           // Fetch applied jobs with better error handling
           const appliedResponse = await axios.get(
-            `https://api.edprofio.com/applicant/${userData._id}`
+            `${VITE_BASE_URL}/applicant/${userData._id}`
           );
           appliedCount = appliedResponse.data?.length || 0;
         } catch (appliedError) {
@@ -79,7 +87,7 @@ const UserDashboard = () => {
         try {
           // Fetch shortlisted jobs with better error handling
           const shortlistedResponse = await axios.get(
-            `https://api.edprofio.com/fetchshorlitstedjobsemployee/${userData._id}`
+            `${VITE_BASE_URL}/fetchshorlitstedjobsemployee/${userData._id}`
           );
           shortlistedCount = shortlistedResponse.data?.length || 0;
         } catch (shortlistedError) {
@@ -87,13 +95,38 @@ const UserDashboard = () => {
             "No shortlisted jobs found or error fetching shortlisted jobs:",
             shortlistedError
           );
-          // Don't set error state for this, just keep count as 0
+         
+        }
+        try {
+          // Fetch shortlisted jobs with better error handling
+          const pendingResponse = await axios.get(
+            `${VITE_BASE_URL}/pendingJobs/${userData._id}`
+          );
+          pendingJob = pendingResponse.data?.length || 0;
+        } catch (err) {
+          console.log(
+            "No shortlisted jobs found or error fetching shortlisted jobs:",
+            err
+          );
+         
+        }
+        try {
+          const rejectedResponse = await axios.get(
+            `${VITE_BASE_URL}/getrejectedjob/${userData._id}`
+          );
+          rejectedCount = rejectedResponse.data?.length || 0;
+        } catch (rejectedCounterr) {
+          console.log(
+            "No shortlisted jobs found or error fetching shortlisted jobs:",
+            rejectedCounterr
+          );
+         
         }
 
         try {
           // Fetch all jobs (for matching jobs count)
           const allJobsResponse = await axios.get(
-            "https://api.edprofio.com/employer/fetchjobs"
+            `${VITE_BASE_URL}/employer/fetchjobs`
           );
           matchingCount =
             allJobsResponse.data?.filter((job) => job.isActive)?.length || 0;
@@ -109,6 +142,8 @@ const UserDashboard = () => {
           matchingJobs: matchingCount,
           appliedJobs: appliedCount,
           shortlistedJobs: shortlistedCount,
+          pendingJob:pendingJob,
+          rejectedJob:rejectedCount
         });
       } catch (err) {
         setError(err.message || "Failed to fetch data");
@@ -202,6 +237,12 @@ const UserDashboard = () => {
               <div className="card-body text-center d-flex flex-column">
                 <FaEdit className="text-primary mb-2" size={30} />
                 <h6>Complete Your Profile</h6>
+                <div className="mb-2">
+                  <h4 className="text-primary fw-bold">
+                    {calculateProfileCompletion(employerData)}%
+                  </h4>
+                  <small className="text-muted">Profile Completion</small>
+                </div>
                 <p className="small flex-grow-1">
                   Add more details to attract employers
                 </p>
@@ -224,8 +265,12 @@ const UserDashboard = () => {
               <div className="card-body text-center d-flex flex-column">
                 <FaSearch className="text-success mb-2" size={30} />
                 <h6>Browse Jobs</h6>
+                <div className="mb-2">
+                  <h4 className="text-success fw-bold">{stats.matchingJobs}</h4>
+                  <small className="text-muted">Available Jobs</small>
+                </div>
                 <p className="small flex-grow-1">
-                  Explore {stats.matchingJobs} available opportunities
+                  Explore available opportunities
                 </p>
                 <div className="mt-auto">
                   <Link
@@ -244,17 +289,20 @@ const UserDashboard = () => {
               style={{ borderWidth: "2px" }}
             >
               <div className="card-body text-center d-flex flex-column">
-                <FaBriefcase className="text-warning mb-2" size={30} />
-                <h6>Apply for Jobs</h6>
+                <FaCalendarAlt className="text-warning mb-2" size={30} />
+                <h6>Browse Events</h6>
+                <div className="mb-2">
+                  <h4 className="text-warning fw-bold">
+                    {stats.upcomingEvents || 0}
+                  </h4>
+                  <small className="text-muted">Upcoming Events</small>
+                </div>
                 <p className="small flex-grow-1">
-                  Start applying to positions that match your skills
+                  Discover networking and career events
                 </p>
                 <div className="mt-auto">
-                  <Link
-                    to="/job-vacancies"
-                    className="btn btn-warning btn-sm w-100"
-                  >
-                    Start Applying
+                  <Link to="/events" className="btn btn-warning btn-sm w-100">
+                    View Events
                   </Link>
                 </div>
               </div>
@@ -423,172 +471,16 @@ const UserDashboard = () => {
                                   className="text-muted fw-semibold mb-0"
                                   style={{ fontSize: "13px" }}
                                 >
-                                  Profile Score
-                                </h6>
-                                <div
-                                  className="bg-light rounded-circle d-flex align-items-center justify-content-center"
-                                  style={{ width: "26px", height: "26px" }}
-                                >
-                                  <i
-                                    className="text-primary"
-                                    style={{ fontSize: "20px" }}
-                                  >
-                                    i
-                                  </i>
-                                </div>
-                              </div>
-                              <div className="mb-3">
-                                <h1
-                                  className="text-primary fw-bold mb-1"
-                                  style={{
-                                    fontSize: "2.8rem",
-                                    lineHeight: "1",
-                                  }}
-                                >
-                                  {calculateProfileCompletion(employerData)}%
-                                </h1>
-                                <p
-                                  className="text-muted mb-0"
-                                  style={{ fontSize: "12px" }}
-                                >
-                                  Based on input data
-                                </p>
-                              </div>
-                              <Link
-                                to={`/employee/edit/${employerData._id}`}
-                                className="btn btn-primary fw-semibold px-4 py-2"
-                                style={{
-                                  borderRadius: "12px",
-                                  fontSize: "13px",
-                                  minHeight: "38px",
-                                }}
-                              >
-                                Complete Profile
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="col-lg-3 col-md-6">
-                          <div
-                            className="card bg-white border-2 h-100 shadow-sm"
-                            style={{
-                              borderRadius: "16px",
-                              borderColor: "grey",
-                              transition: "all 0.3s ease",
-                              cursor: "pointer",
-                              position: "relative",
-                              zIndex: 10,
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.transform =
-                                "translateY(-4px)";
-                              e.currentTarget.style.boxShadow =
-                                "0 8px 25px rgba(0,0,0,0.12)";
-                              e.currentTarget.style.zIndex = "20";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.transform = "translateY(0)";
-                              e.currentTarget.style.boxShadow =
-                                "0 2px 8px rgba(0,0,0,0.06)";
-                              e.currentTarget.style.zIndex = "10";
-                            }}
-                          >
-                            <div className="card-body p-4 text-center">
-                              <div className="d-flex justify-content-between align-items-center mb-3">
-                                <h6
-                                  className="text-muted fw-semibold mb-0"
-                                  style={{ fontSize: "13px" }}
-                                >
-                                  Matching Jobs
-                                </h6>
-                                <div
-                                  className="bg-light rounded-circle d-flex align-items-center justify-content-center"
-                                  style={{ width: "26px", height: "26px" }}
-                                >
-                                  <i
-                                    className="text-primary"
-                                    style={{ fontSize: "20px" }}
-                                  >
-                                    i
-                                  </i>
-                                </div>
-                              </div>
-                              <div className="mb-3">
-                                <h1
-                                  className="text-warning fw-bold mb-1"
-                                  style={{
-                                    fontSize: "2.8rem",
-                                    lineHeight: "1",
-                                  }}
-                                >
-                                  {stats.matchingJobs}
-                                </h1>
-                                <p
-                                  className="text-muted mb-0"
-                                  style={{ fontSize: "12px" }}
-                                >
-                                  Currently active
-                                </p>
-                              </div>
-                              <Link
-                                to="/job-vacancies"
-                                className="btn btn-success fw-semibold px-4 py-2"
-                                style={{
-                                  borderRadius: "12px",
-                                  fontSize: "13px",
-                                  minHeight: "38px",
-                                }}
-                              >
-                                Browse Jobs
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="col-lg-3 col-md-6">
-                          <div
-                            className="card bg-white border-2 h-100 shadow-sm"
-                            style={{
-                              borderRadius: "16px",
-                              borderColor: "grey",
-                              transition: "all 0.3s ease",
-                              cursor: "pointer",
-                              position: "relative",
-                              zIndex: 10,
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.transform =
-                                "translateY(-4px)";
-                              e.currentTarget.style.boxShadow =
-                                "0 8px 25px rgba(0,0,0,0.12)";
-                              e.currentTarget.style.zIndex = "20";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.transform = "translateY(0)";
-                              e.currentTarget.style.boxShadow =
-                                "0 2px 8px rgba(0,0,0,0.06)";
-                              e.currentTarget.style.zIndex = "10";
-                            }}
-                          >
-                            <div className="card-body p-4 text-center">
-                              <div className="d-flex justify-content-between align-items-center mb-3">
-                                <h6
-                                  className="text-muted fw-semibold mb-0"
-                                  style={{ fontSize: "13px" }}
-                                >
                                   Applied Jobs
                                 </h6>
                                 <div
                                   className="bg-light rounded-circle d-flex align-items-center justify-content-center"
                                   style={{ width: "26px", height: "26px" }}
                                 >
-                                  <i
-                                    className="text-primary"
-                                    style={{ fontSize: "20px" }}
-                                  >
-                                    i
-                                  </i>
+                                  <FaBriefcase
+                                    className="text-info"
+                                    style={{ fontSize: "16px" }}
+                                  />
                                 </div>
                               </div>
                               <div className="mb-3">
@@ -654,18 +546,16 @@ const UserDashboard = () => {
                                   className="text-muted fw-semibold mb-0"
                                   style={{ fontSize: "13px" }}
                                 >
-                                  Shortlisted Jobs
+                                  Shortlisted
                                 </h6>
                                 <div
                                   className="bg-light rounded-circle d-flex align-items-center justify-content-center"
                                   style={{ width: "26px", height: "26px" }}
                                 >
-                                  <i
-                                    className="text-primary"
-                                    style={{ fontSize: "20px" }}
-                                  >
-                                    i
-                                  </i>
+                                  <FaHeart
+                                    className="text-danger"
+                                    style={{ fontSize: "16px" }}
+                                  />
                                 </div>
                               </div>
                               <div className="mb-3">
@@ -694,7 +584,157 @@ const UserDashboard = () => {
                                   minHeight: "38px",
                                 }}
                               >
-                                View Saved
+                                View Shotlisted
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="col-lg-3 col-md-6">
+                          <div
+                            className="card bg-white border-2 h-100 shadow-sm"
+                            style={{
+                              borderRadius: "16px",
+                              borderColor: "grey",
+                              transition: "all 0.3s ease",
+                              cursor: "pointer",
+                              position: "relative",
+                              zIndex: 10,
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.transform =
+                                "translateY(-4px)";
+                              e.currentTarget.style.boxShadow =
+                                "0 8px 25px rgba(0,0,0,0.12)";
+                              e.currentTarget.style.zIndex = "20";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.transform = "translateY(0)";
+                              e.currentTarget.style.boxShadow =
+                                "0 2px 8px rgba(0,0,0,0.06)";
+                              e.currentTarget.style.zIndex = "10";
+                            }}
+                          >
+                            <div className="card-body p-4 text-center">
+                              <div className="d-flex justify-content-between align-items-center mb-3">
+                                <h6
+                                  className="text-muted fw-semibold mb-0"
+                                  style={{ fontSize: "13px" }}
+                                >
+                                  Pending
+                                </h6>
+                                <div
+                                  className="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                  style={{ width: "26px", height: "26px" }}
+                                >
+                                  <FaClock
+                                    className="text-warning"
+                                    style={{ fontSize: "16px" }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="mb-3">
+                                <h1
+                                  className="text-warning fw-bold mb-1"
+                                  style={{
+                                    fontSize: "2.8rem",
+                                    lineHeight: "1",
+                                  }}
+                                >
+                                  {stats.pendingJobs || 0}
+                                </h1>
+                                <p
+                                  className="text-muted mb-0"
+                                  style={{ fontSize: "12px" }}
+                                >
+                                  Under review
+                                </p>
+                              </div>
+                              <Link
+                                to="/pending-applications"
+                                className="btn btn-warning fw-semibold px-4 py-2"
+                                style={{
+                                  borderRadius: "12px",
+                                  fontSize: "13px",
+                                  minHeight: "38px",
+                                }}
+                              >
+                                View Pending
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="col-lg-3 col-md-6">
+                          <div
+                            className="card bg-white border-2 h-100 shadow-sm"
+                            style={{
+                              borderRadius: "16px",
+                              borderColor: "grey",
+                              transition: "all 0.3s ease",
+                              cursor: "pointer",
+                              position: "relative",
+                              zIndex: 10,
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.transform =
+                                "translateY(-4px)";
+                              e.currentTarget.style.boxShadow =
+                                "0 8px 25px rgba(0,0,0,0.12)";
+                              e.currentTarget.style.zIndex = "20";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.transform = "translateY(0)";
+                              e.currentTarget.style.boxShadow =
+                                "0 2px 8px rgba(0,0,0,0.06)";
+                              e.currentTarget.style.zIndex = "10";
+                            }}
+                          >
+                            <div className="card-body p-4 text-center">
+                              <div className="d-flex justify-content-between align-items-center mb-3">
+                                <h6
+                                  className="text-muted fw-semibold mb-0"
+                                  style={{ fontSize: "13px" }}
+                                >
+                                  Rejected
+                                </h6>
+                                <div
+                                  className="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                  style={{ width: "26px", height: "26px" }}
+                                >
+                                  <FaTimes
+                                    className="text-secondary"
+                                    style={{ fontSize: "16px" }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="mb-3">
+                                <h1
+                                  className="text-secondary fw-bold mb-1"
+                                  style={{
+                                    fontSize: "2.8rem",
+                                    lineHeight: "1",
+                                  }}
+                                >
+                                  {stats.rejectedJob || 0}
+                                </h1>
+                                <p
+                                  className="text-muted mb-0"
+                                  style={{ fontSize: "12px" }}
+                                >
+                                  Not selected
+                                </p>
+                              </div>
+                              <Link
+                                to="/rejected-applications"
+                                className="btn btn-secondary fw-semibold px-4 py-2"
+                                style={{
+                                  borderRadius: "12px",
+                                  fontSize: "13px",
+                                  minHeight: "38px",
+                                }}
+                              >
+                                View Rejected
                               </Link>
                             </div>
                           </div>
@@ -703,49 +743,6 @@ const UserDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Additional Tips for New Users */}
-                  {isNewUser && (
-                    <div className="jobplugin__dashboard-block">
-                      <div
-                        className="card border-info"
-                        style={{ borderWidth: "2px" }}
-                      >
-                        <div className="card-header bg-info text-white">
-                          <h5 className="mb-0">Quick Tips to Get Started</h5>
-                        </div>
-                        <div className="card-body">
-                          <div className="row">
-                            <div className="col-md-6">
-                              <ul className="list-unstyled">
-                                <li className="mb-2">
-                                  Complete your profile to attract employers
-                                </li>
-                                <li className="mb-2">
-                                  Use filters to find relevant job opportunities
-                                </li>
-                                <li className="mb-2">
-                                  Shortlist jobs you're interested in
-                                </li>
-                              </ul>
-                            </div>
-                            <div className="col-md-6">
-                              <ul className="list-unstyled">
-                                <li className="mb-2">
-                                  Customize your applications for each job
-                                </li>
-                                <li className="mb-2">
-                                  Set up job alerts for new opportunities
-                                </li>
-                                <li className="mb-2">
-                                  Track your application status here
-                                </li>
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                   {isNewUser && (
                     <div className="jobplugin__dashboard-block">
                       <div

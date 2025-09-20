@@ -18,11 +18,27 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [userProfilePic, setUserProfilePic] = useState(null);
+
   const navigate = useNavigate();
   const location = useLocation();
 
   // Use the login cleanup hook
   useLoginCleanup();
+  useEffect(() => {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      try {
+        const parsedUserData = JSON.parse(userData);
+        // Check for userProfilePic or profileImage
+        const profilePic =
+          parsedUserData.userProfilePic || parsedUserData.profileImage;
+        setUserProfilePic(profilePic);
+      } catch (error) {
+        console.error("Error parsing userData:", error);
+      }
+    }
+  }, [location]);
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
@@ -88,6 +104,53 @@ const Header = () => {
     } else {
       handleLogin();
     }
+  };
+
+  const ProfilePicture = ({ size = "24px", className = "" }) => {
+    if (userProfilePic) {
+      return (
+        <img
+          src={userProfilePic}
+          alt="Profile"
+          className={className}
+          style={{
+            width: size,
+            height: size,
+            borderRadius: "50%",
+            objectFit: "cover",
+            border: "2px solid #fff",
+          }}
+          onError={(e) => {
+            // Fallback to avatar if image fails to load
+            e.target.style.display = "none";
+            e.target.nextSibling.style.display = "inline-block";
+          }}
+        />
+      );
+    }
+
+    // Default avatar when no profile picture
+    return (
+      <div
+        className={className}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          backgroundColor: "#ffa500",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#fff",
+          fontSize: parseInt(size) * 0.6 + "px",
+          fontWeight: "bold",
+          border: "2px solid #fff",
+        }}
+      >
+        {/* You can use initials or a default icon */}
+        <FaUserCircle style={{ fontSize: parseInt(size) * 0.8 + "px" }} />
+      </div>
+    );
   };
 
   return (
@@ -228,32 +291,6 @@ const Header = () => {
                   </ul>
                 </li>
 
-                {/* <li style={{ padding: '0px 15px' }} className="dropdown">
-                  <a className="dropdown-toggle" href="#" role="button" id="candidatesDropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <FaUsers /> &nbsp; Candidates
-                  </a>
-                  <ul className="dropdown-menu" aria-labelledby="candidatesDropdown">
-                    {!isLoggedIn && (
-                      <li>
-                        <Link className="dropdown-item" to="/employee-registration" onClick={handleLinkClick}>
-                          Login / Signup
-                        </Link>
-                      </li>
-                    )}
-                    <li>
-                      <Link className="dropdown-item" to="/dashboard" onClick={handleLinkClick}>
-                        Dashboard
-                      </Link>
-                    </li>
-                    <li>
-                      <Link className="dropdown-item" to="/job-vacancies" onClick={handleLinkClick}>
-                        Jobs
-                      </Link>
-                    </li>
-                  </ul>
-                </li> */}
-
                 <li style={{ padding: "0px 15px" }} className="dropdown">
                   <a
                     className="dropdown-toggle"
@@ -347,9 +384,7 @@ const Header = () => {
                   >
                     {isLoggedIn ? (
                       <>
-                        <FaUserCircle
-                          style={{ fontSize: "14px", color: "#fff" }}
-                        />
+                        <ProfilePicture size="20px" />
                         My Account
                       </>
                     ) : (
@@ -865,10 +900,8 @@ const Header = () => {
             >
               {isLoggedIn ? (
                 <>
-                  <FaUserCircle
-                    style={{ fontSize: "16px", marginRight: "8px" }}
-                  />
-                  My Account
+                  <ProfilePicture size="24px" />
+                  <span style={{ marginLeft: "8px" }}>My Account</span>
                 </>
               ) : (
                 <>

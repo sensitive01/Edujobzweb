@@ -194,7 +194,7 @@ const EmployerHeader = () => {
                 className="d-flex align-items-center fw-medium px-3 py-2 rounded me-2 menu text-decoration-none nav-link-hover"
               >
                 <i className="ti ti-layout-grid-remove text-primary me-1"></i>
-                <span className="text-white">dashboard</span>
+                <span className="text-white">Dashboard</span>
               </Link>
               <div className="position-relative me-1">
                 <div

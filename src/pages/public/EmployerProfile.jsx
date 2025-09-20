@@ -7,6 +7,14 @@ import {
   FaFilePdf,
   FaKey,
   FaTimes,
+  FaMapMarkerAlt,
+  FaCalendarAlt,
+  FaGraduationCap,
+  FaBriefcase,
+  FaUser,
+  FaPhone,
+  FaEnvelope,
+  FaGlobe,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -69,7 +77,6 @@ const EmployeProfile = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (
       !passwordData.currentPassword ||
       !passwordData.newPassword ||
@@ -100,7 +107,6 @@ const EmployeProfile = () => {
         newPassword: passwordData.newPassword,
       });
 
-      // Success - close modal and show success message
       setShowPasswordModal(false);
       setPasswordData({
         currentPassword: "",
@@ -127,14 +133,35 @@ const EmployeProfile = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return "Present";
-    const [month, year] = dateString.split("/");
-    return `${month}/${year}`;
+
+    if (dateString.includes("-")) {
+      const date = new Date(dateString);
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear();
+      return `${month}/${year}`;
+    } else if (dateString.includes("/")) {
+      const parts = dateString.split("/");
+      if (parts.length === 2) {
+        return dateString;
+      } else if (parts.length === 3) {
+        return `${parts[1]}/${parts[2]}`;
+      }
+    }
+    return dateString;
   };
 
   const formatDOB = (dobString) => {
     if (!dobString) return "Not specified";
-    const [day, month, year] = dobString.split("/");
-    return `${day}/${month}/${year}`;
+
+    if (dobString.includes("-")) {
+      const date = new Date(dobString);
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    return dobString;
   };
 
   const formatDuration = (seconds) => {
@@ -160,6 +187,42 @@ const EmployeProfile = () => {
 
   return (
     <>
+      <style>
+        {`
+          .profile-image-fix {
+            width: 120px !important;
+            height: 120px !important;
+            border-radius: 50% !important;
+            overflow: hidden !important;
+            border: 4px solid #fff !important;
+            position: relative !important;
+            background: #f8f9fa !important;
+          }
+          .profile-image-fix img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            object-position: center !important;
+            border-radius: 50% !important;
+            display: block !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          .jobplugin__profile-intro__image::before {
+            width: 28px !important;
+            height: 28px !important;
+            border-radius: 100% !important;
+            border: 5px solid #fff !important;
+            background: #063970 !important;
+            content: "" !important;
+            position: absolute !important;
+            left: 8px !important;
+            top: 5px !important;
+            z-index: 10 !important;
+          }
+        `}
+      </style>
       <div className="subvisual-block subvisual-theme-1 bg-light d-flex pt-60 pt-md-90 text-white"></div>
       <main className="jobplugin__main bg-light">
         <div className="jobplugin__main-holder">
@@ -176,6 +239,16 @@ const EmployeProfile = () => {
                           "images/img-profile.jpg"
                         }
                         alt={employeeData.userName}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          objectPosition: "center",
+                          display: "block",
+                        }}
+                        onError={(e) => {
+                          e.target.src = "images/img-profile.jpg";
+                        }}
                       />
                     </div>
                     <Link
@@ -187,21 +260,27 @@ const EmployeProfile = () => {
                   </div>
                   <div className="jobplugin__profile-intro__Textbox">
                     <div className="jobplugin__profile-intro__info mb-0">
-                      <h1 className="h5">{employeeData.userName}</h1>
+                      <h1 className="h4 fw-semibold text-dark mb-1">
+                        {employeeData.userName}
+                      </h1>
                       {employeeData.isVerified && (
-                        <span className="jobplugin__article-toprated">
-                          Verified
-                        </span>
+                        <span className="badge bg-success small">Verified</span>
                       )}
                     </div>
-                    <address className="jobplugin__profile-intro__address">
-                      {employeeData.currentCity ||
-                        employeeData.city ||
-                        "Location not specified"}
-                    </address>
+                    <div className="text-muted mb-2 d-flex align-items-center">
+                      <FaMapMarkerAlt className="me-1" size={14} />
+                      <span style={{ fontSize: "14px" }}>
+                        {employeeData.currentCity ||
+                          employeeData.city ||
+                          "Location not specified"}
+                      </span>
+                    </div>
                     {employeeData.specialization && (
-                      <div className="jobplugin__profile-intro__specialization">
-                        {employeeData.specialization}
+                      <div className="text-muted d-flex align-items-center">
+                        <FaBriefcase className="me-1" size={14} />
+                        <span style={{ fontSize: "14px" }}>
+                          {employeeData.specialization}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -242,7 +321,6 @@ const EmployeProfile = () => {
                       borderRadius: "8px",
                     }}
                   >
-                    {/* Modal Header */}
                     <div className="px-3 py-3 border-bottom d-flex justify-content-between align-items-center">
                       <h5 className="mb-0 fw-bold">Change Password</h5>
                       <button
@@ -255,7 +333,6 @@ const EmployeProfile = () => {
                       </button>
                     </div>
 
-                    {/* Modal Body */}
                     <div className="px-3 py-3">
                       <form onSubmit={handlePasswordSubmit}>
                         <div className="mb-3">
@@ -328,7 +405,6 @@ const EmployeProfile = () => {
                           </div>
                         )}
 
-                        {/* Modal Footer */}
                         <div className="d-flex gap-2 justify-content-end">
                           <button
                             type="button"
@@ -356,10 +432,13 @@ const EmployeProfile = () => {
 
               <div className="jobplugin__profile-container">
                 <aside className="jobplugin__profile-aside">
-                  <div className="jobplugin__profile-box border border-dark shadow">
+                  {/* Contact Info */}
+                  <div className="jobplugin__profile-box border border-dark shadow mb-4">
                     <div className="jobplugin__profile-box__head">
                       <div className="jobplugin__profile-box__heading">
-                        <h2 className="h5">Contact Info</h2>
+                        <h2 className="h6 fw-semibold text-dark mb-1">
+                          Contact Information
+                        </h2>
                         <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                       </div>
                       <div className="jobplugin__profile-box__buttons">
@@ -371,63 +450,130 @@ const EmployeProfile = () => {
                         </Link>
                       </div>
                     </div>
-                    <div className="jobplugin__profile-box__body">
-                      <ul className="jobplugin__profile-box__links">
-                        <li>
-                          <span className="jobplugin__profile-box__links-text">
-                            <strong>Phone:</strong>{" "}
-                            {employeeData.userMobile || "Not provided"}
-                          </span>
-                        </li>
-                        <li>
-                          <span className="jobplugin__profile-box__links-text">
-                            <strong>Email:</strong> {employeeData.userEmail}
-                          </span>
-                        </li>
-                        {employeeData.linkedin && (
-                          <li>
+                    <div className="jobplugin__profile-box__body p-3">
+                      <div className="mb-3">
+                        <div className="d-flex align-items-center mb-1">
+                          <FaPhone className="text-muted me-2" size={14} />
+                          <small
+                            className="text-muted text-uppercase fw-medium"
+                            style={{ fontSize: "11px", letterSpacing: "0.5px" }}
+                          >
+                            Phone
+                          </small>
+                        </div>
+                        <div className="ms-4" style={{ fontSize: "14px" }}>
+                          {employeeData.userMobile || "Not provided"}
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <div className="d-flex align-items-center mb-1">
+                          <FaEnvelope className="text-muted me-2" size={14} />
+                          <small
+                            className="text-muted text-uppercase fw-medium"
+                            style={{ fontSize: "11px", letterSpacing: "0.5px" }}
+                          >
+                            Email
+                          </small>
+                        </div>
+                        <div className="ms-4" style={{ fontSize: "14px" }}>
+                          {employeeData.userEmail}
+                        </div>
+                      </div>
+
+                      {employeeData.linkedin && (
+                        <div className="mb-3">
+                          <div className="d-flex align-items-center mb-1">
+                            <FaLink className="text-muted me-2" size={14} />
+                            <small
+                              className="text-muted text-uppercase fw-medium"
+                              style={{
+                                fontSize: "11px",
+                                letterSpacing: "0.5px",
+                              }}
+                            >
+                              LinkedIn
+                            </small>
+                          </div>
+                          <div className="ms-4">
                             <a
                               href={employeeData.linkedin}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="hover:jobplugin__bg-primary hover:jobplugin__text-white"
+                              className="text-decoration-none"
+                              style={{ fontSize: "14px" }}
                             >
-                              <FaLink /> &nbsp; LinkedIn Profile
+                              View Profile
                             </a>
-                          </li>
-                        )}
-                        {employeeData.github && (
-                          <li>
+                          </div>
+                        </div>
+                      )}
+
+                      {employeeData.github && (
+                        <div className="mb-3">
+                          <div className="d-flex align-items-center mb-1">
+                            <FaLink className="text-muted me-2" size={14} />
+                            <small
+                              className="text-muted text-uppercase fw-medium"
+                              style={{
+                                fontSize: "11px",
+                                letterSpacing: "0.5px",
+                              }}
+                            >
+                              GitHub
+                            </small>
+                          </div>
+                          <div className="ms-4">
                             <a
                               href={employeeData.github}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="hover:jobplugin__bg-primary hover:jobplugin__text-white"
+                              className="text-decoration-none"
+                              style={{ fontSize: "14px" }}
                             >
-                              <FaLink /> &nbsp; GitHub Profile
+                              View Profile
                             </a>
-                          </li>
-                        )}
-                        {employeeData.portfolio && (
-                          <li>
+                          </div>
+                        </div>
+                      )}
+
+                      {employeeData.portfolio && (
+                        <div className="mb-0">
+                          <div className="d-flex align-items-center mb-1">
+                            <FaGlobe className="text-muted me-2" size={14} />
+                            <small
+                              className="text-muted text-uppercase fw-medium"
+                              style={{
+                                fontSize: "11px",
+                                letterSpacing: "0.5px",
+                              }}
+                            >
+                              Portfolio
+                            </small>
+                          </div>
+                          <div className="ms-4">
                             <a
                               href={employeeData.portfolio}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="hover:jobplugin__bg-primary hover:jobplugin__text-white"
+                              className="text-decoration-none"
+                              style={{ fontSize: "14px" }}
                             >
-                              <FaLink /> &nbsp; Portfolio Website
+                              View Website
                             </a>
-                          </li>
-                        )}
-                      </ul>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="jobplugin__profile-box border border-dark shadow">
+                  {/* Media Profile */}
+                  <div className="jobplugin__profile-box border border-dark shadow mb-4">
                     <div className="jobplugin__profile-box__head">
                       <div className="jobplugin__profile-box__heading">
-                        <h2 className="h5">Media Profile</h2>
+                        <h2 className="h6 fw-semibold text-dark mb-1">
+                          Media Profile
+                        </h2>
                         <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                       </div>
                       <div className="jobplugin__profile-box__buttons">
@@ -439,26 +585,39 @@ const EmployeProfile = () => {
                         </Link>
                       </div>
                     </div>
-                    <div className="jobplugin__profile-box__body">
+                    <div className="jobplugin__profile-box__body p-3">
                       {/* Audio Profile Section */}
                       <div className="mb-4">
-                        <h6 className="fw-medium mb-3">Audio Introduction</h6>
+                        <h6
+                          className="fw-medium mb-2 text-dark"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Audio Introduction
+                        </h6>
                         {employeeData.introductionAudio?.url ? (
-                          <div>
-                            <div className="d-flex align-items-center mb-2">
-                              <div className="flex-grow">
-                                <p className="mb-0">
-                                  {employeeData.introductionAudio.name}
-                                </p>
-                                <small className="text-muted">
-                                  Duration:{" "}
-                                  {formatDuration(
-                                    employeeData.introductionAudio.duration
-                                  )}
-                                </small>
+                          <div
+                            className="border rounded p-3"
+                            style={{ backgroundColor: "#f8f9fa" }}
+                          >
+                            <div className="mb-2">
+                              <div
+                                className="text-truncate fw-medium"
+                                style={{ fontSize: "13px" }}
+                              >
+                                {employeeData.introductionAudio.name}
                               </div>
+                              <small className="text-muted">
+                                Duration:{" "}
+                                {formatDuration(
+                                  employeeData.introductionAudio.duration
+                                )}
+                              </small>
                             </div>
-                            <audio controls className="w-100 mt-2">
+                            <audio
+                              controls
+                              className="w-100"
+                              style={{ height: "35px" }}
+                            >
                               <source
                                 src={employeeData.introductionAudio.url}
                                 type="audio/mpeg"
@@ -467,30 +626,40 @@ const EmployeProfile = () => {
                             </audio>
                           </div>
                         ) : (
-                          <div className="bg-light rounded-lg p-3 text-center text-muted">
-                            No audio introduction available
+                          <div
+                            className="border rounded p-3 text-center text-muted"
+                            style={{ backgroundColor: "#f8f9fa" }}
+                          >
+                            <small>No audio introduction available</small>
                           </div>
                         )}
                       </div>
 
-                      {/* Video Profile Section - Improved */}
+                      {/* Video Profile Section */}
                       <div>
-                        <h6 className="fw-medium mb-3">Video Profile</h6>
+                        <h6
+                          className="fw-medium mb-2 text-dark"
+                          style={{ fontSize: "14px" }}
+                        >
+                          Video Profile
+                        </h6>
                         {employeeData.profileVideo?.url ? (
-                          <div className="rounded-lg overflow-hidden">
-                            <div className="p-3">
-                              <div className="d-flex align-items-center mb-2">
-                                <div className="flex-grow">
-                                  <p className="mb-0">
-                                    {employeeData.profileVideo.name}
-                                  </p>
-                                </div>
+                          <div
+                            className="border rounded p-3"
+                            style={{ backgroundColor: "#f8f9fa" }}
+                          >
+                            <div className="mb-2">
+                              <div
+                                className="text-truncate fw-medium"
+                                style={{ fontSize: "13px" }}
+                              >
+                                {employeeData.profileVideo.name}
                               </div>
                             </div>
                             <div className="ratio ratio-16x9">
                               <video
                                 controls
-                                className="w-100"
+                                className="w-100 rounded"
                                 poster={
                                   employeeData.profileVideo.thumbnail ||
                                   employeeData.profileImage ||
@@ -506,31 +675,28 @@ const EmployeProfile = () => {
                             </div>
                           </div>
                         ) : (
-                          <div className="bg-light rounded-lg p-3 text-center text-muted">
+                          <div
+                            className="border rounded p-3 text-center text-muted"
+                            style={{ backgroundColor: "#f8f9fa" }}
+                          >
                             <div className="ratio ratio-16x9">
-                              <img
-                                src={
-                                  employeeData.profileImage ||
-                                  "images/img-profile.jpg"
-                                }
-                                alt="Profile"
-                                className="img-fluid"
-                                style={{ objectFit: "cover" }}
-                              />
+                              <div className="d-flex align-items-center justify-content-center">
+                                <small>No video profile available</small>
+                              </div>
                             </div>
-                            <p className="mt-2 mb-0">
-                              No video profile available
-                            </p>
                           </div>
                         )}
                       </div>
                     </div>
                   </div>
 
-                  <div className="jobplugin__profile-box border border-dark shadow">
+                  {/* Personal Details */}
+                  <div className="jobplugin__profile-box border border-dark shadow mb-4">
                     <div className="jobplugin__profile-box__head">
                       <div className="jobplugin__profile-box__heading">
-                        <h2 className="h5">Personal Details</h2>
+                        <h2 className="h6 fw-semibold text-dark mb-1">
+                          Personal Details
+                        </h2>
                         <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                       </div>
                       <div className="jobplugin__profile-box__buttons">
@@ -542,38 +708,109 @@ const EmployeProfile = () => {
                         </Link>
                       </div>
                     </div>
-                    <div className="jobplugin__profile-box__body">
-                      <div className="jobplugin__profile-box__list-textbox">
-                        <p>
-                          <strong>Gender:</strong>{" "}
-                          {employeeData.gender || "Not specified"}
-                        </p>
-                        <p>
-                          <strong>Date of Birth:</strong>{" "}
-                          {formatDOB(employeeData.dob)}
-                        </p>
-                        <p>
-                          <strong>Marital Status:</strong>{" "}
-                          {employeeData.maritalStatus || "Not specified"}
-                        </p>
-                        <p>
-                          <strong>Total Experience:</strong>{" "}
-                          {employeeData.totalExperience || "Not specified"}
-                        </p>
+                    <div className="jobplugin__profile-box__body p-3">
+                      <div className="row g-3">
+                        <div className="col-12">
+                          <div className="mb-1">
+                            <small
+                              className="text-muted text-uppercase fw-medium"
+                              style={{
+                                fontSize: "11px",
+                                letterSpacing: "0.5px",
+                              }}
+                            >
+                              Gender
+                            </small>
+                          </div>
+                          <div style={{ fontSize: "14px" }}>
+                            {employeeData.gender || "Not specified"}
+                          </div>
+                        </div>
+
+                        <div className="col-12">
+                          <div className="mb-1">
+                            <small
+                              className="text-muted text-uppercase fw-medium"
+                              style={{
+                                fontSize: "11px",
+                                letterSpacing: "0.5px",
+                              }}
+                            >
+                              Date of Birth
+                            </small>
+                          </div>
+                          <div style={{ fontSize: "14px" }}>
+                            {formatDOB(employeeData.dob)}
+                          </div>
+                        </div>
+
+                        <div className="col-12">
+                          <div className="mb-1">
+                            <small
+                              className="text-muted text-uppercase fw-medium"
+                              style={{
+                                fontSize: "11px",
+                                letterSpacing: "0.5px",
+                              }}
+                            >
+                              Marital Status
+                            </small>
+                          </div>
+                          <div style={{ fontSize: "14px" }}>
+                            {employeeData.maritalStatus || "Not specified"}
+                          </div>
+                        </div>
+
+                        <div className="col-12">
+                          <div className="mb-1">
+                            <small
+                              className="text-muted text-uppercase fw-medium"
+                              style={{
+                                fontSize: "11px",
+                                letterSpacing: "0.5px",
+                              }}
+                            >
+                              Total Experience
+                            </small>
+                          </div>
+                          <div style={{ fontSize: "14px" }}>
+                            {employeeData.totalExperience || "Not specified"}
+                            {employeeData.totalExperience &&
+                            employeeData.totalExperience !== "Fresher"
+                              ? " years"
+                              : ""}
+                          </div>
+                        </div>
+
                         {employeeData.expectedSalary && (
-                          <p>
-                            <strong>Expected Salary:</strong> ₹
-                            {employeeData.expectedSalary.toLocaleString()}
-                          </p>
+                          <div className="col-12">
+                            <div className="mb-1">
+                              <small
+                                className="text-muted text-uppercase fw-medium"
+                                style={{
+                                  fontSize: "11px",
+                                  letterSpacing: "0.5px",
+                                }}
+                              >
+                                Expected Annual Salary
+                              </small>
+                            </div>
+                            <div style={{ fontSize: "14px" }}>
+                              ₹{employeeData.expectedSalary.toLocaleString()}
+                            </div>
+                          </div>
                         )}
                       </div>
                     </div>
                   </div>
 
-                  <div className="jobplugin__profile-box border border-dark shadow">
+                  {/* Address */}
+                  <div className="jobplugin__profile-box border border-dark shadow mb-4">
                     <div className="jobplugin__profile-box__head">
                       <div className="jobplugin__profile-box__heading">
-                        <h2 className="h5">Address</h2>
+                        <h2 className="h6 fw-semibold text-dark mb-1">
+                          Address
+                        </h2>
                         <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                       </div>
                       <div className="jobplugin__profile-box__buttons">
@@ -585,33 +822,72 @@ const EmployeProfile = () => {
                         </Link>
                       </div>
                     </div>
-                    <div className="jobplugin__profile-box__body">
-                      <div className="jobplugin__profile-box__list-textbox">
-                        <p>
-                          {employeeData.addressLine1 || "Address not specified"}
-                        </p>
-                        {employeeData.addressLine2 && (
-                          <p>{employeeData.addressLine2}</p>
-                        )}
-                        <p>
-                          {employeeData.city || ""}, {employeeData.state || ""}
-                        </p>
-                        <p>PIN: {employeeData.pincode || ""}</p>
-                        {employeeData.preferredLocation && (
-                          <p>
-                            <strong>Preferred Location:</strong>{" "}
-                            {employeeData.preferredLocation}
-                          </p>
-                        )}
+                    <div className="jobplugin__profile-box__body p-3">
+                      <div className="mb-3">
+                        <div className="mb-1">
+                          <small
+                            className="text-muted text-uppercase fw-medium"
+                            style={{ fontSize: "11px", letterSpacing: "0.5px" }}
+                          >
+                            Current Address
+                          </small>
+                        </div>
+                        <div
+                          className="text-muted"
+                          style={{ fontSize: "14px", lineHeight: "1.4" }}
+                        >
+                          {employeeData.addressLine1 ? (
+                            <>
+                              <div>{employeeData.addressLine1}</div>
+                              {employeeData.addressLine2 && (
+                                <div>{employeeData.addressLine2}</div>
+                              )}
+                              <div>
+                                {employeeData.city && `${employeeData.city}, `}
+                                {employeeData.state}
+                              </div>
+                              {employeeData.pincode && (
+                                <div>PIN: {employeeData.pincode}</div>
+                              )}
+                            </>
+                          ) : (
+                            <div>Address not specified</div>
+                          )}
+                        </div>
                       </div>
+
+                      {employeeData.preferredLocation && (
+                        <div>
+                          <div className="mb-1">
+                            <small
+                              className="text-muted text-uppercase fw-medium"
+                              style={{
+                                fontSize: "11px",
+                                letterSpacing: "0.5px",
+                              }}
+                            >
+                              Preferred Location
+                            </small>
+                          </div>
+                          <div
+                            className="text-muted"
+                            style={{ fontSize: "14px" }}
+                          >
+                            {employeeData.preferredLocation}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
+                  {/* Grade Levels */}
                   {employeeData.gradeLevels?.length > 0 && (
-                    <div className="jobplugin__profile-box border border-dark shadow">
+                    <div className="jobplugin__profile-box border border-dark shadow mb-4">
                       <div className="jobplugin__profile-box__head">
                         <div className="jobplugin__profile-box__heading">
-                          <h2 className="h5">Grade Levels</h2>
+                          <h2 className="h6 fw-semibold text-dark mb-1">
+                            Grade Levels
+                          </h2>
                           <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                         </div>
                         <div className="jobplugin__profile-box__buttons">
@@ -623,12 +899,16 @@ const EmployeProfile = () => {
                           </Link>
                         </div>
                       </div>
-                      <div className="jobplugin__profile-box__body">
-                        <div className="jobplugin__profile-box__skills">
+                      <div className="jobplugin__profile-box__body p-3">
+                        <div className="d-flex flex-wrap gap-2">
                           {employeeData.gradeLevels.map((grade, index) => (
                             <span
                               key={index}
-                              className="jobplugin__profile-box__skill-tag"
+                              className="border px-2 py-1 rounded text-muted"
+                              style={{
+                                fontSize: "12px",
+                                backgroundColor: "#f8f9fa",
+                              }}
                             >
                               {grade}
                             </span>
@@ -640,9 +920,12 @@ const EmployeProfile = () => {
                 </aside>
 
                 <div className="jobplugin__profile-content border border-dark shadow">
-                  <div className="jobplugin__profile-block">
-                    <div className="jobplugin__profile-block__header">
-                      <h2 className="h4">Profile Summary</h2>
+                  {/* Profile Summary */}
+                  <div className="jobplugin__profile-block mb-4">
+                    <div className="jobplugin__profile-block__header border-bottom pb-3 mb-4">
+                      <h2 className="h5 fw-semibold text-dark mb-0">
+                        Profile Summary
+                      </h2>
                       <Link
                         to={`/employee/edit/${employeeData._id}`}
                         className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
@@ -651,21 +934,31 @@ const EmployeProfile = () => {
                       </Link>
                     </div>
                     <div className="jobplugin__profile-block__body">
-                      <div className="jobplugin__profile-block__textarea">
-                        <div className="jobplugin__profile-block__textbox">
-                          <p>
-                            {employeeData.profilesummary ||
-                              employeeData.coverLetter ||
-                              "No profile summary available."}
-                          </p>
-                        </div>
+                      <div
+                        className="p-3"
+                        style={{
+                          backgroundColor: "#f8f9fa",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        <p
+                          className="mb-0 text-muted"
+                          style={{ fontSize: "14px", lineHeight: "1.6" }}
+                        >
+                          {employeeData.profilesummary ||
+                            employeeData.coverLetter ||
+                            "No profile summary available. Add a compelling summary to showcase your skills and experience to potential employers."}
+                        </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="jobplugin__profile-block">
-                    <div className="jobplugin__profile-block__header">
-                      <h2 className="h4">Education</h2>
+                  {/* Education */}
+                  <div className="jobplugin__profile-block mb-4">
+                    <div className="jobplugin__profile-block__header border-bottom pb-3 mb-4">
+                      <h2 className="h5 fw-semibold text-dark mb-0">
+                        Education
+                      </h2>
                       <Link
                         to={`/employee/edit/${employeeData._id}`}
                         className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
@@ -675,34 +968,68 @@ const EmployeProfile = () => {
                     </div>
                     <div className="jobplugin__profile-block__body">
                       {employeeData.education?.length > 0 ? (
-                        employeeData.education.map((edu, index) => (
-                          <div
-                            key={index}
-                            className="jobplugin__profile-block__textarea mb-4"
-                          >
-                            <div className="jobplugin__profile-block__textbox">
-                              <h3 className="h5">{edu.degree}</h3>
-                              <p>{edu.institution}</p>
-                              <p>
-                                {edu.type} | {formatDate(edu.startDate)} -{" "}
-                                {formatDate(edu.endDate)}
-                              </p>
+                        <div className="education-timeline">
+                          {employeeData.education.map((edu, index) => (
+                            <div
+                              key={index}
+                              className="border rounded p-3 mb-3"
+                              style={{ backgroundColor: "#f8f9fa" }}
+                            >
+                              <div className="row align-items-start">
+                                <div className="col-md-8">
+                                  <h6
+                                    className="fw-semibold text-dark mb-1"
+                                    style={{ fontSize: "15px" }}
+                                  >
+                                    {edu.degree}
+                                  </h6>
+                                  <div
+                                    className="text-muted mb-2"
+                                    style={{ fontSize: "14px" }}
+                                  >
+                                    {edu.institution}
+                                  </div>
+                                  <div className="d-flex align-items-center gap-2">
+                                    <span
+                                      className="badge bg-secondary"
+                                      style={{ fontSize: "11px" }}
+                                    >
+                                      {edu.type}
+                                    </span>
+                                    <small className="text-muted">
+                                      {formatDate(edu.startDate)} -{" "}
+                                      {formatDate(edu.endDate)}
+                                    </small>
+                                  </div>
+                                </div>
+                                <div className="col-md-4 text-md-end">
+                                  <small className="text-muted">
+                                    {edu.endDate ? "Completed" : "Ongoing"}
+                                  </small>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        ))
+                          ))}
+                        </div>
                       ) : (
-                        <div className="jobplugin__profile-block__textarea">
-                          <div className="jobplugin__profile-block__textbox">
-                            <p>No education details added yet.</p>
-                          </div>
+                        <div
+                          className="border rounded p-4 text-center text-muted"
+                          style={{ backgroundColor: "#f8f9fa" }}
+                        >
+                          <p className="mb-0" style={{ fontSize: "14px" }}>
+                            No education details added yet.
+                          </p>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="jobplugin__profile-block">
-                    <div className="jobplugin__profile-block__header">
-                      <h2 className="h4">Work Experience</h2>
+                  {/* Work Experience */}
+                  <div className="jobplugin__profile-block mb-4">
+                    <div className="jobplugin__profile-block__header border-bottom pb-3 mb-4">
+                      <h2 className="h5 fw-semibold text-dark mb-0">
+                        Work Experience
+                      </h2>
                       <Link
                         to={`/employee/edit/${employeeData._id}`}
                         className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
@@ -712,44 +1039,89 @@ const EmployeProfile = () => {
                     </div>
                     <div className="jobplugin__profile-block__body">
                       {employeeData.workExperience?.length > 0 ? (
-                        employeeData.workExperience.map((exp, index) => (
-                          <div
-                            key={index}
-                            className="jobplugin__profile-block__textarea mb-4"
-                          >
-                            <div className="jobplugin__profile-block__textbox">
-                              <h3 className="h5">{exp.position}</h3>
-                              <p>{exp.company}</p>
-                              <p>
-                                {exp.employmentType} |{" "}
-                                {formatDate(exp.startDate)} -{" "}
-                                {formatDate(exp.endDate)}
-                              </p>
-                              {exp.description && (
-                                <p className="mt-2">{exp.description}</p>
-                              )}
+                        <div className="experience-timeline">
+                          {employeeData.workExperience.map((exp, index) => (
+                            <div
+                              key={index}
+                              className="border rounded p-3 mb-3"
+                              style={{ backgroundColor: "#f8f9fa" }}
+                            >
+                              <div className="row align-items-start">
+                                <div className="col-md-8">
+                                  <h6
+                                    className="fw-semibold text-dark mb-1"
+                                    style={{ fontSize: "15px" }}
+                                  >
+                                    {exp.position}
+                                  </h6>
+                                  <div
+                                    className="text-muted mb-2"
+                                    style={{ fontSize: "14px" }}
+                                  >
+                                    {exp.company}
+                                  </div>
+                                  <div className="d-flex align-items-center gap-2 mb-2">
+                                    <span
+                                      className="badge bg-secondary"
+                                      style={{ fontSize: "11px" }}
+                                    >
+                                      {exp.employmentType}
+                                    </span>
+                                    <small className="text-muted">
+                                      {formatDate(exp.startDate)} -{" "}
+                                      {formatDate(exp.endDate)}
+                                    </small>
+                                  </div>
+                                  {exp.description && (
+                                    <p
+                                      className="text-muted mb-0"
+                                      style={{
+                                        fontSize: "14px",
+                                        lineHeight: "1.5",
+                                      }}
+                                    >
+                                      {exp.description}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="col-md-4 text-md-end">
+                                  <small className="text-muted">
+                                    {exp.endDate ? "Completed" : "Current"}
+                                  </small>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        ))
+                          ))}
+                        </div>
                       ) : employeeData.totalExperience === "Fresher" ? (
-                        <div className="jobplugin__profile-block__textarea">
-                          <div className="jobplugin__profile-block__textbox">
-                            <p>Fresher (No work experience)</p>
-                          </div>
+                        <div
+                          className="border rounded p-4 text-center text-muted"
+                          style={{ backgroundColor: "#f8f9fa" }}
+                        >
+                          <h6 className="mb-2 text-dark">Fresher</h6>
+                          <p className="mb-0" style={{ fontSize: "14px" }}>
+                            Ready to start professional journey
+                          </p>
                         </div>
                       ) : (
-                        <div className="jobplugin__profile-block__textarea">
-                          <div className="jobplugin__profile-block__textbox">
-                            <p>No work experience added yet.</p>
-                          </div>
+                        <div
+                          className="border rounded p-4 text-center text-muted"
+                          style={{ backgroundColor: "#f8f9fa" }}
+                        >
+                          <p className="mb-0" style={{ fontSize: "14px" }}>
+                            No work experience added yet.
+                          </p>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="jobplugin__profile-block">
-                    <div className="jobplugin__profile-block__header">
-                      <h2 className="h4">Documents</h2>
+                  {/* Documents */}
+                  <div className="jobplugin__profile-block mb-4">
+                    <div className="jobplugin__profile-block__header border-bottom pb-3 mb-4">
+                      <h2 className="h5 fw-semibold text-dark mb-0">
+                        Documents
+                      </h2>
                       <Link
                         to={`/employee/edit/${employeeData._id}`}
                         className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
@@ -758,53 +1130,103 @@ const EmployeProfile = () => {
                       </Link>
                     </div>
                     <div className="jobplugin__profile-block__body">
-                      <div className="jobplugin__profile-block__textarea">
-                        <div className="jobplugin__profile-block__textbox">
-                          {employeeData.resume?.url ? (
-                            <p className="flex items-center">
-                              <span className="font-semibold mr-2">
-                                Resume:
-                              </span>
-                              <a
-                                href={employeeData.resume.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center hover:text-primary"
+                      <div className="row g-3">
+                        {/* Resume */}
+                        <div className="col-md-6">
+                          <div
+                            className="border rounded p-3 h-100"
+                            style={{ backgroundColor: "#f8f9fa" }}
+                          >
+                            <div className="d-flex align-items-center mb-2">
+                              <FaFilePdf
+                                className="text-muted me-2"
+                                size={20}
+                              />
+                              <h6
+                                className="mb-0 fw-semibold"
+                                style={{ fontSize: "14px" }}
                               >
-                                <FaFilePdf className="mr-2" />
-                                {employeeData.resume.name || "Download Resume"}
-                              </a>
-                            </p>
-                          ) : (
-                            <p>No resume uploaded yet.</p>
-                          )}
+                                Resume
+                              </h6>
+                            </div>
+                            {employeeData.resume?.url ? (
+                              <>
+                                <p className="text-muted mb-3 small">
+                                  {employeeData.resume.name || "Resume.pdf"}
+                                </p>
+                                <a
+                                  href={employeeData.resume.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className=" bg-dark btn btn-outline-dark btn-sm"
+                                  style={{ fontSize: "13px" ,color:"white"}}
+                                >
+                                  Download
+                                </a>
+                              </>
+                            ) : (
+                              <p
+                                className="text-muted mb-0"
+                                style={{ fontSize: "13px" }}
+                              >
+                                No resume uploaded yet.
+                              </p>
+                            )}
+                          </div>
+                        </div>
 
-                          {employeeData.coverLetterFile?.url ? (
-                            <p className="flex items-center mt-2">
-                              <span className="font-semibold mr-2">
-                                Cover Letter:
-                              </span>
-                              <a
-                                href={employeeData.coverLetterFile.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center hover:text-primary"
+                        {/* Cover Letter */}
+                        <div className="col-md-6">
+                          <div
+                            className="border rounded p-3 h-100"
+                            style={{ backgroundColor: "#f8f9fa" }}
+                          >
+                            <div className="d-flex align-items-center mb-2">
+                              <FaFilePdf
+                                className="text-muted me-2"
+                                size={20}
+                              />
+                              <h6
+                                className="mb-0 fw-semibold"
+                                style={{ fontSize: "14px" }}
                               >
-                                <FaFilePdf className="mr-2" />
-                                {employeeData.coverLetterFile.name ||
-                                  "Download Cover Letter"}
-                              </a>
-                            </p>
-                          ) : (
-                            <p>No resume cover letter uploaded yet.</p>
-                          )}
+                                Cover Letter
+                              </h6>
+                            </div>
+                            {employeeData.coverLetterFile?.url ? (
+                              <>
+                                <p className="text-muted mb-3 small">
+                                  {employeeData.coverLetterFile.name ||
+                                    "Cover-Letter.pdf"}
+                                </p>
+                                <a
+                                  href={employeeData.coverLetterFile.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className=" bg-dark btn btn-outline-dark btn-sm"
+                                  style={{ fontSize: "13px" ,color:"white"}}
+                                >
+                                  Download
+                                </a>
+                              </>
+                            ) : (
+                              <p
+                                className="text-muted mb-0"
+                                style={{ fontSize: "13px" }}
+                              >
+                                No cover letter uploaded yet.
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="jobplugin__profile-block">
-                    <div className="jobplugin__profile-block__header">
-                      <h2 className="h4">Skills</h2>
+
+                  {/* Skills */}
+                  <div className="jobplugin__profile-block mb-4">
+                    <div className="jobplugin__profile-block__header border-bottom pb-3 mb-4">
+                      <h2 className="h5 fw-semibold text-dark mb-0">Skills</h2>
                       <Link
                         to={`/employee/edit/${employeeData._id}`}
                         className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
@@ -814,31 +1236,40 @@ const EmployeProfile = () => {
                     </div>
                     <div className="jobplugin__profile-block__body">
                       {employeeData.skills?.length > 0 ? (
-                        <ul className="jobplugin__settings-card__tags">
+                        <div className="d-flex flex-wrap gap-2">
                           {employeeData.skills.map((skill, index) => (
-                            <li key={index}>
-                              <a
-                                className="hover:jobplugin__bg-primary hover:jobplugin__text-white hover:jobplugin__border-primary"
-                                href="#"
-                              >
-                                {skill}
-                              </a>
-                            </li>
+                            <span
+                              key={index}
+                              className="border px-3 py-1 rounded text-dark"
+                              style={{
+                                fontSize: "13px",
+                                backgroundColor: "#f8f9fa",
+                                fontWeight: "500",
+                              }}
+                            >
+                              {skill}
+                            </span>
                           ))}
-                        </ul>
+                        </div>
                       ) : (
-                        <div className="jobplugin__profile-block__textarea">
-                          <div className="jobplugin__profile-block__textbox">
-                            <p>No skills added yet</p>
-                          </div>
+                        <div
+                          className="border rounded p-4 text-center text-muted"
+                          style={{ backgroundColor: "#f8f9fa" }}
+                        >
+                          <p className="mb-0" style={{ fontSize: "14px" }}>
+                            No skills added yet
+                          </p>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="jobplugin__profile-block">
-                    <div className="jobplugin__profile-block__header">
-                      <h2 className="h4">Languages</h2>
+                  {/* Languages */}
+                  <div className="jobplugin__profile-block mb-4">
+                    <div className="jobplugin__profile-block__header border-bottom pb-3 mb-4">
+                      <h2 className="h5 fw-semibold text-dark mb-0">
+                        Languages
+                      </h2>
                       <Link
                         to={`/employee/edit/${employeeData._id}`}
                         className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
@@ -848,25 +1279,29 @@ const EmployeProfile = () => {
                     </div>
                     <div className="jobplugin__profile-block__body">
                       {employeeData.languages?.length > 0 ? (
-                        <div className="jobplugin__profile-block__textarea">
-                          <div className="jobplugin__profile-block__textbox">
-                            <div className="jobplugin__profile-box__skills">
-                              {employeeData.languages.map((language, index) => (
-                                <span
-                                  key={index}
-                                  className="jobplugin__profile-box__skill-tag"
-                                >
-                                  {language}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
+                        <div className="d-flex flex-wrap gap-2">
+                          {employeeData.languages.map((language, index) => (
+                            <span
+                              key={index}
+                              className="border px-3 py-1 rounded text-dark"
+                              style={{
+                                fontSize: "13px",
+                                backgroundColor: "#f8f9fa",
+                                fontWeight: "500",
+                              }}
+                            >
+                              {language}
+                            </span>
+                          ))}
                         </div>
                       ) : (
-                        <div className="jobplugin__profile-block__textarea">
-                          <div className="jobplugin__profile-block__textbox">
-                            <p>No languages added yet</p>
-                          </div>
+                        <div
+                          className="border rounded p-4 text-center text-muted"
+                          style={{ backgroundColor: "#f8f9fa" }}
+                        >
+                          <p className="mb-0" style={{ fontSize: "14px" }}>
+                            No languages added yet
+                          </p>
                         </div>
                       )}
                     </div>

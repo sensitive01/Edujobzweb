@@ -11,6 +11,8 @@ import {
   FaChevronDown,
   FaPlay,
   FaStop,
+  FaPlus,
+  FaTimes,
 } from "react-icons/fa";
 import {
   getEmployeeDetails,
@@ -31,6 +33,8 @@ const EmployeeerEditProfile = () => {
     dob: "",
     maritalStatus: "",
     totalExperience: "",
+    totalExperienceYears: "",
+    totalExperienceMonths: "",
     expectedSalary: "",
     specialization: "",
     profilesummary: "",
@@ -54,7 +58,7 @@ const EmployeeerEditProfile = () => {
     profileVideo: { url: "", name: "", thumbnail: "" },
     introductionAudio: { url: "", name: "", duration: 0 },
   });
-  const [initialData, setInitialData] = useState(null); // To track initial form state
+  const [initialData, setInitialData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [profilePicFile, setProfilePicFile] = useState(null);
@@ -79,6 +83,12 @@ const EmployeeerEditProfile = () => {
     type: "",
     startDate: "",
     endDate: "",
+    startYear: "",
+    startMonth: "",
+    endYear: "",
+    endMonth: "",
+    description: "",
+    grade: "",
   });
   const [newExperience, setNewExperience] = useState({
     position: "",
@@ -86,33 +96,72 @@ const EmployeeerEditProfile = () => {
     employmentType: "",
     startDate: "",
     endDate: "",
+    startYear: "",
+    startMonth: "",
+    endYear: "",
+    endMonth: "",
     description: "",
+    location: "",
   });
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const audioRef = useRef(null);
   const videoRef = useRef(null);
 
-  // Check if form data has changed compared to initial data
   const isFormDirty =
     initialData && JSON.stringify(employeeData) !== JSON.stringify(initialData);
 
-  // Input styles converted to inline styles
   const inputStyle = {
-    height: "36px",
-    padding: "6px 12px",
+    height: "42px",
+    padding: "10px 14px",
     lineHeight: "1.5",
-    borderRadius: "10px",
+    borderRadius: "8px",
+    border: "1px solid #e1e5e9",
+    fontSize: "14px",
+    transition: "all 0.2s ease",
   };
 
   const textareaStyle = {
-    height: "auto",
     minHeight: "100px",
+    padding: "10px 14px",
+    borderRadius: "8px",
+    border: "1px solid #e1e5e9",
+    fontSize: "14px",
+    resize: "vertical",
   };
 
   const selectStyle = {
-    height: "36px",
-    padding: "2px 12px",
+    height: "42px",
+    padding: "10px 14px",
+    borderRadius: "8px",
+    border: "1px solid #e1e5e9",
+    fontSize: "14px",
+    background: "white",
+    appearance: "none",
+  };
+
+  // Generate year and month options
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
+  const months = [
+    { value: "01", label: "January" },
+    { value: "02", label: "February" },
+    { value: "03", label: "March" },
+    { value: "04", label: "April" },
+    { value: "05", label: "May" },
+    { value: "06", label: "June" },
+    { value: "07", label: "July" },
+    { value: "08", label: "August" },
+    { value: "09", label: "September" },
+    { value: "10", label: "October" },
+    { value: "11", label: "November" },
+    { value: "12", label: "December" },
+  ];
+
+  // Format date helper
+  const formatYearMonth = (year, month) => {
+    if (!year) return "";
+    return month ? `${year}-${month}` : year;
   };
 
   useEffect(() => {
@@ -125,9 +174,24 @@ const EmployeeerEditProfile = () => {
         }
         const data = await getEmployeeDetails(id, token);
 
+        // Parse total experience
+        let totalExpYears = "";
+        let totalExpMonths = "";
+        if (data.totalExperience) {
+          const expMatch = data.totalExperience.match(
+            /(\d+)\s*years?\s*(?:(\d+)\s*months?)?/i
+          );
+          if (expMatch) {
+            totalExpYears = expMatch[1] || "";
+            totalExpMonths = expMatch[2] || "";
+          }
+        }
+
         const formattedData = {
           ...data,
           profileImage: data.userProfilePic || "",
+          totalExperienceYears: totalExpYears,
+          totalExperienceMonths: totalExpMonths,
           resume: data.resume ? { ...data.resume } : { url: "", name: "" },
           coverLetterFile: data.coverLetterFile
             ? { ...data.coverLetterFile }
@@ -156,6 +220,7 @@ const EmployeeerEditProfile = () => {
 
     fetchData();
   }, [id, navigate]);
+
   useEffect(() => {
     return () => {
       if (audioRef.current) {
@@ -177,12 +242,32 @@ const EmployeeerEditProfile = () => {
     }));
   };
 
-  const handleArrayChange = (e, arrayName) => {
-    const { value } = e.target;
-    setEmployeeData((prev) => ({
-      ...prev,
-      [arrayName]: value.split(",").map((item) => item.trim()),
-    }));
+  // Handle total experience change
+  const handleTotalExperienceChange = (field, value) => {
+    setEmployeeData((prev) => {
+      const updated = { ...prev, [field]: value };
+
+      // Update the combined totalExperience field
+      const years = updated.totalExperienceYears;
+      const months = updated.totalExperienceMonths;
+
+      let totalExp = "";
+      if (years || months) {
+        if (years === "0" && months === "0") {
+          totalExp = "Fresher";
+        } else {
+          if (years && years !== "0") {
+            totalExp += `${years} year${years !== "1" ? "s" : ""}`;
+          }
+          if (months && months !== "0") {
+            if (totalExp) totalExp += " ";
+            totalExp += `${months} month${months !== "1" ? "s" : ""}`;
+          }
+        }
+      }
+
+      return { ...updated, totalExperience: totalExp };
+    });
   };
 
   const handleAddSkill = () => {
@@ -240,9 +325,18 @@ const EmployeeerEditProfile = () => {
 
   const handleAddEducation = () => {
     if (newEducation.degree && newEducation.institution) {
+      const educationToAdd = {
+        ...newEducation,
+        startDate: formatYearMonth(
+          newEducation.startYear,
+          newEducation.startMonth
+        ),
+        endDate: formatYearMonth(newEducation.endYear, newEducation.endMonth),
+      };
+
       setEmployeeData((prev) => ({
         ...prev,
-        education: [...prev.education, newEducation],
+        education: [...prev.education, educationToAdd],
       }));
       setNewEducation({
         degree: "",
@@ -250,6 +344,12 @@ const EmployeeerEditProfile = () => {
         type: "",
         startDate: "",
         endDate: "",
+        startYear: "",
+        startMonth: "",
+        endYear: "",
+        endMonth: "",
+        description: "",
+        grade: "",
       });
     }
   };
@@ -263,9 +363,18 @@ const EmployeeerEditProfile = () => {
 
   const handleAddExperience = () => {
     if (newExperience.position && newExperience.company) {
+      const experienceToAdd = {
+        ...newExperience,
+        startDate: formatYearMonth(
+          newExperience.startYear,
+          newExperience.startMonth
+        ),
+        endDate: formatYearMonth(newExperience.endYear, newExperience.endMonth),
+      };
+
       setEmployeeData((prev) => ({
         ...prev,
-        workExperience: [...prev.workExperience, newExperience],
+        workExperience: [...prev.workExperience, experienceToAdd],
       }));
       setNewExperience({
         position: "",
@@ -273,7 +382,12 @@ const EmployeeerEditProfile = () => {
         employmentType: "",
         startDate: "",
         endDate: "",
+        startYear: "",
+        startMonth: "",
+        endYear: "",
+        endMonth: "",
         description: "",
+        location: "",
       });
     }
   };
@@ -287,32 +401,147 @@ const EmployeeerEditProfile = () => {
     }));
   };
 
+  // Document delete handlers
+  const handleDeleteResume = async () => {
+    if (window.confirm("Are you sure you want to delete your resume?")) {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await axios.delete(
+          `${VITE_BASE_URL}/delete-resume/${id}`,
+
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.status === 200) {
+          setEmployeeData((prev) => ({
+            ...prev,
+            resume: { url: "", name: "" },
+          }));
+        }
+        // You can add API call here to delete from server
+      } catch (err) {
+        setError("Failed to delete resume");
+      }
+    }
+  };
+
+  const handleDeleteCoverLetter = async () => {
+    if (window.confirm("Are you sure you want to delete your cover letter?")) {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await axios.delete(
+          `${VITE_BASE_URL}/delete-cover-letter/${id}`,
+
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.status === 200) {
+          setEmployeeData((prev) => ({
+            ...prev,
+            coverLetterFile: { url: "", name: "" },
+          }));
+        }
+        // You can add API call here to delete from server
+      } catch (err) {
+        setError("Failed to delete cover letter");
+      }
+    }
+  };
+
+  const handleDeleteVideo = async () => {
+    if (window.confirm("Are you sure you want to delete your profile video?")) {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await axios.delete(
+          `${VITE_BASE_URL}/delete-profile-video-record/${id}`,
+
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.status === 200) {
+          setEmployeeData((prev) => ({
+            ...prev,
+            profileVideo: { url: "", name: "", thumbnail: "" },
+          }));
+          setIsVideoPlaying(false);
+          if (videoRef.current) {
+            videoRef.current.pause();
+            videoRef.current.src = "";
+          }
+        }
+      } catch (err) {
+        setError("Failed to delete video");
+      }
+    }
+  };
+
+  const handleDeleteAudio = async () => {
+    if (
+      window.confirm("Are you sure you want to delete your introduction audio?")
+    ) {
+      try {
+        const token = localStorage.getItem("authToken");
+
+        const response = await axios.delete(
+          `${VITE_BASE_URL}/delete-audio-record/${id}`,
+
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.status === 200) {
+          setEmployeeData((prev) => ({
+            ...prev,
+            introductionAudio: { url: "", name: "", duration: 0 },
+          }));
+          setIsAudioPlaying(false);
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.src = "";
+          }
+        }
+      } catch (err) {
+        setError("Failed to delete audio");
+      }
+    }
+  };
+
   const handleProfilePicChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-
-      // Clear any previous errors
       setError(null);
 
-      // Validate file type
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       if (!allowedTypes.includes(file.type.toLowerCase())) {
         setError(
           "Invalid Image format - kindly upload JPG, JPEG or PNG format images only"
         );
-        e.target.value = ""; // Reset file input
+        e.target.value = "";
         return;
       }
 
-      // Validate file size (10MB limit)
-      const maxSize = 10 * 1024 * 1024; // 10MB
+      const maxSize = 10 * 1024 * 1024;
       if (file.size > maxSize) {
         setError("Image size should be less than 10MB");
-        e.target.value = ""; // Reset file input
+        e.target.value = "";
         return;
       }
 
-      // Show preview while uploading
       const reader = new FileReader();
       reader.onload = (event) => {
         setEmployeeData((prev) => ({
@@ -331,16 +560,13 @@ const EmployeeerEditProfile = () => {
 
         const formData = new FormData();
         formData.append("file", file);
-
         setUploading((prev) => ({ ...prev, profileImage: true }));
 
         const response = await axios.put(
           `${VITE_BASE_URL}/uploadfile/${id}`,
           formData,
           {
-            params: {
-              fileType: "profileImage",
-            },
+            params: { fileType: "profileImage" },
             headers: {
               "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${token}`,
@@ -364,13 +590,12 @@ const EmployeeerEditProfile = () => {
             err.message ||
             "Failed to upload image. Please try again."
         );
-        // Revert to previous image if upload fails
         setEmployeeData((prev) => ({
           ...prev,
           profileImage:
             initialData?.profileImage || initialData?.userProfilePic || "",
         }));
-        e.target.value = ""; // Reset file input
+        e.target.value = "";
       } finally {
         setUploading((prev) => ({ ...prev, profileImage: false }));
       }
@@ -380,19 +605,16 @@ const EmployeeerEditProfile = () => {
   const handleResumeChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-
-      // Clear any previous errors
       setError(null);
 
-      // Validate file size (10MB limit) - optional, you can remove this too if needed
-      const maxSize = 10 * 1024 * 1024; // 10MB
+      const maxSize = 10 * 1024 * 1024;
       if (file.size > maxSize) {
         setError("File size should be less than 10MB");
-        e.target.value = ""; // Reset file input
+        e.target.value = "";
         return;
       }
 
-      setResumeFile(file); // store the file
+      setResumeFile(file);
 
       try {
         const token = localStorage.getItem("authToken");
@@ -403,31 +625,24 @@ const EmployeeerEditProfile = () => {
 
         const formData = new FormData();
         formData.append("file", file);
-
         setUploading((prev) => ({ ...prev, resume: true }));
 
-        // Try the current endpoint format first
         let response;
         try {
           response = await axios.put(
             `${VITE_BASE_URL}/uploadfile/${id}?fileType=resume`,
             formData,
             {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+              headers: { Authorization: `Bearer ${token}` },
             }
           );
         } catch (firstError) {
-          // If that fails, try the alternative endpoint format (same as profile image)
           console.log("First endpoint failed, trying alternative format...");
           response = await axios.put(
             `${VITE_BASE_URL}/uploadfile/${id}`,
             formData,
             {
-              params: {
-                fileType: "resume",
-              },
+              params: { fileType: "resume" },
               headers: {
                 "Content-Type": "multipart/form-data",
                 Authorization: `Bearer ${token}`,
@@ -436,7 +651,6 @@ const EmployeeerEditProfile = () => {
           );
         }
 
-        // Check if response has the expected structure
         if (response.data?.file?.url && response.data?.file?.name) {
           setEmployeeData((prev) => ({
             ...prev,
@@ -445,9 +659,8 @@ const EmployeeerEditProfile = () => {
               url: response.data.file.url,
             },
           }));
-          setError(null); // Clear any previous errors on success
+          setError(null);
         } else if (response.data?.url && response.data?.name) {
-          // Alternative response structure
           setEmployeeData((prev) => ({
             ...prev,
             resume: {
@@ -455,7 +668,7 @@ const EmployeeerEditProfile = () => {
               url: response.data.url,
             },
           }));
-          setError(null); // Clear any previous errors on success
+          setError(null);
         } else {
           console.log("Unexpected response structure:", response.data);
           throw new Error("Invalid response structure from server");
@@ -464,20 +677,12 @@ const EmployeeerEditProfile = () => {
         console.log("Resume uploaded successfully:", response.data);
       } catch (err) {
         console.error("Resume upload error:", err);
-        console.error("Error details:", {
-          message: err.message,
-          response: err.response?.data,
-          status: err.response?.status,
-        });
-
         setError(
           err.response?.data?.message ||
             err.response?.data?.error ||
             err.message ||
             "Failed to upload resume. Please try again."
         );
-
-        // Reset file input on error
         e.target.value = "";
       } finally {
         setUploading((prev) => ({ ...prev, resume: false }));
@@ -485,28 +690,22 @@ const EmployeeerEditProfile = () => {
     }
   };
 
-  // Cover Letter Upload Handler
   const handleCoverLetterChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-
-      // ✅ no file type restriction
       setCoverLetterFile(file);
 
       try {
         const token = localStorage.getItem("authToken");
         const formData = new FormData();
         formData.append("file", file);
-
         setUploading((prev) => ({ ...prev, coverLetter: true }));
 
         const response = await axios.put(
           `${VITE_BASE_URL}/uploadfile/${id}?fileType=coverLetter`,
           formData,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
 
@@ -709,7 +908,6 @@ const EmployeeerEditProfile = () => {
         return;
       }
 
-      // Only submit form data, not files (files are handled separately)
       await updateEmployeeProfile(id, employeeData, token);
       navigate("/employee-profile", {
         state: { success: "Profile updated successfully" },
@@ -729,6 +927,21 @@ const EmployeeerEditProfile = () => {
       <main className="jobplugin__main bg-light">
         <div className="jobplugin__main-holder">
           <div className="jobplugin__container">
+            {error && (
+              <div
+                className="alert alert-danger alert-dismissible fade show mb-4"
+                role="alert"
+              >
+                {error}
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setError(null)}
+                  aria-label="Close"
+                ></button>
+              </div>
+            )}
+
             <div className="jobplugin__profile">
               <div className="jobplugin__profile-intro border border-dark shadow">
                 <div className="jobplugin__profile-intro__left">
@@ -743,24 +956,6 @@ const EmployeeerEditProfile = () => {
                         alt={employeeData.userName}
                       />
                     </div>
-                    {/* <label
-                      htmlFor="profilePicUpload"
-                      className="jobplugin__settings-card__edit jobplugin__text-primary jobplugin__border-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
-                    >
-                      {uploading.profileImage ? (
-                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                      ) : (
-                        <FaUpload />
-                      )}
-                      <input
-                        type="file"
-                        id="profilePicUpload"
-                        className="d-none"
-                        onChange={handleProfilePicChange}
-                        accept="image/*"
-                        disabled={uploading.profileImage}
-                      />
-                    </label> */}
 
                     <label
                       htmlFor="profilePicUpload"
@@ -935,23 +1130,36 @@ const EmployeeerEditProfile = () => {
                             )}
                           </div>
                           {employeeData.resume?.name && (
-                            <small className="text-muted">
-                              Current: {employeeData.resume.name}
-                            </small>
-                          )}
-                          {employeeData.resume?.url && (
-                            <small className="text-success d-block">
-                              <a
-                                href={employeeData.resume.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <div className="mt-2 d-flex justify-content-between align-items-center">
+                              <div>
+                                <small className="text-muted d-block">
+                                  Current: {employeeData.resume.name}
+                                </small>
+                                {employeeData.resume?.url && (
+                                  <small className="text-success">
+                                    <a
+                                      href={employeeData.resume.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      View Resume
+                                    </a>
+                                  </small>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={handleDeleteResume}
+                                title="Delete Resume"
                               >
-                                View Resume
-                              </a>
-                            </small>
+                                <FaTrash />
+                              </button>
+                            </div>
                           )}
                         </div>
-                     <div className="form-group mb-3">
+
+                        <div className="form-group mb-3">
                           <label>Cover Letter</label>
                           <div className="input-group">
                             <input
@@ -972,20 +1180,32 @@ const EmployeeerEditProfile = () => {
                             )}
                           </div>
                           {employeeData.coverLetterFile?.name && (
-                            <small className="text-muted">
-                              Current: {employeeData.coverLetterFile.name}
-                            </small>
-                          )}
-                          {employeeData.coverLetterFile?.url && (
-                            <small className="text-success d-block">
-                              <a
-                                href={employeeData.coverLetterFile.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <div className="mt-2 d-flex justify-content-between align-items-center">
+                              <div>
+                                <small className="text-muted d-block">
+                                  Current: {employeeData.coverLetterFile.name}
+                                </small>
+                                {employeeData.coverLetterFile?.url && (
+                                  <small className="text-success">
+                                    <a
+                                      href={employeeData.coverLetterFile.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      View Cover Letter
+                                    </a>
+                                  </small>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger"
+                                onClick={handleDeleteCoverLetter}
+                                title="Delete Cover Letter"
                               >
-                                View Cover Letter
-                              </a>
-                            </small>
+                                <FaTrash />
+                              </button>
+                            </div>
                           )}
                         </div>
 
@@ -1027,34 +1247,94 @@ const EmployeeerEditProfile = () => {
                             )}
                           {employeeData.profileVideo?.url && (
                             <div className="mt-2">
-                              <small className="text-muted">
-                                Current: {employeeData.profileVideo.name}
-                              </small>
-                              <div className="video-preview mt-2 position-relative">
+                              <div className="d-flex justify-content-between align-items-center mb-2">
+                                <small className="text-muted">
+                                  Current: {employeeData.profileVideo.name}
+                                </small>
+                                <button
+                                  type="button"
+                                  className="btn btn-sm btn-outline-danger"
+                                  onClick={handleDeleteVideo}
+                                  title="Delete Video"
+                                >
+                                  <FaTrash />
+                                </button>
+                              </div>
+                              <div
+                                className="video-preview position-relative border rounded"
+                                style={{
+                                  width: "100%",
+                                  height: "200px",
+                                  overflow: "hidden",
+                                  backgroundColor: "#f8f9fa",
+                                }}
+                              >
                                 <video
                                   ref={videoRef}
                                   src={employeeData.profileVideo.url}
                                   controls={false}
-                                  className="w-100 rounded"
-                                  style={{ maxHeight: "300px" }}
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    display: "block",
+                                  }}
                                   onEnded={() => setIsVideoPlaying(false)}
                                   onPause={() => setIsVideoPlaying(false)}
+                                  onPlay={() => setIsVideoPlaying(true)} // Added this to ensure state consistency
                                 />
-                                <button
-                                  className="position-absolute top-50 start-50 translate-middle rounded-circle"
-                                  style={{
-                                    width: "40px",
-                                    height: "40px",
-                                    border: "none",
-                                  }}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    toggleVideoPlayback();
-                                  }}
-                                  disabled={!employeeData.profileVideo?.url}
+                                <div
+                                  className="position-absolute top-50 start-50 translate-middle"
+                                  style={{ zIndex: 1000 }}
                                 >
-                                  {isVideoPlaying ? <FaStop /> : <FaPlay />}
-                                </button>
+                                  <button
+                                    className="btn rounded-circle d-flex align-items-center justify-content-center"
+                                    style={{
+                                      width: "70px",
+                                      height: "70px",
+                                      fontSize: "28px",
+                                      boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+                                      border: "4px solid white",
+                                      color: "white",
+                                      transition: "all 0.2s ease",
+                                      display: "flex !important",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                    }}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      toggleVideoPlayback();
+                                    }}
+                                    disabled={!employeeData.profileVideo?.url}
+                                    title={isVideoPlaying ? "Pause" : "Play"}
+                                  >
+                                    <span
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        width: "100%",
+                                        height: "100%",
+                                      }}
+                                    >
+                                      {isVideoPlaying ? (
+                                        <span style={{ fontSize: "28px" }}>
+                                          ⏸
+                                        </span>
+                                      ) : (
+                                        <span
+                                          style={{
+                                            fontSize: "28px",
+                                            marginLeft: "3px",
+                                          }}
+                                        >
+                                          ▶
+                                        </span>
+                                      )}
+                                    </span>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           )}
@@ -1098,45 +1378,100 @@ const EmployeeerEditProfile = () => {
                             )}
                           {employeeData.introductionAudio?.url && (
                             <div className="mt-2">
-                              <small className="text-muted">
-                                Current: {employeeData.introductionAudio.name}
-                              </small>
-                              <div className="audio-preview mt-2 d-flex align-items-center bg-light p-2 rounded">
+                              <div className="d-flex justify-content-between align-items-center mb-2">
+                                <small className="text-muted">
+                                  Current: {employeeData.introductionAudio.name}
+                                </small>
                                 <button
+                                  type="button"
+                                  className="btn btn-sm btn-outline-danger"
+                                  onClick={handleDeleteAudio}
+                                  title="Delete Audio"
+                                >
+                                  <FaTrash />
+                                </button>
+                              </div>
+                              <div
+                                className="audio-preview d-flex align-items-center bg-light border rounded p-3"
+                                style={{
+                                  width: "100%",
+                                  minHeight: "60px",
+                                }}
+                              >
+                                <button
+                                  className="btn bg-white rounded-circle border d-flex align-items-center justify-content-center me-3"
                                   style={{
-                                    width: "40px",
-                                    height: "40px",
-                                    border: "none",
+                                    width: "48px",
+                                    height: "48px",
+                                    flexShrink: 0,
+                                    fontSize: "18px",
+                                    color: "#007bff",
+                                    borderColor: "#dee2e6",
+                                    transition: "all 0.2s ease",
                                   }}
                                   onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
                                     toggleAudioPlayback();
                                   }}
+                                  onMouseEnter={(e) => {
+                                    e.target.style.backgroundColor = "#f8f9fa";
+                                    e.target.style.borderColor = "#007bff";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.target.style.backgroundColor = "white";
+                                    e.target.style.borderColor = "#dee2e6";
+                                  }}
                                   disabled={
                                     !employeeData.introductionAudio?.url
                                   }
+                                  title={
+                                    isAudioPlaying
+                                      ? "Pause Audio"
+                                      : "Play Audio"
+                                  }
                                 >
-                                  {isAudioPlaying ? <FaStop /> : <FaPlay />}
-                                </button>
-                                <span className="text-muted">
-                                  Duration:{" "}
-                                  {Math.floor(
-                                    employeeData.introductionAudio.duration / 60
+                                  {isAudioPlaying ? (
+                                    <span style={{ fontSize: "16px" }}>⏸</span>
+                                  ) : (
+                                    <span
+                                      style={{
+                                        fontSize: "16px",
+                                        marginLeft: "2px",
+                                      }}
+                                    >
+                                      ▶
+                                    </span>
                                   )}
-                                  :
-                                  {(
-                                    employeeData.introductionAudio.duration % 60
-                                  )
-                                    .toString()
-                                    .padStart(2, "0")}
-                                </span>
+                                </button>
+                                <div className="flex-grow-1">
+                                  <div className="text-muted small">
+                                    Duration:{" "}
+                                    {Math.floor(
+                                      employeeData.introductionAudio.duration /
+                                        60
+                                    )}
+                                    :
+                                    {(
+                                      employeeData.introductionAudio.duration %
+                                      60
+                                    )
+                                      .toString()
+                                      .padStart(2, "0")}
+                                  </div>
+                                  <div className="text-dark small fw-medium">
+                                    {isAudioPlaying
+                                      ? "Playing..."
+                                      : "Click play to listen"}
+                                  </div>
+                                </div>
                                 <audio
                                   ref={audioRef}
                                   src={employeeData.introductionAudio.url}
                                   onEnded={() => setIsAudioPlaying(false)}
                                   onPause={() => setIsAudioPlaying(false)}
-                                  hidden
+                                  onPlay={() => setIsAudioPlaying(true)}
+                                  style={{ display: "none" }}
                                 />
                               </div>
                             </div>
@@ -1213,20 +1548,69 @@ const EmployeeerEditProfile = () => {
                             <FaChevronDown className="position-absolute end-0 top-50 translate-middle-y me-3" />
                           </div>
                         </div>
+
+                        {/* Enhanced Total Experience with Year/Month Selection */}
                         <div className="form-group mb-3">
                           <label>Total Experience</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="totalExperience"
-                            value={employeeData.totalExperience || ""}
-                            onChange={handleChange}
-                            placeholder="e.g., 5 years or Fresher"
-                            style={inputStyle}
-                          />
+                          <div className="row g-2">
+                            <div className="col-6">
+                              <select
+                                className="form-control"
+                                value={employeeData.totalExperienceYears || ""}
+                                onChange={(e) =>
+                                  handleTotalExperienceChange(
+                                    "totalExperienceYears",
+                                    e.target.value
+                                  )
+                                }
+                                style={selectStyle}
+                              >
+                                <option value="">Years</option>
+                                <option value="0">0 Years</option>
+                                {Array.from(
+                                  { length: 30 },
+                                  (_, i) => i + 1
+                                ).map((year) => (
+                                  <option key={year} value={year}>
+                                    {year} Year{year !== 1 ? "s" : ""}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="col-6">
+                              <select
+                                className="form-control"
+                                value={employeeData.totalExperienceMonths || ""}
+                                onChange={(e) =>
+                                  handleTotalExperienceChange(
+                                    "totalExperienceMonths",
+                                    e.target.value
+                                  )
+                                }
+                                style={selectStyle}
+                              >
+                                <option value="">Months</option>
+                                <option value="0">0 Months</option>
+                                {Array.from(
+                                  { length: 11 },
+                                  (_, i) => i + 1
+                                ).map((month) => (
+                                  <option key={month} value={month}>
+                                    {month} Month{month !== 1 ? "s" : ""}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                          {employeeData.totalExperience && (
+                            <small className="text-muted mt-1 d-block">
+                              Current: {employeeData.totalExperience}
+                            </small>
+                          )}
                         </div>
+
                         <div className="form-group">
-                          <label>Expected Salary (₹)</label>
+                          <label>Expected Annual Salary (₹)</label>
                           <input
                             type="number"
                             className="form-control"
@@ -1279,34 +1663,36 @@ const EmployeeerEditProfile = () => {
                               onChange={(e) => setNewSkill(e.target.value)}
                               placeholder="Add a new skill"
                               style={inputStyle}
+                              onKeyPress={(e) =>
+                                e.key === "Enter" &&
+                                (e.preventDefault(), handleAddSkill())
+                              }
                             />
                             <button
                               type="button"
                               className="btn btn-primary"
                               onClick={handleAddSkill}
-                              style={{
-                                marginLeft: "-6px",
-                                fontSize: "15px",
-                                height: "0px",
-                              }}
+                              style={{ height: "42px" }}
                             >
-                              Add
+                              <FaPlus />
                             </button>
                           </div>
                         </div>
-                        <div className="jobplugin__profile-box__skills">
+                        <div className="d-flex flex-wrap gap-2">
                           {employeeData.skills?.map((skill, index) => (
                             <span
                               key={index}
-                              className="jobplugin__profile-box__skill-tag"
+                              className="badge bg-secondary d-flex align-items-center gap-2"
+                              style={{ fontSize: "13px", padding: "8px 12px" }}
                             >
                               {skill}
                               <button
                                 type="button"
-                                className="btn btn-sm p-0 ms-2 text-white"
+                                className="btn btn-sm p-0 text-white border-0 bg-transparent"
                                 onClick={() => handleRemoveSkill(skill)}
+                                style={{ lineHeight: 1 }}
                               >
-                                <FaTrash size={10} />
+                                <FaTimes size={12} />
                               </button>
                             </span>
                           ))}
@@ -1328,34 +1714,36 @@ const EmployeeerEditProfile = () => {
                               onChange={(e) => setNewLanguage(e.target.value)}
                               placeholder="Add a new language"
                               style={inputStyle}
+                              onKeyPress={(e) =>
+                                e.key === "Enter" &&
+                                (e.preventDefault(), handleAddLanguage())
+                              }
                             />
                             <button
                               type="button"
                               className="btn btn-primary"
                               onClick={handleAddLanguage}
-                              style={{
-                                marginLeft: "-6px",
-                                fontSize: "15px",
-                                height: "0px",
-                              }}
+                              style={{ height: "42px" }}
                             >
-                              Add
+                              <FaPlus />
                             </button>
                           </div>
                         </div>
-                        <div className="jobplugin__profile-box__skills">
+                        <div className="d-flex flex-wrap gap-2">
                           {employeeData.languages?.map((language, index) => (
                             <span
                               key={index}
-                              className="jobplugin__profile-box__skill-tag"
+                              className="badge bg-secondary d-flex align-items-center gap-2"
+                              style={{ fontSize: "13px", padding: "8px 12px" }}
                             >
                               {language}
                               <button
                                 type="button"
-                                className="btn btn-sm p-0 ms-2 text-white"
+                                className="btn btn-sm p-0 text-white border-0 bg-transparent"
                                 onClick={() => handleRemoveLanguage(language)}
+                                style={{ lineHeight: 1 }}
                               >
-                                <FaTrash size={10} />
+                                <FaTimes size={12} />
                               </button>
                             </span>
                           ))}
@@ -1377,34 +1765,36 @@ const EmployeeerEditProfile = () => {
                               onChange={(e) => setNewGradeLevel(e.target.value)}
                               placeholder="Add a grade level (e.g., Class 1, Class 2)"
                               style={inputStyle}
+                              onKeyPress={(e) =>
+                                e.key === "Enter" &&
+                                (e.preventDefault(), handleAddGradeLevel())
+                              }
                             />
                             <button
                               type="button"
                               className="btn btn-primary"
                               onClick={handleAddGradeLevel}
-                              style={{
-                                marginLeft: "-6px",
-                                fontSize: "15px",
-                                height: "0px",
-                              }}
+                              style={{ height: "42px" }}
                             >
-                              Add
+                              <FaPlus />
                             </button>
                           </div>
                         </div>
-                        <div className="jobplugin__profile-box__skills">
+                        <div className="d-flex flex-wrap gap-2">
                           {employeeData.gradeLevels?.map((grade, index) => (
                             <span
                               key={index}
-                              className="jobplugin__profile-box__skill-tag"
+                              className="badge bg-secondary d-flex align-items-center gap-2"
+                              style={{ fontSize: "13px", padding: "8px 12px" }}
                             >
                               {grade}
                               <button
                                 type="button"
-                                className="btn btn-sm p-0 ms-2 text-white"
+                                className="btn btn-sm p-0 text-white border-0 bg-transparent"
                                 onClick={() => handleRemoveGradeLevel(grade)}
+                                style={{ lineHeight: 1 }}
                               >
-                                <FaTrash size={10} />
+                                <FaTimes size={12} />
                               </button>
                             </span>
                           ))}
@@ -1446,7 +1836,6 @@ const EmployeeerEditProfile = () => {
                               />
                             </div>
                           </div>
-
                           <div className="col-md-6">
                             <div className="form-group">
                               <label>City</label>
@@ -1473,7 +1862,6 @@ const EmployeeerEditProfile = () => {
                               />
                             </div>
                           </div>
-
                           <div className="col-md-6">
                             <div className="form-group">
                               <label>PIN Code</label>
@@ -1507,128 +1895,319 @@ const EmployeeerEditProfile = () => {
                       </div>
                     </div>
 
+                    {/* Enhanced Education Section with Year/Month Selection */}
                     <div className="jobplugin__profile-block">
                       <div className="jobplugin__profile-block__header">
                         <h2 className="h4">Education</h2>
                       </div>
                       <div className="jobplugin__profile-block__body">
-                        <div className="form-group mb-4">
-                          <div className="row g-3">
-                            <div className="col-md-6">
-                              <label className="form-label">Degree</label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                value={newEducation.degree}
-                                onChange={(e) =>
-                                  setNewEducation({
-                                    ...newEducation,
-                                    degree: e.target.value,
-                                  })
-                                }
-                                placeholder="Degree/Certificate"
-                                style={inputStyle}
-                              />
-                            </div>
-                            <div className="col-md-6">
-                              <label className="form-label">Institution</label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                value={newEducation.institution}
-                                onChange={(e) =>
-                                  setNewEducation({
-                                    ...newEducation,
-                                    institution: e.target.value,
-                                  })
-                                }
-                                placeholder="School/University"
-                                style={inputStyle}
-                              />
-                            </div>
-                            <div className="col-md-4">
-                              <label className="form-label">Type</label>
-                              <div className="position-relative">
-                                <select
+                        <div
+                          className="card mb-4"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            border: "1px solid #e9ecef",
+                          }}
+                        >
+                          <div className="card-header bg-white">
+                            <h6 className="mb-0 fw-semibold">
+                              Add New Education
+                            </h6>
+                          </div>
+                          <div className="card-body">
+                            <div className="row g-3">
+                              <div className="col-md-6">
+                                <label className="form-label">
+                                  Degree/Certificate*
+                                </label>
+                                <input
+                                  type="text"
                                   className="form-control"
-                                  value={newEducation.type}
+                                  value={newEducation.degree}
                                   onChange={(e) =>
                                     setNewEducation({
                                       ...newEducation,
-                                      type: e.target.value,
+                                      degree: e.target.value,
                                     })
                                   }
-                                  style={selectStyle}
-                                >
-                                  <option value="">Select Type</option>
-                                  <option value="Full-time">Full-time</option>
-                                  <option value="Part-time">Part-time</option>
-                                  <option value="Distance">Distance</option>
-                                </select>
-                                <FaChevronDown className="position-absolute end-0 top-50 translate-middle-y me-3" />
+                                  placeholder="e.g., Bachelor of Science, MBA"
+                                  style={inputStyle}
+                                />
                               </div>
-                            </div>
-                            <div className="col-md-4">
-                              <label className="form-label">Start Date</label>
-                              <input
-                                type="date"
-                                className="form-control"
-                                value={newEducation.startDate}
-                                onChange={(e) =>
-                                  setNewEducation({
-                                    ...newEducation,
-                                    startDate: e.target.value,
-                                  })
-                                }
-                                style={inputStyle}
-                              />
-                            </div>
-                            <div className="col-md-4">
-                              <label className="form-label">End Date</label>
-                              <input
-                                type="date"
-                                className="form-control"
-                                value={newEducation.endDate}
-                                onChange={(e) =>
-                                  setNewEducation({
-                                    ...newEducation,
-                                    endDate: e.target.value,
-                                  })
-                                }
-                                style={inputStyle}
-                              />
-                            </div>
-                            <div className="col-12 mt-4">
-                              <button
-                                type="button"
-                                className="btn btn-primary"
-                                onClick={handleAddEducation}
-                                style={{ marginLeft: "-6px", fontSize: "15px" }}
-                              >
-                                Add Education
-                              </button>
+                              <div className="col-md-6">
+                                <label className="form-label">
+                                  Institution*
+                                </label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={newEducation.institution}
+                                  onChange={(e) =>
+                                    setNewEducation({
+                                      ...newEducation,
+                                      institution: e.target.value,
+                                    })
+                                  }
+                                  placeholder="e.g., Harvard University, IIT Delhi"
+                                  style={inputStyle}
+                                />
+                              </div>
+                              <div className="col-md-4">
+                                <label className="form-label">Type</label>
+                                <div className="position-relative">
+                                  <select
+                                    className="form-control"
+                                    value={newEducation.type}
+                                    onChange={(e) =>
+                                      setNewEducation({
+                                        ...newEducation,
+                                        type: e.target.value,
+                                      })
+                                    }
+                                    style={selectStyle}
+                                  >
+                                    <option value="">Select Type</option>
+                                    <option value="Full-time">Full-time</option>
+                                    <option value="Part-time">Part-time</option>
+                                    <option value="Distance">Distance</option>
+                                    <option value="Online">Online</option>
+                                  </select>
+                                  <FaChevronDown className="position-absolute end-0 top-50 translate-middle-y me-3" />
+                                </div>
+                              </div>
+                              <div className="col-md-4">
+                                <label className="form-label">Grade/CGPA</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={newEducation.grade}
+                                  onChange={(e) =>
+                                    setNewEducation({
+                                      ...newEducation,
+                                      grade: e.target.value,
+                                    })
+                                  }
+                                  placeholder="e.g., 8.5 CGPA, 85%"
+                                  style={inputStyle}
+                                />
+                              </div>
+                              <div className="col-md-4">
+                                <label className="form-label">
+                                  Field of Study
+                                </label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={newEducation.fieldOfStudy || ""}
+                                  onChange={(e) =>
+                                    setNewEducation({
+                                      ...newEducation,
+                                      fieldOfStudy: e.target.value,
+                                    })
+                                  }
+                                  placeholder="e.g., Computer Science, Business"
+                                  style={inputStyle}
+                                />
+                              </div>
+
+                              {/* Start Date - Year/Month Selection */}
+                              <div className="col-md-6">
+                                <label className="form-label">Start Date</label>
+                                <div className="row g-2">
+                                  <div className="col-6">
+                                    <select
+                                      className="form-control"
+                                      value={newEducation.startYear}
+                                      onChange={(e) =>
+                                        setNewEducation({
+                                          ...newEducation,
+                                          startYear: e.target.value,
+                                        })
+                                      }
+                                      style={selectStyle}
+                                    >
+                                      <option value="">Year</option>
+                                      {years.map((year) => (
+                                        <option key={year} value={year}>
+                                          {year}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div className="col-6">
+                                    <select
+                                      className="form-control"
+                                      value={newEducation.startMonth}
+                                      onChange={(e) =>
+                                        setNewEducation({
+                                          ...newEducation,
+                                          startMonth: e.target.value,
+                                        })
+                                      }
+                                      style={selectStyle}
+                                    >
+                                      <option value="">Month</option>
+                                      {months.map((month) => (
+                                        <option
+                                          key={month.value}
+                                          value={month.value}
+                                        >
+                                          {month.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* End Date - Year/Month Selection */}
+                              <div className="col-md-6">
+                                <label className="form-label">End Date</label>
+                                <div className="row g-2">
+                                  <div className="col-6">
+                                    <select
+                                      className="form-control"
+                                      value={newEducation.endYear}
+                                      onChange={(e) =>
+                                        setNewEducation({
+                                          ...newEducation,
+                                          endYear: e.target.value,
+                                        })
+                                      }
+                                      style={selectStyle}
+                                    >
+                                      <option value="">Year</option>
+                                      <option value="">Present</option>
+                                      {years.map((year) => (
+                                        <option key={year} value={year}>
+                                          {year}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div className="col-6">
+                                    <select
+                                      className="form-control"
+                                      value={newEducation.endMonth}
+                                      onChange={(e) =>
+                                        setNewEducation({
+                                          ...newEducation,
+                                          endMonth: e.target.value,
+                                        })
+                                      }
+                                      style={selectStyle}
+                                    >
+                                      <option value="">Month</option>
+                                      {months.map((month) => (
+                                        <option
+                                          key={month.value}
+                                          value={month.value}
+                                        >
+                                          {month.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="col-12">
+                                <label className="form-label">
+                                  Description (Optional)
+                                </label>
+                                <textarea
+                                  className="form-control"
+                                  rows="3"
+                                  value={newEducation.description}
+                                  onChange={(e) =>
+                                    setNewEducation({
+                                      ...newEducation,
+                                      description: e.target.value,
+                                    })
+                                  }
+                                  placeholder="Additional details about your education, achievements, etc."
+                                  style={textareaStyle}
+                                />
+                              </div>
+
+                              <div className="col-12">
+                                <button
+                                  type="button"
+                                  className="btn btn-primary btn-sm mt-2"
+                                  onClick={handleAddEducation}
+                                  disabled={
+                                    !newEducation.degree ||
+                                    !newEducation.institution
+                                  }
+                                  style={{
+                                    fontSize: "16px",
+                                    padding: "7px 13px",
+                                  }}
+                                >
+                                  <FaPlus
+                                    className="me-2"
+                                    style={{ fontSize: "15px" }}
+                                  />
+                                  Add Education
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
+
+                        {/* Display Added Education */}
                         {employeeData.education?.map((edu, index) => (
                           <div
                             key={index}
-                            className="jobplugin__profile-block__textarea mb-4"
+                            className="card mb-3"
+                            style={{ border: "1px solid #e9ecef" }}
                           >
-                            <div className="jobplugin__profile-block__textbox">
+                            <div className="card-body">
                               <div className="d-flex justify-content-between align-items-start">
-                                <div>
-                                  <h3 className="h5">{edu.degree}</h3>
-                                  <p>{edu.institution}</p>
-                                  <p>
-                                    {edu.type} | {edu.startDate} -{" "}
-                                    {edu.endDate || "Present"}
-                                  </p>
+                                <div className="flex-grow-1">
+                                  <h5 className="card-title mb-1">
+                                    {edu.degree}
+                                  </h5>
+                                  <h6 className="card-subtitle mb-2 text-muted">
+                                    {edu.institution}
+                                  </h6>
+                                  <div className="mb-2">
+                                    <span className="badge bg-secondary me-2">
+                                      {edu.type}
+                                    </span>
+                                    <small className="text-muted">
+                                      {edu.startDate} -{" "}
+                                      {edu.endDate || "Present"}
+                                    </small>
+                                  </div>
+                                  {edu.grade && (
+                                    <p className="mb-1">
+                                      <small className="text-muted">
+                                        Grade:{" "}
+                                      </small>
+                                      <span className="fw-medium">
+                                        {edu.grade}
+                                      </span>
+                                    </p>
+                                  )}
+                                  {edu.fieldOfStudy && (
+                                    <p className="mb-1">
+                                      <small className="text-muted">
+                                        Field:{" "}
+                                      </small>
+                                      <span>{edu.fieldOfStudy}</span>
+                                    </p>
+                                  )}
+                                  {edu.description && (
+                                    <p className="mb-0 mt-2">
+                                      {edu.description}
+                                    </p>
+                                  )}
                                 </div>
                                 <button
                                   type="button"
-                                  className="btn btn-sm btn-outline-danger"
+                                  className="btn btn-sm btn-outline-danger ms-3"
                                   onClick={() => handleRemoveEducation(index)}
+                                  title="Delete Education"
                                 >
                                   <FaTrash />
                                 </button>
@@ -1639,151 +2218,295 @@ const EmployeeerEditProfile = () => {
                       </div>
                     </div>
 
+                    {/* Enhanced Work Experience Section with Year/Month Selection */}
                     <div className="jobplugin__profile-block">
                       <div className="jobplugin__profile-block__header">
                         <h2 className="h4">Work Experience</h2>
                       </div>
                       <div className="jobplugin__profile-block__body">
-                        <div className="form-group mb-4">
-                          <div className="row g-3">
-                            <div className="col-md-6">
-                              <label className="form-label">Position</label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                value={newExperience.position}
-                                onChange={(e) =>
-                                  setNewExperience({
-                                    ...newExperience,
-                                    position: e.target.value,
-                                  })
-                                }
-                                placeholder="Job Title"
-                                style={inputStyle}
-                              />
-                            </div>
-                            <div className="col-md-6">
-                              <label className="form-label">Company</label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                value={newExperience.company}
-                                onChange={(e) =>
-                                  setNewExperience({
-                                    ...newExperience,
-                                    company: e.target.value,
-                                  })
-                                }
-                                placeholder="Company Name"
-                                style={inputStyle}
-                              />
-                            </div>
-                            <div className="col-md-4">
-                              <label className="form-label">
-                                Employment Type
-                              </label>
-                              <div className="position-relative">
-                                <select
+                        <div
+                          className="card mb-4"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            border: "1px solid #e9ecef",
+                          }}
+                        >
+                          <div className="card-header bg-white">
+                            <h6 className="mb-0 fw-semibold">
+                              Add New Experience
+                            </h6>
+                          </div>
+                          <div className="card-body">
+                            <div className="row g-3">
+                              <div className="col-md-6">
+                                <label className="form-label">
+                                  Position/Job Title*
+                                </label>
+                                <input
+                                  type="text"
                                   className="form-control"
-                                  value={newExperience.employmentType}
+                                  value={newExperience.position}
                                   onChange={(e) =>
                                     setNewExperience({
                                       ...newExperience,
-                                      employmentType: e.target.value,
+                                      position: e.target.value,
                                     })
                                   }
-                                  style={selectStyle}
-                                >
-                                  <option value="">Select Type</option>
-                                  <option value="Full-time">Full-time</option>
-                                  <option value="Part-time">Part-time</option>
-                                  <option value="Contract">Contract</option>
-                                  <option value="Internship">Internship</option>
-                                  <option value="Freelance">Freelance</option>
-                                </select>
-                                <FaChevronDown className="position-absolute end-0 top-50 translate-middle-y me-3" />
+                                  placeholder="e.g., Software Engineer, Marketing Manager"
+                                  style={inputStyle}
+                                />
                               </div>
-                            </div>
-                            <div className="col-md-4">
-                              <label className="form-label">Start Date</label>
-                              <input
-                                type="date"
-                                className="form-control"
-                                value={newExperience.startDate}
-                                onChange={(e) =>
-                                  setNewExperience({
-                                    ...newExperience,
-                                    startDate: e.target.value,
-                                  })
-                                }
-                                style={inputStyle}
-                              />
-                            </div>
-                            <div className="col-md-4">
-                              <label className="form-label">End Date</label>
-                              <input
-                                type="date"
-                                className="form-control"
-                                value={newExperience.endDate}
-                                onChange={(e) =>
-                                  setNewExperience({
-                                    ...newExperience,
-                                    endDate: e.target.value,
-                                  })
-                                }
-                                style={inputStyle}
-                              />
-                            </div>
-                            <div className="col-12">
-                              <label className="form-label">Description</label>
-                              <textarea
-                                className="form-control"
-                                rows="3"
-                                value={newExperience.description}
-                                onChange={(e) =>
-                                  setNewExperience({
-                                    ...newExperience,
-                                    description: e.target.value,
-                                  })
-                                }
-                                placeholder="Describe your responsibilities and achievements"
-                                style={textareaStyle}
-                              />
-                            </div>
-                            <div className="col-12 mt-4">
-                              <button
-                                type="button"
-                                className="btn btn-primary"
-                                onClick={handleAddExperience}
-                                style={{ marginLeft: "-6px", fontSize: "15px" }}
-                              >
-                                Add Experience
-                              </button>
+                              <div className="col-md-6">
+                                <label className="form-label">Company*</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={newExperience.company}
+                                  onChange={(e) =>
+                                    setNewExperience({
+                                      ...newExperience,
+                                      company: e.target.value,
+                                    })
+                                  }
+                                  placeholder="e.g., Google, Microsoft, ABC Corp"
+                                  style={inputStyle}
+                                />
+                              </div>
+                              <div className="col-md-6">
+                                <label className="form-label">
+                                  Employment Type
+                                </label>
+                                <div className="position-relative">
+                                  <select
+                                    className="form-control"
+                                    value={newExperience.employmentType}
+                                    onChange={(e) =>
+                                      setNewExperience({
+                                        ...newExperience,
+                                        employmentType: e.target.value,
+                                      })
+                                    }
+                                    style={selectStyle}
+                                  >
+                                    <option value="">Select Type</option>
+                                    <option value="Full-time">Full-time</option>
+                                    <option value="Part-time">Part-time</option>
+                                    <option value="Contract">Contract</option>
+                                    <option value="Internship">
+                                      Internship
+                                    </option>
+                                    <option value="Freelance">Freelance</option>
+                                    <option value="Temporary">Temporary</option>
+                                  </select>
+                                  <FaChevronDown className="position-absolute end-0 top-50 translate-middle-y me-3" />
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <label className="form-label">Location</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={newExperience.location || ""}
+                                  onChange={(e) =>
+                                    setNewExperience({
+                                      ...newExperience,
+                                      location: e.target.value,
+                                    })
+                                  }
+                                  placeholder="e.g., New York, NY | Remote"
+                                  style={inputStyle}
+                                />
+                              </div>
+
+                              {/* Start Date - Year/Month Selection */}
+                              <div className="col-md-6">
+                                <label className="form-label">Start Date</label>
+                                <div className="row g-2">
+                                  <div className="col-6">
+                                    <select
+                                      className="form-control"
+                                      value={newExperience.startYear}
+                                      onChange={(e) =>
+                                        setNewExperience({
+                                          ...newExperience,
+                                          startYear: e.target.value,
+                                        })
+                                      }
+                                      style={selectStyle}
+                                    >
+                                      <option value="">Year</option>
+                                      {years.map((year) => (
+                                        <option key={year} value={year}>
+                                          {year}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div className="col-6">
+                                    <select
+                                      className="form-control"
+                                      value={newExperience.startMonth}
+                                      onChange={(e) =>
+                                        setNewExperience({
+                                          ...newExperience,
+                                          startMonth: e.target.value,
+                                        })
+                                      }
+                                      style={selectStyle}
+                                    >
+                                      <option value="">Month</option>
+                                      {months.map((month) => (
+                                        <option
+                                          key={month.value}
+                                          value={month.value}
+                                        >
+                                          {month.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* End Date - Year/Month Selection */}
+                              <div className="col-md-6">
+                                <label className="form-label">End Date</label>
+                                <div className="row g-2">
+                                  <div className="col-6">
+                                    <select
+                                      className="form-control"
+                                      value={newExperience.endYear}
+                                      onChange={(e) =>
+                                        setNewExperience({
+                                          ...newExperience,
+                                          endYear: e.target.value,
+                                        })
+                                      }
+                                      style={selectStyle}
+                                    >
+                                      <option value="">Year</option>
+                                      <option value="">Present</option>
+                                      {years.map((year) => (
+                                        <option key={year} value={year}>
+                                          {year}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div className="col-6">
+                                    <select
+                                      className="form-control"
+                                      value={newExperience.endMonth}
+                                      onChange={(e) =>
+                                        setNewExperience({
+                                          ...newExperience,
+                                          endMonth: e.target.value,
+                                        })
+                                      }
+                                      style={selectStyle}
+                                    >
+                                      <option value="">Month</option>
+                                      {months.map((month) => (
+                                        <option
+                                          key={month.value}
+                                          value={month.value}
+                                        >
+                                          {month.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="col-12">
+                                <label className="form-label">
+                                  Job Description
+                                </label>
+                                <textarea
+                                  className="form-control"
+                                  rows="4"
+                                  value={newExperience.description}
+                                  onChange={(e) =>
+                                    setNewExperience({
+                                      ...newExperience,
+                                      description: e.target.value,
+                                    })
+                                  }
+                                  placeholder="Describe your responsibilities, achievements, and key accomplishments in this role..."
+                                  style={textareaStyle}
+                                />
+                              </div>
+
+                              <div className="col-12">
+                                <button
+                                  type="button"
+                                  className="btn btn-primary btn-sm"
+                                  onClick={handleAddExperience}
+                                  disabled={
+                                    !newExperience.position ||
+                                    !newExperience.company
+                                  }
+                                  style={{
+                                    fontSize: "14px",
+                                    padding: "6px 12px",
+                                  }}
+                                >
+                                  <FaPlus
+                                    className="me-2"
+                                    style={{ fontSize: "12px" }}
+                                  />
+                                  Add Experience
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
+
+                        {/* Display Added Experience */}
                         {employeeData.workExperience?.map((exp, index) => (
                           <div
                             key={index}
-                            className="jobplugin__profile-block__textarea mb-4"
+                            className="card mb-3"
+                            style={{ border: "1px solid #e9ecef" }}
                           >
-                            <div className="jobplugin__profile-block__textbox">
+                            <div className="card-body">
                               <div className="d-flex justify-content-between align-items-start">
-                                <div>
-                                  <h3 className="h5">{exp.position}</h3>
-                                  <p>{exp.company}</p>
-                                  <p>
-                                    {exp.employmentType} | {exp.startDate} -{" "}
-                                    {exp.endDate || "Present"}
-                                  </p>
+                                <div className="flex-grow-1">
+                                  <h5 className="card-title mb-1">
+                                    {exp.position}
+                                  </h5>
+                                  <h6 className="card-subtitle mb-2 text-muted">
+                                    {exp.company}
+                                  </h6>
+                                  <div className="mb-2">
+                                    <span className="badge bg-secondary me-2">
+                                      {exp.employmentType}
+                                    </span>
+                                    <small className="text-muted">
+                                      {exp.startDate} -{" "}
+                                      {exp.endDate || "Present"}
+                                    </small>
+                                  </div>
+                                  {exp.location && (
+                                    <p className="mb-1">
+                                      <small className="text-muted">
+                                        Location:{" "}
+                                      </small>
+                                      <span>{exp.location}</span>
+                                    </p>
+                                  )}
                                   {exp.description && (
-                                    <p className="mt-2">{exp.description}</p>
+                                    <p className="mb-0 mt-2">
+                                      {exp.description}
+                                    </p>
                                   )}
                                 </div>
                                 <button
                                   type="button"
-                                  className="btn btn-sm btn-outline-danger"
+                                  className="btn btn-sm btn-outline-danger ms-3"
                                   onClick={() => handleRemoveExperience(index)}
+                                  title="Delete Experience"
                                 >
                                   <FaTrash />
                                 </button>
