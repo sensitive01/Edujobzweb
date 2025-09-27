@@ -1,127 +1,3 @@
-const handleSearchCandidates = () => {
-  navigate("/employer/search");
-};
-
-const handlePostJob = () => {
-  navigate("/employer/post-jobs");
-};
-
-// Navigation handlers for profile actions
-const handleEditInfo = () => {
-  navigate("/employer/profile");
-};
-
-const handleChangePassword = () => {
-  const modal = new Modal(passwordModalRef.current);
-  modal.show();
-};
-
-const handleSendMessage = () => {
-  navigate("/employer/messages");
-};
-
-// Navigation handlers for overview cards
-const handleAppliedCandidates = () => {
-  navigate("/employer/applied-candidates");
-};
-
-const handleShortlistedCandidates = () => {
-  navigate("/employer/shortlisted-candidates");
-};
-
-const handleRejectedCandidates = () => {
-  navigate("#");
-};
-
-const handlePendingCandidates = () => {
-  navigate("/employer/applied-candidates");
-};
-
-// Password change handlers
-const handlePasswordChange = (e) => {
-  const { name, value } = e.target;
-  setPasswordData((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-  setPasswordError(null);
-};
-
-const togglePasswordVisibility = (field) => {
-  setShowPasswords((prev) => ({
-    ...prev,
-    [field]: !prev[field],
-  }));
-};
-
-const handlePasswordSubmit = async (e) => {
-  e.preventDefault();
-
-  // Validate passwords
-  if (
-    !passwordData.currentPassword ||
-    !passwordData.newPassword ||
-    !passwordData.confirmPassword
-  ) {
-    setPasswordError("All password fields are required");
-    return;
-  }
-
-  if (passwordData.newPassword !== passwordData.confirmPassword) {
-    setPasswordError("New password and confirm password do not match");
-    return;
-  }
-
-  if (passwordData.newPassword.length < 6) {
-    setPasswordError("New password must be at least 6 characters long");
-    return;
-  }
-
-  setIsChangingPassword(true);
-  setPasswordError(null);
-
-  try {
-    const token = localStorage.getItem("employerToken");
-
-    const response = await fetch(
-      `https://api.edprofio.com/employer/changeMyPassword/${employerData._id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          currentPassword: passwordData.currentPassword,
-          newPassword: passwordData.newPassword,
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || "Password change failed");
-    }
-
-    // Reset password form
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-
-    // Close modal
-    const modal = Modal.getInstance(passwordModalRef.current);
-    modal.hide();
-
-    alert("Password changed successfully!");
-  } catch (err) {
-    console.error("Password change error:", err);
-    setPasswordError(err.message);
-  } finally {
-    setIsChangingPassword(false);
-  }
-};
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Modal } from "bootstrap";
@@ -165,7 +41,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const storedEmployerData = JSON.parse(localStorage.getItem("employerData"));
 
-  // Navigation handlers - MOVED BEFORE LOADING CHECKS
+  // Navigation handlers
   const handleSearchCandidates = () => {
     navigate("/employer/search");
   };
@@ -174,7 +50,6 @@ const Dashboard = () => {
     navigate("/employer/post-jobs");
   };
 
-  // Navigation handlers for profile actions
   const handleEditInfo = () => {
     navigate("/employer/profile");
   };
@@ -184,11 +59,6 @@ const Dashboard = () => {
     modal.show();
   };
 
-  const handleSendMessage = () => {
-    navigate("/employer/messages");
-  };
-
-  // Navigation handlers for overview cards
   const handleAppliedCandidates = () => {
     navigate("/employer/applied-candidates");
   };
@@ -225,7 +95,6 @@ const Dashboard = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate passwords
     if (
       !passwordData.currentPassword ||
       !passwordData.newPassword ||
@@ -271,14 +140,12 @@ const Dashboard = () => {
         throw new Error(errorData.message || "Password change failed");
       }
 
-      // Reset password form
       setPasswordData({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
 
-      // Close modal
       const modal = Modal.getInstance(passwordModalRef.current);
       modal.hide();
 
@@ -356,7 +223,6 @@ const Dashboard = () => {
   }, [navigate]);
 
   useEffect(() => {
-    // Add CSS for hover effects
     const style = document.createElement("style");
     style.textContent = `
       .clickable-card {
@@ -380,16 +246,6 @@ const Dashboard = () => {
       .clickable-overview-card:hover {
         background-color: #e9ecef !important;
         transform: translateY(-1px);
-      }
-      
-      .card-link {
-        text-decoration: none;
-        color: inherit;
-      }
-      
-      .card-link:hover {
-        color: inherit;
-        text-decoration: none;
       }
       
       .stat-number {
@@ -470,12 +326,65 @@ const Dashboard = () => {
       <EmployerHeader />
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="content">
-        {/* Main Layout */}
+        <div className="card mb-4">
+          <div className="card-body d-flex align-items-center justify-content-between flex-wrap pb-1">
+            <div className="d-flex align-items-center mb-3">
+              <span className="avatar avatar-xl flex-shrink-0">
+                <img
+                  src={employerData.userProfilePic || defaultImage}
+                  className="rounded-circle"
+                  alt="img"
+                  onError={(e) => {
+                    e.target.src = defaultImage;
+                  }}
+                />
+              </span>
+              <div className="ms-3">
+                <h3 className="mb-2">
+                {employerData.schoolName || "School"}{" "}
+                  <a
+                    href="javascript:void(0);"
+                    className="edit-icon"
+                    onClick={handleEditInfo}
+                  >
+                    <i className="ti ti-edit fs-14"></i>
+                  </a>
+                </h3>
+                <p>
+                  You have{" "}
+                  <span className="text-primary text-decoration-underline">
+                    {dashboardData.appliedCount}
+                  </span>{" "}
+                  Total Applications &{" "}
+                  <span className="text-primary text-decoration-underline">
+                    {dashboardData.pendingCount}
+                  </span>{" "}
+                  Pending Reviews
+                </p>
+              </div>
+            </div>
+            <div className="d-flex align-items-center flex-wrap mb-1">
+              <button
+                onClick={handleSearchCandidates}
+                className="btn btn-primary btn-md me-2 mb-2"
+              >
+                <i className="ti ti-search me-1"></i>Search Candidates
+              </button>
+              <button
+                onClick={handlePostJob}
+                className="btn btn-secondary btn-md me-2 mb-2"
+              >
+                <i className="ti ti-plus me-1"></i>Post Job
+              </button>
+            </div>
+          </div>
+        </div>
+        {/* Main Layout Row */}
         <div className="row">
-          {/* Left Side - Profile Card */}
-          <div className="col-lg-4 col-md-12 mb-4">
+          {/* Left Column - Profile Card */}
+          <div className="col-lg-4">
             <div className="card" style={{ minHeight: "calc(100vh - 200px)" }}>
-              {/* Header with gradient background */}
+              {/* Gradient Header */}
               <div className="card-header p-0">
                 <div
                   style={{
@@ -512,28 +421,23 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Profile Content */}
+              {/* Profile Info */}
               <div className="card-body pt-5 text-center">
                 <h4 className="mb-1">
-                  {employerData.schoolName || "Sample Bangalore School"}
+                  {employerData.schoolName || "Sample School"}
                 </h4>
                 <div className="mb-3">
-                  <span className="badge bg-primary me-2">CBSE</span>
-                  <span className="badge bg-secondary">School</span>
+                  <span className="badge bg-primary me-2">
+                    {employerData.board || "CBSE"}
+                  </span>
+                  <span className="badge bg-secondary">
+                    {employerData.institutionType || "School"}
+                  </span>
                 </div>
 
                 {/* Profile Details */}
                 <div className="text-start mt-4">
-                  <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                    <div className="d-flex align-items-center">
-                      <i className="ti ti-id me-2 text-muted"></i>
-                      <small className="text-muted">Client ID</small>
-                    </div>
-                    <small className="fw-medium">
-                      {employerData._id?.slice(-12) || "N/A"}
-                    </small>
-                  </div>
-
+                  
                   <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
                     <div className="d-flex align-items-center">
                       <i className="ti ti-user-shield me-2 text-muted"></i>
@@ -546,17 +450,7 @@ const Dashboard = () => {
                     </small>
                   </div>
 
-                  <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                    <div className="d-flex align-items-center">
-                      <i className="ti ti-calendar me-2 text-muted"></i>
-                      <small className="text-muted">Registered On</small>
-                    </div>
-                    <small className="fw-medium">
-                      {employerData.createdAt
-                        ? new Date(employerData.createdAt).toLocaleDateString()
-                        : new Date().toLocaleDateString()}
-                    </small>
-                  </div>
+                  
 
                   <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
                     <div className="d-flex align-items-center">
@@ -568,7 +462,7 @@ const Dashboard = () => {
                     </small>
                   </div>
 
-                  <div className="d-flex justify-content-between align-items-center py-2">
+                  <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
                     <div className="d-flex align-items-center">
                       <i className="ti ti-mail me-2 text-muted"></i>
                       <small className="text-muted">Email</small>
@@ -577,6 +471,8 @@ const Dashboard = () => {
                       {employerData.userEmail || "Not provided"}
                     </small>
                   </div>
+
+                  
                 </div>
 
                 {/* Action Buttons */}
@@ -584,18 +480,8 @@ const Dashboard = () => {
                   <button className="btn btn-dark" onClick={handleEditInfo}>
                     <i className="ti ti-edit me-2"></i>Edit Info
                   </button>
-                  <button
-                    onClick={handleSearchCandidates}
-                    className="btn btn-primary"
-                  >
-                    <i className="ti ti-search me-2"></i>Search Candidates
-                  </button>
-                  <button
-                    onClick={handlePostJob}
-                    className="btn btn-warning text-white"
-                  >
-                    <i className="ti ti-plus me-2"></i>Post Job
-                  </button>
+                  
+                  
                   <button
                     className="btn btn-danger"
                     onClick={handleChangePassword}
@@ -607,8 +493,10 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Right Side - Candidates Overview and Statistics */}
-          <div className="col-lg-8 col-md-12">
+          {/* Right Column - Dashboard Content */}
+          <div className="col-lg-8">
+            {/* Welcome Card - Your Original Layout */}
+
             {/* Candidates Overview */}
             <div className="card mb-4">
               <div className="card-body">
@@ -626,7 +514,7 @@ const Dashboard = () => {
                   </div>
                   <div className="col-md-4">
                     <div className="d-flex align-items-center justify-content-md-end">
-                      <h6>Active Job Posts: {dashboardData.activeJobs}</h6>
+                      <h6>Active Jobs: {dashboardData.activeJobs}</h6>
                     </div>
                   </div>
                 </div>
@@ -645,8 +533,7 @@ const Dashboard = () => {
                             {dashboardData.appliedCount}
                           </h5>
                           <span className="badge badge-primary d-inline-flex align-items-center">
-                            <i className="ti ti-user-plus me-1"></i>
-                            Total
+                            <i className="ti ti-user-plus me-1"></i>Total
                           </span>
                         </div>
                       </div>
@@ -664,8 +551,7 @@ const Dashboard = () => {
                             {dashboardData.shortlistedCount}
                           </h5>
                           <span className="badge badge-success d-inline-flex align-items-center">
-                            <i className="ti ti-user-check me-1"></i>
-                            Selected
+                            <i className="ti ti-user-check me-1"></i>Selected
                           </span>
                         </div>
                       </div>
@@ -683,8 +569,7 @@ const Dashboard = () => {
                             {dashboardData.rejectedCount}
                           </h5>
                           <span className="badge badge-danger d-inline-flex align-items-center">
-                            <i className="ti ti-user-x me-1"></i>
-                            Not Selected
+                            <i className="ti ti-user-x me-1"></i>Not Selected
                           </span>
                         </div>
                       </div>
@@ -702,8 +587,7 @@ const Dashboard = () => {
                             {dashboardData.pendingCount}
                           </h5>
                           <span className="badge badge-warning d-inline-flex align-items-center">
-                            <i className="ti ti-clock me-1"></i>
-                            Awaiting
+                            <i className="ti ti-clock me-1"></i>Awaiting
                           </span>
                         </div>
                       </div>
@@ -715,108 +599,108 @@ const Dashboard = () => {
 
             {/* Statistics Cards */}
             <div className="row">
-              <div className="col-xl-3 col-lg-6 col-sm-6 d-flex mb-3">
+              <div className="col-xl-3 col-sm-6 d-flex mb-3">
                 <div
                   className="card flex-fill clickable-card"
                   onClick={() => navigate("/employer/post-jobs")}
                 >
-                  <div className="card-body p-4">
+                  <div className="card-body">
                     <div className="d-flex align-items-center justify-content-between">
-                      <span className="avatar avatar-lg bg-primary mb-3">
-                        <i className="ti ti-briefcase fs-20"></i>
+                      <span className="avatar avatar-md bg-primary mb-3">
+                        <i className="ti ti-briefcase fs-16"></i>
                       </span>
-                      <span className="badge bg-success fw-normal mb-3 fs-12">
+                      <span className="badge bg-success fw-normal mb-3">
                         {dashboardData.activeJobs > 0 ? "+" : ""}
                         {dashboardData.activeJobs}
                       </span>
                     </div>
                     <div className="d-flex align-items-center justify-content-between">
                       <div>
-                        <h1 className="mb-2 stat-number">
+                        <h2 className="mb-1 stat-number">
                           {dashboardData.totalJobs}
-                        </h1>
-                        <p className="fs-14 mb-0">Total Jobs Posted</p>
+                        </h2>
+                        <p className="fs-13">Total Jobs Posted</p>
                       </div>
-                      <i className="ti ti-arrow-up-right fs-18 text-muted"></i>
+                      <i className="ti ti-arrow-up-right fs-16 text-muted"></i>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="col-xl-3 col-lg-6 col-sm-6 d-flex mb-3">
+              <div className="col-xl-3 col-sm-6 d-flex mb-3">
                 <div
                   className="card flex-fill clickable-card"
                   onClick={() => navigate("/employer/post-jobs")}
                 >
-                  <div className="card-body p-4">
+                  <div className="card-body">
                     <div className="d-flex align-items-center justify-content-between">
-                      <span className="avatar avatar-lg bg-success mb-3">
-                        <i className="ti ti-user-search fs-20"></i>
+                      <span className="avatar avatar-md bg-success mb-3">
+                        <i className="ti ti-user-search fs-16"></i>
                       </span>
-                      <span className="badge bg-info fw-normal mb-3 fs-12">
+                      <span className="badge bg-info fw-normal mb-3">
                         Active
                       </span>
                     </div>
                     <div className="d-flex align-items-center justify-content-between">
                       <div>
-                        <h1 className="mb-2 stat-number">
+                        <h2 className="mb-1 stat-number">
                           {dashboardData.activeJobs}
-                        </h1>
-                        <p className="fs-14 mb-0">Hiring Active Jobs</p>
+                        </h2>
+                        <p className="fs-13">Hiring Active Jobs</p>
                       </div>
-                      <i className="ti ti-arrow-up-right fs-18 text-muted"></i>
+                      <i className="ti ti-arrow-up-right fs-16 text-muted"></i>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="col-xl-3 col-lg-6 col-sm-6 d-flex mb-3">
+              <div className="col-xl-3 col-sm-6 d-flex mb-3">
                 <div
                   className="card flex-fill clickable-card"
                   onClick={() => navigate("/employer/post-jobs")}
                 >
-                  <div className="card-body p-4">
+                  <div className="card-body">
                     <div className="d-flex align-items-center justify-content-between">
-                      <span className="avatar avatar-lg bg-warning mb-3">
-                        <i className="ti ti-calendar-event fs-20"></i>
+                      <span className="avatar avatar-md bg-warning mb-3">
+                        <i className="ti ti-calendar-event fs-16"></i>
                       </span>
-                      <span className="badge bg-warning fw-normal mb-3 fs-12">
+                      <span className="badge bg-warning fw-normal mb-3">
                         Scheduled
                       </span>
                     </div>
                     <div className="d-flex align-items-center justify-content-between">
                       <div>
-                        <h1 className="mb-2 stat-number">
+                        <h2 className="mb-1 stat-number">
                           {dashboardData.interviewScheduledCount}
-                        </h1>
-                        <p className="fs-14 mb-0">Upcoming Interviews</p>
+                        </h2>
+                        <p className="fs-13">Upcoming Interviews</p>
                       </div>
-                      <i className="ti ti-arrow-up-right fs-18 text-muted"></i>
+                      <i className="ti ti-arrow-up-right fs-16 text-muted"></i>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="col-xl-3 col-lg-6 col-sm-6 d-flex mb-3">
+              <div className="col-xl-3 col-sm-6 d-flex mb-3">
                 <div
                   className="card flex-fill clickable-card"
                   onClick={() => navigate("/employer/plans-grid")}
                 >
-                  <div className="card-body p-4">
+                  <div className="card-body">
                     <div className="d-flex align-items-center justify-content-between">
-                      <span className="avatar avatar-lg bg-info mb-3">
-                        <i className="ti ti-crown fs-20"></i>
+                      <span className="avatar avatar-md bg-info mb-3">
+                        <i className="ti ti-crown fs-16"></i>
                       </span>
-                      <span className="badge bg-info fw-normal mb-3 fs-12">
+                      <span className="badge bg-info fw-normal mb-3">
                         Premium
                       </span>
                     </div>
                     <div className="d-flex align-items-center justify-content-between">
                       <div>
-                        <h1 className="mb-2 stat-number">30</h1>
-                        <p className="fs-14 mb-0">Plan Validity (Days)</p>
+                        <h2 className="mb-1 stat-number">30</h2>
+                        <p className="fs-13">Plan Validity (Days)</p>
                       </div>
-                      <i className="ti ti-arrow-up-right fs-18 text-muted"></i>
+                      <i className="ti ti-arrow-up-right fs-16 text-muted"></i>
                     </div>
                   </div>
                 </div>
