@@ -19,6 +19,7 @@ import { getAllEvents } from "../../../api/services/projectServices";
 import EmployerAdminFooter from "../Layout/EmployerAdminFooter";
 
 const EmployerAdminEvents = () => {
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -184,7 +185,7 @@ const EmployerAdminEvents = () => {
 
       // 6. Make the request WITHOUT setting Content-Type header
       const response = await fetch(
-        `https://api.edprofio.com/employer/${EmployerAdminData._id}/events?fileType=eventimage`,
+        `${VITE_BASE_URL }/employer/${EmployerAdminData._id}/events?fileType=eventimage`,
         {
           method: "POST",
           body: formData, // FormData will set the correct headers automatically

@@ -189,6 +189,122 @@ const EmployeProfile = () => {
     <>
       <style>
         {`
+             .profile-image-fix {
+            width: 120px !important;
+            height: 120px !important;
+            border-radius: 50% !important;
+            overflow: hidden !important;
+            border: 4px solid #fff !important;
+            position: relative !important;
+            background: #f8f9fa !important;
+          }
+          .profile-image-fix img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            object-position: center !important;
+            border-radius: 50% !important;
+            display: block !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          .jobplugin__profile-intro__image::before {
+            width: 28px !important;
+            height: 28px !important;
+            border-radius: 100% !important;
+            border: 5px solid #fff !important;
+            background: #063970 !important;
+            content: "" !important;
+            position: absolute !important;
+            left: 8px !important;
+            top: 5px !important;
+            z-index: 10 !important;
+          }
+
+          /* Main section headings - change to #ffa500 color */
+          .jobplugin__profile-box__heading h2.h6.fw-semibold.text-dark,
+          .jobplugin__profile-block__header h2.h5.fw-semibold.text-dark {
+            color: #ffa500 !important;
+          }
+
+          /* Labels - change to #ffa500 color */
+          .jobplugin__profile-box__body small.text-muted.text-uppercase.fw-medium,
+          .jobplugin__profile-box__body .text-muted.text-uppercase.fw-medium {
+            color: #ffa500 !important;
+          }
+
+          /* Detail values - increase font size to 18px */
+          .jobplugin__profile-box__body div[style*="fontSize: \"14px\""],
+          .jobplugin__profile-box__body div[style*="font-size: 14px"] {
+            font-size: 18px !important;
+          }
+
+          /* Contact Information details */
+          .jobplugin__profile-box__body .ms-4 {
+            font-size: 18px !important;
+          }
+
+          /* Personal Details values */
+          .jobplugin__profile-box__body .col-12 > div:last-child {
+            font-size: 18px !important;
+          }
+
+          /* Address details */
+          .jobplugin__profile-box__body .text-muted[style*="fontSize: \"14px\""],
+          .jobplugin__profile-box__body .text-muted[style*="font-size: 14px"] {
+            font-size: 18px !important;
+          }
+
+          /* Education and Work Experience content */
+          .jobplugin__profile-block__body .text-muted[style*="fontSize: \"14px\""],
+          .jobplugin__profile-block__body .text-muted[style*="font-size: 14px"] {
+            font-size: 17px !important;
+          }
+
+          /* Education and Work Experience titles */
+          .jobplugin__profile-block__body h6.fw-semibold.text-dark[style*="fontSize: \"15px\""] {
+            font-size: 18px !important;
+          }
+
+          /* Profile summary text */
+          .jobplugin__profile-block__body p[style*="fontSize: \"14px\""],
+          .jobplugin__profile-block__body p[style*="font-size: 14px"] {
+            font-size: 17px !important;
+          }
+
+          /* Document names and descriptions */
+          .jobplugin__profile-block__body p.text-muted.mb-3.small,
+          .jobplugin__profile-block__body p.text-muted.mb-0[style*="fontSize: \"13px\""] {
+            font-size: 16px !important;
+          }
+
+          /* Document headings */
+          .jobplugin__profile-block__body h6.mb-0.fw-semibold[style*="fontSize: \"14px\""] {
+            font-size: 17px !important;
+            color: #ffa500 !important;
+          }
+
+          /* Skills and Languages tags */
+          .jobplugin__profile-block__body span[style*="fontSize: \"13px\""] {
+            font-size: 16px !important;
+          }
+
+          /* Media profile section labels */
+          .jobplugin__profile-box__body h6.fw-medium[style*="fontSize: \"14px\""] {
+            color: #ffa500 !important;
+            font-size: 17px !important;
+          }
+
+          /* Media profile file names */
+          .jobplugin__profile-box__body .text-truncate.fw-medium[style*="fontSize: \"13px\""] {
+            font-size: 16px !important;
+          }
+
+          /* Grade level tags */
+          .jobplugin__profile-box__body span.border.px-2.py-1.rounded[style*="fontSize: \"12px\""] {
+            font-size: 15px !important;
+          }
           .profile-image-fix {
             width: 120px !important;
             height: 120px !important;
@@ -1159,7 +1275,7 @@ const EmployeProfile = () => {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className=" bg-dark btn btn-outline-dark btn-sm"
-                                  style={{ fontSize: "13px" ,color:"white"}}
+                                  style={{ fontSize: "13px", color: "white" }}
                                 >
                                   Download
                                 </a>
@@ -1204,7 +1320,7 @@ const EmployeProfile = () => {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className=" bg-dark btn btn-outline-dark btn-sm"
-                                  style={{ fontSize: "13px" ,color:"white"}}
+                                  style={{ fontSize: "13px", color: "white" }}
                                 >
                                   Download
                                 </a>

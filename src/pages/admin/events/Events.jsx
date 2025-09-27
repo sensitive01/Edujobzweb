@@ -19,6 +19,7 @@ import AdminFooter from "../layout/AdminFooter";
 import { getAllEvents } from "../../../api/services/projectServices";
 
 const AdminEvents = () => {
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,6 +35,7 @@ const AdminEvents = () => {
   const [toDate, setToDate] = useState("");
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
   const [showExportDropdown, setShowExportDropdown] = useState(false);
+  
   // New event form state
   const [newEvent, setNewEvent] = useState({
     title: "",
@@ -124,7 +126,7 @@ const AdminEvents = () => {
 
   const workshops = filteredEvents.filter((event) => event.type === "Workshop");
   const webinars = filteredEvents.filter(
-    (event) => event.type === "Online Webinar"
+    (event) => event.type === "Webinar" || event.type === "Online Webinar"
   );
   const seminars = filteredEvents.filter((event) => event.type === "Seminar");
 
@@ -145,82 +147,140 @@ const AdminEvents = () => {
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
+    
     try {
+      // 1. Validate admin data with better error handling
       const adminData = JSON.parse(localStorage.getItem("adminData"));
-      if (!adminData || !adminData.adminid) {
-        throw new Error("Organizer ID not found in localStorage");
+      console.log("Admin data:", adminData); // Debug log
+      
+      if (!adminData) {
+        throw new Error("Admin data not found in localStorage. Please log in again.");
+      }
+      
+      if (!adminData.adminid) {
+        throw new Error("Admin ID not found. Please contact support.");
       }
 
-      // 1. Create FormData object
-      const formData = new FormData();
+      // 2. Validate required fields
+      const requiredFields = ['title', 'description', 'category', 'eventDate', 'startTime', 'endTime', 'venue', 'coordinator'];
+      for (const field of requiredFields) {
+        if (!newEvent[field] || newEvent[field].trim() === '') {
+          throw new Error(`${field} is required`);
+        }
+      }
 
-      // 2. Append all text fields
-      formData.append("title", newEvent.title);
-      formData.append("description", newEvent.description);
+      // 3. Create FormData with proper validation
+      const formData = new FormData();
+      
+      // Append all text fields with validation
+      formData.append("title", newEvent.title.trim());
+      formData.append("description", newEvent.description.trim());
       formData.append("category", newEvent.category);
       formData.append("eventDate", newEvent.eventDate);
       formData.append("startTime", newEvent.startTime);
       formData.append("endTime", newEvent.endTime);
-      formData.append("venue", newEvent.venue);
-      formData.append("coordinator", newEvent.coordinator);
-
-      // 3. Append default values for required backend fields
-      formData.append("totalattendes", "100"); // Default value
-      formData.append("entryfee", "0"); // Default value
-      formData.append("eventendDate", newEvent.eventDate); // Same as start date
-
-      // 4. Critical: Append the file with the correct field name
+      formData.append("venue", newEvent.venue.trim());
+      formData.append("coordinator", newEvent.coordinator.trim());
+      
+      // Append backend required fields
+      formData.append("totalattendes", "100");
+      formData.append("entryfee", newEvent.entryfee || "0");
+      formData.append("eventendDate", newEvent.eventDate);
+      formData.append("organizerId", adminData.adminid); // Explicitly set organizer ID
+      
+      // Handle file upload with validation
       if (newEvent.bannerImage) {
-        formData.append("file", newEvent.bannerImage); // Must be 'file' to match multer
-        formData.append("fileType", "eventimage"); // Tell backend which storage to use
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(newEvent.bannerImage.type)) {
+          throw new Error("Please upload a valid image file (JPEG, PNG, GIF, or WebP)");
+        }
+        
+        // Validate file size (5MB max)
+        if (newEvent.bannerImage.size > 5 * 1024 * 1024) {
+          throw new Error("Image file size must be less than 5MB");
+        }
+        
+        formData.append("file", newEvent.bannerImage);
+        formData.append("fileType", "eventimage");
       }
 
-      // 5. Log FormData contents for debugging
+      // 4. Debug FormData contents
+      console.log("FormData contents:");
       for (let [key, value] of formData.entries()) {
         console.log(key, value);
       }
 
-      // 6. Make the request WITHOUT setting Content-Type header
-      const response = await fetch(
-        `https://api.edprofio.com/employer/${adminData.adminid}/events?fileType=eventimage`,
-        {
-          method: "POST",
-          body: formData, // FormData will set the correct headers automatically
-          // Don't set Content-Type header - the browser will set it with boundary
-        }
-      );
+      // 5. Make API request with better error handling
+      const apiUrl = `${VITE_BASE_URL}/employer/${adminData.adminid}/events?fileType=eventimage`;
+      console.log("API URL:", apiUrl); // Debug log
+      
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        body: formData,
+        // Don't set Content-Type header - let browser set it with boundary
+      });
 
+      // 6. Handle response with detailed error checking
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create event");
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+          console.error("API Error Details:", errorData);
+        } catch (parseError) {
+          console.error("Error parsing error response:", parseError);
+        }
+        
+        throw new Error(errorMessage);
       }
 
-      const createdEvent = await response.json();
-      console.log("Created Event Response:", createdEvent);
+      // 7. Parse and validate response data
+      let createdEvent;
+      try {
+        createdEvent = await response.json();
+        console.log("Created Event Response:", createdEvent);
+        
+        // Validate that we got the expected data back
+        if (!createdEvent || !createdEvent._id) {
+          throw new Error("Invalid response from server - missing event ID");
+        }
+        
+      } catch (parseError) {
+        console.error("Error parsing response:", parseError);
+        throw new Error("Server returned invalid response");
+      }
 
-      // Process and add the new event to state
+      // 8. Process the event with proper date handling
       const eventDate = new Date(createdEvent.eventDate);
       const today = new Date();
+      
+      // Reset time parts for accurate date comparison
+      const eventDateOnly = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+      const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      
       let status = "Upcoming";
-
-      if (eventDate < today) {
+      if (eventDateOnly < todayOnly) {
         status = "Completed";
-      } else if (eventDate.toDateString() === today.toDateString()) {
+      } else if (eventDateOnly.getTime() === todayOnly.getTime()) {
         status = "Current";
       }
 
-      setEvents((prevEvents) => [
-        ...prevEvents,
-        {
-          ...createdEvent,
-          status,
-          type: createdEvent.category || "Workshop",
-          registrations: createdEvent.registrations || [],
-          totalRegistrations: createdEvent.totalRegistrations || 0,
-        },
-      ]);
+      // 9. Add the new event to state with all required properties
+      const processedEvent = {
+        ...createdEvent,
+        status,
+        type: createdEvent.category || "Workshop",
+        registrations: createdEvent.registrations || [],
+        totalRegistrations: createdEvent.totalRegistrations || 0,
+        maxParticipants: createdEvent.maxParticipants || 100,
+        bannerImage: createdEvent.bannerImage || createdEvent.eventImage || "",
+      };
 
-      // Reset form and close modal
+      setEvents((prevEvents) => [...prevEvents, processedEvent]);
+
+      // 10. Reset form and close modal
       setNewEvent({
         title: "",
         description: "",
@@ -230,20 +290,26 @@ const AdminEvents = () => {
         endTime: "",
         venue: "",
         coordinator: "",
+        entryfee: "0",
         bannerImage: null,
       });
-      setFileInputKey(Date.now());
+      
+      setFileInputKey(Date.now()); // Reset file input
       setShowAddEventModal(false);
+      
       setToast({
         show: true,
         message: "Event created successfully",
         type: "success",
       });
+
     } catch (err) {
       console.error("Error creating event:", err);
+      
+      // Show user-friendly error message
       setToast({
         show: true,
-        message: err.message || "Failed to create event",
+        message: err.message || "Failed to create event. Please try again.",
         type: "error",
       });
     }
@@ -263,7 +329,7 @@ const AdminEvents = () => {
 
     try {
       const response = await fetch(
-        `https://api.edprofio.com/employer/removeevents/${eventToDelete}`,
+        `${VITE_BASE_URL}/employer/removeevents/${eventToDelete}`,
         {
           method: "DELETE",
           headers: {
@@ -289,6 +355,7 @@ const AdminEvents = () => {
       setError(err.message);
     }
   };
+
   const exportToExcel = () => {
     // Prepare data
     const headers = [
@@ -324,6 +391,7 @@ const AdminEvents = () => {
     link.click();
     document.body.removeChild(link);
   };
+
   const exportToPDF = () => {
     // Create a printable HTML table
     const printContent = `
@@ -387,6 +455,7 @@ const AdminEvents = () => {
   `);
     printWindow.document.close();
   };
+
   useEffect(() => {
     if (toast.show) {
       const timer = setTimeout(() => {
@@ -396,6 +465,7 @@ const AdminEvents = () => {
       return () => clearTimeout(timer); // Cleanup on unmount
     }
   }, [toast.show]);
+
   if (loading) return <div>Loading events...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -981,7 +1051,7 @@ const AdminEvents = () => {
                               if (e.target.files && e.target.files[0]) {
                                 setNewEvent((prev) => ({
                                   ...prev,
-                                  bannerImage: e.target.files[0], // Store the File object directly
+                                  bannerImage: e.target.files[0],
                                 }));
                               }
                             }}
@@ -1314,7 +1384,9 @@ const EventCard = ({ event, onView, onDelete }) => {
         <div className="d-flex align-items-center border-bottom mb-3 pb-3">
           <div className="me-3 pe-3 border-end">
             <span className="fw-bold fs-12 d-block">Entry Fee</span>
-            <p className="fs-12 text-dark">FREE</p>
+            <p className="fs-12 text-dark">
+              {event?.entryfee && event.entryfee !== "0" ? `₹${event.entryfee}` : "FREE"}
+            </p>
           </div>
           <div className="me-3 pe-3 border-end">
             <span className="fw-bold fs-12 d-block">Participants</span>

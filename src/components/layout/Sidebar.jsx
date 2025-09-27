@@ -306,7 +306,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             </a>
           </li>
 
-          <li className="menu-item">
+          {/* <li className="menu-item">
             <a className="menu-link" href="/resume-builder">
               <svg
                 className="menu-icon"
@@ -321,7 +321,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               </svg>
               <span className="menu-text">Resume Builder</span>
             </a>
-          </li>
+          </li> */}
 
           <li className="menu-item">
             <button
@@ -379,7 +379,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                     Search Jobs
                   </a>
                 </li>
-                <li className="submenu-item">
+                {/* <li className="submenu-item">
                   <a className="submenu-link" href="/search">
                     <svg
                       className="submenu-icon"
@@ -394,7 +394,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                     </svg>
                     Premium Advanced Search
                   </a>
-                </li>
+                </li> */}
                 <li className="submenu-item">
                   <a className="submenu-link" href="/job-alerts">
                     <svg

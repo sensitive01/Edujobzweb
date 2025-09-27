@@ -613,6 +613,36 @@ const EmployeerAllAppliedCandidates = () => {
     setUsePagination(false);
     setCurrentPage(1);
   };
+  const handleCandidateUpdate = (updatedCandidate) => {
+    // Update the candidate in your main candidates list
+    setCandidates((prev) =>
+      prev.map((candidate) =>
+        candidate._id === updatedCandidate._id ? updatedCandidate : candidate
+      )
+    );
+
+    // Update the filtered candidates list
+    setFilteredCandidates((prev) =>
+      prev.map((candidate) =>
+        candidate._id === updatedCandidate._id ? updatedCandidate : candidate
+      )
+    );
+
+    // Update the selected candidate if it's the same one
+    if (selectedCandidate?._id === updatedCandidate._id) {
+      setSelectedCandidate(updatedCandidate);
+    }
+
+    // Optional: Show a success toast
+    toast.success("Candidate status updated successfully!", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  };
 
   const getStatusBadgeClass = (status) => {
     switch (status?.toLowerCase()) {
@@ -1698,6 +1728,7 @@ const EmployeerAllAppliedCandidates = () => {
           show={showDetails}
           onClose={() => setShowDetails(false)}
           candidate={selectedCandidate}
+          onCandidateUpdate={handleCandidateUpdate} // Add this line
         />
       )}
       {isChatOpen && (

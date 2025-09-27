@@ -14,13 +14,14 @@ import {
   FaClock,
   FaTimes,
   FaCalendarAlt,
+  FaFileAlt,
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { getEmployeeDetails } from "../../api/services/projectServices";
 import axios from "axios";
 
 const UserDashboard = () => {
-  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [employerData, setEmployerData] = useState(null);
@@ -30,8 +31,7 @@ const UserDashboard = () => {
     matchingJobs: 0,
     appliedJobs: 0,
     shortlistedJobs: 0,
-    pendingJob:0,
-    
+    pendingJob: 0,
   });
   const [isNewUser, setIsNewUser] = useState(false);
   const navigate = useNavigate();
@@ -67,8 +67,8 @@ const UserDashboard = () => {
         let appliedCount = 0;
         let shortlistedCount = 0;
         let matchingCount = 0;
-        let rejectedCount = 0
-        let pendingJob = 0
+        let rejectedCount = 0;
+        let pendingJob = 0;
 
         try {
           // Fetch applied jobs with better error handling
@@ -95,7 +95,6 @@ const UserDashboard = () => {
             "No shortlisted jobs found or error fetching shortlisted jobs:",
             shortlistedError
           );
-         
         }
         try {
           // Fetch shortlisted jobs with better error handling
@@ -108,7 +107,6 @@ const UserDashboard = () => {
             "No shortlisted jobs found or error fetching shortlisted jobs:",
             err
           );
-         
         }
         try {
           const rejectedResponse = await axios.get(
@@ -120,7 +118,6 @@ const UserDashboard = () => {
             "No shortlisted jobs found or error fetching shortlisted jobs:",
             rejectedCounterr
           );
-         
         }
 
         try {
@@ -142,8 +139,8 @@ const UserDashboard = () => {
           matchingJobs: matchingCount,
           appliedJobs: appliedCount,
           shortlistedJobs: shortlistedCount,
-          pendingJob:pendingJob,
-          rejectedJob:rejectedCount
+          pendingJob: pendingJob,
+          rejectedJob: rejectedCount,
         });
       } catch (err) {
         setError(err.message || "Failed to fetch data");
@@ -162,6 +159,10 @@ const UserDashboard = () => {
   const closeSidebar = () => {
     setSidebarOpen(false);
   };
+
+  const handleResumeBuilder = ()=>{
+    navigate("/resume-builder")
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -421,12 +422,29 @@ const UserDashboard = () => {
                           </address>
                         </div>
                       </div>
-                      <button
-                        onClick={handleLogout}
-                        className="jobplugin__button border-dark shadow bg-primary hover:jobplugin__bg-secondary small"
+
+                      {/* Button container for Resume Builder and Logout buttons */}
+                      <div
+                        className="jobplugin__profile-buttons"
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "center",
+                        }}
                       >
-                        <FaPowerOff /> &nbsp; Logout
-                      </button>
+                        <button
+                          onClick={handleResumeBuilder}
+                          className="jobplugin__button border-dark shadow bg-success hover:jobplugin__bg-success-dark small"
+                        >
+                          <FaFileAlt /> &nbsp; Resume Builder
+                        </button>
+                        <button
+                          onClick={handleLogout}
+                          className="jobplugin__button border-dark shadow bg-primary hover:jobplugin__bg-secondary small"
+                        >
+                          <FaPowerOff /> &nbsp; Logout
+                        </button>
+                      </div>
                     </div>
                   </div>
 

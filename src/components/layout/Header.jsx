@@ -157,7 +157,7 @@ const Header = () => {
     <>
       <header
         className="header header-theme-9 bg-secondary"
-        style={{ padding: "10px 0px" }}
+        style={{ padding: "8px 0px" }}
       >
         <div className="container" style={{ maxWidth: "1440px" }}>
           <strong className="logo">
@@ -253,8 +253,48 @@ const Header = () => {
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                   >
+                    <FaUniversity /> &nbsp; Corporate
+                  </a>
+
+                  <ul
+                    className="dropdown-menu"
+                    aria-labelledby="employerDropdown"
+                  >
+                    <li>
+                      <Link
+                        className="dropdown-item"
+                        to="/employer-admin/login"
+                        onClick={handleLinkClick}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Login / Signup
+                      </Link>
+                    </li>
+
+                    <li>
+                      <Link
+                        className="dropdown-item"
+                        to="/subscription-plan"
+                        onClick={handleLinkClick}
+                      >
+                        Plan & Subscription
+                      </Link>
+                    </li>
+                  </ul>
+                </li>
+                <li style={{ padding: "0px 15px" }} className="dropdown">
+                  <a
+                    className="dropdown-toggle"
+                    href="#"
+                    role="button"
+                    id="employerDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
                     <FaUniversity /> &nbsp; Employer
                   </a>
+
                   <ul
                     className="dropdown-menu"
                     aria-labelledby="employerDropdown"
@@ -279,6 +319,7 @@ const Header = () => {
                         Employer
                       </Link>
                     </li>
+
                     <li>
                       <Link
                         className="dropdown-item"
@@ -333,7 +374,7 @@ const Header = () => {
                   </ul>
                 </li>
 
-                <li style={{ padding: "0px 10px" }}>
+                {/* <li style={{ padding: "0px 8px" }}>
                   <Link
                     className="btn btn-white btn-sm"
                     to="/job-vacancies"
@@ -342,12 +383,12 @@ const Header = () => {
                     <span className="btn-text text-secondary">
                       <i
                         className="icon icon-user"
-                        style={{ fontSize: "14px" }}
+                        style={{ fontSize: "10px" }}
                       ></i>{" "}
                       Apply Now
                     </span>
                   </Link>
-                </li>
+                </li> */}
 
                 <li style={{ padding: "0px 10px" }}>
                   <Link
@@ -624,6 +665,8 @@ const Header = () => {
               </div>
             )}
           </div>
+
+          {/* {Corporate} */}
 
           {/* Candidates Dropdown */}
           <div style={{ marginBottom: "8px" }}>

@@ -385,3 +385,17 @@ export const getEmployerDashboardData = async (employerId) => {
     throw error.response?.data?.message || error.message;
   }
 };
+
+
+
+
+export const registerEventEmployee = async (participantId,mobileNumber,eventId,status) => {
+  try {
+    const response = await projectServices.post(
+      `/employer/events/${eventId}/registereventsemployee/${participantId}`,{mobileNumber,status}
+    );
+    return response;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};

@@ -1,5 +1,132 @@
-import React, { useEffect, useState } from "react";
+const handleSearchCandidates = () => {
+  navigate("/employer/search");
+};
+
+const handlePostJob = () => {
+  navigate("/employer/post-jobs");
+};
+
+// Navigation handlers for profile actions
+const handleEditInfo = () => {
+  navigate("/employer/profile");
+};
+
+const handleChangePassword = () => {
+  const modal = new Modal(passwordModalRef.current);
+  modal.show();
+};
+
+const handleSendMessage = () => {
+  navigate("/employer/messages");
+};
+
+// Navigation handlers for overview cards
+const handleAppliedCandidates = () => {
+  navigate("/employer/applied-candidates");
+};
+
+const handleShortlistedCandidates = () => {
+  navigate("/employer/shortlisted-candidates");
+};
+
+const handleRejectedCandidates = () => {
+  navigate("#");
+};
+
+const handlePendingCandidates = () => {
+  navigate("/employer/applied-candidates");
+};
+
+// Password change handlers
+const handlePasswordChange = (e) => {
+  const { name, value } = e.target;
+  setPasswordData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+  setPasswordError(null);
+};
+
+const togglePasswordVisibility = (field) => {
+  setShowPasswords((prev) => ({
+    ...prev,
+    [field]: !prev[field],
+  }));
+};
+
+const handlePasswordSubmit = async (e) => {
+  e.preventDefault();
+
+  // Validate passwords
+  if (
+    !passwordData.currentPassword ||
+    !passwordData.newPassword ||
+    !passwordData.confirmPassword
+  ) {
+    setPasswordError("All password fields are required");
+    return;
+  }
+
+  if (passwordData.newPassword !== passwordData.confirmPassword) {
+    setPasswordError("New password and confirm password do not match");
+    return;
+  }
+
+  if (passwordData.newPassword.length < 6) {
+    setPasswordError("New password must be at least 6 characters long");
+    return;
+  }
+
+  setIsChangingPassword(true);
+  setPasswordError(null);
+
+  try {
+    const token = localStorage.getItem("employerToken");
+
+    const response = await fetch(
+      `https://api.edprofio.com/employer/changeMyPassword/${employerData._id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "Password change failed");
+    }
+
+    // Reset password form
+    setPasswordData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+
+    // Close modal
+    const modal = Modal.getInstance(passwordModalRef.current);
+    modal.hide();
+
+    alert("Password changed successfully!");
+  } catch (err) {
+    console.error("Password change error:", err);
+    setPasswordError(err.message);
+  } finally {
+    setIsChangingPassword(false);
+  }
+};
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { Modal } from "bootstrap";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import EmployerHeader from "../EmployerHeader";
 import EmployerFooter from "../EmployerFooter";
@@ -16,30 +143,217 @@ const Dashboard = () => {
     rejectedCount: 0,
     pendingCount: 0,
   });
+  const [employerData, setEmployerData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Password change state
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState(null);
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+
+  const passwordModalRef = useRef(null);
   const navigate = useNavigate();
-  const employerData = JSON.parse(localStorage.getItem("employerData"));
+  const storedEmployerData = JSON.parse(localStorage.getItem("employerData"));
+
+  // Navigation handlers - MOVED BEFORE LOADING CHECKS
+  const handleSearchCandidates = () => {
+    navigate("/employer/search");
+  };
+
+  const handlePostJob = () => {
+    navigate("/employer/post-jobs");
+  };
+
+  // Navigation handlers for profile actions
+  const handleEditInfo = () => {
+    navigate("/employer/profile");
+  };
+
+  const handleChangePassword = () => {
+    const modal = new Modal(passwordModalRef.current);
+    modal.show();
+  };
+
+  const handleSendMessage = () => {
+    navigate("/employer/messages");
+  };
+
+  // Navigation handlers for overview cards
+  const handleAppliedCandidates = () => {
+    navigate("/employer/applied-candidates");
+  };
+
+  const handleShortlistedCandidates = () => {
+    navigate("/employer/shortlisted-candidates");
+  };
+
+  const handleRejectedCandidates = () => {
+    navigate("#");
+  };
+
+  const handlePendingCandidates = () => {
+    navigate("/employer/applied-candidates");
+  };
+
+  // Password change handlers
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setPasswordError(null);
+  };
+
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate passwords
+    if (
+      !passwordData.currentPassword ||
+      !passwordData.newPassword ||
+      !passwordData.confirmPassword
+    ) {
+      setPasswordError("All password fields are required");
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError("New password and confirm password do not match");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError("New password must be at least 6 characters long");
+      return;
+    }
+
+    setIsChangingPassword(true);
+    setPasswordError(null);
+
+    try {
+      const token = localStorage.getItem("employerToken");
+
+      const response = await fetch(
+        `https://api.edprofio.com/employer/changeMyPassword/${employerData._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            currentPassword: passwordData.currentPassword,
+            newPassword: passwordData.newPassword,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Password change failed");
+      }
+
+      // Reset password form
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+
+      // Close modal
+      const modal = Modal.getInstance(passwordModalRef.current);
+      modal.hide();
+
+      toast.success("Password changed successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } catch (err) {
+      console.error("Password change error:", err);
+      setPasswordError(err.message);
+
+      toast.error(`Password change failed: ${err.message}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await getEmployerDashboardData(employerData?._id);
-        if (response.status === 200) {
-          setDashboardData(response.data.counts);
+        const token = localStorage.getItem("employerToken");
+
+        if (!token || !storedEmployerData?._id) {
+          navigate("/employer/login");
+          return;
+        }
+
+        // Fetch employer details from API
+        const employerResponse = await fetch(
+          `https://api.edprofio.com/employer/fetchemployer/${storedEmployerData._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!employerResponse.ok) {
+          throw new Error("Failed to fetch employer details");
+        }
+
+        const employerApiData = await employerResponse.json();
+        setEmployerData(employerApiData);
+
+        // Fetch dashboard data
+        const dashboardResponse = await getEmployerDashboardData(
+          storedEmployerData._id
+        );
+        if (dashboardResponse.status === 200) {
+          setDashboardData(dashboardResponse.data.counts);
         }
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error("Error fetching data:", error);
+        setError(error.message);
       } finally {
         setLoading(false);
       }
     };
 
-    if (employerData?._id) {
-      fetchData();
-    }
-  }, []);
+    fetchData();
+  }, [navigate]);
 
   useEffect(() => {
     // Add CSS for hover effects
@@ -93,35 +407,10 @@ const Dashboard = () => {
     };
   }, []);
 
-  if (!employerData || !employerData._id) {
+  if (!storedEmployerData || !storedEmployerData._id) {
     navigate("/employer/login");
     return null;
   }
-
-  const handleSearchCandidates = () => {
-    navigate("/employer/search");
-  };
-
-  const handlePostJob = () => {
-    navigate("/employer/post-jobs");
-  };
-
-  // Navigation handlers for overview cards
-  const handleAppliedCandidates = () => {
-    navigate("/employer/applied-candidates");
-  };
-
-  const handleShortlistedCandidates = () => {
-    navigate("/employer/shortlisted-candidates");
-  };
-
-  const handleRejectedCandidates = () => {
-    navigate("#");
-  };
-
-  const handlePendingCandidates = () => {
-    navigate("/employer/applied-candidates");
-  };
 
   if (loading) {
     return (
@@ -140,264 +429,554 @@ const Dashboard = () => {
     );
   }
 
+  if (error) {
+    return (
+      <>
+        <EmployerHeader />
+        <div className="content">
+          <div className="alert alert-danger" role="alert">
+            <h4 className="alert-heading">Error!</h4>
+            <p>{error}</p>
+            <hr />
+            <button
+              className="btn btn-outline-danger"
+              onClick={() => window.location.reload()}
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+        <EmployerFooter />
+      </>
+    );
+  }
+
+  if (!employerData) {
+    return (
+      <>
+        <EmployerHeader />
+        <div className="content">
+          <div className="alert alert-warning" role="alert">
+            No employer data found. Please contact support.
+          </div>
+        </div>
+        <EmployerFooter />
+      </>
+    );
+  }
+
   return (
     <>
       <EmployerHeader />
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="content">
-        {/* Welcome Wrap */}
-        <div className="card">
-          <div className="card-body d-flex align-items-center justify-content-between flex-wrap pb-1">
-            <div className="d-flex align-items-center mb-3">
-              <span className="avatar avatar-xl flex-shrink-0">
-                <img src={defaultImage} className="rounded-circle" alt="img" />
-              </span>
-              <div className="ms-3">
-                <h3 className="mb-2">
-                  Welcome Back, {employerData.schoolName || "School"}{" "}
-                  <a href="javascript:void(0);" className="edit-icon">
-                    <i className="ti ti-edit fs-14"></i>
-                  </a>
-                </h3>
-                <p>
-                  You have{" "}
-                  <span className="text-primary text-decoration-underline">
-                    {dashboardData.appliedCount}
-                  </span>{" "}
-                  Total Applications &{" "}
-                  <span className="text-primary text-decoration-underline">
-                    {dashboardData.pendingCount}
-                  </span>{" "}
-                  Pending Reviews
-                </p>
-              </div>
-            </div>
-            <div className="d-flex align-items-center flex-wrap mb-1">
-              <button
-                onClick={handleSearchCandidates}
-                className="btn btn-primary btn-md me-2 mb-2"
-              >
-                <i className="ti ti-search me-1"></i>Search Candidates
-              </button>
-              <button
-                onClick={handlePostJob}
-                className="btn btn-secondary btn-md me-2 mb-2"
-              >
-                <i className="ti ti-plus me-1"></i>Post Job
-              </button>
-            </div>
-          </div>
-        </div>
-        {/* /Welcome Wrap */}
-
-        {/* Candidates Overview */}
-        <div className="card">
-          <div className="card-body">
-            <div className="row align-items-center mb-4">
-              <div className="col-md-8">
-                <div className="mb-3 mb-md-0">
-                  <h4 className="mb-1">
-                    Candidates (for current active positions only)
-                  </h4>
-                  <p>
-                    Overview of candidate applications and their current status
-                  </p>
-                </div>
-              </div>
-              <div className="col-md-4">
-                <div className="d-flex align-items-center justify-content-md-end">
-                  <h6>Active Jobs: {dashboardData.activeJobs}</h6>
-                </div>
-              </div>
-            </div>
-            <div className="border rounded">
-              <div className="row gx-0">
-                <div
-                  className="col-md col-sm-6 border-end clickable-overview-card"
-                  onClick={handleAppliedCandidates}
-                >
-                  <div className="p-3">
-                    <span className="fw-medium mb-1 d-block">
-                      Applied Candidates
-                    </span>
-                    <div className="d-flex align-items-center justify-content-between">
-                      <h5 className="text-primary stat-number">
-                        {dashboardData.appliedCount}
-                      </h5>
-                      <span className="badge badge-primary d-inline-flex align-items-center">
-                        <i className="ti ti-user-plus me-1"></i>
-                        Total
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className="col-md col-sm-6 border-end clickable-overview-card"
-                  onClick={handleShortlistedCandidates}
-                >
-                  <div className="p-3">
-                    <span className="fw-medium mb-1 d-block">
-                      Shortlisted Candidates
-                    </span>
-                    <div className="d-flex align-items-center justify-content-between">
-                      <h5 className="text-success stat-number">
-                        {dashboardData.shortlistedCount}
-                      </h5>
-                      <span className="badge badge-success d-inline-flex align-items-center">
-                        <i className="ti ti-user-check me-1"></i>
-                        Selected
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className="col-md col-sm-6 border-end clickable-overview-card"
-                  onClick={handleRejectedCandidates}
-                >
-                  <div className="p-3">
-                    <span className="fw-medium mb-1 d-block">
-                      Rejected Candidates
-                    </span>
-                    <div className="d-flex align-items-center justify-content-between">
-                      <h5 className="text-danger stat-number">
-                        {dashboardData.rejectedCount}
-                      </h5>
-                      <span className="badge badge-danger d-inline-flex align-items-center">
-                        <i className="ti ti-user-x me-1"></i>
-                        Not Selected
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className="col-md col-sm-6 clickable-overview-card"
-                  onClick={handlePendingCandidates}
-                >
-                  <div className="p-3">
-                    <span className="fw-medium mb-1 d-block">
-                      Pending for Review
-                    </span>
-                    <div className="d-flex align-items-center justify-content-between">
-                      <h5 className="text-warning stat-number">
-                        {dashboardData.pendingCount}
-                      </h5>
-                      <span className="badge badge-warning d-inline-flex align-items-center">
-                        <i className="ti ti-clock me-1"></i>
-                        Awaiting
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Statistics Cards */}
+        {/* Main Layout */}
         <div className="row">
-          <div className="col-xl-3 col-sm-6 d-flex">
-            <div
-              className="card flex-fill clickable-card"
-              onClick={() => navigate("/employer/post-jobs")}
-            >
-              <div className="card-body">
-                <div className="d-flex align-items-center justify-content-between">
-                  <span className="avatar avatar-md bg-primary mb-3">
-                    <i className="ti ti-briefcase fs-16"></i>
-                  </span>
-                  <span className="badge bg-success fw-normal mb-3">
-                    {dashboardData.activeJobs > 0 ? "+" : ""}
-                    {dashboardData.activeJobs}
-                  </span>
-                </div>
-                <div className="d-flex align-items-center justify-content-between">
-                  <div>
-                    <h2 className="mb-1 stat-number">
-                      {dashboardData.totalJobs}
-                    </h2>
-                    <p className="fs-13">Total Jobs Posted</p>
+          {/* Left Side - Profile Card */}
+          <div className="col-lg-4 col-md-12 mb-4">
+            <div className="card" style={{ minHeight: "calc(100vh - 200px)" }}>
+              {/* Header with gradient background */}
+              <div className="card-header p-0">
+                <div
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffd700 100%)",
+                    height: "120px",
+                    position: "relative",
+                  }}
+                >
+                  <div
+                    className="position-absolute"
+                    style={{
+                      bottom: "-30px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                    }}
+                  >
+                    <div className="avatar avatar-xxl border border-4 border-white bg-white rounded-circle">
+                      <img
+                        src={employerData.userProfilePic || defaultImage}
+                        className="rounded-circle"
+                        alt="profile"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                        onError={(e) => {
+                          e.target.src = defaultImage;
+                        }}
+                      />
+                    </div>
                   </div>
-                  <i className="ti ti-arrow-up-right fs-16 text-muted"></i>
+                </div>
+              </div>
+
+              {/* Profile Content */}
+              <div className="card-body pt-5 text-center">
+                <h4 className="mb-1">
+                  {employerData.schoolName || "Sample Bangalore School"}
+                </h4>
+                <div className="mb-3">
+                  <span className="badge bg-primary me-2">CBSE</span>
+                  <span className="badge bg-secondary">School</span>
+                </div>
+
+                {/* Profile Details */}
+                <div className="text-start mt-4">
+                  <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div className="d-flex align-items-center">
+                      <i className="ti ti-id me-2 text-muted"></i>
+                      <small className="text-muted">Client ID</small>
+                    </div>
+                    <small className="fw-medium">
+                      {employerData._id?.slice(-12) || "N/A"}
+                    </small>
+                  </div>
+
+                  <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div className="d-flex align-items-center">
+                      <i className="ti ti-user-shield me-2 text-muted"></i>
+                      <small className="text-muted">Admin</small>
+                    </div>
+                    <small className="fw-medium">
+                      {employerData.firstName && employerData.lastName
+                        ? `${employerData.firstName} ${employerData.lastName}`
+                        : "Admin User"}
+                    </small>
+                  </div>
+
+                  <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div className="d-flex align-items-center">
+                      <i className="ti ti-calendar me-2 text-muted"></i>
+                      <small className="text-muted">Registered On</small>
+                    </div>
+                    <small className="fw-medium">
+                      {employerData.createdAt
+                        ? new Date(employerData.createdAt).toLocaleDateString()
+                        : new Date().toLocaleDateString()}
+                    </small>
+                  </div>
+
+                  <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div className="d-flex align-items-center">
+                      <i className="ti ti-phone me-2 text-muted"></i>
+                      <small className="text-muted">Phone</small>
+                    </div>
+                    <small className="fw-medium">
+                      {employerData.userMobile || "Not provided"}
+                    </small>
+                  </div>
+
+                  <div className="d-flex justify-content-between align-items-center py-2">
+                    <div className="d-flex align-items-center">
+                      <i className="ti ti-mail me-2 text-muted"></i>
+                      <small className="text-muted">Email</small>
+                    </div>
+                    <small className="fw-medium text-primary">
+                      {employerData.userEmail || "Not provided"}
+                    </small>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="mt-4 d-grid gap-2">
+                  <button className="btn btn-dark" onClick={handleEditInfo}>
+                    <i className="ti ti-edit me-2"></i>Edit Info
+                  </button>
+                  <button
+                    onClick={handleSearchCandidates}
+                    className="btn btn-primary"
+                  >
+                    <i className="ti ti-search me-2"></i>Search Candidates
+                  </button>
+                  <button
+                    onClick={handlePostJob}
+                    className="btn btn-warning text-white"
+                  >
+                    <i className="ti ti-plus me-2"></i>Post Job
+                  </button>
+                  <button
+                    className="btn btn-danger"
+                    onClick={handleChangePassword}
+                  >
+                    <i className="ti ti-lock me-2"></i>Change Password
+                  </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="col-xl-3 col-sm-6 d-flex">
-            <div
-              className="card flex-fill clickable-card"
-              onClick={() => navigate("/employer/post-jobs")}
-            >
+          {/* Right Side - Candidates Overview and Statistics */}
+          <div className="col-lg-8 col-md-12">
+            {/* Candidates Overview */}
+            <div className="card mb-4">
               <div className="card-body">
-                <div className="d-flex align-items-center justify-content-between">
-                  <span className="avatar avatar-md bg-success mb-3">
-                    <i className="ti ti-user-search fs-16"></i>
-                  </span>
-                  <span className="badge bg-info fw-normal mb-3">Active</span>
-                </div>
-                <div className="d-flex align-items-center justify-content-between">
-                  <div>
-                    <h2 className="mb-1 stat-number">
-                      {dashboardData.activeJobs}
-                    </h2>
-                    <p className="fs-13">Hiring Active Jobs</p>
+                <div className="row align-items-center mb-4">
+                  <div className="col-md-8">
+                    <div className="mb-3 mb-md-0">
+                      <h4 className="mb-1">
+                        Candidates (for current active positions only)
+                      </h4>
+                      <p>
+                        Overview of candidate applications and their current
+                        status
+                      </p>
+                    </div>
                   </div>
-                  <i className="ti ti-arrow-up-right fs-16 text-muted"></i>
+                  <div className="col-md-4">
+                    <div className="d-flex align-items-center justify-content-md-end">
+                      <h6>Active Job Posts: {dashboardData.activeJobs}</h6>
+                    </div>
+                  </div>
+                </div>
+                <div className="border rounded">
+                  <div className="row gx-0">
+                    <div
+                      className="col-md col-sm-6 border-end clickable-overview-card"
+                      onClick={handleAppliedCandidates}
+                    >
+                      <div className="p-3">
+                        <span className="fw-medium mb-1 d-block">
+                          Applied Candidates
+                        </span>
+                        <div className="d-flex align-items-center justify-content-between">
+                          <h5 className="text-primary stat-number">
+                            {dashboardData.appliedCount}
+                          </h5>
+                          <span className="badge badge-primary d-inline-flex align-items-center">
+                            <i className="ti ti-user-plus me-1"></i>
+                            Total
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      className="col-md col-sm-6 border-end clickable-overview-card"
+                      onClick={handleShortlistedCandidates}
+                    >
+                      <div className="p-3">
+                        <span className="fw-medium mb-1 d-block">
+                          Shortlisted Candidates
+                        </span>
+                        <div className="d-flex align-items-center justify-content-between">
+                          <h5 className="text-success stat-number">
+                            {dashboardData.shortlistedCount}
+                          </h5>
+                          <span className="badge badge-success d-inline-flex align-items-center">
+                            <i className="ti ti-user-check me-1"></i>
+                            Selected
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      className="col-md col-sm-6 border-end clickable-overview-card"
+                      onClick={handleRejectedCandidates}
+                    >
+                      <div className="p-3">
+                        <span className="fw-medium mb-1 d-block">
+                          Rejected Candidates
+                        </span>
+                        <div className="d-flex align-items-center justify-content-between">
+                          <h5 className="text-danger stat-number">
+                            {dashboardData.rejectedCount}
+                          </h5>
+                          <span className="badge badge-danger d-inline-flex align-items-center">
+                            <i className="ti ti-user-x me-1"></i>
+                            Not Selected
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      className="col-md col-sm-6 clickable-overview-card"
+                      onClick={handlePendingCandidates}
+                    >
+                      <div className="p-3">
+                        <span className="fw-medium mb-1 d-block">
+                          Pending for Review
+                        </span>
+                        <div className="d-flex align-items-center justify-content-between">
+                          <h5 className="text-warning stat-number">
+                            {dashboardData.pendingCount}
+                          </h5>
+                          <span className="badge badge-warning d-inline-flex align-items-center">
+                            <i className="ti ti-clock me-1"></i>
+                            Awaiting
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="col-xl-3 col-sm-6 d-flex">
-            <div
-              className="card flex-fill clickable-card"
-              onClick={() => navigate("/employer/post-jobs")}
-            >
-              <div className="card-body">
-                <div className="d-flex align-items-center justify-content-between">
-                  <span className="avatar avatar-md bg-warning mb-3">
-                    <i className="ti ti-calendar-event fs-16"></i>
-                  </span>
-                  <span className="badge bg-warning fw-normal mb-3">
-                    Scheduled
-                  </span>
-                </div>
-                <div className="d-flex align-items-center justify-content-between">
-                  <div>
-                    <h2 className="mb-1 stat-number">
-                      {dashboardData.interviewScheduledCount}
-                    </h2>
-                    <p className="fs-13">Upcoming Interviews</p>
+            {/* Statistics Cards */}
+            <div className="row">
+              <div className="col-xl-3 col-lg-6 col-sm-6 d-flex mb-3">
+                <div
+                  className="card flex-fill clickable-card"
+                  onClick={() => navigate("/employer/post-jobs")}
+                >
+                  <div className="card-body p-4">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <span className="avatar avatar-lg bg-primary mb-3">
+                        <i className="ti ti-briefcase fs-20"></i>
+                      </span>
+                      <span className="badge bg-success fw-normal mb-3 fs-12">
+                        {dashboardData.activeJobs > 0 ? "+" : ""}
+                        {dashboardData.activeJobs}
+                      </span>
+                    </div>
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div>
+                        <h1 className="mb-2 stat-number">
+                          {dashboardData.totalJobs}
+                        </h1>
+                        <p className="fs-14 mb-0">Total Jobs Posted</p>
+                      </div>
+                      <i className="ti ti-arrow-up-right fs-18 text-muted"></i>
+                    </div>
                   </div>
-                  <i className="ti ti-arrow-up-right fs-16 text-muted"></i>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="col-xl-3 col-sm-6 d-flex">
-            <div
-              className="card flex-fill clickable-card"
-              onClick={() => navigate("#")}
-            >
-              <div className="card-body">
-                <div className="d-flex align-items-center justify-content-between">
-                  <span className="avatar avatar-md bg-info mb-3">
-                    <i className="ti ti-crown fs-16"></i>
-                  </span>
-                  <span className="badge bg-info fw-normal mb-3">Premium</span>
-                </div>
-                <div className="d-flex align-items-center justify-content-between">
-                  <div>
-                    <h2 className="mb-1 stat-number">30</h2>
-                    <p className="fs-13">Plan Validity (Days)</p>
+              <div className="col-xl-3 col-lg-6 col-sm-6 d-flex mb-3">
+                <div
+                  className="card flex-fill clickable-card"
+                  onClick={() => navigate("/employer/post-jobs")}
+                >
+                  <div className="card-body p-4">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <span className="avatar avatar-lg bg-success mb-3">
+                        <i className="ti ti-user-search fs-20"></i>
+                      </span>
+                      <span className="badge bg-info fw-normal mb-3 fs-12">
+                        Active
+                      </span>
+                    </div>
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div>
+                        <h1 className="mb-2 stat-number">
+                          {dashboardData.activeJobs}
+                        </h1>
+                        <p className="fs-14 mb-0">Hiring Active Jobs</p>
+                      </div>
+                      <i className="ti ti-arrow-up-right fs-18 text-muted"></i>
+                    </div>
                   </div>
-                  <i className="ti ti-arrow-up-right fs-16 text-muted"></i>
+                </div>
+              </div>
+
+              <div className="col-xl-3 col-lg-6 col-sm-6 d-flex mb-3">
+                <div
+                  className="card flex-fill clickable-card"
+                  onClick={() => navigate("/employer/post-jobs")}
+                >
+                  <div className="card-body p-4">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <span className="avatar avatar-lg bg-warning mb-3">
+                        <i className="ti ti-calendar-event fs-20"></i>
+                      </span>
+                      <span className="badge bg-warning fw-normal mb-3 fs-12">
+                        Scheduled
+                      </span>
+                    </div>
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div>
+                        <h1 className="mb-2 stat-number">
+                          {dashboardData.interviewScheduledCount}
+                        </h1>
+                        <p className="fs-14 mb-0">Upcoming Interviews</p>
+                      </div>
+                      <i className="ti ti-arrow-up-right fs-18 text-muted"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-xl-3 col-lg-6 col-sm-6 d-flex mb-3">
+                <div
+                  className="card flex-fill clickable-card"
+                  onClick={() => navigate("/employer/plans-grid")}
+                >
+                  <div className="card-body p-4">
+                    <div className="d-flex align-items-center justify-content-between">
+                      <span className="avatar avatar-lg bg-info mb-3">
+                        <i className="ti ti-crown fs-20"></i>
+                      </span>
+                      <span className="badge bg-info fw-normal mb-3 fs-12">
+                        Premium
+                      </span>
+                    </div>
+                    <div className="d-flex align-items-center justify-content-between">
+                      <div>
+                        <h1 className="mb-2 stat-number">30</h1>
+                        <p className="fs-14 mb-0">Plan Validity (Days)</p>
+                      </div>
+                      <i className="ti ti-arrow-up-right fs-18 text-muted"></i>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Change Password Modal */}
+      <div
+        className="modal fade"
+        id="changePasswordModal"
+        ref={passwordModalRef}
+        tabIndex="-1"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title">Change Password</h4>
+              <button
+                type="button"
+                className="btn-close custom-btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              >
+                <i className="ti ti-x"></i>
+              </button>
+            </div>
+            <form onSubmit={handlePasswordSubmit}>
+              <div className="modal-body">
+                {passwordError && (
+                  <div className="alert alert-danger">{passwordError}</div>
+                )}
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    Current Password <span className="text-danger">*</span>
+                  </label>
+                  <div className="input-group">
+                    <input
+                      type={showPasswords.current ? "text" : "password"}
+                      className="form-control"
+                      name="currentPassword"
+                      value={passwordData.currentPassword}
+                      onChange={handlePasswordChange}
+                      required
+                      placeholder="Enter current password"
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      onClick={() => togglePasswordVisibility("current")}
+                    >
+                      <i
+                        className={`ti ${
+                          showPasswords.current ? "ti-eye-off" : "ti-eye"
+                        }`}
+                      ></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    New Password <span className="text-danger">*</span>
+                  </label>
+                  <div className="input-group">
+                    <input
+                      type={showPasswords.new ? "text" : "password"}
+                      className="form-control"
+                      name="newPassword"
+                      value={passwordData.newPassword}
+                      onChange={handlePasswordChange}
+                      required
+                      placeholder="Enter new password"
+                      minLength="6"
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      onClick={() => togglePasswordVisibility("new")}
+                    >
+                      <i
+                        className={`ti ${
+                          showPasswords.new ? "ti-eye-off" : "ti-eye"
+                        }`}
+                      ></i>
+                    </button>
+                  </div>
+                  <small className="text-muted">
+                    Password must be at least 6 characters long
+                  </small>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">
+                    Confirm New Password <span className="text-danger">*</span>
+                  </label>
+                  <div className="input-group">
+                    <input
+                      type={showPasswords.confirm ? "text" : "password"}
+                      className="form-control"
+                      name="confirmPassword"
+                      value={passwordData.confirmPassword}
+                      onChange={handlePasswordChange}
+                      required
+                      placeholder="Confirm new password"
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      onClick={() => togglePasswordVisibility("confirm")}
+                    >
+                      <i
+                        className={`ti ${
+                          showPasswords.confirm ? "ti-eye-off" : "ti-eye"
+                        }`}
+                      ></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-outline-light border me-2"
+                  data-bs-dismiss="modal"
+                  disabled={isChangingPassword}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-danger"
+                  disabled={isChangingPassword}
+                >
+                  {isChangingPassword ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-1"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Changing Password...
+                    </>
+                  ) : (
+                    <>
+                      <i className="ti ti-lock me-1"></i>
+                      Change Password
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
       <EmployerFooter />
     </>
   );

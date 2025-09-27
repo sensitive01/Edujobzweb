@@ -4,7 +4,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
 
 // Import images
-import logo from '../../../assets/employer-admin/assets/img/logo - dark.png';
+import logo from '../../../../public/images/logo2.png';
 import bg1 from '../../../assets/employer-admin/assets/img/bg/bg-01.webp';
 import bg2 from '../../../assets/employer-admin/assets/img/bg/bg-02.png';
 import bg3 from '../../../assets/employer-admin/assets/img/bg/bg-03.webp';

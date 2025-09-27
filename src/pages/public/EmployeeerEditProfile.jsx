@@ -13,6 +13,8 @@ import {
   FaStop,
   FaPlus,
   FaTimes,
+  FaMicrophone,
+  FaVideo,
 } from "react-icons/fa";
 import {
   getEmployeeDetails,
@@ -105,39 +107,57 @@ const EmployeeerEditProfile = () => {
   });
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+
+  // Recording states
+  const [isRecordingVideo, setIsRecordingVideo] = useState(false);
+  const [isRecordingAudio, setIsRecordingAudio] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [recordedChunks, setRecordedChunks] = useState([]);
+  const [recordingTimer, setRecordingTimer] = useState(0);
+
   const audioRef = useRef(null);
   const videoRef = useRef(null);
+  const recordingVideoRef = useRef(null);
+  const streamRef = useRef(null);
 
   const isFormDirty =
     initialData && JSON.stringify(employeeData) !== JSON.stringify(initialData);
 
   const inputStyle = {
-    height: "42px",
-    padding: "10px 14px",
+    height: "45px", // Increased from 42px
+    padding: "12px 16px", // Increased padding
     lineHeight: "1.5",
     borderRadius: "8px",
     border: "1px solid #e1e5e9",
-    fontSize: "14px",
+    fontSize: "16px", // Increased from 14px
     transition: "all 0.2s ease",
   };
 
   const textareaStyle = {
-    minHeight: "100px",
-    padding: "10px 14px",
+    minHeight: "120px", // Increased from 100px
+    padding: "12px 16px", // Increased padding
     borderRadius: "8px",
     border: "1px solid #e1e5e9",
-    fontSize: "14px",
+    fontSize: "16px", // Increased from 14px
     resize: "vertical",
+    lineHeight: "1.6", // Added line height for better readability
   };
 
   const selectStyle = {
-    height: "42px",
-    padding: "10px 14px",
+    height: "45px", // Increased from 42px
+    padding: "12px 16px", // Increased padding
     borderRadius: "8px",
     border: "1px solid #e1e5e9",
-    fontSize: "14px",
+    fontSize: "16px", // Increased from 14px
     background: "white",
     appearance: "none",
+  };
+
+  const labelStyle = {
+    fontSize: "16px", // Increased label font size
+    fontWeight: "500",
+    marginBottom: "8px",
+    color: "#333",
   };
 
   // Generate year and month options
@@ -162,6 +182,235 @@ const EmployeeerEditProfile = () => {
   const formatYearMonth = (year, month) => {
     if (!year) return "";
     return month ? `${year}-${month}` : year;
+  };
+
+  // Recording timer effect
+  useEffect(() => {
+    let interval = null;
+    if (isRecordingVideo || isRecordingAudio) {
+      interval = setInterval(() => {
+        setRecordingTimer((timer) => timer + 1);
+      }, 1000);
+    } else {
+      setRecordingTimer(0);
+    }
+    return () => clearInterval(interval);
+  }, [isRecordingVideo, isRecordingAudio]);
+
+  // Format recording timer
+  const formatTimer = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  // Start video recording
+  const startVideoRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+
+      streamRef.current = stream;
+
+      if (recordingVideoRef.current) {
+        recordingVideoRef.current.srcObject = stream;
+        recordingVideoRef.current.play();
+      }
+
+      const recorder = new MediaRecorder(stream);
+      const chunks = [];
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: "video/webm" });
+        handleRecordedVideo(blob);
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      setMediaRecorder(recorder);
+      setRecordedChunks(chunks);
+      recorder.start();
+      setIsRecordingVideo(true);
+    } catch (err) {
+      setError("Failed to start video recording: " + err.message);
+    }
+  };
+
+  // Stop video recording
+  const stopVideoRecording = () => {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+      mediaRecorder.stop();
+      setIsRecordingVideo(false);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    }
+  };
+
+  // Start audio recording
+  const startAudioRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+
+      streamRef.current = stream;
+      const recorder = new MediaRecorder(stream);
+      const chunks = [];
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: "audio/webm" });
+        handleRecordedAudio(blob);
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      setMediaRecorder(recorder);
+      setRecordedChunks(chunks);
+      recorder.start();
+      setIsRecordingAudio(true);
+    } catch (err) {
+      setError("Failed to start audio recording: " + err.message);
+    }
+  };
+
+  // Stop audio recording
+  const stopAudioRecording = () => {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+      mediaRecorder.stop();
+      setIsRecordingAudio(false);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    }
+  };
+
+  // Handle recorded video
+  const handleRecordedVideo = async (blob) => {
+    try {
+      const file = new File([blob], `recorded_video_${Date.now()}.webm`, {
+        type: "video/webm",
+      });
+
+      const token = localStorage.getItem("authToken");
+      const formData = new FormData();
+      formData.append("file", file);
+
+      setUploading((prev) => ({ ...prev, video: true }));
+      setUploadProgress((prev) => ({ ...prev, video: 0 }));
+
+      const response = await axios.put(
+        `${VITE_BASE_URL}/uploadprofilevideo/${id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+            fileType: "profileVideo",
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress((prev) => ({
+              ...prev,
+              video: percentCompleted,
+            }));
+          },
+        }
+      );
+
+      setEmployeeData((prev) => ({
+        ...prev,
+        profileVideo: {
+          name: file.name,
+          url: response.data.file.url,
+          thumbnail: response.data.file.thumbnail || "",
+        },
+      }));
+    } catch (err) {
+      setError("Failed to upload recorded video: " + err.message);
+    } finally {
+      setUploading((prev) => ({ ...prev, video: false }));
+      setUploadProgress((prev) => ({ ...prev, video: 0 }));
+    }
+  };
+
+  // Handle recorded audio
+  const handleRecordedAudio = async (blob) => {
+    try {
+      const file = new File([blob], `recorded_audio_${Date.now()}.webm`, {
+        type: "audio/webm",
+      });
+
+      const token = localStorage.getItem("authToken");
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Get audio duration
+      const audio = new Audio();
+      audio.src = URL.createObjectURL(file);
+      audio.onloadedmetadata = () => {
+        setEmployeeData((prev) => ({
+          ...prev,
+          introductionAudio: {
+            ...prev.introductionAudio,
+            duration: Math.round(audio.duration),
+          },
+        }));
+        URL.revokeObjectURL(audio.src);
+      };
+
+      setUploading((prev) => ({ ...prev, audio: true }));
+      setUploadProgress((prev) => ({ ...prev, audio: 0 }));
+
+      const response = await axios.put(
+        `${VITE_BASE_URL}/uploadintroaudio/${id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+            fileType: "audio",
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress((prev) => ({
+              ...prev,
+              audio: percentCompleted,
+            }));
+          },
+        }
+      );
+
+      setEmployeeData((prev) => ({
+        ...prev,
+        introductionAudio: {
+          name: file.name,
+          url: response.data.employee.introductionAudio.url,
+          duration: prev.introductionAudio.duration || 0,
+        },
+      }));
+    } catch (err) {
+      setError("Failed to upload recorded audio: " + err.message);
+    } finally {
+      setUploading((prev) => ({ ...prev, audio: false }));
+      setUploadProgress((prev) => ({ ...prev, audio: 0 }));
+    }
   };
 
   useEffect(() => {
@@ -230,6 +479,9 @@ const EmployeeerEditProfile = () => {
       if (videoRef.current) {
         videoRef.current.pause();
         videoRef.current.src = "";
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
   }, []);
@@ -982,15 +1234,23 @@ const EmployeeerEditProfile = () => {
                   </div>
                   <div className="jobplugin__profile-intro__Textbox">
                     <div className="jobplugin__profile-intro__info mb-0">
-                      <h1 className="h5">{employeeData.userName}</h1>
+                      <h1 className="h5" style={{ fontSize: "18px" }}>
+                        {employeeData.userName}
+                      </h1>
                     </div>
-                    <address className="jobplugin__profile-intro__address">
+                    <address
+                      className="jobplugin__profile-intro__address"
+                      style={{ fontSize: "16px" }}
+                    >
                       {employeeData.currentCity ||
                         employeeData.city ||
                         "Location not specified"}
                     </address>
                     {employeeData.specialization && (
-                      <div className="jobplugin__profile-intro__specialization">
+                      <div
+                        className="jobplugin__profile-intro__specialization"
+                        style={{ fontSize: "16px" }}
+                      >
                         {employeeData.specialization}
                       </div>
                     )}
@@ -1000,6 +1260,7 @@ const EmployeeerEditProfile = () => {
                   <button
                     onClick={() => navigate(`/employee-profile`)}
                     className="jobplugin__button jobplugin__bg-white jobplugin__border-primary hover:jobplugin__bg-white small text-black"
+                    style={{ fontSize: "16px", padding: "12px 20px" }}
                   >
                     <FaArrowLeft /> &nbsp; Back to Profile
                   </button>
@@ -1008,6 +1269,7 @@ const EmployeeerEditProfile = () => {
                     form="profileForm"
                     disabled={!isFormDirty}
                     className="jobplugin__button border-dark shadow bg-primary hover:jobplugin__bg-secondary small"
+                    style={{ fontSize: "16px", padding: "12px 20px" }}
                   >
                     <FaSave /> &nbsp; Save Changes
                   </button>
@@ -1020,13 +1282,15 @@ const EmployeeerEditProfile = () => {
                     <div className="jobplugin__profile-box border border-dark shadow">
                       <div className="jobplugin__profile-box__head">
                         <div className="jobplugin__profile-box__heading">
-                          <h2 className="h5">Contact Info</h2>
+                          <h2 className="h5" style={{ fontSize: "18px" }}>
+                            Contact Info
+                          </h2>
                           <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                         </div>
                       </div>
                       <div className="jobplugin__profile-box__body">
                         <div className="form-group mb-3">
-                          <label>Full Name*</label>
+                          <label style={labelStyle}>Full Name*</label>
                           <input
                             type="text"
                             className="form-control"
@@ -1038,7 +1302,7 @@ const EmployeeerEditProfile = () => {
                           />
                         </div>
                         <div className="form-group mb-3">
-                          <label>Email*</label>
+                          <label style={labelStyle}>Email*</label>
                           <input
                             type="email"
                             className="form-control"
@@ -1050,7 +1314,7 @@ const EmployeeerEditProfile = () => {
                           />
                         </div>
                         <div className="form-group mb-3">
-                          <label>Phone</label>
+                          <label style={labelStyle}>Phone</label>
                           <input
                             type="tel"
                             className="form-control"
@@ -1063,7 +1327,7 @@ const EmployeeerEditProfile = () => {
                           />
                         </div>
                         <div className="form-group mb-3">
-                          <label>LinkedIn</label>
+                          <label style={labelStyle}>LinkedIn</label>
                           <input
                             type="url"
                             className="form-control"
@@ -1075,7 +1339,7 @@ const EmployeeerEditProfile = () => {
                           />
                         </div>
                         <div className="form-group mb-3">
-                          <label>GitHub</label>
+                          <label style={labelStyle}>GitHub</label>
                           <input
                             type="url"
                             className="form-control"
@@ -1087,7 +1351,7 @@ const EmployeeerEditProfile = () => {
                           />
                         </div>
                         <div className="form-group">
-                          <label>Portfolio</label>
+                          <label style={labelStyle}>Portfolio</label>
                           <input
                             type="url"
                             className="form-control"
@@ -1104,13 +1368,15 @@ const EmployeeerEditProfile = () => {
                     <div className="jobplugin__profile-box border border-dark shadow">
                       <div className="jobplugin__profile-box__head">
                         <div className="jobplugin__profile-box__heading">
-                          <h2 className="h5">Documents</h2>
+                          <h2 className="h5" style={{ fontSize: "18px" }}>
+                            Documents
+                          </h2>
                           <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                         </div>
                       </div>
                       <div className="jobplugin__profile-box__body">
                         <div className="form-group mb-3">
-                          <label>Resume</label>
+                          <label style={labelStyle}>Resume</label>
                           <div className="input-group">
                             <input
                               type="file"
@@ -1132,11 +1398,17 @@ const EmployeeerEditProfile = () => {
                           {employeeData.resume?.name && (
                             <div className="mt-2 d-flex justify-content-between align-items-center">
                               <div>
-                                <small className="text-muted d-block">
+                                <small
+                                  className="text-muted d-block"
+                                  style={{ fontSize: "14px" }}
+                                >
                                   Current: {employeeData.resume.name}
                                 </small>
                                 {employeeData.resume?.url && (
-                                  <small className="text-success">
+                                  <small
+                                    className="text-success"
+                                    style={{ fontSize: "14px" }}
+                                  >
                                     <a
                                       href={employeeData.resume.url}
                                       target="_blank"
@@ -1152,6 +1424,7 @@ const EmployeeerEditProfile = () => {
                                 className="btn btn-sm btn-outline-danger"
                                 onClick={handleDeleteResume}
                                 title="Delete Resume"
+                                style={{ fontSize: "14px" }}
                               >
                                 <FaTrash />
                               </button>
@@ -1160,7 +1433,7 @@ const EmployeeerEditProfile = () => {
                         </div>
 
                         <div className="form-group mb-3">
-                          <label>Cover Letter</label>
+                          <label style={labelStyle}>Cover Letter</label>
                           <div className="input-group">
                             <input
                               type="file"
@@ -1182,11 +1455,17 @@ const EmployeeerEditProfile = () => {
                           {employeeData.coverLetterFile?.name && (
                             <div className="mt-2 d-flex justify-content-between align-items-center">
                               <div>
-                                <small className="text-muted d-block">
+                                <small
+                                  className="text-muted d-block"
+                                  style={{ fontSize: "14px" }}
+                                >
                                   Current: {employeeData.coverLetterFile.name}
                                 </small>
                                 {employeeData.coverLetterFile?.url && (
-                                  <small className="text-success">
+                                  <small
+                                    className="text-success"
+                                    style={{ fontSize: "14px" }}
+                                  >
                                     <a
                                       href={employeeData.coverLetterFile.url}
                                       target="_blank"
@@ -1202,6 +1481,7 @@ const EmployeeerEditProfile = () => {
                                 className="btn btn-sm btn-outline-danger"
                                 onClick={handleDeleteCoverLetter}
                                 title="Delete Cover Letter"
+                                style={{ fontSize: "14px" }}
                               >
                                 <FaTrash />
                               </button>
@@ -1210,26 +1490,90 @@ const EmployeeerEditProfile = () => {
                         </div>
 
                         <div className="form-group mb-3">
-                          <label>Profile Video (Max 10MB)</label>
-                          <div className="input-group">
-                            <input
-                              type="file"
-                              className="form-control"
-                              onChange={handleProfileVideoChange}
-                              accept="video/*"
-                              disabled={uploading.video}
-                              style={inputStyle}
-                            />
-                            {uploading.video && (
-                              <span className="input-group-text">
+                          <label style={labelStyle}>
+                            Profile Video (Max 10MB)
+                          </label>
+
+                          {/* Recording Video Section */}
+                          {isRecordingVideo && (
+                            <div className="mb-3 p-3 border rounded bg-light">
+                              <div className="d-flex justify-content-between align-items-center mb-2">
                                 <span
-                                  className="spinner-border spinner-border-sm"
-                                  role="status"
-                                  aria-hidden="true"
-                                ></span>
-                              </span>
-                            )}
+                                  className="text-danger fw-bold"
+                                  style={{ fontSize: "16px" }}
+                                >
+                                  Recording Video...{" "}
+                                  {formatTimer(recordingTimer)}
+                                </span>
+                                <button
+                                  type="button"
+                                  className="btn btn-danger btn-sm"
+                                  onClick={stopVideoRecording}
+                                  style={{ fontSize: "14px" }}
+                                >
+                                  <FaStop className="me-1" /> Stop Recording
+                                </button>
+                              </div>
+                              <video
+                                ref={recordingVideoRef}
+                                style={{
+                                  width: "100%",
+                                  height: "200px",
+                                  objectFit: "cover",
+                                  borderRadius: "8px",
+                                }}
+                                muted
+                              />
+                            </div>
+                          )}
+
+                          <div className="d-flex gap-2 mb-2">
+                            <div className="flex-grow-1">
+                              <input
+                                type="file"
+                                className="form-control"
+                                onChange={handleProfileVideoChange}
+                                accept="video/*"
+                                disabled={uploading.video || isRecordingVideo}
+                                style={inputStyle}
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              className="btn btn-primary d-flex align-items-center"
+                              onClick={
+                                isRecordingVideo
+                                  ? stopVideoRecording
+                                  : startVideoRecording
+                              }
+                              disabled={uploading.video}
+                              style={{
+                                fontSize: "14px",
+                                padding: "12px 16px",
+                                minWidth: "140px",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              <FaVideo className="me-2" />
+                              {isRecordingVideo
+                                ? "Stop Recording"
+                                : "Record Video"}
+                            </button>
                           </div>
+
+                          {uploading.video && (
+                            <div className="d-flex align-items-center gap-2 mb-2">
+                              <span
+                                className="spinner-border spinner-border-sm"
+                                role="status"
+                                aria-hidden="true"
+                              ></span>
+                              <span style={{ fontSize: "14px" }}>
+                                Uploading...
+                              </span>
+                            </div>
+                          )}
+
                           {uploadProgress.video > 0 &&
                             uploadProgress.video < 100 && (
                               <div className="progress mt-2">
@@ -1248,7 +1592,10 @@ const EmployeeerEditProfile = () => {
                           {employeeData.profileVideo?.url && (
                             <div className="mt-2">
                               <div className="d-flex justify-content-between align-items-center mb-2">
-                                <small className="text-muted">
+                                <small
+                                  className="text-muted"
+                                  style={{ fontSize: "14px" }}
+                                >
                                   Current: {employeeData.profileVideo.name}
                                 </small>
                                 <button
@@ -1256,6 +1603,7 @@ const EmployeeerEditProfile = () => {
                                   className="btn btn-sm btn-outline-danger"
                                   onClick={handleDeleteVideo}
                                   title="Delete Video"
+                                  style={{ fontSize: "14px" }}
                                 >
                                   <FaTrash />
                                 </button>
@@ -1281,7 +1629,7 @@ const EmployeeerEditProfile = () => {
                                   }}
                                   onEnded={() => setIsVideoPlaying(false)}
                                   onPause={() => setIsVideoPlaying(false)}
-                                  onPlay={() => setIsVideoPlaying(true)} // Added this to ensure state consistency
+                                  onPlay={() => setIsVideoPlaying(true)}
                                 />
                                 <div
                                   className="position-absolute top-50 start-50 translate-middle"
@@ -1341,26 +1689,92 @@ const EmployeeerEditProfile = () => {
                         </div>
 
                         <div className="form-group">
-                          <label>Introduction Audio (Max 10MB)</label>
-                          <div className="input-group">
-                            <input
-                              type="file"
-                              className="form-control"
-                              onChange={handleIntroAudioChange}
-                              accept="audio/*"
+                          <label style={labelStyle}>
+                            Introduction Audio (Max 10MB)
+                          </label>
+
+                          {/* Recording Audio Section */}
+                          {isRecordingAudio && (
+                            <div className="mb-3 p-3 border rounded bg-light">
+                              <div className="d-flex justify-content-between align-items-center">
+                                <div className="d-flex align-items-center">
+                                  <div className="me-3">
+                                    <div
+                                      className="bg-danger rounded-circle d-inline-block"
+                                      style={{
+                                        width: "12px",
+                                        height: "12px",
+                                        animation: "blink 1s infinite",
+                                      }}
+                                    ></div>
+                                  </div>
+                                  <span
+                                    className="text-danger fw-bold"
+                                    style={{ fontSize: "16px" }}
+                                  >
+                                    Recording Audio...{" "}
+                                    {formatTimer(recordingTimer)}
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  className="btn btn-danger btn-sm"
+                                  onClick={stopAudioRecording}
+                                  style={{ fontSize: "14px" }}
+                                >
+                                  <FaStop className="me-1" /> Stop Recording
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="d-flex gap-2 mb-2">
+                            <div className="flex-grow-1">
+                              <input
+                                type="file"
+                                className="form-control"
+                                onChange={handleIntroAudioChange}
+                                accept="audio/*"
+                                disabled={uploading.audio || isRecordingAudio}
+                                style={inputStyle}
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              className="btn btn-success d-flex align-items-center"
+                              onClick={
+                                isRecordingAudio
+                                  ? stopAudioRecording
+                                  : startAudioRecording
+                              }
                               disabled={uploading.audio}
-                              style={inputStyle}
-                            />
-                            {uploading.audio && (
-                              <span className="input-group-text">
-                                <span
-                                  className="spinner-border spinner-border-sm"
-                                  role="status"
-                                  aria-hidden="true"
-                                ></span>
-                              </span>
-                            )}
+                              style={{
+                                fontSize: "14px",
+                                padding: "12px 16px",
+                                minWidth: "140px",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              <FaMicrophone className="me-2" />
+                              {isRecordingAudio
+                                ? "Stop Recording"
+                                : "Record Audio"}
+                            </button>
                           </div>
+
+                          {uploading.audio && (
+                            <div className="d-flex align-items-center gap-2 mb-2">
+                              <span
+                                className="spinner-border spinner-border-sm"
+                                role="status"
+                                aria-hidden="true"
+                              ></span>
+                              <span style={{ fontSize: "14px" }}>
+                                Uploading...
+                              </span>
+                            </div>
+                          )}
+
                           {uploadProgress.audio > 0 &&
                             uploadProgress.audio < 100 && (
                               <div className="progress mt-2">
@@ -1379,7 +1793,10 @@ const EmployeeerEditProfile = () => {
                           {employeeData.introductionAudio?.url && (
                             <div className="mt-2">
                               <div className="d-flex justify-content-between align-items-center mb-2">
-                                <small className="text-muted">
+                                <small
+                                  className="text-muted"
+                                  style={{ fontSize: "14px" }}
+                                >
                                   Current: {employeeData.introductionAudio.name}
                                 </small>
                                 <button
@@ -1387,6 +1804,7 @@ const EmployeeerEditProfile = () => {
                                   className="btn btn-sm btn-outline-danger"
                                   onClick={handleDeleteAudio}
                                   title="Delete Audio"
+                                  style={{ fontSize: "14px" }}
                                 >
                                   <FaTrash />
                                 </button>
@@ -1445,7 +1863,10 @@ const EmployeeerEditProfile = () => {
                                   )}
                                 </button>
                                 <div className="flex-grow-1">
-                                  <div className="text-muted small">
+                                  <div
+                                    className="text-muted small"
+                                    style={{ fontSize: "14px" }}
+                                  >
                                     Duration:{" "}
                                     {Math.floor(
                                       employeeData.introductionAudio.duration /
@@ -1459,7 +1880,10 @@ const EmployeeerEditProfile = () => {
                                       .toString()
                                       .padStart(2, "0")}
                                   </div>
-                                  <div className="text-dark small fw-medium">
+                                  <div
+                                    className="text-dark small fw-medium"
+                                    style={{ fontSize: "14px" }}
+                                  >
                                     {isAudioPlaying
                                       ? "Playing..."
                                       : "Click play to listen"}
@@ -1483,13 +1907,15 @@ const EmployeeerEditProfile = () => {
                     <div className="jobplugin__profile-box border border-dark shadow">
                       <div className="jobplugin__profile-box__head">
                         <div className="jobplugin__profile-box__heading">
-                          <h2 className="h5">Personal Details</h2>
+                          <h2 className="h5" style={{ fontSize: "18px" }}>
+                            Personal Details
+                          </h2>
                           <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                         </div>
                       </div>
                       <div className="jobplugin__profile-box__body">
                         <div className="form-group mb-3">
-                          <label>Specialization</label>
+                          <label style={labelStyle}>Specialization</label>
                           <input
                             type="text"
                             className="form-control"
@@ -1501,14 +1927,14 @@ const EmployeeerEditProfile = () => {
                           />
                         </div>
                         <div className="form-group mb-3">
-                          <label>Gender</label>
+                          <label style={labelStyle}>Gender</label>
                           <div className="position-relative">
                             <select
                               className="form-control"
                               name="gender"
                               value={employeeData.gender || ""}
                               onChange={handleChange}
-                              style={selectStyle}
+                              style={{ ...selectStyle, padding: "7px" }}
                             >
                               <option value="">Select Gender</option>
                               <option value="Male">Male</option>
@@ -1519,7 +1945,7 @@ const EmployeeerEditProfile = () => {
                           </div>
                         </div>
                         <div className="form-group mb-3">
-                          <label>Date of Birth</label>
+                          <label style={labelStyle}>Date of Birth</label>
                           <input
                             type="date"
                             className="form-control"
@@ -1530,14 +1956,14 @@ const EmployeeerEditProfile = () => {
                           />
                         </div>
                         <div className="form-group mb-3">
-                          <label>Marital Status</label>
+                          <label style={labelStyle}>Marital Status</label>
                           <div className="position-relative">
                             <select
                               className="form-control"
                               name="maritalStatus"
                               value={employeeData.maritalStatus || ""}
                               onChange={handleChange}
-                              style={selectStyle}
+                              style={{ ...selectStyle, padding: "7px" }}
                             >
                               <option value="">Select Status</option>
                               <option value="Single">Single</option>
@@ -1551,7 +1977,7 @@ const EmployeeerEditProfile = () => {
 
                         {/* Enhanced Total Experience with Year/Month Selection */}
                         <div className="form-group mb-3">
-                          <label>Total Experience</label>
+                          <label style={labelStyle}>Total Experience</label>
                           <div className="row g-2">
                             <div className="col-6">
                               <select
@@ -1563,7 +1989,7 @@ const EmployeeerEditProfile = () => {
                                     e.target.value
                                   )
                                 }
-                                style={selectStyle}
+                                style={{ ...selectStyle, padding: "7px" }}
                               >
                                 <option value="">Years</option>
                                 <option value="0">0 Years</option>
@@ -1587,7 +2013,7 @@ const EmployeeerEditProfile = () => {
                                     e.target.value
                                   )
                                 }
-                                style={selectStyle}
+                                style={{ ...selectStyle, padding: "7px" }}
                               >
                                 <option value="">Months</option>
                                 <option value="0">0 Months</option>
@@ -1603,14 +2029,19 @@ const EmployeeerEditProfile = () => {
                             </div>
                           </div>
                           {employeeData.totalExperience && (
-                            <small className="text-muted mt-1 d-block">
+                            <small
+                              className="text-muted mt-1 d-block"
+                              style={{ fontSize: "14px" }}
+                            >
                               Current: {employeeData.totalExperience}
                             </small>
                           )}
                         </div>
 
                         <div className="form-group">
-                          <label>Expected Annual Salary (₹)</label>
+                          <label style={labelStyle}>
+                            Expected Annual Salary (₹)
+                          </label>
                           <input
                             type="number"
                             className="form-control"
@@ -1628,7 +2059,9 @@ const EmployeeerEditProfile = () => {
                   <div className="jobplugin__profile-content border border-dark shadow">
                     <div className="jobplugin__profile-block">
                       <div className="jobplugin__profile-block__header">
-                        <h2 className="h4">Profile Summary</h2>
+                        <h2 className="h4" style={{ fontSize: "20px" }}>
+                          Profile Summary
+                        </h2>
                       </div>
                       <div className="jobplugin__profile-block__body">
                         <div className="form-group">
@@ -1651,7 +2084,9 @@ const EmployeeerEditProfile = () => {
 
                     <div className="jobplugin__profile-block">
                       <div className="jobplugin__profile-block__header">
-                        <h2 className="h4">Skills</h2>
+                        <h2 className="h4" style={{ fontSize: "20px" }}>
+                          Skills
+                        </h2>
                       </div>
                       <div className="jobplugin__profile-block__body">
                         <div className="form-group mb-3">
@@ -1672,7 +2107,7 @@ const EmployeeerEditProfile = () => {
                               type="button"
                               className="btn btn-primary"
                               onClick={handleAddSkill}
-                              style={{ height: "42px" }}
+                              style={{ height: "45px", fontSize: "16px" }}
                             >
                               <FaPlus />
                             </button>
@@ -1683,7 +2118,7 @@ const EmployeeerEditProfile = () => {
                             <span
                               key={index}
                               className="badge bg-secondary d-flex align-items-center gap-2"
-                              style={{ fontSize: "13px", padding: "8px 12px" }}
+                              style={{ fontSize: "14px", padding: "10px 14px" }}
                             >
                               {skill}
                               <button
@@ -1692,7 +2127,7 @@ const EmployeeerEditProfile = () => {
                                 onClick={() => handleRemoveSkill(skill)}
                                 style={{ lineHeight: 1 }}
                               >
-                                <FaTimes size={12} />
+                                <FaTimes size={14} />
                               </button>
                             </span>
                           ))}
@@ -1702,7 +2137,9 @@ const EmployeeerEditProfile = () => {
 
                     <div className="jobplugin__profile-block">
                       <div className="jobplugin__profile-block__header">
-                        <h2 className="h4">Languages</h2>
+                        <h2 className="h4" style={{ fontSize: "20px" }}>
+                          Languages
+                        </h2>
                       </div>
                       <div className="jobplugin__profile-block__body">
                         <div className="form-group mb-3">
@@ -1723,7 +2160,7 @@ const EmployeeerEditProfile = () => {
                               type="button"
                               className="btn btn-primary"
                               onClick={handleAddLanguage}
-                              style={{ height: "42px" }}
+                              style={{ height: "45px", fontSize: "16px" }}
                             >
                               <FaPlus />
                             </button>
@@ -1734,7 +2171,7 @@ const EmployeeerEditProfile = () => {
                             <span
                               key={index}
                               className="badge bg-secondary d-flex align-items-center gap-2"
-                              style={{ fontSize: "13px", padding: "8px 12px" }}
+                              style={{ fontSize: "14px", padding: "10px 14px" }}
                             >
                               {language}
                               <button
@@ -1743,7 +2180,7 @@ const EmployeeerEditProfile = () => {
                                 onClick={() => handleRemoveLanguage(language)}
                                 style={{ lineHeight: 1 }}
                               >
-                                <FaTimes size={12} />
+                                <FaTimes size={14} />
                               </button>
                             </span>
                           ))}
@@ -1753,7 +2190,9 @@ const EmployeeerEditProfile = () => {
 
                     <div className="jobplugin__profile-block">
                       <div className="jobplugin__profile-block__header">
-                        <h2 className="h4">Grade Levels</h2>
+                        <h2 className="h4" style={{ fontSize: "20px" }}>
+                          Grade Levels
+                        </h2>
                       </div>
                       <div className="jobplugin__profile-block__body">
                         <div className="form-group mb-3">
@@ -1774,7 +2213,7 @@ const EmployeeerEditProfile = () => {
                               type="button"
                               className="btn btn-primary"
                               onClick={handleAddGradeLevel}
-                              style={{ height: "42px" }}
+                              style={{ height: "45px", fontSize: "16px" }}
                             >
                               <FaPlus />
                             </button>
@@ -1785,7 +2224,7 @@ const EmployeeerEditProfile = () => {
                             <span
                               key={index}
                               className="badge bg-secondary d-flex align-items-center gap-2"
-                              style={{ fontSize: "13px", padding: "8px 12px" }}
+                              style={{ fontSize: "14px", padding: "10px 14px" }}
                             >
                               {grade}
                               <button
@@ -1794,7 +2233,7 @@ const EmployeeerEditProfile = () => {
                                 onClick={() => handleRemoveGradeLevel(grade)}
                                 style={{ lineHeight: 1 }}
                               >
-                                <FaTimes size={12} />
+                                <FaTimes size={14} />
                               </button>
                             </span>
                           ))}
@@ -1804,13 +2243,15 @@ const EmployeeerEditProfile = () => {
 
                     <div className="jobplugin__profile-block">
                       <div className="jobplugin__profile-block__header">
-                        <h2 className="h4">Address</h2>
+                        <h2 className="h4" style={{ fontSize: "20px" }}>
+                          Address
+                        </h2>
                       </div>
                       <div className="jobplugin__profile-block__body">
                         <div className="row g-3">
                           <div className="col-md-6">
                             <div className="form-group">
-                              <label>Address Line 1</label>
+                              <label style={labelStyle}>Address Line 1</label>
                               <input
                                 type="text"
                                 className="form-control"
@@ -1824,7 +2265,7 @@ const EmployeeerEditProfile = () => {
                           </div>
                           <div className="col-md-6">
                             <div className="form-group">
-                              <label>Address Line 2</label>
+                              <label style={labelStyle}>Address Line 2</label>
                               <input
                                 type="text"
                                 className="form-control"
@@ -1838,7 +2279,7 @@ const EmployeeerEditProfile = () => {
                           </div>
                           <div className="col-md-6">
                             <div className="form-group">
-                              <label>City</label>
+                              <label style={labelStyle}>City</label>
                               <input
                                 type="text"
                                 className="form-control"
@@ -1851,7 +2292,7 @@ const EmployeeerEditProfile = () => {
                           </div>
                           <div className="col-md-6">
                             <div className="form-group">
-                              <label>State</label>
+                              <label style={labelStyle}>State</label>
                               <input
                                 type="text"
                                 className="form-control"
@@ -1864,7 +2305,7 @@ const EmployeeerEditProfile = () => {
                           </div>
                           <div className="col-md-6">
                             <div className="form-group">
-                              <label>PIN Code</label>
+                              <label style={labelStyle}>PIN Code</label>
                               <input
                                 type="text"
                                 className="form-control"
@@ -1879,7 +2320,9 @@ const EmployeeerEditProfile = () => {
                           </div>
                           <div className="col-md-6">
                             <div className="form-group">
-                              <label>Preferred Location</label>
+                              <label style={labelStyle}>
+                                Preferred Location
+                              </label>
                               <input
                                 type="text"
                                 className="form-control"
@@ -1898,7 +2341,9 @@ const EmployeeerEditProfile = () => {
                     {/* Enhanced Education Section with Year/Month Selection */}
                     <div className="jobplugin__profile-block">
                       <div className="jobplugin__profile-block__header">
-                        <h2 className="h4">Education</h2>
+                        <h2 className="h4" style={{ fontSize: "20px" }}>
+                          Education
+                        </h2>
                       </div>
                       <div className="jobplugin__profile-block__body">
                         <div
@@ -1909,14 +2354,20 @@ const EmployeeerEditProfile = () => {
                           }}
                         >
                           <div className="card-header bg-white">
-                            <h6 className="mb-0 fw-semibold">
+                            <h6
+                              className="mb-0 fw-semibold"
+                              style={{ fontSize: "16px" }}
+                            >
                               Add New Education
                             </h6>
                           </div>
                           <div className="card-body">
                             <div className="row g-3">
                               <div className="col-md-6">
-                                <label className="form-label">
+                                <label
+                                  className="form-label"
+                                  style={labelStyle}
+                                >
                                   Degree/Certificate*
                                 </label>
                                 <input
@@ -1934,7 +2385,10 @@ const EmployeeerEditProfile = () => {
                                 />
                               </div>
                               <div className="col-md-6">
-                                <label className="form-label">
+                                <label
+                                  className="form-label"
+                                  style={labelStyle}
+                                >
                                   Institution*
                                 </label>
                                 <input
@@ -1952,8 +2406,13 @@ const EmployeeerEditProfile = () => {
                                 />
                               </div>
                               <div className="col-md-4">
-                                <label className="form-label">Type</label>
-                                <div className="position-relative">
+                                <label
+                                  className="form-label"
+                                  style={labelStyle}
+                                >
+                                  Type
+                                </label>
+                                <div style={{ position: "relative" }}>
                                   <select
                                     className="form-control"
                                     value={newEducation.type}
@@ -1963,7 +2422,15 @@ const EmployeeerEditProfile = () => {
                                         type: e.target.value,
                                       })
                                     }
-                                    style={selectStyle}
+                                    style={{
+                                      ...selectStyle,
+                                      padding: "7px",
+                                      WebkitAppearance: "none",
+                                      MozAppearance: "none",
+                                      appearance: "none",
+                                      backgroundImage: "none",
+                                      backgroundRepeat: "no-repeat",
+                                    }}
                                   >
                                     <option value="">Select Type</option>
                                     <option value="Full-time">Full-time</option>
@@ -1971,11 +2438,27 @@ const EmployeeerEditProfile = () => {
                                     <option value="Distance">Distance</option>
                                     <option value="Online">Online</option>
                                   </select>
-                                  <FaChevronDown className="position-absolute end-0 top-50 translate-middle-y me-3" />
+                                  <FaChevronDown
+                                    style={{
+                                      position: "absolute",
+                                      right: "15px",
+                                      top: "50%",
+                                      transform: "translateY(-50%)",
+                                      pointerEvents: "none",
+                                      color: "#6c757d",
+                                      fontSize: "12px",
+                                      zIndex: 1,
+                                    }}
+                                  />
                                 </div>
                               </div>
                               <div className="col-md-4">
-                                <label className="form-label">Grade/CGPA</label>
+                                <label
+                                  className="form-label"
+                                  style={labelStyle}
+                                >
+                                  Grade/CGPA
+                                </label>
                                 <input
                                   type="text"
                                   className="form-control"
@@ -1991,7 +2474,10 @@ const EmployeeerEditProfile = () => {
                                 />
                               </div>
                               <div className="col-md-4">
-                                <label className="form-label">
+                                <label
+                                  className="form-label"
+                                  style={labelStyle}
+                                >
                                   Field of Study
                                 </label>
                                 <input
@@ -2011,7 +2497,12 @@ const EmployeeerEditProfile = () => {
 
                               {/* Start Date - Year/Month Selection */}
                               <div className="col-md-6">
-                                <label className="form-label">Start Date</label>
+                                <label
+                                  className="form-label"
+                                  style={labelStyle}
+                                >
+                                  Start Date
+                                </label>
                                 <div className="row g-2">
                                   <div className="col-6">
                                     <select
@@ -2023,7 +2514,12 @@ const EmployeeerEditProfile = () => {
                                           startYear: e.target.value,
                                         })
                                       }
-                                      style={selectStyle}
+                                      style={{
+                                        ...selectStyle,
+                                        appearance: "none",
+                                        backgroundImage: "none",
+                                        padding: "7px",
+                                      }}
                                     >
                                       <option value="">Year</option>
                                       {years.map((year) => (
@@ -2043,7 +2539,12 @@ const EmployeeerEditProfile = () => {
                                           startMonth: e.target.value,
                                         })
                                       }
-                                      style={selectStyle}
+                                      style={{
+                                        ...selectStyle,
+                                        appearance: "none",
+                                        backgroundImage: "none",
+                                        padding: "7px",
+                                      }}
                                     >
                                       <option value="">Month</option>
                                       {months.map((month) => (
@@ -2061,7 +2562,12 @@ const EmployeeerEditProfile = () => {
 
                               {/* End Date - Year/Month Selection */}
                               <div className="col-md-6">
-                                <label className="form-label">End Date</label>
+                                <label
+                                  className="form-label"
+                                  style={labelStyle}
+                                >
+                                  End Date
+                                </label>
                                 <div className="row g-2">
                                   <div className="col-6">
                                     <select
@@ -2073,7 +2579,12 @@ const EmployeeerEditProfile = () => {
                                           endYear: e.target.value,
                                         })
                                       }
-                                      style={selectStyle}
+                                      style={{
+                                        ...selectStyle,
+                                        appearance: "none",
+                                        backgroundImage: "none",
+                                        padding: "7px",
+                                      }}
                                     >
                                       <option value="">Year</option>
                                       <option value="">Present</option>
@@ -2094,7 +2605,12 @@ const EmployeeerEditProfile = () => {
                                           endMonth: e.target.value,
                                         })
                                       }
-                                      style={selectStyle}
+                                      style={{
+                                        ...selectStyle,
+                                        appearance: "none",
+                                        backgroundImage: "none",
+                                        padding: "7px",
+                                      }}
                                     >
                                       <option value="">Month</option>
                                       {months.map((month) => (
@@ -2111,7 +2627,10 @@ const EmployeeerEditProfile = () => {
                               </div>
 
                               <div className="col-12">
-                                <label className="form-label">
+                                <label
+                                  className="form-label"
+                                  style={labelStyle}
+                                >
                                   Description (Optional)
                                 </label>
                                 <textarea
@@ -2140,7 +2659,7 @@ const EmployeeerEditProfile = () => {
                                   }
                                   style={{
                                     fontSize: "16px",
-                                    padding: "7px 13px",
+                                    padding: "10px 16px",
                                   }}
                                 >
                                   <FaPlus
@@ -2164,23 +2683,38 @@ const EmployeeerEditProfile = () => {
                             <div className="card-body">
                               <div className="d-flex justify-content-between align-items-start">
                                 <div className="flex-grow-1">
-                                  <h5 className="card-title mb-1">
+                                  <h5
+                                    className="card-title mb-1"
+                                    style={{ fontSize: "18px" }}
+                                  >
                                     {edu.degree}
                                   </h5>
-                                  <h6 className="card-subtitle mb-2 text-muted">
+                                  <h6
+                                    className="card-subtitle mb-2 text-muted"
+                                    style={{ fontSize: "16px" }}
+                                  >
                                     {edu.institution}
                                   </h6>
                                   <div className="mb-2">
-                                    <span className="badge bg-secondary me-2">
+                                    <span
+                                      className="badge bg-secondary me-2"
+                                      style={{ fontSize: "13px" }}
+                                    >
                                       {edu.type}
                                     </span>
-                                    <small className="text-muted">
+                                    <small
+                                      className="text-muted"
+                                      style={{ fontSize: "14px" }}
+                                    >
                                       {edu.startDate} -{" "}
                                       {edu.endDate || "Present"}
                                     </small>
                                   </div>
                                   {edu.grade && (
-                                    <p className="mb-1">
+                                    <p
+                                      className="mb-1"
+                                      style={{ fontSize: "15px" }}
+                                    >
                                       <small className="text-muted">
                                         Grade:{" "}
                                       </small>
@@ -2190,7 +2724,10 @@ const EmployeeerEditProfile = () => {
                                     </p>
                                   )}
                                   {edu.fieldOfStudy && (
-                                    <p className="mb-1">
+                                    <p
+                                      className="mb-1"
+                                      style={{ fontSize: "15px" }}
+                                    >
                                       <small className="text-muted">
                                         Field:{" "}
                                       </small>
@@ -2198,7 +2735,10 @@ const EmployeeerEditProfile = () => {
                                     </p>
                                   )}
                                   {edu.description && (
-                                    <p className="mb-0 mt-2">
+                                    <p
+                                      className="mb-0 mt-2"
+                                      style={{ fontSize: "15px" }}
+                                    >
                                       {edu.description}
                                     </p>
                                   )}
@@ -2208,6 +2748,7 @@ const EmployeeerEditProfile = () => {
                                   className="btn btn-sm btn-outline-danger ms-3"
                                   onClick={() => handleRemoveEducation(index)}
                                   title="Delete Education"
+                                  style={{ fontSize: "14px" }}
                                 >
                                   <FaTrash />
                                 </button>
@@ -2286,7 +2827,7 @@ const EmployeeerEditProfile = () => {
                                         employmentType: e.target.value,
                                       })
                                     }
-                                    style={selectStyle}
+                                    style={{ ...selectStyle, padding: "7px" }}
                                   >
                                     <option value="">Select Type</option>
                                     <option value="Full-time">Full-time</option>
@@ -2332,7 +2873,7 @@ const EmployeeerEditProfile = () => {
                                           startYear: e.target.value,
                                         })
                                       }
-                                      style={selectStyle}
+                                      style={{ ...selectStyle, padding: "7px" }}
                                     >
                                       <option value="">Year</option>
                                       {years.map((year) => (
@@ -2352,7 +2893,7 @@ const EmployeeerEditProfile = () => {
                                           startMonth: e.target.value,
                                         })
                                       }
-                                      style={selectStyle}
+                                      style={{ ...selectStyle, padding: "7px" }}
                                     >
                                       <option value="">Month</option>
                                       {months.map((month) => (
@@ -2382,7 +2923,7 @@ const EmployeeerEditProfile = () => {
                                           endYear: e.target.value,
                                         })
                                       }
-                                      style={selectStyle}
+                                      style={{ ...selectStyle, padding: "7px" }}
                                     >
                                       <option value="">Year</option>
                                       <option value="">Present</option>
@@ -2403,7 +2944,7 @@ const EmployeeerEditProfile = () => {
                                           endMonth: e.target.value,
                                         })
                                       }
-                                      style={selectStyle}
+                                      style={{ ...selectStyle, padding: "7px" }}
                                     >
                                       <option value="">Month</option>
                                       {months.map((month) => (
