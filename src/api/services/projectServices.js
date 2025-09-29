@@ -183,6 +183,16 @@ export const getAllEvents = async () => {
   }
 };
 
+export const getMyEvents = async (userId) => {
+  try {
+    const response = await projectServices.get(`/employer/getmyevents/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    throw error;
+  }
+};
+
 export const getEventDetails = async (eventId) => {
   try {
     const response = await projectServices.get(`/employer/details/${eventId}`);

@@ -16,8 +16,9 @@ import { IoLocationOutline } from "react-icons/io5";
 import Sidebar from "../../components/layout/Sidebar";
 import {
   getAllEvents,
+  getMyEvents,
   registerEventEmployee,
-} from "../../api/services/projectServices"; // Fixed import
+} from "../../api/services/projectServices";
 import { Link } from "react-router-dom";
 
 const Events = () => {
@@ -32,28 +33,30 @@ const Events = () => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [events, setEvents] = useState([]);
+  const [myEvents, setMyEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("all");
+  const [myEventsSubTab, setMyEventsSubTab] = useState("all");
   const [availableCategories, setAvailableCategories] = useState([]);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [mobileNumber, setMobileNumber] = useState(""); // Initialize as empty string
+  const [mobileNumber, setMobileNumber] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [message,setMessage] =useState("")
-
-  console.log("participantMobile", participantMobile);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const data = await getAllEvents();
+        const myEventsData = await getMyEvents(participantId);
+        
         setEvents(data);
+        setMyEvents(myEventsData);
         setFilteredEvents(data);
 
-        // Extract unique categories from events
         const categories = [
           ...new Set(data.map((event) => event.category).filter(Boolean)),
         ];
@@ -67,17 +70,40 @@ const Events = () => {
     };
 
     fetchEvents();
-  }, []);
+  }, [participantId]);
 
-  // Filter events based on active tab
+  const getEventTiming = (eventDate) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const event = new Date(eventDate);
+    event.setHours(0, 0, 0, 0);
+
+    if (event < today) return "past";
+    if (event.getTime() === today.getTime()) return "today";
+    return "upcoming";
+  };
+
   useEffect(() => {
-    if (activeTab === "all") {
+    if (activeTab === "myevents") {
+      let filtered = myEvents;
+      
+      if (myEventsSubTab === "past") {
+        filtered = myEvents.filter(event => getEventTiming(event.eventDate) === "past");
+      } else if (myEventsSubTab === "today") {
+        filtered = myEvents.filter(event => getEventTiming(event.eventDate) === "today");
+      } else if (myEventsSubTab === "upcoming") {
+        filtered = myEvents.filter(event => getEventTiming(event.eventDate) === "upcoming");
+      }
+      
+      setFilteredEvents(filtered);
+    } else if (activeTab === "all") {
       setFilteredEvents(events);
     } else {
       const filtered = events.filter((event) => event.category === activeTab);
       setFilteredEvents(filtered);
     }
-  }, [events, activeTab]);
+  }, [events, myEvents, activeTab, myEventsSubTab]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -89,12 +115,14 @@ const Events = () => {
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
+    if (tab === "myevents") {
+      setMyEventsSubTab("all");
+    }
   };
 
   const handleApplyNow = (event) => {
     setSelectedEvent(event);
     setShowApplyModal(true);
-    // Set the mobile number from userData when opening modal
     setMobileNumber(participantMobile || "");
     setSubmitSuccess(false);
   };
@@ -125,7 +153,6 @@ const Events = () => {
     setIsSubmitting(true);
 
     try {
-      // Call the API with participantId, mobileNumber, and eventId
       const response = await registerEventEmployee(
         participantId,
         mobileNumber,
@@ -133,11 +160,12 @@ const Events = () => {
         "Registered"
       );
 
-      console.log("Registration successful:", response);
-      setMessage(response.data.message)
+      setMessage(response.data.message);
       setSubmitSuccess(true);
 
-      // Close modal after 2 seconds
+      const myEventsData = await getMyEvents(participantId);
+      setMyEvents(myEventsData);
+
       setTimeout(() => {
         closeApplyModal();
       }, 2000);
@@ -159,9 +187,16 @@ const Events = () => {
     });
   };
 
-  // Dynamic tabs based on available categories
+  const myEventsCounts = {
+    all: myEvents.length,
+    past: myEvents.filter(e => getEventTiming(e.eventDate) === "past").length,
+    today: myEvents.filter(e => getEventTiming(e.eventDate) === "today").length,
+    upcoming: myEvents.filter(e => getEventTiming(e.eventDate) === "upcoming").length,
+  };
+
   const tabs = [
     { id: "all", label: "All Events", count: events.length },
+    { id: "myevents", label: "My Events", count: myEvents.length },
     ...availableCategories.map((category) => ({
       id: category,
       label: category,
@@ -209,10 +244,8 @@ const Events = () => {
 
   return (
     <>
-      {/* Sub Visual of the page */}
       <div className="subvisual-block subvisual-theme-1 bg-secondary d-flex pt-60 pt-md-90 text-white"></div>
 
-      {/* Main content with dashboard-style layout */}
       <main
         className="jobplugin__main"
         style={{
@@ -230,7 +263,6 @@ const Events = () => {
             style={{ maxWidth: "1400px", margin: "0 auto" }}
           >
             <div className="jobplugin__settings">
-              {/* Fixed Settings Button */}
               <a
                 href="#"
                 className="jobplugin__settings-opener jobplugin__text-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
@@ -253,7 +285,6 @@ const Events = () => {
                 <FaCog className="rj-icon rj-settings" />
               </a>
 
-              {/* Sidebar Overlay */}
               {isSidebarOpen && (
                 <div
                   className="sidebar-overlay"
@@ -280,12 +311,10 @@ const Events = () => {
                 <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
               </div>
 
-              {/* Main Content Area */}
               <div
                 className="jobplugin__settings-content"
                 style={{ padding: "0px" }}
               >
-                {/* Tab Navigation - Dashboard Style */}
                 <div
                   style={{
                     backgroundColor: "white",
@@ -361,7 +390,61 @@ const Events = () => {
                   </div>
                 </div>
 
-                {/* Events Grid - Dashboard Card Style */}
+                {activeTab === "myevents" && (
+                  <div
+                    style={{
+                      backgroundColor: "white",
+                      borderRadius: "12px",
+                      boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+                      border: "1px solid #f0f0f0",
+                      marginBottom: "15px",
+                      padding: "15px 20px",
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
+                      {[
+                        { id: "all", label: "All", count: myEventsCounts.all },
+                        { id: "past", label: "Past", count: myEventsCounts.past },
+                        { id: "today", label: "Today", count: myEventsCounts.today },
+                        { id: "upcoming", label: "Upcoming", count: myEventsCounts.upcoming },
+                      ].map((subTab) => (
+                        <button
+                          key={subTab.id}
+                          onClick={() => setMyEventsSubTab(subTab.id)}
+                          style={{
+                            padding: "8px 16px",
+                            borderRadius: "8px",
+                            border: "none",
+                            backgroundColor:
+                              myEventsSubTab === subTab.id ? "#2c5aa0" : "#f5f5f5",
+                            color: myEventsSubTab === subTab.id ? "white" : "#666",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            cursor: "pointer",
+                            transition: "all 0.3s ease",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
+                          {subTab.label}
+                          <span
+                            style={{
+                              backgroundColor:
+                                myEventsSubTab === subTab.id ? "rgba(255,255,255,0.2)" : "#ddd",
+                              padding: "2px 6px",
+                              borderRadius: "10px",
+                              fontSize: "12px",
+                            }}
+                          >
+                            {subTab.count}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {filteredEvents.length > 0 ? (
                   <div
                     style={{
@@ -395,7 +478,6 @@ const Events = () => {
                             "0 2px 8px rgba(0,0,0,0.06)";
                         }}
                       >
-                        {/* Event Layout - Horizontal like dashboard */}
                         <div
                           style={{
                             display: "flex",
@@ -404,7 +486,6 @@ const Events = () => {
                             alignItems: "flex-start",
                           }}
                         >
-                          {/* Event Image */}
                           <div
                             style={{
                               flexShrink: 0,
@@ -425,7 +506,6 @@ const Events = () => {
                             />
                           </div>
 
-                          {/* Event Content */}
                           <div
                             style={{
                               flex: 1,
@@ -434,7 +514,6 @@ const Events = () => {
                               gap: "12px",
                             }}
                           >
-                            {/* Event Title */}
                             <h3
                               style={{
                                 fontSize: "18px",
@@ -447,7 +526,6 @@ const Events = () => {
                               {event.title}
                             </h3>
 
-                            {/* Event Details */}
                             <div
                               style={{
                                 display: "flex",
@@ -501,13 +579,31 @@ const Events = () => {
                                 </span>
                               </div>
 
-                              <span style={{ fontSize: "13px", color: "#888" }}>
-                                <strong>Registrations:</strong>{" "}
-                                {event.totalRegistrations}
-                              </span>
+                              {activeTab === "myevents" && event.myRegistration && (
+                                <div style={{ marginTop: "4px" }}>
+                                  <span
+                                    style={{
+                                      display: "inline-block",
+                                      padding: "4px 12px",
+                                      borderRadius: "6px",
+                                      fontSize: "13px",
+                                      fontWeight: "600",
+                                      backgroundColor:
+                                        event.myRegistration.status === "Pending"
+                                          ? "#fff3cd"
+                                          : "#d4edda",
+                                      color:
+                                        event.myRegistration.status === "Pending"
+                                          ? "#856404"
+                                          : "#155724",
+                                    }}
+                                  >
+                                    Status: {event.myRegistration.status}
+                                  </span>
+                                </div>
+                              )}
                             </div>
 
-                            {/* Action Buttons */}
                             <div
                               style={{
                                 display: "flex",
@@ -515,22 +611,24 @@ const Events = () => {
                                 marginTop: "8px",
                               }}
                             >
-                              <button
-                                onClick={() => handleApplyNow(event)}
-                                style={{
-                                  padding: "8px 16px",
-                                  borderRadius: "6px",
-                                  fontWeight: "500",
-                                  fontSize: "14px",
-                                  backgroundColor: "#2c5aa0",
-                                  color: "white",
-                                  border: "none",
-                                  transition: "all 0.3s ease",
-                                  cursor: "pointer",
-                                }}
-                              >
-                                Apply Now
-                              </button>
+                              {activeTab !== "myevents" && (
+                                <button
+                                  onClick={() => handleApplyNow(event)}
+                                  style={{
+                                    padding: "8px 16px",
+                                    borderRadius: "6px",
+                                    fontWeight: "500",
+                                    fontSize: "14px",
+                                    backgroundColor: "#2c5aa0",
+                                    color: "white",
+                                    border: "none",
+                                    transition: "all 0.3s ease",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  Apply Now
+                                </button>
+                              )}
                               <Link
                                 to={`/events-details/${event._id}`}
                                 style={{
@@ -585,14 +683,15 @@ const Events = () => {
                       No Events Found
                     </h3>
                     <p style={{ fontSize: "16px", color: "#999", margin: "0" }}>
-                      {activeTab === "all"
+                      {activeTab === "myevents"
+                        ? `No ${myEventsSubTab === "all" ? "" : myEventsSubTab} events in your registrations.`
+                        : activeTab === "all"
                         ? "No events are currently available."
                         : `No events found in "${activeTab}" category.`}
                     </p>
                   </div>
                 )}
 
-                {/* Apply Now Modal */}
                 {showApplyModal && selectedEvent && (
                   <div
                     style={{
@@ -623,7 +722,6 @@ const Events = () => {
                       }}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {/* Modal Header */}
                       <div
                         style={{
                           padding: "24px 30px",
@@ -691,296 +789,280 @@ const Events = () => {
                           </p>
                         </div>
                       ) : (
-                        <>
-                          {/* Event Details */}
-                          <div style={{ padding: "30px" }}>
-                            <div
+                        <div style={{ padding: "30px" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "20px",
+                              marginBottom: "24px",
+                            }}
+                          >
+                            <img
+                              src={selectedEvent.bannerImage}
+                              alt={selectedEvent.title}
                               style={{
-                                display: "flex",
-                                gap: "20px",
-                                marginBottom: "24px",
-                              }}
-                            >
-                              <img
-                                src={selectedEvent.bannerImage}
-                                alt={selectedEvent.title}
-                                style={{
-                                  width: "100px",
-                                  height: "100px",
-                                  borderRadius: "10px",
-                                  objectFit: "cover",
-                                  flexShrink: 0,
-                                }}
-                              />
-                              <div style={{ flex: 1 }}>
-                                <h4
-                                  style={{
-                                    fontSize: "18px",
-                                    fontWeight: "600",
-                                    color: "#333",
-                                    marginBottom: "8px",
-                                  }}
-                                >
-                                  {selectedEvent.title}
-                                </h4>
-                                <p
-                                  style={{
-                                    fontSize: "14px",
-                                    color: "#666",
-                                    margin: "0",
-                                    lineHeight: "1.4",
-                                  }}
-                                >
-                                  {selectedEvent.description?.length > 100
-                                    ? selectedEvent.description.substring(
-                                        0,
-                                        100
-                                      ) + "..."
-                                    : selectedEvent.description}
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Event Info Grid */}
-                            <div
-                              style={{
-                                display: "grid",
-                                gridTemplateColumns: "1fr 1fr",
-                                gap: "16px",
-                                marginBottom: "24px",
-                                padding: "20px",
-                                backgroundColor: "#f8f9fa",
+                                width: "100px",
+                                height: "100px",
                                 borderRadius: "10px",
+                                objectFit: "cover",
+                                flexShrink: 0,
                               }}
-                            >
-                              <div
+                            />
+                            <div style={{ flex: 1 }}>
+                              <h4
                                 style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "8px",
-                                }}
-                              >
-                                <FaCalendarAlt
-                                  style={{ color: "#2c5aa0", fontSize: "16px" }}
-                                />
-                                <div>
-                                  <div
-                                    style={{
-                                      fontSize: "12px",
-                                      color: "#888",
-                                      fontWeight: "500",
-                                    }}
-                                  >
-                                    Date
-                                  </div>
-                                  <div
-                                    style={{
-                                      fontSize: "14px",
-                                      color: "#333",
-                                      fontWeight: "600",
-                                    }}
-                                  >
-                                    {formatDate(selectedEvent.eventDate)}
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "8px",
-                                }}
-                              >
-                                <FaClock
-                                  style={{ color: "#2c5aa0", fontSize: "16px" }}
-                                />
-                                <div>
-                                  <div
-                                    style={{
-                                      fontSize: "12px",
-                                      color: "#888",
-                                      fontWeight: "500",
-                                    }}
-                                  >
-                                    Time
-                                  </div>
-                                  <div
-                                    style={{
-                                      fontSize: "14px",
-                                      color: "#333",
-                                      fontWeight: "600",
-                                    }}
-                                  >
-                                    {selectedEvent.startTime} -{" "}
-                                    {selectedEvent.endTime}
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "8px",
-                                }}
-                              >
-                                <FaMapMarkerAlt
-                                  style={{ color: "#2c5aa0", fontSize: "16px" }}
-                                />
-                                <div>
-                                  <div
-                                    style={{
-                                      fontSize: "12px",
-                                      color: "#888",
-                                      fontWeight: "500",
-                                    }}
-                                  >
-                                    Venue
-                                  </div>
-                                  <div
-                                    style={{
-                                      fontSize: "14px",
-                                      color: "#333",
-                                      fontWeight: "600",
-                                    }}
-                                  >
-                                    {selectedEvent.venue}
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "8px",
-                                }}
-                              >
-                                <FaUser
-                                  style={{ color: "#2c5aa0", fontSize: "16px" }}
-                                />
-                                <div>
-                                  <div
-                                    style={{
-                                      fontSize: "12px",
-                                      color: "#888",
-                                      fontWeight: "500",
-                                    }}
-                                  >
-                                    Entry Fee
-                                  </div>
-                                  <div
-                                    style={{
-                                      fontSize: "14px",
-                                      color: "#333",
-                                      fontWeight: "600",
-                                    }}
-                                  >
-                                    ₹{selectedEvent.entryfee || "Free"}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Mobile Number Input */}
-                            <div style={{ marginBottom: "24px" }}>
-                              <label
-                                style={{
-                                  display: "block",
-                                  fontSize: "14px",
+                                  fontSize: "18px",
                                   fontWeight: "600",
                                   color: "#333",
                                   marginBottom: "8px",
                                 }}
                               >
-                                <FaPhone
-                                  style={{
-                                    marginRight: "8px",
-                                    color: "#2c5aa0",
-                                  }}
-                                />
-                                Mobile Number *
-                              </label>
-                              <input
-                                type="tel"
-                                value={mobileNumber}
-                                onChange={(e) =>
-                                  setMobileNumber(e.target.value)
-                                }
-                                placeholder="Enter your 10-digit mobile number"
+                                {selectedEvent.title}
+                              </h4>
+                              <p
                                 style={{
-                                  width: "100%",
-                                  padding: "12px 16px",
-                                  border: "2px solid #e0e0e0",
-                                  borderRadius: "8px",
-                                  fontSize: "16px",
-                                  transition: "border-color 0.3s ease",
-                                  outline: "none",
-                                  boxSizing: "border-box",
+                                  fontSize: "14px",
+                                  color: "#666",
+                                  margin: "0",
+                                  lineHeight: "1.4",
                                 }}
-                                onFocus={(e) =>
-                                  (e.target.style.borderColor = "#2c5aa0")
-                                }
-                                onBlur={(e) =>
-                                  (e.target.style.borderColor = "#e0e0e0")
-                                }
-                              />
+                              >
+                                {selectedEvent.description?.length > 100
+                                  ? selectedEvent.description.substring(0, 100) +
+                                    "..."
+                                  : selectedEvent.description}
+                              </p>
                             </div>
+                          </div>
 
-                            {/* Action Buttons */}
+                          <div
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "1fr 1fr",
+                              gap: "16px",
+                              marginBottom: "24px",
+                              padding: "20px",
+                              backgroundColor: "#f8f9fa",
+                              borderRadius: "10px",
+                            }}
+                          >
                             <div
                               style={{
                                 display: "flex",
-                                gap: "12px",
-                                justifyContent: "flex-end",
+                                alignItems: "center",
+                                gap: "8px",
                               }}
                             >
-                              <button
-                                onClick={closeApplyModal}
-                                style={{
-                                  padding: "12px 24px",
-                                  borderRadius: "8px",
-                                  border: "2px solid #ddd",
-                                  backgroundColor: "white",
-                                  color: "#666",
-                                  fontSize: "16px",
-                                  fontWeight: "500",
-                                  cursor: "pointer",
-                                  transition: "all 0.3s ease",
-                                }}
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                onClick={handleSubmitApplication}
-                                disabled={isSubmitting}
-                                style={{
-                                  padding: "12px 24px",
-                                  borderRadius: "8px",
-                                  border: "none",
-                                  backgroundColor: isSubmitting
-                                    ? "#ccc"
-                                    : "#2c5aa0",
-                                  color: "white",
-                                  fontSize: "16px",
-                                  fontWeight: "600",
-                                  cursor: isSubmitting
-                                    ? "not-allowed"
-                                    : "pointer",
-                                  transition: "all 0.3s ease",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "8px",
-                                }}
-                              >
-                                {isSubmitting
-                                  ? "Submitting..."
-                                  : "Confirm Application"}
-                              </button>
+                              <FaCalendarAlt
+                                style={{ color: "#2c5aa0", fontSize: "16px" }}
+                              />
+                              <div>
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#888",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  Date
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "14px",
+                                    color: "#333",
+                                    fontWeight: "600",
+                                  }}
+                                >
+                                  {formatDate(selectedEvent.eventDate)}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                            >
+                              <FaClock
+                                style={{ color: "#2c5aa0", fontSize: "16px" }}
+                              />
+                              <div>
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#888",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  Time
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "14px",
+                                    color: "#333",
+                                    fontWeight: "600",
+                                  }}
+                                >
+                                  {selectedEvent.startTime} -{" "}
+                                  {selectedEvent.endTime}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                            >
+                              <FaMapMarkerAlt
+                                style={{ color: "#2c5aa0", fontSize: "16px" }}
+                              />
+                              <div>
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#888",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  Venue
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "14px",
+                                    color: "#333",
+                                    fontWeight: "600",
+                                  }}
+                                >
+                                  {selectedEvent.venue}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                            >
+                              <FaUser
+                                style={{ color: "#2c5aa0", fontSize: "16px" }}
+                              />
+                              <div>
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#888",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  Entry Fee
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "14px",
+                                    color: "#333",
+                                    fontWeight: "600",
+                                  }}
+                                >
+                                  ₹{selectedEvent.entryfee || "Free"}
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </>
+
+                          <div style={{ marginBottom: "24px" }}>
+                            <label
+                              style={{
+                                display: "block",
+                                fontSize: "14px",
+                                fontWeight: "600",
+                                color: "#333",
+                                marginBottom: "8px",
+                              }}
+                            >
+                              <FaPhone
+                                style={{
+                                  marginRight: "8px",
+                                  color: "#2c5aa0",
+                                }}
+                              />
+                              Mobile Number *
+                            </label>
+                            <input
+                              type="tel"
+                              value={mobileNumber}
+                              onChange={(e) => setMobileNumber(e.target.value)}
+                              placeholder="Enter your 10-digit mobile number"
+                              style={{
+                                width: "100%",
+                                padding: "12px 16px",
+                                border: "2px solid #e0e0e0",
+                                borderRadius: "8px",
+                                fontSize: "16px",
+                                transition: "border-color 0.3s ease",
+                                outline: "none",
+                                boxSizing: "border-box",
+                              }}
+                              onFocus={(e) =>
+                                (e.target.style.borderColor = "#2c5aa0")
+                              }
+                              onBlur={(e) =>
+                                (e.target.style.borderColor = "#e0e0e0")
+                              }
+                            />
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "12px",
+                              justifyContent: "flex-end",
+                            }}
+                          >
+                            <button
+                              onClick={closeApplyModal}
+                              style={{
+                                padding: "12px 24px",
+                                borderRadius: "8px",
+                                border: "2px solid #ddd",
+                                backgroundColor: "white",
+                                color: "#666",
+                                fontSize: "16px",
+                                fontWeight: "500",
+                                cursor: "pointer",
+                                transition: "all 0.3s ease",
+                              }}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={handleSubmitApplication}
+                              disabled={isSubmitting}
+                              style={{
+                                padding: "12px 24px",
+                                borderRadius: "8px",
+                                border: "none",
+                                backgroundColor: isSubmitting ? "#ccc" : "#2c5aa0",
+                                color: "white",
+                                fontSize: "16px",
+                                fontWeight: "600",
+                                cursor: isSubmitting ? "not-allowed" : "pointer",
+                                transition: "all 0.3s ease",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                            >
+                              {isSubmitting ? "Submitting..." : "Confirm Application"}
+                            </button>
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -991,7 +1073,6 @@ const Events = () => {
         </div>
       </main>
 
-      {/* Responsive CSS */}
       <style jsx>{`
         @media (max-width: 768px) {
           .jobplugin__main {
@@ -1008,11 +1089,7 @@ const Events = () => {
             padding: 15px 15px 0 15px !important;
           }
 
-          /* Mobile event card adjustments */
-          .jobplugin__settings-content
-            > div:nth-child(2)
-            > div
-            > div:first-child {
+          .jobplugin__settings-content > div:nth-child(2) > div > div:first-child {
             flex-direction: column !important;
             align-items: center !important;
           }
@@ -1027,7 +1104,6 @@ const Events = () => {
             margin-bottom: 15px !important;
           }
 
-          /* Modal responsive */
           .modal-grid {
             grid-template-columns: 1fr !important;
           }

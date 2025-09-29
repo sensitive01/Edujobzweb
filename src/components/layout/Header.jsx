@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FaHome,
@@ -11,20 +11,110 @@ import {
   FaTimes,
   FaChevronDown,
   FaChevronUp,
+  FaChalkboardTeacher,
+  FaSchool,
+  FaBook,
+  FaLaptop,
+  FaChild,
+  FaMapMarkerAlt,
+  FaUserTie,
+  FaSuitcase,
 } from "react-icons/fa";
 import { useLoginCleanup } from "../../hooks/useLoginCleanup";
+import { FaSquarePen } from "react-icons/fa6";
+import { IoDocumentText } from "react-icons/io5";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [userProfilePic, setUserProfilePic] = useState(null);
+  const [showJobsMenu, setShowJobsMenu] = useState(false);
+  const [activeTab, setActiveTab] = useState("categories");
 
   const navigate = useNavigate();
   const location = useLocation();
+  const jobsMenuRef = useRef(null);
 
   // Use the login cleanup hook
   useLoginCleanup();
+
+  const jobCategories = [
+    {
+      name: "Teaching Jobs",
+      icon: <FaChalkboardTeacher />,
+      count: "20284 Jobs",
+    },
+    {
+      name: "Leadership and Administration",
+      icon: <FaUniversity />,
+      count: "56190 Jobs",
+    },
+    {
+      name: "Support and Student Welfare",
+      icon: <FaChild />,
+      count: "5362 Jobs",
+    },
+    {
+      name: "Extracurricular Activities",
+      icon: <FaBook />,
+      count: "10258 Jobs",
+    },
+    {
+      name: "Curriculum and Content Development",
+      icon: <FaSchool />,
+      count: "46165 Jobs",
+    },
+    {
+      name: "EdTech and Digital Learning",
+      icon: <FaLaptop />,
+      count: "1632 Jobs",
+    },
+    {
+      name: "Special Education and Inclusive Learning",
+      icon: <FaChalkboardTeacher />,
+      count: "1240 Jobs",
+    },
+    { name: "Non-Teaching Staffs", icon: <FaUsers />, count: "980 Jobs" },
+    {
+      name: "Training and Development",
+      icon: <FaSquarePen />,
+      count: "764 Jobs",
+    },
+    {
+      name: "Research and Policy Development",
+      icon: <IoDocumentText />,
+      count: "328 Jobs",
+    },
+    {
+      name: "Other Specialized Roles",
+      icon: <FaSuitcase />,
+      count: "1120 Jobs",
+    },
+  ];
+
+  const locations = [
+    "Mumbai",
+    "Delhi",
+    "Bangalore",
+    "Hyderabad",
+    "Chennai",
+    "Pune",
+    "Kolkata",
+    "Ahmedabad",
+  ];
+
+  const designations = [
+    "Principal",
+    "Vice Principal",
+    "Subject Teacher",
+    "Assistant Teacher",
+    "Academic Coordinator",
+    "Lab Assistant",
+    "Librarian",
+    "Counselor",
+  ];
+
   useEffect(() => {
     const userData = localStorage.getItem("userData");
     if (userData) {
@@ -59,6 +149,20 @@ const Header = () => {
       document.body.style.overflow = "unset";
     };
   }, [isMenuOpen]);
+
+  // Close jobs menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (jobsMenuRef.current && !jobsMenuRef.current.contains(event.target)) {
+        setShowJobsMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -96,6 +200,7 @@ const Header = () => {
   const handleLinkClick = () => {
     setIsMenuOpen(false);
     setOpenDropdown(null);
+    setShowJobsMenu(false);
   };
 
   const handleAccountClick = () => {
@@ -238,10 +343,376 @@ const Header = () => {
                   </Link>
                 </li>
 
-                <li style={{ padding: "0px 15px" }}>
-                  <Link to="/job-vacancies" onClick={handleLinkClick}>
-                    <FaBriefcase /> &nbsp; Jobs
-                  </Link>
+                <li
+                  style={{ padding: "0px 15px", position: "relative" }}
+                  ref={jobsMenuRef}
+                >
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowJobsMenu(!showJobsMenu);
+                    }}
+                    style={{
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <FaBriefcase /> &nbsp; Jobs &nbsp;
+                    <FaChevronDown style={{ fontSize: "10px" }} />
+                  </a>
+
+                  {/* Jobs Mega Menu with Tabs */}
+                  {showJobsMenu && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "100%",
+                        left: "-100px",
+                        width: "500px",
+                        backgroundColor: "#fff",
+                        boxShadow: "0 8px 16px rgba(0,0,0,0.15)",
+                        borderRadius: "8px",
+                        zIndex: 1000,
+                        marginTop: "10px",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {/* Tab Headers */}
+                      <div
+                        style={{
+                          display: "flex",
+                          borderBottom: "2px solid #f0f0f0",
+                          backgroundColor: "#f8f9fa",
+                        }}
+                      >
+                        <button
+                          onClick={() => setActiveTab("categories")}
+                          style={{
+                            flex: 1,
+                            padding: "15px 20px",
+                            border: "none",
+                            background:
+                              activeTab === "categories"
+                                ? "#fff"
+                                : "transparent",
+                            color:
+                              activeTab === "categories" ? "#063970" : "#666",
+                            fontSize: "13px",
+                            fontWeight:
+                              activeTab === "categories" ? "600" : "400",
+                            cursor: "pointer",
+                            borderBottom:
+                              activeTab === "categories"
+                                ? "3px solid #ffa500"
+                                : "none",
+                            transition: "all 0.3s",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.5px",
+                          }}
+                        >
+                          Categories
+                        </button>
+                        <button
+                          onClick={() => setActiveTab("locations")}
+                          style={{
+                            flex: 1,
+                            padding: "15px 20px",
+                            border: "none",
+                            background:
+                              activeTab === "locations"
+                                ? "#fff"
+                                : "transparent",
+                            color:
+                              activeTab === "locations" ? "#063970" : "#666",
+                            fontSize: "13px",
+                            fontWeight:
+                              activeTab === "locations" ? "600" : "400",
+                            cursor: "pointer",
+                            borderBottom:
+                              activeTab === "locations"
+                                ? "3px solid #ffa500"
+                                : "none",
+                            transition: "all 0.3s",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.5px",
+                          }}
+                        >
+                          Locations
+                        </button>
+                        <button
+                          onClick={() => setActiveTab("designations")}
+                          style={{
+                            flex: 1,
+                            padding: "15px 20px",
+                            border: "none",
+                            background:
+                              activeTab === "designations"
+                                ? "#fff"
+                                : "transparent",
+                            color:
+                              activeTab === "designations" ? "#063970" : "#666",
+                            fontSize: "13px",
+                            fontWeight:
+                              activeTab === "designations" ? "600" : "400",
+                            cursor: "pointer",
+                            borderBottom:
+                              activeTab === "designations"
+                                ? "3px solid #ffa500"
+                                : "none",
+                            transition: "all 0.3s",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.5px",
+                          }}
+                        >
+                          Designations
+                        </button>
+                      </div>
+
+                      {/* Tab Content */}
+                      <div
+                        style={{
+                          padding: "20px",
+                          maxHeight: "350px",
+                          overflowY: "auto",
+                        }}
+                      >
+                        {/* Categories Tab */}
+                        {activeTab === "categories" && (
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "6px",
+                            }}
+                          >
+                            {jobCategories.map((category, index) => (
+                              <Link
+                                key={index}
+                                to={`/job-vacancies?category=${category.name}`}
+                                onClick={handleLinkClick}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  padding: "8px 12px",
+                                  textDecoration: "none",
+                                  color: "#333",
+                                  fontSize: "13px",
+                                  borderRadius: "4px",
+                                  transition: "all 0.2s",
+                                  border: "1px solid transparent",
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                    "#f8f9fa";
+                                  e.currentTarget.style.borderColor = "#ffa500";
+                                  e.currentTarget.style.transform =
+                                    "translateX(5px)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                    "transparent";
+                                  e.currentTarget.style.borderColor =
+                                    "transparent";
+                                  e.currentTarget.style.transform =
+                                    "translateX(0)";
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    color: "#ffa500",
+                                    marginRight: "10px",
+                                    fontSize: "16px",
+                                  }}
+                                >
+                                  {category.icon}
+                                </span>
+                                <div style={{ flex: 1 }}>
+                                  <div
+                                    style={{
+                                      fontWeight: "500",
+                                      marginBottom: "1px",
+                                    }}
+                                  >
+                                    {category.name}
+                                  </div>
+                                  <div
+                                    style={{ fontSize: "11px", color: "#999" }}
+                                  >
+                                    {category.count}
+                                  </div>
+                                </div>
+                                <FaChevronDown
+                                  style={{
+                                    fontSize: "10px",
+                                    color: "#999",
+                                    transform: "rotate(-90deg)",
+                                  }}
+                                />
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Locations Tab */}
+                        {activeTab === "locations" && (
+                          <div
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "1fr 1fr",
+                              gap: "8px",
+                            }}
+                          >
+                            {locations.map((location, index) => (
+                              <Link
+                                key={index}
+                                to={`/job-vacancies?location=${location}`}
+                                onClick={handleLinkClick}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  padding: "8px 12px",
+                                  textDecoration: "none",
+                                  color: "#333",
+                                  fontSize: "13px",
+                                  borderRadius: "4px",
+                                  transition: "all 0.2s",
+                                  border: "1px solid #e0e0e0",
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                    "#ffa500";
+                                  e.currentTarget.style.borderColor = "#ffa500";
+                                  e.currentTarget.style.color = "#fff";
+                                  e.currentTarget.querySelector(
+                                    "svg"
+                                  ).style.color = "#fff";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                    "transparent";
+                                  e.currentTarget.style.borderColor = "#e0e0e0";
+                                  e.currentTarget.style.color = "#333";
+                                  e.currentTarget.querySelector(
+                                    "svg"
+                                  ).style.color = "#ffa500";
+                                }}
+                              >
+                                <FaMapMarkerAlt
+                                  style={{
+                                    color: "#ffa500",
+                                    marginRight: "8px",
+                                    fontSize: "12px",
+                                    transition: "color 0.2s",
+                                  }}
+                                />
+                                <span style={{ fontWeight: "500" }}>
+                                  {location}
+                                </span>
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Designations Tab */}
+                        {activeTab === "designations" && (
+                          <div
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "1fr 1fr",
+                              gap: "8px",
+                            }}
+                          >
+                            {designations.map((designation, index) => (
+                              <Link
+                                key={index}
+                                to={`/job-vacancies?designation=${designation}`}
+                                onClick={handleLinkClick}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  padding: "8px 12px",
+                                  textDecoration: "none",
+                                  color: "#333",
+                                  fontSize: "13px",
+                                  borderRadius: "4px",
+                                  transition: "all 0.2s",
+                                  border: "1px solid #e0e0e0",
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                    "#063970";
+                                  e.currentTarget.style.borderColor = "#063970";
+                                  e.currentTarget.style.color = "#fff";
+                                  e.currentTarget.querySelector(
+                                    "svg"
+                                  ).style.color = "#ffa500";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                    "transparent";
+                                  e.currentTarget.style.borderColor = "#e0e0e0";
+                                  e.currentTarget.style.color = "#333";
+                                  e.currentTarget.querySelector(
+                                    "svg"
+                                  ).style.color = "#ffa500";
+                                }}
+                              >
+                                <FaUserTie
+                                  style={{
+                                    color: "#ffa500",
+                                    marginRight: "8px",
+                                    fontSize: "12px",
+                                    transition: "color 0.2s",
+                                  }}
+                                />
+                                <span style={{ fontWeight: "500" }}>
+                                  {designation}
+                                </span>
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* View All Jobs Button */}
+                      <div
+                        style={{
+                          padding: "15px 20px",
+                          textAlign: "center",
+                          borderTop: "1px solid #f0f0f0",
+                          backgroundColor: "#f8f9fa",
+                        }}
+                      >
+                        <Link
+                          to="/job-vacancies"
+                          onClick={handleLinkClick}
+                          style={{
+                            display: "inline-block",
+                            padding: "8px 25px",
+                            backgroundColor: "#063970",
+                            color: "#fff",
+                            textDecoration: "none",
+                            borderRadius: "20px",
+                            fontSize: "13px",
+                            fontWeight: "500",
+                            transition: "all 0.3s",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = "#ffa500";
+                            e.currentTarget.style.transform = "scale(1.05)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = "#063970";
+                            e.currentTarget.style.transform = "scale(1)";
+                          }}
+                        >
+                          View All Jobs
+                        </Link>
+                      </div>
+                    </div>
+                  )}
                 </li>
 
                 <li style={{ padding: "0px 15px" }} className="dropdown">
@@ -373,22 +844,6 @@ const Header = () => {
                     </li>
                   </ul>
                 </li>
-
-                {/* <li style={{ padding: "0px 8px" }}>
-                  <Link
-                    className="btn btn-white btn-sm"
-                    to="/job-vacancies"
-                    onClick={handleLinkClick}
-                  >
-                    <span className="btn-text text-secondary">
-                      <i
-                        className="icon icon-user"
-                        style={{ fontSize: "10px" }}
-                      ></i>{" "}
-                      Apply Now
-                    </span>
-                  </Link>
-                </li> */}
 
                 <li style={{ padding: "0px 10px" }}>
                   <Link
@@ -665,8 +1120,6 @@ const Header = () => {
               </div>
             )}
           </div>
-
-          {/* {Corporate} */}
 
           {/* Candidates Dropdown */}
           <div style={{ marginBottom: "8px" }}>
