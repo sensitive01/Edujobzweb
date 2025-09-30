@@ -894,27 +894,37 @@ const Dashboard = () => {
                     "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                 }}
               >
-                <div className="d-flex justify-content-between align-items-center">
-                  <h4 className="mb-0 text-white">
-                    <Calendar
-                      className="me-2"
-                      size={24}
-                      style={{ display: "inline" }}
-                    />
-                    Interview Schedule
-                  </h4>
-                  <div className="d-flex gap-3">
-                    <div className="text-center">
-                      <div className="interview-count-badge text-white">
-                        {todayCount}
+                <div
+                  className="card-header"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)",
+                  }}
+                >
+                  <div className="d-flex justify-content-between align-items-center">
+                    <h4 className="mb-0 text-white">
+                      <Calendar
+                        className="me-2"
+                        size={24}
+                        style={{ display: "inline" }}
+                      />
+                      Interview Schedule
+                    </h4>
+                    <div className="d-flex gap-3">
+                      <div className="text-center">
+                        <div className="interview-count-badge text-white">
+                          {todayCount}
+                        </div>
+                        <small className="text-white opacity-75">Today</small>
                       </div>
-                      <small className="text-white opacity-75">Today</small>
-                    </div>
-                    <div className="text-center">
-                      <div className="interview-count-badge text-white">
-                        {upcomingCount}
+                      <div className="text-center">
+                        <div className="interview-count-badge text-white">
+                          {upcomingCount}
+                        </div>
+                        <small className="text-white opacity-75">
+                          Upcoming
+                        </small>
                       </div>
-                      <small className="text-white opacity-75">Upcoming</small>
                     </div>
                   </div>
                 </div>
@@ -931,7 +941,7 @@ const Dashboard = () => {
                       {todayAndUpcoming.slice(0, 3).map((interview) => (
                         <div
                           key={interview._id}
-                          className="list-group-item interview-list-item p-3"
+                          className="list-group-item interview-list-item p-2"
                           onClick={() =>
                             (window.location.href = interview.location)
                           }
