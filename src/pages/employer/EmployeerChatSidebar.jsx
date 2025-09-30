@@ -120,7 +120,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
     if (isOpen && candidate?.applicantId) {
       fetchEmployeeDetails(candidate.applicantId);
     }
-  }, [isOpen, candidate]);
+  }, [isOpen, candidate?.applicantId]);
 
   // Fetch chat messages when component mounts or candidate changes
   useEffect(() => {
@@ -134,7 +134,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
       fetchEmployerDetails();
       fetchEmployerJobs();
     }
-  }, [isOpen, employerData]);
+  }, [isOpen, employerData?._id]);
 
   const fetchEmployeeDetails = async (employeeId) => {
     try {
@@ -156,7 +156,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
   useEffect(() => {
     let intervalId;
 
-    if (isOpen && candidate) {
+    if (isOpen && candidate?.applicantId && employerData?._id) {
       // Initial fetch
       fetchChatMessages();
 
@@ -167,8 +167,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isOpen, candidate]);
-
+  }, [isOpen, candidate?.applicantId, candidate?.jobId, employerData?._id]);
 
   const fetchChatMessages = async () => {
     try {
@@ -829,7 +828,6 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
       </div>
     );
   }
-
 
   return (
     <div className="chat-sidebar open" style={sidebarStyles}>
