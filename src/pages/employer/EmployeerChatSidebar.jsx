@@ -9,6 +9,7 @@ import defaultEmployerAvatar from "../../assets/employer/assets/img/profiles/ava
 import defaultEmployeeAvatar from "../../assets/employer/assets/img/profiles/avatar-29.jpg";
 
 const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -515,6 +516,7 @@ const EmployeerChatSidebar = ({ isOpen, onClose, candidate }) => {
               start: interviewDateTime.toISOString(),
               end: endDateTime.toISOString(),
               color: "#6C63FF",
+              candidateId:candidate._id
             };
 
             await createCalendarEvent(eventData);
