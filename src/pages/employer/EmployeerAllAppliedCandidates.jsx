@@ -411,7 +411,7 @@ const EmployeerAllAppliedCandidates = () => {
     };
 
     fetchCandidates();
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     filterCandidates();

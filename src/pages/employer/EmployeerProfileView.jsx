@@ -5,6 +5,7 @@ import EmployerHeader from "./EmployerHeader";
 import EmployerFooter from "./EmployerFooter";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import defaultImage from "../../../public/images/profileImage.jpg"
 
 const EmployeerProfileView = () => {
   const [schoolData, setSchoolData] = useState(null);
@@ -415,7 +416,7 @@ const EmployeerProfileView = () => {
                   }}
                 >
                   <img
-                    src={profilePicPreview || "assets/img/users/user-13.jpg"}
+                    src={profilePicPreview ||defaultImage}
                     className="w-auto h-auto"
                     alt="Profile"
                     style={{
@@ -569,7 +570,7 @@ const EmployeerProfileView = () => {
                       <div className="position-relative mb-3">
                         <img
                           src={
-                            profilePicPreview || "assets/img/users/user-13.jpg"
+                            profilePicPreview || defaultImage
                           }
                           className="rounded-circle border border-3 border-primary"
                           alt="Profile"

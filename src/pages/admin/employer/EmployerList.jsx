@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminHeader from "../layout/AdminHeader";
 import AdminFooter from "../layout/AdminFooter";
+import defaultImage from "../../../../public/images/people-img-01.jpg"
 
 const EmployerList = () => {
   const navigate = useNavigate();
