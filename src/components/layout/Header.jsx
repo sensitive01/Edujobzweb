@@ -23,6 +23,7 @@ import {
 import { useLoginCleanup } from "../../hooks/useLoginCleanup";
 import { FaSquarePen } from "react-icons/fa6";
 import { IoDocumentText } from "react-icons/io5";
+import { getHeaderStaticsData } from "../../api/services/projectServices";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -30,7 +31,8 @@ const Header = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [userProfilePic, setUserProfilePic] = useState(null);
   const [showJobsMenu, setShowJobsMenu] = useState(false);
-  const [activeTab, setActiveTab] = useState("categories");
+  const [activeTab, setActiveTab] = useState("employerTypes");
+  const [categoryCounts, setCategoryCounts] = useState({});
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,10 +43,18 @@ const Header = () => {
 
   const employerTypes = [
     { name: "Schools", icon: <FaSchool />, count: "15420 Jobs" },
-    { name: "Coaching Institute", icon: <FaChalkboardTeacher />, count: "8750 Jobs" },
+    {
+      name: "Coaching Institute",
+      icon: <FaChalkboardTeacher />,
+      count: "8750 Jobs",
+    },
     { name: "Pre-Schools", icon: <FaChild />, count: "5280 Jobs" },
     { name: "EdTech Companies", icon: <FaLaptop />, count: "3640 Jobs" },
-    { name: "College / Universities", icon: <FaUniversity />, count: "12890 Jobs" },
+    {
+      name: "College / Universities",
+      icon: <FaUniversity />,
+      count: "12890 Jobs",
+    },
     { name: "Training Centers", icon: <FaBook />, count: "4320 Jobs" },
   ];
 
@@ -52,53 +62,43 @@ const Header = () => {
     {
       name: "Teaching Jobs",
       icon: <FaChalkboardTeacher />,
-      count: "20284 Jobs",
     },
     {
       name: "Leadership and Administration",
       icon: <FaUniversity />,
-      count: "56190 Jobs",
     },
     {
       name: "Support and Student Welfare",
       icon: <FaChild />,
-      count: "5362 Jobs",
     },
     {
       name: "Extracurricular Activities",
       icon: <FaBook />,
-      count: "10258 Jobs",
     },
     {
       name: "Curriculum and Content Development",
       icon: <FaSchool />,
-      count: "46165 Jobs",
     },
     {
       name: "EdTech and Digital Learning",
       icon: <FaLaptop />,
-      count: "1632 Jobs",
     },
     {
       name: "Special Education and Inclusive Learning",
       icon: <FaChalkboardTeacher />,
-      count: "1240 Jobs",
     },
-    { name: "Non-Teaching Staffs", icon: <FaUsers />, count: "980 Jobs" },
+    { name: "Non-Teaching Staffs", icon: <FaUsers /> },
     {
       name: "Training and Development",
       icon: <FaSquarePen />,
-      count: "764 Jobs",
     },
     {
       name: "Research and Policy Development",
       icon: <IoDocumentText />,
-      count: "328 Jobs",
     },
     {
       name: "Other Specialized Roles",
       icon: <FaSuitcase />,
-      count: "1120 Jobs",
     },
   ];
 
@@ -172,6 +172,32 @@ const Header = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Fetch category counts from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getHeaderStaticsData();
+        if (response.status===200) {
+          // Convert array to object for easy lookup
+          const countsMap = {};
+          response.data.data.forEach((item) => {
+            countsMap[item.category] = item.count;
+          });
+          setCategoryCounts(countsMap);
+        }
+      } catch (error) {
+        console.error("Error fetching header statistics:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Helper function to get count for a category
+  const getCategoryCount = (categoryName) => {
+    const count = categoryCounts[categoryName] || 0;
+    return `${count} Job${count !== 1 ? "s" : ""}`;
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -397,6 +423,35 @@ const Header = () => {
                         }}
                       >
                         <button
+                          onClick={() => setActiveTab("employerTypes")}
+                          style={{
+                            flex: 1,
+                            padding: "15px 10px",
+                            border: "none",
+                            background:
+                              activeTab === "employerTypes"
+                                ? "#fff"
+                                : "transparent",
+                            color:
+                              activeTab === "employerTypes"
+                                ? "#063970"
+                                : "#666",
+                            fontSize: "11px",
+                            fontWeight:
+                              activeTab === "employerTypes" ? "600" : "400",
+                            cursor: "pointer",
+                            borderBottom:
+                              activeTab === "employerTypes"
+                                ? "3px solid #ffa500"
+                                : "none",
+                            transition: "all 0.3s",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.5px",
+                          }}
+                        >
+                          Employer Type
+                        </button>
+                        <button
                           onClick={() => setActiveTab("categories")}
                           style={{
                             flex: 1,
@@ -477,33 +532,6 @@ const Header = () => {
                         >
                           Designations
                         </button>
-                        <button
-                          onClick={() => setActiveTab("employerTypes")}
-                          style={{
-                            flex: 1,
-                            padding: "15px 10px",
-                            border: "none",
-                            background:
-                              activeTab === "employerTypes"
-                                ? "#fff"
-                                : "transparent",
-                            color:
-                              activeTab === "employerTypes" ? "#063970" : "#666",
-                            fontSize: "11px",
-                            fontWeight:
-                              activeTab === "employerTypes" ? "600" : "400",
-                            cursor: "pointer",
-                            borderBottom:
-                              activeTab === "employerTypes"
-                                ? "3px solid #ffa500"
-                                : "none",
-                            transition: "all 0.3s",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.5px",
-                          }}
-                        >
-                          Employer Type
-                        </button>
                       </div>
 
                       {/* Tab Content */}
@@ -514,6 +542,81 @@ const Header = () => {
                           overflowY: "auto",
                         }}
                       >
+                        {activeTab === "employerTypes" && (
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "6px",
+                            }}
+                          >
+                            {employerTypes.map((employer, index) => (
+                              <Link
+                                key={index}
+                                to={`/job-vacancies?employerType=${employer.name}`}
+                                onClick={handleLinkClick}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  padding: "10px 12px",
+                                  textDecoration: "none",
+                                  color: "#333",
+                                  fontSize: "13px",
+                                  borderRadius: "4px",
+                                  transition: "all 0.2s",
+                                  border: "1px solid transparent",
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                    "#f8f9fa";
+                                  e.currentTarget.style.borderColor = "#063970";
+                                  e.currentTarget.style.transform =
+                                    "translateX(5px)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                    "transparent";
+                                  e.currentTarget.style.borderColor =
+                                    "transparent";
+                                  e.currentTarget.style.transform =
+                                    "translateX(0)";
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    color: "#063970",
+                                    marginRight: "10px",
+                                    fontSize: "16px",
+                                  }}
+                                >
+                                  {employer.icon}
+                                </span>
+                                <div style={{ flex: 1 }}>
+                                  <div
+                                    style={{
+                                      fontWeight: "500",
+                                      marginBottom: "1px",
+                                    }}
+                                  >
+                                    {employer.name}
+                                  </div>
+                                  <div
+                                    style={{ fontSize: "11px", color: "#999" }}
+                                  >
+                                    {employer.count}
+                                  </div>
+                                </div>
+                                <FaChevronDown
+                                  style={{
+                                    fontSize: "10px",
+                                    color: "#999",
+                                    transform: "rotate(-90deg)",
+                                  }}
+                                />
+                              </Link>
+                            ))}
+                          </div>
+                        )}
                         {/* Categories Tab */}
                         {activeTab === "categories" && (
                           <div
@@ -576,7 +679,7 @@ const Header = () => {
                                   <div
                                     style={{ fontSize: "11px", color: "#999" }}
                                   >
-                                    {category.count}
+                                    {getCategoryCount(category.name)}
                                   </div>
                                 </div>
                                 <FaChevronDown
@@ -706,83 +809,6 @@ const Header = () => {
                                 <span style={{ fontWeight: "500" }}>
                                   {designation}
                                 </span>
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Employer Types Tab */}
-                        {activeTab === "employerTypes" && (
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "6px",
-                            }}
-                          >
-                            {employerTypes.map((employer, index) => (
-                              <Link
-                                key={index}
-                                to={`/job-vacancies?employerType=${employer.name}`}
-                                onClick={handleLinkClick}
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  padding: "10px 12px",
-                                  textDecoration: "none",
-                                  color: "#333",
-                                  fontSize: "13px",
-                                  borderRadius: "4px",
-                                  transition: "all 0.2s",
-                                  border: "1px solid transparent",
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.backgroundColor =
-                                    "#f8f9fa";
-                                  e.currentTarget.style.borderColor = "#063970";
-                                  e.currentTarget.style.transform =
-                                    "translateX(5px)";
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor =
-                                    "transparent";
-                                  e.currentTarget.style.borderColor =
-                                    "transparent";
-                                  e.currentTarget.style.transform =
-                                    "translateX(0)";
-                                }}
-                              >
-                                <span
-                                  style={{
-                                    color: "#063970",
-                                    marginRight: "10px",
-                                    fontSize: "16px",
-                                  }}
-                                >
-                                  {employer.icon}
-                                </span>
-                                <div style={{ flex: 1 }}>
-                                  <div
-                                    style={{
-                                      fontWeight: "500",
-                                      marginBottom: "1px",
-                                    }}
-                                  >
-                                    {employer.name}
-                                  </div>
-                                  <div
-                                    style={{ fontSize: "11px", color: "#999" }}
-                                  >
-                                    {employer.count}
-                                  </div>
-                                </div>
-                                <FaChevronDown
-                                  style={{
-                                    fontSize: "10px",
-                                    color: "#999",
-                                    transform: "rotate(-90deg)",
-                                  }}
-                                />
                               </Link>
                             ))}
                           </div>
@@ -978,7 +1004,7 @@ const Header = () => {
                   <button
                     onClick={handleAccountClick}
                     style={{
-                     backgroundColor: "#063970",
+                      backgroundColor: "#063970",
                       color: "#fff",
                       border: "none",
                       display: "flex",

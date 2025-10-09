@@ -409,3 +409,14 @@ export const registerEventEmployee = async (participantId,mobileNumber,eventId,s
     throw error.response?.data?.message || error.message;
   }
 };
+
+export const getHeaderStaticsData = async () => {
+  try {
+    const response = await projectServices.get(
+      `/get-header-categories-count`
+    );
+    return response;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};

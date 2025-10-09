@@ -2111,10 +2111,35 @@ const BasicInfoTab = ({
               required
             >
               <option value="">Select Category</option>
-              <option value="IT">IT</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Finance">Finance</option>
-              <option value="Education">Education</option>
+              <option value="Teaching Jobs">Teaching Jobs</option>
+              <option value="Leadership and Administration">
+                Leadership and Administration
+              </option>
+              <option value="Support and Student Welfare">
+                Support and Student Welfare
+              </option>
+              <option value="Extracurricular Activities">
+                Extracurricular Activities
+              </option>
+              <option value="Curriculum and Content Development">
+                Curriculum and Content Development
+              </option>
+              <option value="EdTech and Digital Learning">
+                EdTech and Digital Learning
+              </option>
+              <option value="Special Education and Inclusive Learning">
+                Special Education and Inclusive Learning
+              </option>
+              <option value="Non-Teaching Staffs">Non-Teaching Staffs</option>
+              <option value="Training and Development">
+                Training and Development
+              </option>
+              <option value="Research and Policy Development">
+                Research and Policy Development
+              </option>
+              <option value="Other Specialized Roles">
+                Other Specialized Roles
+              </option>
             </select>
           </div>
         </div>
