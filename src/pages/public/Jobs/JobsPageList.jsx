@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import Jobsbreadcrumb from "./Jobsbreadcrumb";
 import JobsFilter from "./JobsFilter";
 import { Filter, Search, X, Bookmark, CheckCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import defaultEmployeeAvatar from "../../../assets/employer/assets/img/profiles/avatar-12.jpg";
-import jobImage from "../../../../public/images/jobImage.jpg"
-
+import jobImage from "../../../../public/images/jobImage.jpg";
 
 const JobsPageList = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   const [allJobListings, setAllJobListings] = useState([]);
   const [filteredJobListings, setFilteredJobListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,14 +17,20 @@ const JobsPageList = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [jobsPerPage] = useState(10);
+  
   const [filterOptions, setFilterOptions] = useState({
     jobTypes: [],
     locations: [],
     experienceLevels: [],
     categories: [],
     specializations: [],
+    instituteTypes: [],
+    subcategories: [],
+    levelExamTypes: [],
+    roles: [],
+    subjects: [],
+    nonAcademicTypes: [],
   });
-  const navigate = useNavigate();
 
   const [filters, setFilters] = useState({
     jobType: "",
@@ -33,7 +41,28 @@ const JobsPageList = () => {
     sort: "",
     salaryFrom: "",
     salaryTo: "",
+    instituteType: "",
+    subcategory: "",
+    levelExamType: "",
+    role: "",
+    subject: "",
+    nonAcademicType: "",
   });
+
+  // Handle URL parameters
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const keyword = searchParams.get("keyword") || "";
+    const locationParam = searchParams.get("location") || "";
+    const categoryParam = searchParams.get("category") || "";
+
+    setFilters((prev) => ({
+      ...prev,
+      searchQuery: keyword,
+      location: locationParam,
+      category: categoryParam,
+    }));
+  }, [location.search]);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -47,7 +76,6 @@ const JobsPageList = () => {
         }
         const data = await response.json();
         setAllJobListings(data);
-        setFilteredJobListings(data);
 
         // Extract filter options from data
         const uniqueJobTypes = [
@@ -68,12 +96,56 @@ const JobsPageList = () => {
           ...new Set(data.map((job) => job.category)),
         ].filter(Boolean);
 
+        // Extract subfilter options
+        const uniqueInstituteTypes = [
+          ...new Set(data.map((job) => job.instituteType)),
+        ].filter(Boolean);
+        const uniqueSubcategories = [
+          ...new Set(data.map((job) => job.subcategory)),
+        ].filter(Boolean);
+        const uniqueLevelExamTypes = [
+          ...new Set(data.map((job) => job.levelExamType)),
+        ].filter(Boolean);
+        const uniqueRoles = [...new Set(data.map((job) => job.role))].filter(
+          Boolean
+        );
+        const uniqueSubjects = [
+          ...new Set(data.map((job) => job.subject)),
+        ].filter(Boolean);
+        const uniqueNonAcademicTypes = [
+          ...new Set(data.map((job) => job.nonAcademicType)),
+        ].filter(Boolean);
+
         setFilterOptions({
           jobTypes: uniqueJobTypes,
           locations: uniqueLocations,
           experienceLevels: uniqueExperienceLevels,
           categories: uniqueCategories,
           specializations: uniqueSpecializations,
+          instituteTypes:
+            uniqueInstituteTypes.length > 0
+              ? uniqueInstituteTypes
+              : ["School", "College", "University", "Institute"],
+          subcategories:
+            uniqueSubcategories.length > 0
+              ? uniqueSubcategories
+              : ["Primary", "Secondary", "Higher Secondary"],
+          levelExamTypes:
+            uniqueLevelExamTypes.length > 0
+              ? uniqueLevelExamTypes
+              : ["Grade 1-5", "Grade 6-10", "Grade 11-12"],
+          roles:
+            uniqueRoles.length > 0
+              ? uniqueRoles
+              : ["Teacher", "Principal", "Coordinator", "Administrator"],
+          subjects:
+            uniqueSubjects.length > 0
+              ? uniqueSubjects
+              : ["Mathematics", "Science", "English", "History"],
+          nonAcademicTypes:
+            uniqueNonAcademicTypes.length > 0
+              ? uniqueNonAcademicTypes
+              : ["Sports", "Arts", "Music", "Dance"],
         });
       } catch (err) {
         setError(err.message);
@@ -88,6 +160,15 @@ const JobsPageList = () => {
   useEffect(() => {
     const applyFilters = () => {
       let filteredJobs = [...allJobListings];
+
+      // Apply category filter
+      if (filters.category) {
+        filteredJobs = filteredJobs.filter(
+          (job) =>
+            job.category &&
+            job.category.toLowerCase() === filters.category.toLowerCase()
+        );
+      }
 
       // Apply search query filter
       if (filters.searchQuery) {
@@ -127,9 +208,34 @@ const JobsPageList = () => {
           (job) => job.experienceLevel === filters.experienceLevel
         );
       }
-      if (filters.category) {
+
+      // Apply subfilters
+      if (filters.instituteType) {
         filteredJobs = filteredJobs.filter(
-          (job) => job.category === filters.category
+          (job) => job.instituteType === filters.instituteType
+        );
+      }
+      if (filters.subcategory) {
+        filteredJobs = filteredJobs.filter(
+          (job) => job.subcategory === filters.subcategory
+        );
+      }
+      if (filters.levelExamType) {
+        filteredJobs = filteredJobs.filter(
+          (job) => job.levelExamType === filters.levelExamType
+        );
+      }
+      if (filters.role) {
+        filteredJobs = filteredJobs.filter((job) => job.role === filters.role);
+      }
+      if (filters.subject) {
+        filteredJobs = filteredJobs.filter(
+          (job) => job.subject === filters.subject
+        );
+      }
+      if (filters.nonAcademicType) {
+        filteredJobs = filteredJobs.filter(
+          (job) => job.nonAcademicType === filters.nonAcademicType
         );
       }
 
@@ -199,6 +305,12 @@ const JobsPageList = () => {
       category: "",
       salaryFrom: "",
       salaryTo: "",
+      instituteType: "",
+      subcategory: "",
+      levelExamType: "",
+      role: "",
+      subject: "",
+      nonAcademicType: "",
     });
     const searchInput = document.querySelector('input[name="search"]');
     if (searchInput) {
@@ -262,6 +374,175 @@ const JobsPageList = () => {
     <>
       <Jobsbreadcrumb onFilterChange={handleBreadcrumbFilter} />
 
+      {/* Subfilter Bar - Added below breadcrumb */}
+      <section
+        className="subfilter-section"
+        style={{
+          backgroundColor: "#063970",
+          padding: "19px 0 20px 0",
+        }}
+      >
+        <div className="container">
+          <div className="row align-items-center g-2 justify-content-center flex-nowrap">
+            <div className="col-auto">
+              <select
+                name="jobType"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.jobType}
+                onChange={handleFilterChange}
+                style={{ minWidth: "140px" }}
+              >
+                <option value="">Job Type</option>
+                {filterOptions.jobTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <select
+                name="instituteType"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.instituteType}
+                onChange={handleFilterChange}
+                style={{ minWidth: "160px" }}
+              >
+                <option value="">Institute Type</option>
+                {filterOptions.instituteTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <select
+                name="subcategory"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.subcategory}
+                onChange={handleFilterChange}
+                style={{ minWidth: "140px" }}
+              >
+                <option value="">Subcategory</option>
+                {filterOptions.subcategories.map((subcat) => (
+                  <option key={subcat} value={subcat}>
+                    {subcat}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <select
+                name="levelExamType"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.levelExamType}
+                onChange={handleFilterChange}
+                style={{ minWidth: "180px" }}
+              >
+                <option value="">Level/Exam Type</option>
+                {filterOptions.levelExamTypes.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <select
+                name="role"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.role}
+                onChange={handleFilterChange}
+                style={{ minWidth: "120px" }}
+              >
+                <option value="">Role</option>
+                {filterOptions.roles.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <select
+                name="subject"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.subject}
+                onChange={handleFilterChange}
+                style={{ minWidth: "120px" }}
+              >
+                <option value="">Subject</option>
+                {filterOptions.subjects.map((subject) => (
+                  <option key={subject} value={subject}>
+                    {subject}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <select
+                name="nonAcademicType"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.nonAcademicType}
+                onChange={handleFilterChange}
+                style={{ minWidth: "210px" }}
+              >
+                <option value="">Non Academic Type</option>
+                {filterOptions.nonAcademicTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={clearFilters}
+                disabled={
+                  !filters.jobType &&
+                  !filters.instituteType &&
+                  !filters.subcategory &&
+                  !filters.levelExamType &&
+                  !filters.role &&
+                  !filters.subject &&
+                  !filters.nonAcademicType &&
+                  !filters.location &&
+                  !filters.experienceLevel &&
+                  !filters.searchQuery &&
+                  !filters.sort
+                }
+                style={{
+                  backgroundColor: "white",
+                  color: "#063970",
+                  fontWeight: "500",
+                  fontSize: "0.875rem",
+                  padding: "0.375rem 1rem",
+                  border: "2px solid white",
+                  borderRadius: "0.25rem",
+                  minWidth: "80px",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  if (!e.currentTarget.disabled) {
+                    e.currentTarget.style.backgroundColor = "#063970";
+                    e.currentTarget.style.color = "white";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "white";
+                  e.currentTarget.style.color = "#063970";
+                }}
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Main Content */}
       <main className="main">
         {/* Featured Jobs Section */}
@@ -272,7 +553,9 @@ const JobsPageList = () => {
                 {/* Page subheader */}
                 <header className="page-subheader mb-30 mb-md-40 d-xxl-flex align-items-center justify-content-between">
                   <h3 className="h6 mb-25 mb-xxl-0 text-secondary">
-                    {filteredJobListings.length} jobs found
+                    {filters.category
+                      ? `${filteredJobListings.length} ${filters.category} Jobs Found`
+                      : `${filteredJobListings.length} Jobs Found`}
                   </h3>
                   <div className="subhead-filters d-xxl-flex align-items-center justify-content-between">
                     <div className="subhead-filters-item">
@@ -381,7 +664,11 @@ const JobsPageList = () => {
                         width="150"
                         className="mb-3"
                       />
-                      <h4>No jobs found matching your criteria</h4>
+                      <h4>
+                        {filters.category
+                          ? `No ${filters.category} jobs found matching your criteria`
+                          : "No jobs found matching your criteria"}
+                      </h4>
                       <p className="text-muted">
                         Try adjusting your search filters
                       </p>
@@ -480,7 +767,7 @@ const JobsPageList = () => {
         </div>
       )}
 
-      {/* Add some CSS for the filter overlay */}
+      {/* Add CSS styles */}
       <style jsx>{`
         .filter-overlay {
           position: fixed;
@@ -497,23 +784,72 @@ const JobsPageList = () => {
           height: 100%;
           overflow-y: auto;
         }
+
+        .subfilter-section .subfilter-select {
+          font-size: 0.875rem;
+          padding: 0.5rem 2rem 0.5rem 0.75rem;
+          border: 1px solid #e0e0e0;
+          border-radius: 0.375rem;
+          background-color: white;
+          color: #333;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .subfilter-section .subfilter-select:focus {
+          border-color: #4a90e2;
+          outline: 0;
+          box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+        }
+
+        .subfilter-section .btn-link:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        @media (max-width: 1400px) {
+          .subfilter-section .row {
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            padding-bottom: 5px;
+          }
+          
+          .subfilter-section .col-auto {
+            flex: 0 0 auto;
+          }
+        }
+
+        @media (max-width: 991px) {
+          .subfilter-section {
+            padding: 10px 0;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .subfilter-section .form-select-sm {
+            font-size: 0.8rem;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .subfilter-section .row {
+            gap: 0.5rem;
+          }
+        }
       `}</style>
     </>
   );
 };
 
-// Job Card Component
+// Job Card Component remains the same
 const JobCard = ({ job, navigate }) => {
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
 
-  // Get applicant ID from localStorage
   const userData = JSON.parse(localStorage.getItem("userData"));
   const applicantId = userData?._id;
 
   useEffect(() => {
-    // Check if job is already saved by this applicant
     if (job.saved && applicantId) {
       const isJobSaved = job.saved.some(
         (save) => String(save.applicantId) === String(applicantId)
@@ -527,7 +863,6 @@ const JobCard = ({ job, navigate }) => {
     e.stopPropagation();
 
     if (!applicantId) {
-      // Redirect to login if user is not logged in
       navigate("/login");
       return;
     }
@@ -557,7 +892,6 @@ const JobCard = ({ job, navigate }) => {
       const result = await response.json();
       setIsSaved(result.isSaved);
 
-      // Show success message
       if (result.isSaved) {
         alert("Job saved successfully!");
       } else {
@@ -604,7 +938,7 @@ const JobCard = ({ job, navigate }) => {
                   width: "100%",
                   height: "100%",
                   borderRadius: "50%",
-                  border: "2px solid white",
+             border: "2px solid white",
                   overflow: "hidden",
                   backgroundColor: "white",
                   zIndex: 1,

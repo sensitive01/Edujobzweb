@@ -39,6 +39,15 @@ const Header = () => {
   // Use the login cleanup hook
   useLoginCleanup();
 
+  const employerTypes = [
+    { name: "Schools", icon: <FaSchool />, count: "15420 Jobs" },
+    { name: "Coaching Institute", icon: <FaChalkboardTeacher />, count: "8750 Jobs" },
+    { name: "Pre-Schools", icon: <FaChild />, count: "5280 Jobs" },
+    { name: "EdTech Companies", icon: <FaLaptop />, count: "3640 Jobs" },
+    { name: "College / Universities", icon: <FaUniversity />, count: "12890 Jobs" },
+    { name: "Training Centers", icon: <FaBook />, count: "4320 Jobs" },
+  ];
+
   const jobCategories = [
     {
       name: "Teaching Jobs",
@@ -363,14 +372,14 @@ const Header = () => {
                     <FaChevronDown style={{ fontSize: "10px" }} />
                   </a>
 
-                  {/* Jobs Mega Menu with Tabs */}
+                  {/* Jobs Mega Menu with 4 Tabs */}
                   {showJobsMenu && (
                     <div
                       style={{
                         position: "absolute",
                         top: "100%",
                         left: "-100px",
-                        width: "500px",
+                        width: "550px",
                         backgroundColor: "#fff",
                         boxShadow: "0 8px 16px rgba(0,0,0,0.15)",
                         borderRadius: "8px",
@@ -391,7 +400,7 @@ const Header = () => {
                           onClick={() => setActiveTab("categories")}
                           style={{
                             flex: 1,
-                            padding: "15px 20px",
+                            padding: "15px 10px",
                             border: "none",
                             background:
                               activeTab === "categories"
@@ -399,7 +408,7 @@ const Header = () => {
                                 : "transparent",
                             color:
                               activeTab === "categories" ? "#063970" : "#666",
-                            fontSize: "13px",
+                            fontSize: "11px",
                             fontWeight:
                               activeTab === "categories" ? "600" : "400",
                             cursor: "pointer",
@@ -418,7 +427,7 @@ const Header = () => {
                           onClick={() => setActiveTab("locations")}
                           style={{
                             flex: 1,
-                            padding: "15px 20px",
+                            padding: "15px 10px",
                             border: "none",
                             background:
                               activeTab === "locations"
@@ -426,7 +435,7 @@ const Header = () => {
                                 : "transparent",
                             color:
                               activeTab === "locations" ? "#063970" : "#666",
-                            fontSize: "13px",
+                            fontSize: "11px",
                             fontWeight:
                               activeTab === "locations" ? "600" : "400",
                             cursor: "pointer",
@@ -445,7 +454,7 @@ const Header = () => {
                           onClick={() => setActiveTab("designations")}
                           style={{
                             flex: 1,
-                            padding: "15px 20px",
+                            padding: "15px 10px",
                             border: "none",
                             background:
                               activeTab === "designations"
@@ -453,7 +462,7 @@ const Header = () => {
                                 : "transparent",
                             color:
                               activeTab === "designations" ? "#063970" : "#666",
-                            fontSize: "13px",
+                            fontSize: "11px",
                             fontWeight:
                               activeTab === "designations" ? "600" : "400",
                             cursor: "pointer",
@@ -467,6 +476,33 @@ const Header = () => {
                           }}
                         >
                           Designations
+                        </button>
+                        <button
+                          onClick={() => setActiveTab("employerTypes")}
+                          style={{
+                            flex: 1,
+                            padding: "15px 10px",
+                            border: "none",
+                            background:
+                              activeTab === "employerTypes"
+                                ? "#fff"
+                                : "transparent",
+                            color:
+                              activeTab === "employerTypes" ? "#063970" : "#666",
+                            fontSize: "11px",
+                            fontWeight:
+                              activeTab === "employerTypes" ? "600" : "400",
+                            cursor: "pointer",
+                            borderBottom:
+                              activeTab === "employerTypes"
+                                ? "3px solid #ffa500"
+                                : "none",
+                            transition: "all 0.3s",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.5px",
+                          }}
+                        >
+                          Employer Type
                         </button>
                       </div>
 
@@ -674,6 +710,83 @@ const Header = () => {
                             ))}
                           </div>
                         )}
+
+                        {/* Employer Types Tab */}
+                        {activeTab === "employerTypes" && (
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "6px",
+                            }}
+                          >
+                            {employerTypes.map((employer, index) => (
+                              <Link
+                                key={index}
+                                to={`/job-vacancies?employerType=${employer.name}`}
+                                onClick={handleLinkClick}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  padding: "10px 12px",
+                                  textDecoration: "none",
+                                  color: "#333",
+                                  fontSize: "13px",
+                                  borderRadius: "4px",
+                                  transition: "all 0.2s",
+                                  border: "1px solid transparent",
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                    "#f8f9fa";
+                                  e.currentTarget.style.borderColor = "#063970";
+                                  e.currentTarget.style.transform =
+                                    "translateX(5px)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor =
+                                    "transparent";
+                                  e.currentTarget.style.borderColor =
+                                    "transparent";
+                                  e.currentTarget.style.transform =
+                                    "translateX(0)";
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    color: "#063970",
+                                    marginRight: "10px",
+                                    fontSize: "16px",
+                                  }}
+                                >
+                                  {employer.icon}
+                                </span>
+                                <div style={{ flex: 1 }}>
+                                  <div
+                                    style={{
+                                      fontWeight: "500",
+                                      marginBottom: "1px",
+                                    }}
+                                  >
+                                    {employer.name}
+                                  </div>
+                                  <div
+                                    style={{ fontSize: "11px", color: "#999" }}
+                                  >
+                                    {employer.count}
+                                  </div>
+                                </div>
+                                <FaChevronDown
+                                  style={{
+                                    fontSize: "10px",
+                                    color: "#999",
+                                    transform: "rotate(-90deg)",
+                                  }}
+                                />
+                              </Link>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       {/* View All Jobs Button */}
@@ -724,7 +837,7 @@ const Header = () => {
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                   >
-                    <FaUniversity /> &nbsp; Corporate
+                    <FaUniversity /> &nbsp; Enterprises
                   </a>
 
                   <ul
@@ -865,7 +978,7 @@ const Header = () => {
                   <button
                     onClick={handleAccountClick}
                     style={{
-                      backgroundColor: "#063970",
+                     backgroundColor: "#063970",
                       color: "#fff",
                       border: "none",
                       display: "flex",

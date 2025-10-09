@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Jobsbreadcrumb from "./Jobsbreadcrumb";
 import { Search } from "lucide-react";
 import JobsFilter from "./JobsFilter";
-import { useLocation, useNavigate, Link } from "react-router-dom"; // Added useNavigate and Link
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import defaultEmployeeAvatar from "../../../assets/employer-admin/assets/img/profiles/avatar-12.jpg";
 import jobImage from "../../../../public/images/jobImage.jpg";
 
@@ -24,6 +24,12 @@ const JobsPage = () => {
     category: "",
     salaryFrom: "",
     salaryTo: "",
+    instituteType: "",
+    subcategory: "",
+    levelExamType: "",
+    role: "",
+    subject: "",
+    nonAcademicType: "",
   });
   const [filterOptions, setFilterOptions] = useState({
     jobTypes: [],
@@ -31,16 +37,20 @@ const JobsPage = () => {
     experienceLevels: [],
     categories: [],
     specializations: [],
+    instituteTypes: [],
+    subcategories: [],
+    levelExamTypes: [],
+    roles: [],
+    subjects: [],
+    nonAcademicTypes: [],
   });
 
   useEffect(() => {
-    // Parse URL parameters
     const searchParams = new URLSearchParams(location.search);
     const keyword = searchParams.get("keyword") || "";
     const locationParam = searchParams.get("location") || "";
     const categoryParam = searchParams.get("category") || "";
 
-    // Initialize filters with URL parameters
     setFilters((prev) => ({
       ...prev,
       searchQuery: keyword,
@@ -62,7 +72,6 @@ const JobsPage = () => {
         const data = await response.json();
         setAllJobListings(data);
 
-        // Set filter options
         const uniqueJobTypes = [
           ...new Set(data.map((job) => job.jobType)),
         ].filter(Boolean);
@@ -81,12 +90,56 @@ const JobsPage = () => {
           ...new Set(data.map((job) => job.category)),
         ].filter(Boolean);
 
+        // Extract unique values for subfilters from your actual job data
+        const uniqueInstituteTypes = [
+          ...new Set(data.map((job) => job.instituteType)),
+        ].filter(Boolean);
+        const uniqueSubcategories = [
+          ...new Set(data.map((job) => job.subcategory)),
+        ].filter(Boolean);
+        const uniqueLevelExamTypes = [
+          ...new Set(data.map((job) => job.levelExamType)),
+        ].filter(Boolean);
+        const uniqueRoles = [...new Set(data.map((job) => job.role))].filter(
+          Boolean
+        );
+        const uniqueSubjects = [
+          ...new Set(data.map((job) => job.subject)),
+        ].filter(Boolean);
+        const uniqueNonAcademicTypes = [
+          ...new Set(data.map((job) => job.nonAcademicType)),
+        ].filter(Boolean);
+
         setFilterOptions({
           jobTypes: uniqueJobTypes,
           locations: uniqueLocations,
           experienceLevels: uniqueExperienceLevels,
           categories: uniqueCategories,
           specializations: uniqueSpecializations,
+          instituteTypes:
+            uniqueInstituteTypes.length > 0
+              ? uniqueInstituteTypes
+              : ["School", "College", "University", "Institute"],
+          subcategories:
+            uniqueSubcategories.length > 0
+              ? uniqueSubcategories
+              : ["Primary", "Secondary", "Higher Secondary"],
+          levelExamTypes:
+            uniqueLevelExamTypes.length > 0
+              ? uniqueLevelExamTypes
+              : ["Grade 1-5", "Grade 6-10", "Grade 11-12"],
+          roles:
+            uniqueRoles.length > 0
+              ? uniqueRoles
+              : ["Teacher", "Principal", "Coordinator", "Administrator"],
+          subjects:
+            uniqueSubjects.length > 0
+              ? uniqueSubjects
+              : ["Mathematics", "Science", "English", "History"],
+          nonAcademicTypes:
+            uniqueNonAcademicTypes.length > 0
+              ? uniqueNonAcademicTypes
+              : ["Sports", "Arts", "Music", "Dance"],
         });
 
         setError(null);
@@ -105,7 +158,6 @@ const JobsPage = () => {
     const applyFilters = () => {
       let filteredJobs = [...allJobListings];
 
-      // Apply category filter first (from URL parameter)
       if (filters.category) {
         filteredJobs = filteredJobs.filter(
           (job) =>
@@ -114,7 +166,6 @@ const JobsPage = () => {
         );
       }
 
-      // Then apply other filters
       if (filters.searchQuery) {
         const query = filters.searchQuery.toLowerCase();
         filteredJobs = filteredJobs.filter((job) => {
@@ -132,7 +183,6 @@ const JobsPage = () => {
         });
       }
 
-      // Apply location filter
       if (filters.location) {
         if (filters.location === "Remote") {
           filteredJobs = filteredJobs.filter((job) => job.isRemote);
@@ -143,7 +193,6 @@ const JobsPage = () => {
         }
       }
 
-      // Apply other filters
       if (filters.jobType) {
         filteredJobs = filteredJobs.filter(
           (job) => job.jobType === filters.jobType
@@ -155,7 +204,36 @@ const JobsPage = () => {
         );
       }
 
-      // Apply sorting
+      // Apply subfilters
+      if (filters.instituteType) {
+        filteredJobs = filteredJobs.filter(
+          (job) => job.instituteType === filters.instituteType
+        );
+      }
+      if (filters.subcategory) {
+        filteredJobs = filteredJobs.filter(
+          (job) => job.subcategory === filters.subcategory
+        );
+      }
+      if (filters.levelExamType) {
+        filteredJobs = filteredJobs.filter(
+          (job) => job.levelExamType === filters.levelExamType
+        );
+      }
+      if (filters.role) {
+        filteredJobs = filteredJobs.filter((job) => job.role === filters.role);
+      }
+      if (filters.subject) {
+        filteredJobs = filteredJobs.filter(
+          (job) => job.subject === filters.subject
+        );
+      }
+      if (filters.nonAcademicType) {
+        filteredJobs = filteredJobs.filter(
+          (job) => job.nonAcademicType === filters.nonAcademicType
+        );
+      }
+
       if (filters.sort) {
         filteredJobs = [...filteredJobs].sort((a, b) => {
           switch (filters.sort) {
@@ -173,7 +251,6 @@ const JobsPage = () => {
         });
       }
 
-      // Apply salary range filter
       if (filters.salaryFrom || filters.salaryTo) {
         filteredJobs = filteredJobs.filter((job) => {
           const salaryFrom = job.salaryFrom || 0;
@@ -221,6 +298,12 @@ const JobsPage = () => {
       category: "",
       salaryFrom: "",
       salaryTo: "",
+      instituteType: "",
+      subcategory: "",
+      levelExamType: "",
+      role: "",
+      subject: "",
+      nonAcademicType: "",
     });
     const searchInput = document.querySelector('input[name="search"]');
     if (searchInput) {
@@ -305,6 +388,176 @@ const JobsPage = () => {
         initialKeyword={filters.searchQuery}
         initialLocation={filters.location}
       />
+
+      {/* Subfilter Bar - Moved to blue background area */}
+      <section
+        className="subfilter-section"
+        style={{
+          backgroundColor: "#063970",
+          padding: "19px 0 20px 0",
+        }}
+      >
+        <div className="container">
+          <div className="row align-items-center g-2 justify-content-center flex-nowrap">
+            <div className="col-auto">
+              <select
+                name="jobType"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.jobType}
+                onChange={handleFilterChange}
+                style={{ minWidth: "140px" }}
+              >
+                <option value="">Job Type</option>
+                {filterOptions.jobTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <select
+                name="instituteType"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.instituteType}
+                onChange={handleFilterChange}
+                style={{ minWidth: "160px" }}
+              >
+                <option value="">Institute Type</option>
+                {filterOptions.instituteTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <select
+                name="subcategory"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.subcategory}
+                onChange={handleFilterChange}
+                style={{ minWidth: "140px" }}
+              >
+                <option value="">Subcategory</option>
+                {filterOptions.subcategories.map((subcat) => (
+                  <option key={subcat} value={subcat}>
+                    {subcat}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <select
+                name="levelExamType"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.levelExamType}
+                onChange={handleFilterChange}
+                style={{ minWidth: "180px" }}
+              >
+                <option value="">Level/Exam Type</option>
+                {filterOptions.levelExamTypes.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <select
+                name="role"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.role}
+                onChange={handleFilterChange}
+                style={{ minWidth: "120px" }}
+              >
+                <option value="">Role</option>
+                {filterOptions.roles.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <select
+                name="subject"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.subject}
+                onChange={handleFilterChange}
+                style={{ minWidth: "120px" }}
+              >
+                <option value="">Subject</option>
+                {filterOptions.subjects.map((subject) => (
+                  <option key={subject} value={subject}>
+                    {subject}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <select
+                name="nonAcademicType"
+                className="form-select form-select-sm subfilter-select"
+                value={filters.nonAcademicType}
+                onChange={handleFilterChange}
+                style={{ minWidth: "210px" }}
+              >
+                <option value="">Non Academic Type</option>
+                {filterOptions.nonAcademicTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-auto">
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={clearFilters}
+                disabled={
+                  !filters.jobType &&
+                  !filters.instituteType &&
+                  !filters.subcategory &&
+                  !filters.levelExamType &&
+                  !filters.role &&
+                  !filters.subject &&
+                  !filters.nonAcademicType &&
+                  !filters.location &&
+                  !filters.experienceLevel &&
+                  !filters.searchQuery &&
+                  !filters.sort
+                }
+                style={{
+                  backgroundColor: "white",
+                  color: "#063970",
+                  fontWeight: "500",
+                  fontSize: "0.875rem",
+                  padding: "0.375rem 1rem",
+                  border: "2px solid white",
+                  borderRadius: "0.25rem",
+                  minWidth: "80px",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  if (!e.currentTarget.disabled) {
+                    e.currentTarget.style.backgroundColor = "#063970";
+                    e.currentTarget.style.color = "white";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "white";
+                  e.currentTarget.style.color = "#063970";
+                }}
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <main className="main">
         {showFilters && (
           <div className="filter-sidebar-overlay">
@@ -320,13 +573,13 @@ const JobsPage = () => {
             />
           </div>
         )}
+
         <section className="section section-categories section-theme-1 pt-35 pt-md-50 pt-lg-75 pt-xl-95 pb-35 pb-md-50 pb-xl-75 bg-light">
           <div className="container">
             <div className="row">
               <div className="col-12">
                 <header className="page-subheader mb-30 mb-md-40">
                   <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                    {/* Job Count */}
                     <div className="job-count">
                       {loading ? (
                         <div
@@ -355,9 +608,7 @@ const JobsPage = () => {
                       )}
                     </div>
 
-                    {/* Controls Container */}
                     <div className="d-flex flex-wrap align-items-center gap-2">
-                      {/* Filter and Clear Buttons */}
                       <div className="d-flex gap-2">
                         <button
                           type="button"
@@ -382,7 +633,6 @@ const JobsPage = () => {
                         </button>
                       </div>
 
-                      {/* Sort Dropdown */}
                       <div
                         className="sort-dropdown"
                         style={{ minWidth: "120px" }}
@@ -401,7 +651,6 @@ const JobsPage = () => {
                         </select>
                       </div>
 
-                      {/* View Toggle Buttons - Updated to use Link */}
                       <div className="view-toggle-buttons d-flex gap-1">
                         <Link
                           to="/job-vacancies-list"
@@ -577,7 +826,6 @@ const JobsPage = () => {
         <section className="section section-theme-1 section-downloads pt-35 pt-md-60 pb-50 pb-md-75 pb-lg-75 pb-xl-110 pb-xxl-140">
           <br />
           <div className="container">
-            {/* Section header */}
             <header className="section-header text-center mb-30 mb-md-40 mb-lg-50">
               <h2 className="text-secondary">Download our mobile app</h2>
               <br />
@@ -633,7 +881,6 @@ const JobsPage = () => {
         </section>
       </main>
 
-      {/* Updated styles */}
       <style>{`
         @keyframes shimmer {
           0% {
@@ -648,9 +895,10 @@ const JobsPage = () => {
           position: relative;
           margin-bottom: 20px;
         }
-          .btn-primary img {
-  filter: brightness(0) invert(1);
-}
+        
+        .btn-primary img {
+          filter: brightness(0) invert(1);
+        }
 
         .employer-profile-pic {
           transition: all 0.3s ease;
@@ -702,7 +950,39 @@ const JobsPage = () => {
           pointer-events: auto;
         }
 
-        /* Responsive adjustments for header */
+        .subfilter-section .subfilter-select {
+          font-size: 0.875rem;
+          padding: 0.5rem 2rem 0.5rem 0.75rem;
+          border: 1px solid #e0e0e0;
+          border-radius: 0.375rem;
+          background-color: white;
+          color: #333;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .subfilter-section .subfilter-select:focus {
+          border-color: #4a90e2;
+          outline: 0;
+          box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+        }
+
+        .subfilter-section .btn-link:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        @media (max-width: 1400px) {
+          .subfilter-section .row {
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            padding-bottom: 5px;
+          }
+          
+          .subfilter-section .col-auto {
+            flex: 0 0 auto;
+          }
+        }
+
         @media (max-width: 991px) {
           .page-subheader .d-flex {
             flex-direction: column;
@@ -716,6 +996,10 @@ const JobsPage = () => {
           
           .view-toggle-buttons {
             justify-content: center;
+          }
+
+          .subfilter-section {
+            padding: 10px 0;
           }
         }
 
@@ -731,6 +1015,10 @@ const JobsPage = () => {
           .sort-dropdown {
             min-width: 100px !important;
           }
+
+          .subfilter-section .form-select-sm {
+            font-size: 0.8rem;
+          }
         }
 
         @media (max-width: 576px) {
@@ -742,13 +1030,16 @@ const JobsPage = () => {
           .view-toggle-buttons {
             order: -1;
           }
+
+          .subfilter-section .row {
+            gap: 0.5rem;
+          }
         }
       `}</style>
     </>
   );
 };
 
-// Job Card Component - Updated with useNavigate
 const JobCard = ({
   id,
   postedTime,
@@ -763,7 +1054,7 @@ const JobCard = ({
   experienceLevel,
   employerProfilePic,
 }) => {
-  const navigate = useNavigate(); // Add useNavigate hook
+  const navigate = useNavigate();
 
   const handleJobClick = (e) => {
     e.preventDefault();
@@ -772,7 +1063,6 @@ const JobCard = ({
 
   return (
     <article className="featured-category-box pt-20">
-      {/* Replace anchor with clickable div */}
       <div
         onClick={handleJobClick}
         style={{
@@ -810,7 +1100,7 @@ const JobCard = ({
               bottom: "0px",
               right: "0px",
               width: "100%",
-              height: "100% ",
+              height: "100%",
               borderRadius: "50%",
               border: "2px solid white",
               overflow: "hidden",
@@ -856,7 +1146,6 @@ const JobCard = ({
             <b className="text-primary">Job Type:</b> {jobType}
           </span>
         </div>
-        {/* Replace anchor with button */}
         <button
           onClick={handleJobClick}
           className="btn btn-dark-yellow btn-sm"
