@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Bookmark, CheckCircle, Share2 } from "lucide-react";
 import defaultLogo from "../../../../public/images/jobImage.jpg"
+import DOMPurify from "dompurify";
 
 const JobDetails = () => {
   const { id } = useParams();
@@ -247,19 +248,28 @@ const JobDetails = () => {
               <div className="col-12 col-md-7 col-xl-8">
                 <div className="text-holder">
                   <h3 className="section-heading text-secondary">Overview</h3>
-                  <p>
-                    {job.description ||
-                      "No overview provided for this position."}
-                  </p>
+                  <div
+                    className="rich-text-display"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(
+                        job.description || "No overview provided for this position."
+                      ),
+                    }}
+                  />
                 </div>
 
                 <div className="text-holder">
                   <h3 className="section-heading text-secondary">
                     Job Description
                   </h3>
-                  <p>
-                    {job.description || "No detailed description provided."}
-                  </p>
+                  <div
+                    className="rich-text-display"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(
+                        job.description || "No detailed description provided."
+                      ),
+                    }}
+                  />
                 </div>
               </div>
 
@@ -291,7 +301,7 @@ const JobDetails = () => {
                           }}
                         >
                           <img
-                            src={job.employerProfilePic||defaultLogo}
+                            src={job.employerProfilePic || defaultLogo}
                             width="50"
                             height="50"
                             alt="Employer"

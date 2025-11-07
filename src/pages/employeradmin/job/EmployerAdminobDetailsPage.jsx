@@ -16,6 +16,7 @@ import socialIcons4 from "../../../assets/employer-admin/assets/img/social/socia
 import socialIcons5 from "../../../assets/employer-admin/assets/img/social/social-06.svg";
 import EmployerAdminFooter from "../Layout/EmployerAdminFooter";
 import EmployerAdminHeader from "../Layout/EmployerAdminHeader";
+import DOMPurify from "dompurify";
 
 const EmployerAdminobDetailsPage = () => {
   const { id } = useParams();
@@ -35,10 +36,10 @@ const EmployerAdminobDetailsPage = () => {
     return isNaN(date)
       ? "Invalid Date"
       : date.toLocaleDateString("en-US", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        });
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
   };
 
   const toggleFavorite = async (applicantId) => {
@@ -113,8 +114,8 @@ const EmployerAdminobDetailsPage = () => {
       } catch (err) {
         setError(
           err.response?.data?.message ||
-            err.message ||
-            "Failed to fetch job details"
+          err.message ||
+          "Failed to fetch job details"
         );
         console.error("Error fetching job details:", err);
       } finally {
@@ -146,9 +147,8 @@ const EmployerAdminobDetailsPage = () => {
               title: job.jobTitle,
               applicants: job.applications?.length || 0,
               location: job.location,
-              salary: `${job.salaryFrom || "N/A"} - ${job.salaryTo || "N/A"} ${
-                job.salaryType || ""
-              }`,
+              salary: `${job.salaryFrom || "N/A"} - ${job.salaryTo || "N/A"} ${job.salaryType || ""
+                }`,
               experience: job.experienceLevel || "Not specified",
               type: job.jobType || "Not specified",
               postedDate: formatDate(job.createdAt),
@@ -322,11 +322,10 @@ const EmployerAdminobDetailsPage = () => {
 
                       {firstApplicantId && (
                         <button
-                          className={`btn btn-icon ${
-                            favoriteStatus
+                          className={`btn btn-icon ${favoriteStatus
                               ? "bg-warning text-white"
                               : "bg-transparent-dark text-primary"
-                          }`}
+                            }`}
                           onClick={() => toggleFavorite(firstApplicantId)}
                         >
                           <i className="ti ti-star"></i>
@@ -437,7 +436,12 @@ const EmployerAdminobDetailsPage = () => {
                     <div className="border-bottom pb-3 mb-3">
                       <h4 className="text-primary">Job Description</h4>
                     </div>
-                    <p align="justify">{job.description}</p>
+                    <div
+                      className="rich-text-display"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(job.description || ""),
+                      }}
+                    />
                   </div>
                 </div>
 
@@ -459,8 +463,8 @@ const EmployerAdminobDetailsPage = () => {
                                 index % 3 === 0
                                   ? appleIcon
                                   : index % 3 === 1
-                                  ? phpIcon
-                                  : reactIcon
+                                    ? phpIcon
+                                    : reactIcon
                               }
                               className="me-1"
                               alt="Icon"
@@ -480,7 +484,12 @@ const EmployerAdminobDetailsPage = () => {
                       <div className="border-bottom pb-3 mb-3">
                         <h4 className="text-primary">Benefits</h4>
                       </div>
-                      <p align="justify">{job.benefits}</p>
+                      <div
+                        className="rich-text-display"
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(job.benefits || ""),
+                        }}
+                      />
                     </div>
                   </div>
                 )}

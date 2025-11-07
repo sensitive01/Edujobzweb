@@ -3,6 +3,8 @@ import { postJob } from "../../api/services/projectServices";
 import { useNavigate } from "react-router-dom";
 import { useEmployeeRegistration } from "../../hooks/useEmployeeRegistration";
 import axios from "axios";
+import ReactQuill from "react-quill";
+import "quill/dist/quill.snow.css";
 
 const PostJob = () => {
   const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -84,6 +86,34 @@ const PostJob = () => {
       ...prev,
       skills: prev.skills.filter((skill) => skill !== skillToRemove),
     }));
+  };
+
+  // Rich text editor configuration
+  const quillModules = {
+    toolbar: [
+      [{ header: [1, 2, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      ["link"],
+      ["clean"],
+    ],
+  };
+
+  const quillFormats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "bullet",
+    "indent",
+    "link",
+  ];
+
+  const handleRichChange = (field) => (content) => {
+    setFormData((prev) => ({ ...prev, [field]: content }));
   };
 
   // Send OTP function
@@ -310,15 +340,14 @@ const PostJob = () => {
                   </label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
-                      <textarea
-                        rows="5"
-                        name="description"
-                        className="form-control"
-                        placeholder="Detailed job description"
+                      <ReactQuill
+                        theme="snow"
                         value={formData.description}
-                        onChange={handleChange}
-                        required
-                      ></textarea>
+                        onChange={handleRichChange("description")}
+                        modules={quillModules}
+                        formats={quillFormats}
+                        placeholder="Detailed job description"
+                      />
                     </div>
                   </div>
 
@@ -560,14 +589,15 @@ const PostJob = () => {
                   <label htmlFor="benefits">&nbsp;&nbsp;Benefits</label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
-                      <textarea
-                        rows="3"
-                        name="benefits"
-                        className="form-control"
-                        placeholder="Describe benefits offered"
+                      <ReactQuill
+                        className="rich-editor-full"
+                        theme="snow"
                         value={formData.benefits}
-                        onChange={handleChange}
-                      ></textarea>
+                        onChange={handleRichChange("benefits")}
+                        modules={quillModules}
+                        formats={quillFormats}
+                        placeholder="Describe benefits offered"
+                      />
                     </div>
                   </div>
 
@@ -632,9 +662,8 @@ const PostJob = () => {
                         <button
                           type="button"
                           onClick={verifyOtp}
-                          className={`btn ${
-                            isOtpVerified ? "btn-success" : "btn-primary"
-                          }`}
+                          className={`btn ${isOtpVerified ? "btn-success" : "btn-primary"
+                            }`}
                           style={{
                             whiteSpace: "nowrap",
                             padding: "10px 15px",
@@ -645,8 +674,8 @@ const PostJob = () => {
                           {isVerifyingOtp
                             ? "Verifying..."
                             : isOtpVerified
-                            ? "✓ Verified"
-                            : "Verify"}
+                              ? "✓ Verified"
+                              : "Verify"}
                         </button>
                       )}
                     </div>
@@ -719,14 +748,15 @@ const PostJob = () => {
                   </label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
-                      <textarea
-                        rows="3"
-                        name="applicationInstructions"
-                        className="form-control"
-                        placeholder="How should candidates apply?"
+                      <ReactQuill
+                        className="rich-editor-full"
+                        theme="snow"
                         value={formData.applicationInstructions}
-                        onChange={handleChange}
-                      ></textarea>
+                        onChange={handleRichChange("applicationInstructions")}
+                        modules={quillModules}
+                        formats={quillFormats}
+                        placeholder="How should candidates apply?"
+                      />
                     </div>
                   </div>
 
@@ -813,6 +843,11 @@ const PostJob = () => {
         .skill-remove:hover {
           color: #f00;
         }
+
+        /* Make rich editors take full width of form field */
+        .rich-editor-full { width: 100%; }
+        .rich-editor-full .ql-container { width: 100%; }
+        .rich-editor-full .ql-editor { min-height: 150px; }
       `}</style>
     </div>
   );

@@ -23,6 +23,8 @@ import EmployerFooter from "./EmployerFooter";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import defaultImage from "../../../public/images/jobImage.jpg";
+import BasicInfoTab from "./postjoccomponents/BasicInfoTab";
+import JobCard from "./postjoccomponents/JobCard";
 
 // Main Jobs Component
 const EmployeerPostJob = () => {
@@ -111,10 +113,10 @@ const EmployeerPostJob = () => {
           )
             .toString()
             .padStart(2, "0")}/${week.getFullYear()} - ${currentDate
-            .toString()
-            .padStart(2, "0")}/${currentMonth
-            .toString()
-            .padStart(2, "0")}/${currentYear}`;
+              .toString()
+              .padStart(2, "0")}/${currentMonth
+                .toString()
+                .padStart(2, "0")}/${currentYear}`;
         })(),
       },
       {
@@ -128,10 +130,10 @@ const EmployeerPostJob = () => {
           )
             .toString()
             .padStart(2, "0")}/${month.getFullYear()} - ${currentDate
-            .toString()
-            .padStart(2, "0")}/${currentMonth
-            .toString()
-            .padStart(2, "0")}/${currentYear}`;
+              .toString()
+              .padStart(2, "0")}/${currentMonth
+                .toString()
+                .padStart(2, "0")}/${currentYear}`;
         })(),
       },
       {
@@ -178,23 +180,17 @@ const EmployeerPostJob = () => {
       filteredJobs.forEach((job) => {
         htmlContent += `
         <tr>
-          <td style="border: 1px solid #ddd; padding: 8px;">${
-            job.title || "N/A"
+          <td style="border: 1px solid #ddd; padding: 8px;">${job.title || "N/A"
           }</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${
-            job.category || "N/A"
+          <td style="border: 1px solid #ddd; padding: 8px;">${job.category || "N/A"
           }</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${
-            job.type || "N/A"
+          <td style="border: 1px solid #ddd; padding: 8px;">${job.type || "N/A"
           }</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${
-            job.location || "N/A"
+          <td style="border: 1px solid #ddd; padding: 8px;">${job.location || "N/A"
           }</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${
-            job.salary || "N/A"
+          <td style="border: 1px solid #ddd; padding: 8px;">${job.salary || "N/A"
           }</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${
-            job.status || "N/A"
+          <td style="border: 1px solid #ddd; padding: 8px;">${job.status || "N/A"
           }</td>
         </tr>
       `;
@@ -247,8 +243,7 @@ const EmployeerPostJob = () => {
       filteredJobs.forEach((job) => {
         csvContent +=
           `"${job.title || ""}","${job.category || ""}","${job.type || ""}",` +
-          `"${job.location || ""}","${job.salary || ""}","${
-            job.status || ""
+          `"${job.location || ""}","${job.salary || ""}","${job.status || ""
           }",` +
           `"${job.applicants || 0}"\n`;
       });
@@ -313,9 +308,8 @@ const EmployeerPostJob = () => {
         location: job.location,
         salaryFrom: job.salaryFrom || 0,
         salaryTo: job.salaryTo || 0,
-        salary: `${job.salaryFrom || "N/A"} - ${job.salaryTo || "N/A"} ${
-          job.salaryType || ""
-        }`,
+        salary: `${job.salaryFrom || "N/A"} - ${job.salaryTo || "N/A"} ${job.salaryType || ""
+          }`,
         experience: job.experienceLevel || "Not specified",
         type: job.jobType || "Not specified",
         category: job.category || "Not specified",
@@ -356,10 +350,10 @@ const EmployeerPostJob = () => {
       return isNaN(date)
         ? "Invalid Date"
         : date.toLocaleDateString("en-US", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          });
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
     } catch (e) {
       return "Invalid Date";
     }
@@ -674,16 +668,15 @@ const EmployeerPostJob = () => {
                 {selectedDateRange}
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${
-                  activeDropdown === "dateRange" ||
-                  activeDropdown === "customRange"
+                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === "dateRange" ||
+                    activeDropdown === "customRange"
                     ? "show"
                     : ""
-                }`}
+                  }`}
                 style={{
                   display:
                     activeDropdown === "dateRange" ||
-                    activeDropdown === "customRange"
+                      activeDropdown === "customRange"
                       ? "block"
                       : "none",
                   minWidth: "280px",
@@ -984,9 +977,8 @@ const Dropdown = ({ title, options, selected, multiSelect, onSelect }) => {
           <li key={index}>
             <a
               href="javascript:void(0);"
-              className={`dropdown-item rounded-1 ${
-                multiSelect && selected?.includes(option) ? "active" : ""
-              }`}
+              className={`dropdown-item rounded-1 ${multiSelect && selected?.includes(option) ? "active" : ""
+                }`}
               onClick={() => onSelect(option)}
             >
               {option}
@@ -1066,9 +1058,8 @@ const FilterSidebar = ({
           </h2>
           <div
             id="layoutsetting"
-            className={`accordion-collapse collapse ${
-              openAccordions.layoutsetting ? "show" : ""
-            }`}
+            className={`accordion-collapse collapse ${openAccordions.layoutsetting ? "show" : ""
+              }`}
           >
             <div className="accordion-body">
               <div className="row gx-3">
@@ -1114,9 +1105,8 @@ const FilterSidebar = ({
           </h2>
           <div
             id="layoutsetting1"
-            className={`accordion-collapse collapse ${
-              openAccordions.layoutsetting1 ? "show" : ""
-            }`}
+            className={`accordion-collapse collapse ${openAccordions.layoutsetting1 ? "show" : ""
+              }`}
           >
             <div className="accordion-body">
               <div className="row">
@@ -1162,9 +1152,8 @@ const FilterSidebar = ({
           </h2>
           <div
             id="salaryFilter"
-            className={`accordion-collapse collapse ${
-              openAccordions.salaryFilter ? "show" : ""
-            }`}
+            className={`accordion-collapse collapse ${openAccordions.salaryFilter ? "show" : ""
+              }`}
           >
             <div className="accordion-body pb-0">
               <div className="row gx-3">
@@ -1219,9 +1208,8 @@ const FilterSidebar = ({
           </h2>
           <div
             id="locationFilter"
-            className={`accordion-collapse collapse ${
-              openAccordions.locationFilter ? "show" : ""
-            }`}
+            className={`accordion-collapse collapse ${openAccordions.locationFilter ? "show" : ""
+              }`}
           >
             <div className="accordion-body">
               <div className="d-flex align-items-center">
@@ -1307,231 +1295,7 @@ const FilterSidebar = ({
   );
 };
 
-const JobCard = ({ job, onStatusChange }) => {
-  const [isActive, setIsActive] = useState(job.status === "Active");
-  const [isUpdating, setIsUpdating] = useState(false);
 
-  const handleStatusChange = async () => {
-    try {
-      setIsUpdating(true);
-      const newStatus = !isActive;
-
-      const token = localStorage.getItem("employerToken");
-      if (!token) {
-        throw new Error("Authentication required");
-      }
-
-      if (!job.id) {
-        throw new Error("Job ID is missing");
-      }
-
-      const response = await axios.put(
-        `https://api.edprofio.com/employer/updatejobstatus/${job.id}`,
-        { isActive: newStatus },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.data.message) {
-        setIsActive(newStatus);
-        onStatusChange(job.id, newStatus ? "Active" : "Inactive");
-        // You can add a toast notification here if you want
-        console.log(response.data.message);
-      } else {
-        throw new Error("Failed to update status");
-      }
-    } catch (error) {
-      console.error("Error updating job status:", error);
-      // Revert the toggle if the request failed
-      setIsActive(!isActive);
-      alert(`Error: ${error.message}`);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  return (
-    <div className="col-xl-6 col-lg-6 col-md-6">
-      <div
-        className="card job"
-        style={{
-          transition: "all 0.3s ease",
-          cursor: "pointer",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.boxShadow = "0 8px 25px rgba(0, 0, 0, 0.15)";
-          e.currentTarget.style.border = "2px solid #000";
-          e.currentTarget.style.transform = "translateY(-2px)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.boxShadow = "";
-          e.currentTarget.style.border = "";
-          e.currentTarget.style.transform = "";
-        }}
-      >
-        <div className="card-body mb-1 pb-1">
-          {/* Add status toggle at the top right */}
-          <div className="d-flex justify-content-between align-items-center mb-2">
-            <span className="badge bg-light text-dark">
-              Status: {isActive ? "Active" : "Inactive"}
-            </span>
-            <div className="form-check form-switch">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id={`status-toggle-${job.id}`}
-                checked={isActive}
-                onChange={handleStatusChange}
-                disabled={isUpdating}
-              />
-              <label
-                className="form-check-label"
-                htmlFor={`status-toggle-${job.id}`}
-              >
-                {isUpdating ? "Updating..." : isActive ? "Active" : "Inactive"}
-              </label>
-            </div>
-          </div>
-
-          <div className="card bg-light mb-3">
-            <div className="card-body p-3">
-              <div className="d-flex align-items-center">
-                <a href="#" className="me-2">
-                  <span className="avatar avatar-lg bg-gray">
-                    <img
-                      src={job.employerProfilePic || defaultImage}
-                      style={{
-                        width: "48px",
-                        height: "48px",
-                        objectFit: "cover",
-                        borderRadius: "4px",
-                      }}
-                      alt="employer"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = defaultImage;
-                      }}
-                    />
-                  </span>
-                </a>
-                <div>
-                  <h6 className="fs-17 fw-medium mb-0 text-truncate">
-                    <a href="view-job">{job.title}</a>
-                  </h6>
-                  <p className="fs-13 text-primary fw-normal">
-                    {job.applicants} Applications
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="fs-16 d-flex flex-column mb-3">
-            <p className="text-dark d-inline-flex align-items-center mb-1">
-              <MapPin
-                className="text-primary me-2"
-                style={{ width: "14px", height: "14px" }}
-              />
-              {job.location}
-            </p>
-            <p className="text-dark d-inline-flex align-items-center mb-1">
-              <IndianRupee
-                className="text-primary me-2"
-                style={{ width: "14px", height: "14px" }}
-              />
-              {job.salary}
-            </p>
-            <p className="text-dark d-inline-flex align-items-center mb-1">
-              <Calendar
-                className="text-primary me-2"
-                style={{ width: "14px", height: "14px" }}
-              />
-              {job.experience}
-            </p>
-            <p className="text-dark d-inline-flex align-items-center mb-1">
-              <Briefcase
-                className="text-primary me-2"
-                style={{ width: "14px", height: "14px" }}
-              />
-              {job.type}
-            </p>
-            <p className="text-dark d-inline-flex align-items-center">
-              <Bus
-                className="text-primary me-2"
-                style={{ width: "14px", height: "14px" }}
-              />
-              {job.accommodation}
-            </p>
-          </div>
-
-          {job.skills && job.skills.length > 0 && (
-            <div className="mb-3">
-              <Settings
-                className="text-primary me-2"
-                style={{ width: "14px", height: "14px" }}
-              />
-              Skillset:
-              {job.skills.map((skill, index) => (
-                <span key={index} className="badge bg-light ms-1">
-                  {skill}
-                </span>
-              ))}
-            </div>
-          )}
-
-          <div className="progress progress-xs mb-1">
-            <div
-              className="progress-bar bg-secondary"
-              role="progressbar"
-              style={{
-                width: `${
-                  (job.shortlisted / Math.max(job.applicants, 1)) * 100
-                }%`,
-              }}
-            ></div>
-          </div>
-
-          <p className="fs-12 mb-0 text-gray fw-normal">
-            {job.shortlisted} Shortlisted of {job.applicants} Applications
-          </p>
-        </div>
-
-        {/* Combined row for Date Posted and both buttons */}
-        <div className="d-flex justify-content-between align-items-center mb-2 mx-2">
-          <span className="text-dark fs-13 ms-4 me-3">
-            <b className="text-secondary">Date Posted:</b> {job.postedDate}
-          </span>
-          <div className="d-flex">
-            {/* <a href="applied-candidates" className="badge bg-warning fs-12 fw-medium me-2">
-              <Users className="me-1" style={{ width: '12px', height: '12px' }} /> Applied Candidates
-            </a> */}
-            <Link
-              to={`/employer/applied-candidates/${job.id}`}
-              className="badge bg-warning fs-12 fw-medium me-2"
-            >
-              <Users
-                className="me-1"
-                style={{ width: "12px", height: "12px" }}
-              />{" "}
-              Applied Candidates
-            </Link>
-            <Link
-              to={`/employer/view-job/${job.id}`}
-              className="badge bg-secondary fs-12 fw-medium"
-            >
-              <Eye className="me-1" style={{ width: "12px", height: "12px" }} />{" "}
-              View Job Details
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 const StatsSection = ({ jobs }) => {
   const totalJobs = jobs.length;
   const totalApplicants = jobs.reduce((sum, job) => sum + job.applicants, 0);
@@ -1540,8 +1304,8 @@ const StatsSection = ({ jobs }) => {
       sum +
       (job.applications
         ? job.applications.filter(
-            (app) => app.employapplicantstatus === "Pending"
-          ).length
+          (app) => app.employapplicantstatus === "Pending"
+        ).length
         : 0)
     );
   }, 0);
@@ -1550,8 +1314,8 @@ const StatsSection = ({ jobs }) => {
       sum +
       (job.applications
         ? job.applications.filter(
-            (app) => app.employapplicantstatus === "Shortlisted"
-          ).length
+          (app) => app.employapplicantstatus === "Shortlisted"
+        ).length
         : 0)
     );
   }, 0);
@@ -1590,8 +1354,8 @@ const StatsSection = ({ jobs }) => {
           sum +
           (job.applications
             ? job.applications.filter(
-                (app) => new Date(app.appliedDate) > oneWeekAgo
-              ).length
+              (app) => new Date(app.appliedDate) > oneWeekAgo
+            ).length
             : 0)
         );
       }, 0),
@@ -1630,9 +1394,8 @@ const StatsSection = ({ jobs }) => {
                 <div className="d-flex mt-2">
                   <p className="fs-12 fw-normal d-flex align-items-center text-truncate">
                     <span
-                      className={`fs-12 d-flex align-items-center me-1 ${
-                        stat.trendPositive ? "text-success" : "text-danger"
-                      }`}
+                      className={`fs-12 d-flex align-items-center me-1 ${stat.trendPositive ? "text-success" : "text-danger"
+                        }`}
                     >
                       <ArrowUpRight className="me-1" />
                       {stat.trend}
@@ -1959,9 +1722,8 @@ const AddPostModal = ({
                 <ul className="nav nav-underline" id="myTab" role="tablist">
                   <li className="nav-item" role="presentation">
                     <button
-                      className={`nav-link ${
-                        activeTab === "basic-info" ? "active" : ""
-                      }`}
+                      className={`nav-link ${activeTab === "basic-info" ? "active" : ""
+                        }`}
                       onClick={() => onTabChange("basic-info")}
                     >
                       Basic Information
@@ -1969,9 +1731,8 @@ const AddPostModal = ({
                   </li>
                   <li className="nav-item" role="presentation">
                     <button
-                      className={`nav-link ${
-                        activeTab === "address" ? "active" : ""
-                      }`}
+                      className={`nav-link ${activeTab === "address" ? "active" : ""
+                        }`}
                       onClick={() => onTabChange("address")}
                     >
                       Location
@@ -2028,391 +1789,7 @@ const AddPostModal = ({
   );
 };
 
-const BasicInfoTab = ({
-  selectedFile,
-  onFileChange,
-  formData,
-  onInputChange,
-  onAddSkill,
-  onRemoveSkill,
-}) => {
-  const [newSkill, setNewSkill] = useState("");
 
-  const handleSkillKeyPress = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      onAddSkill(newSkill);
-      setNewSkill("");
-    }
-  };
-
-  return (
-    <div className="tab-pane fade show active" id="basic-info" role="tabpanel">
-      <div className="row">
-        <div className="col-md-6">
-          <div className="mb-3">
-            <label className="form-label">
-              Company Name <span className="text-danger">*</span>
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              name="companyName"
-              value={formData.companyName}
-              onChange={onInputChange}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="col-md-6">
-          <div className="mb-3">
-            <label className="form-label">
-              Job Title <span className="text-danger">*</span>
-            </label>
-
-            <input
-              type="text"
-              className="form-control"
-              name="jobTitle"
-              value={formData.jobTitle}
-              onChange={onInputChange}
-              required
-            />
-          </div>
-        </div>
-        {/* Job Description */}
-        <div className="col-md-12">
-          <div className="mb-3">
-            <label className="form-label">
-              Job Description <span className="text-danger">*</span>
-            </label>
-            <textarea
-              rows="4"
-              className="form-control"
-              name="description"
-              value={formData.description}
-              onChange={onInputChange}
-              required
-            ></textarea>
-          </div>
-        </div>
-        {/* Category */}
-        <div className="col-md-6">
-          <div className="mb-3">
-            <label className="form-label">
-              Category <span className="text-danger">*</span>
-            </label>
-            <select
-              className="form-select"
-              name="category"
-              value={formData.category}
-              onChange={onInputChange}
-              required
-            >
-              <option value="">Select Category</option>
-              <option value="Teaching Jobs">Teaching Jobs</option>
-              <option value="Leadership and Administration">
-                Leadership and Administration
-              </option>
-              <option value="Support and Student Welfare">
-                Support and Student Welfare
-              </option>
-              <option value="Extracurricular Activities">
-                Extracurricular Activities
-              </option>
-              <option value="Curriculum and Content Development">
-                Curriculum and Content Development
-              </option>
-              <option value="EdTech and Digital Learning">
-                EdTech and Digital Learning
-              </option>
-              <option value="Special Education and Inclusive Learning">
-                Special Education and Inclusive Learning
-              </option>
-              <option value="Non-Teaching Staffs">Non-Teaching Staffs</option>
-              <option value="Training and Development">
-                Training and Development
-              </option>
-              <option value="Research and Policy Development">
-                Research and Policy Development
-              </option>
-              <option value="Other Specialized Roles">
-                Other Specialized Roles
-              </option>
-            </select>
-          </div>
-        </div>
-
-        {/* Job Type */}
-        <div className="col-md-6">
-          <div className="mb-3">
-            <label className="form-label">Job Type</label>
-            <select
-              className="form-select"
-              name="jobType"
-              value={formData.jobType}
-              onChange={onInputChange}
-            >
-              <option value="">Select Job Type</option>
-              <option value="Full-time">Full-time</option>
-              <option value="Part-time">Part-time</option>
-              <option value="Contract">Contract</option>
-              <option value="Internship">Internship</option>
-              <option value="Temporary">Temporary</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Experience & Education */}
-        <div className="col-md-6">
-          <div className="mb-3">
-            <label className="form-label">Experience Level</label>
-            <select
-              className="form-select"
-              name="experienceLevel"
-              value={formData.experienceLevel}
-              onChange={onInputChange}
-            >
-              <option value="">Select Experience Level</option>
-              <option value="Entry Level">Entry Level</option>
-              <option value="Mid Level">Mid Level</option>
-              <option value="Senior Level">Senior Level</option>
-              <option value="Executive">Executive</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="col-md-6">
-          <div className="mb-3">
-            <label className="form-label">Education Level</label>
-            <select
-              className="form-select"
-              name="educationLevel"
-              value={formData.educationLevel}
-              onChange={onInputChange}
-            >
-              <option value="">Select Education Level</option>
-              <option value="High School">High School</option>
-              <option value="Diploma">Diploma</option>
-              <option value="Bachelor's">Bachelor's</option>
-              <option value="Master's">Master's</option>
-              <option value="PhD">PhD</option>
-              <option value="None">None</option>
-            </select>
-          </div>
-        </div>
-        {/* Salary Range */}
-        <div className="col-md-4">
-          <div className="mb-3">
-            <label className="form-label">
-              Salary From <span className="text-danger">*</span>
-            </label>
-            <input
-              type="number"
-              className="form-control"
-              name="salaryFrom"
-              value={formData.salaryFrom}
-              onChange={onInputChange}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="mb-3">
-            <label className="form-label">
-              Salary To <span className="text-danger">*</span>
-            </label>
-            <input
-              type="number"
-              className="form-control"
-              name="salaryTo"
-              value={formData.salaryTo}
-              onChange={onInputChange}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="col-md-4">
-          <div className="mb-3">
-            <label className="form-label">Salary Type</label>
-            <select
-              className="form-select"
-              name="salaryType"
-              value={formData.salaryType}
-              onChange={onInputChange}
-            >
-              <option value="">Type</option>
-              <option value="Monthly">Per Monthly</option>
-              <option value="Yearly">LPA</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Number of Openings */}
-        <div className="col-md-6">
-          <div className="mb-3">
-            <label className="form-label">Number of Openings</label>
-            <input
-              type="number"
-              className="form-control"
-              name="openings"
-              value={formData.openings}
-              onChange={onInputChange}
-              min="1"
-            />
-          </div>
-        </div>
-
-        {/* Application Deadline */}
-        <div className="col-md-6">
-          <div className="mb-3">
-            <label className="form-label">Application Deadline</label>
-            <input
-              type="date"
-              className="form-control"
-              name="deadline"
-              value={formData.deadline}
-              onChange={onInputChange}
-            />
-          </div>
-        </div>
-
-        {/* Job Priority */}
-        {/* <div className="col-md-6">
-          <div className="mb-3">
-            <label className="form-label">Job Priority</label>
-            <select
-              className="form-select"
-              name="priority"
-              value={formData.priority}
-              onChange={onInputChange}
-            >
-              <option value="">Select Priority</option>
-              <option value="High">High</option>
-              <option value="Medium">Medium</option>
-              <option value="Low">Low</option>
-            </select>
-          </div>
-        </div> */}
-
-        {/* Skills */}
-        <div className="col-md-12">
-          <div className="mb-3">
-            <label className="form-label">Skills</label>
-            <div className="d-flex align-items-center">
-              <input
-                type="text"
-                className="form-control me-2"
-                placeholder="Add skill and press Enter"
-                value={newSkill}
-                onChange={(e) => setNewSkill(e.target.value)}
-                onKeyPress={handleSkillKeyPress}
-              />
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => {
-                  onAddSkill(newSkill);
-                  setNewSkill("");
-                }}
-              >
-                Add
-              </button>
-            </div>
-            <div className="mt-2">
-              {formData.skills.map((skill, index) => (
-                <span key={index} className="badge bg-light me-1 mb-1">
-                  {skill}
-                  <button
-                    type="button"
-                    className="btn-close btn-close-white ms-1"
-                    onClick={() => onRemoveSkill(skill)}
-                    style={{ fontSize: "0.5rem" }}
-                  />
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Contact Information */}
-        <div className="col-md-6">
-          <div className="mb-3">
-            <label className="form-label">Contact Email</label>
-            <input
-              type="email"
-              className="form-control"
-              name="contactEmail"
-              value={formData.contactEmail}
-              onChange={onInputChange}
-            />
-          </div>
-        </div>
-
-        <div className="col-md-6">
-          <div className="mb-3">
-            <label className="form-label">Contact Phone</label>
-            <input
-              type="tel"
-              className="form-control"
-              name="contactPhone"
-              value={formData.contactPhone}
-              onChange={onInputChange}
-            />
-          </div>
-        </div>
-
-        {/* Company URL */}
-        <div className="col-md-12">
-          <div className="mb-3">
-            <label className="form-label">Company Website</label>
-            <input
-              type="url"
-              className="form-control"
-              name="companyUrl"
-              value={formData.companyUrl}
-              onChange={onInputChange}
-              placeholder="https://example.com"
-            />
-          </div>
-        </div>
-
-        {/* Benefits */}
-        <div className="col-md-12">
-          <div className="mb-3">
-            <label className="form-label">Benefits</label>
-            <textarea
-              rows="3"
-              className="form-control"
-              name="benefits"
-              value={formData.benefits}
-              onChange={onInputChange}
-              placeholder="Describe any benefits or perks"
-            ></textarea>
-          </div>
-        </div>
-
-        {/* Application Instructions */}
-        <div className="col-md-12">
-          <div className="mb-3">
-            <label className="form-label">Application Instructions</label>
-            <textarea
-              rows="3"
-              className="form-control"
-              name="applicationInstructions"
-              value={formData.applicationInstructions}
-              onChange={onInputChange}
-              placeholder="Special instructions for applicants"
-            ></textarea>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // Fixed AddressTab
 const AddressTab = ({ formData, onInputChange }) => {
