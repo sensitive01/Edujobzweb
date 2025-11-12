@@ -281,7 +281,7 @@ const EmployeerPostJob = () => {
       link.as = 'style';
       link.onload = () => link.rel = 'stylesheet';
       document.head.appendChild(link);
-      
+
       // Add a small delay to ensure styles are loaded
       await new Promise(resolve => setTimeout(resolve, 100));
       setIsLoading(false);
@@ -289,7 +289,7 @@ const EmployeerPostJob = () => {
 
     loadCriticalCSS();
     fetchJobs();
-    
+
     // Cleanup
     return () => {
       // Remove any dynamically added styles
@@ -543,7 +543,7 @@ const EmployeerPostJob = () => {
       console.log(response);
 
 
-      if (response.data.subscribed === "true") {
+      if (response.data.subscribed === "false") {
         setShowUpgradeModal(true);
       } else {
         setShowAddPostModal(true);
@@ -718,7 +718,7 @@ const EmployeerPostJob = () => {
         <link rel="preload" href="/src/assets/employer/assets/css/style.css" as="style" onLoad="this.onload=null;this.rel='stylesheet'" />
         <link rel="stylesheet" href="/src/assets/employer/assets/css/bootstrap.min.css" />
         <link rel="stylesheet" href="/src/assets/employer/assets/css/style.css" />
-        
+
         {/* Add scoping class to body when this component mounts */}
         <script type="text/javascript">
           {`
