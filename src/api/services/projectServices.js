@@ -420,3 +420,14 @@ export const getHeaderStaticsData = async () => {
     throw error.response?.data?.message || error.message;
   }
 };
+
+export const getIsEmployerSubscribed = async (employerId) => {
+  try {
+    const response = await projectServices.get(
+      `/employer/get-is-employer-subscribed/${employerId}`
+    );
+    return response;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};

@@ -1,0 +1,72 @@
+/* Loading Spinner */
+.employer-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  z-index: 9999;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #063970;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Header Fixes */
+.employer-route .header,
+.employer-route .navbar,
+.employer-route .top-header {
+  background-color: #063970 !important;
+  background-image: none !important;
+  transition: none !important;
+}
+
+.employer-route .header *,
+.employer-route .navbar *,
+.employer-route .top-header * {
+  color: #ffffff !important;
+}
+
+.employer-route .header:hover,
+.employer-route .navbar:hover,
+.employer-route .top-header:hover {
+  background-color: #063970 !important;
+}
+
+.employer-route .dropdown-menu {
+  background-color: #063970 !important;
+}
+
+/* Layout Wrapper */
+.employer-route-wrapper {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* Only add padding when user is logged in */
+.employer-route-wrapper.logged-in {
+  padding-top: 70px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .employer-route-wrapper {
+    padding-top: 60px;
+  }
+}

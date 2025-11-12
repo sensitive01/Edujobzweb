@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
+import { Helmet } from 'react-helmet';
+import './EmployeerPostJob.css'; // We'll create this file
 import {
   Briefcase,
   ChevronDown,
@@ -25,12 +27,15 @@ import { Link } from "react-router-dom";
 import defaultImage from "../../../public/images/jobImage.jpg";
 import BasicInfoTab from "./postjoccomponents/BasicInfoTab";
 import JobCard from "./postjoccomponents/JobCard";
+import { getIsEmployerSubscribed } from "../../api/services/projectServices";
 
 // Main Jobs Component
 const EmployeerPostJob = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("basic-info");
   const [showAddPostModal, setShowAddPostModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -266,8 +271,31 @@ const EmployeerPostJob = () => {
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // Load critical CSS first
+    const loadCriticalCSS = async () => {
+      // Preload critical CSS
+      const link = document.createElement('link');
+      link.href = '/src/assets/employer/assets/css/bootstrap.min.css';
+      link.rel = 'preload';
+      link.as = 'style';
+      link.onload = () => link.rel = 'stylesheet';
+      document.head.appendChild(link);
+      
+      // Add a small delay to ensure styles are loaded
+      await new Promise(resolve => setTimeout(resolve, 100));
+      setIsLoading(false);
+    };
+
+    loadCriticalCSS();
     fetchJobs();
+    
+    // Cleanup
+    return () => {
+      // Remove any dynamically added styles
+      const links = document.querySelectorAll('link[rel="preload"][as="style"]');
+      links.forEach(link => link.remove());
+    };
   }, []);
 
   useEffect(() => {
@@ -508,8 +536,25 @@ const EmployeerPostJob = () => {
     setActiveTab(tab);
   };
 
-  const handleAddPost = () => {
-    setShowAddPostModal(true);
+  const handleAddPost = async () => {
+    try {
+      const employerData = JSON.parse(localStorage.getItem("employerData"));
+      const response = await getIsEmployerSubscribed(employerData._id);
+      console.log(response);
+
+
+      if (response.data.subscribed === "true") {
+        setShowUpgradeModal(true);
+      } else {
+        setShowAddPostModal(true);
+      }
+    } catch (error) {
+      console.error("Error checking subscription:", error);
+    }
+  };
+
+  const handleUpgradeNow = () => {
+    window.location.href = "/employer/plans-grid";
   };
 
   const handleCloseAddPost = () => {
@@ -647,8 +692,43 @@ const EmployeerPostJob = () => {
     setActiveDropdown(null);
   };
 
+  // Show loading state while styles are being loaded
+  if (isLoading) {
+    return (
+      <div className="employer-loading" style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100%',
+        backgroundColor: '#f8f9fa'
+      }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
+      <Helmet>
+        {/* Preload critical CSS */}
+        <link rel="preload" href="/src/assets/employer/assets/css/bootstrap.min.css" as="style" onLoad="this.onload=null;this.rel='stylesheet'" />
+        <link rel="preload" href="/src/assets/employer/assets/css/style.css" as="style" onLoad="this.onload=null;this.rel='stylesheet'" />
+        <link rel="stylesheet" href="/src/assets/employer/assets/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="/src/assets/employer/assets/css/style.css" />
+        
+        {/* Add scoping class to body when this component mounts */}
+        <script type="text/javascript">
+          {`
+            document.body.classList.add('employer-page');
+            return () => {
+              document.body.classList.remove('employer-page');
+            };
+          `}
+        </script>
+      </Helmet>
       <EmployerHeader />
       <div className="content">
         {/* Header Section */}
@@ -669,9 +749,9 @@ const EmployeerPostJob = () => {
               </button>
               <ul
                 className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === "dateRange" ||
-                    activeDropdown === "customRange"
-                    ? "show"
-                    : ""
+                  activeDropdown === "customRange"
+                  ? "show"
+                  : ""
                   }`}
                 style={{
                   display:
@@ -940,6 +1020,12 @@ const EmployeerPostJob = () => {
               )}
             </div>
           </div>
+        )}
+        {showUpgradeModal && (
+          <UpgradePlanModal
+            onClose={() => setShowUpgradeModal(false)}
+            onUpgrade={handleUpgradeNow}
+          />
         )}
 
         {/* Modals */}
@@ -1521,6 +1607,7 @@ const JobsByStatusChart = ({ jobs }) => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };
@@ -1905,6 +1992,10 @@ const AddressTab = ({ formData, onInputChange }) => {
           </div>
         </div>
       </div>
+
+
+
+
     </div>
   );
 };
@@ -1933,6 +2024,49 @@ const SuccessModal = ({ onClose }) => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const UpgradePlanModal = ({ onClose, onUpgrade }) => {
+  return (
+    <div
+      className="modal fade show"
+      style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}
+    >
+      <div className="modal-dialog modal-dialog-centered">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h5 className="modal-title">Upgrade Required</h5>
+            <button
+              type="button"
+              className="btn-close"
+              onClick={onClose}
+              aria-label="Close"
+            ></button>
+          </div>
+          <div className="modal-body">
+            <p>You need to upgrade your plan to post jobs. Please choose a plan that best fits your needs to continue.</p>
+            <p>Our plans offer various features including multiple job postings, featured listings, and more.</p>
+          </div>
+          <div className="modal-footer">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onClose}
+            >
+              Maybe Later
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={onUpgrade}
+            >
+              Upgrade Now
+            </button>
           </div>
         </div>
       </div>
