@@ -1290,35 +1290,51 @@ const EmployerList = () => {
                           Emp-{employer._id.substring(employer._id.length - 4)}
                         </td>
                         <td>
-                          <div className="d-flex align-items-center file-name-icon">
-                            <a
-                              onClick={(e) => {
-                                e.preventDefault();
-                                viewEmployerDetails(employer);
-                              }}
-                              className="avatar avatar-md"
-                            >
+                          <div className="d-flex align-items-center">
+                            <div className="position-relative me-3">
                               {employer.userProfilePic ? (
                                 <img
                                   src={employer.userProfilePic}
-                                  className="img-fluid rounded-circle"
-                                  alt="img"
+                                  className="rounded-circle"
+                                  alt={employer.schoolName || `${employer.firstName} ${employer.lastName}`.trim()}
+                                  style={{
+                                    width: '45px',
+                                    height: '45px',
+                                    objectFit: 'cover',
+                                    border: '2px solid #e9ecef'
+                                  }}
                                 />
                               ) : (
-                                <div className="avatar-text bg-primary text-white rounded-circle">
+                                <div 
+                                  className="d-flex align-items-center justify-content-center rounded-circle"
+                                  style={{
+                                    width: '45px',
+                                    height: '45px',
+                                    backgroundColor: '#4e73df',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    fontSize: '18px',
+                                    border: '2px solid #e9ecef'
+                                  }}
+                                >
                                   {(
                                     employer.schoolName ||
                                     employer.firstName ||
                                     "E"
-                                  )
-                                    .charAt(0)
-                                    .toUpperCase()}
+                                  ).charAt(0).toUpperCase()}
                                 </div>
                               )}
-                            </a>
-                            <div className="ms-2">
-                              <h6 className="fw-medium">
-                                <a
+                              {employer.verificationstatus === 'verified' && (
+                                <span className="position-absolute bottom-0 end-0 bg-success rounded-circle p-1 border border-2 border-white">
+                                  <i className="ti ti-check text-white" style={{fontSize: '10px'}}></i>
+                                </span>
+                              )}
+                            </div>
+                            <div className="d-flex flex-column">
+                              <h6 className="mb-1 fw-semibold">
+                                <a 
+                                  href="#" 
+                                  className="text-dark"
                                   onClick={(e) => {
                                     e.preventDefault();
                                     viewEmployerDetails(employer);
@@ -1330,12 +1346,26 @@ const EmployerList = () => {
                                     }`.trim()}
                                 </a>
                               </h6>
-                              <span className="d-block mt-1">
-                                <a href="#">
-                                  {employer.city || "N/A"},{" "}
-                                  {employer.state || "N/A"}
-                                </a>
-                              </span>
+                              <div className="d-flex align-items-center flex-wrap">
+                                <span className="text-muted small d-flex align-items-center me-2">
+                                  <i className="ti ti-mail me-1"></i>
+                                  {employer.userEmail || 'N/A'}
+                                </span>
+                                {employer.userMobile && (
+                                  <span className="text-muted small d-flex align-items-center">
+                                    <i className="ti ti-phone me-1"></i>
+                                    {employer.userMobile}
+                                  </span>
+                                )}
+                              </div>
+                              {(employer.city || employer.state) && (
+                                <div className="mt-1">
+                                  <span className="badge bg-light text-dark border d-inline-flex align-items-center">
+                                    <i className="ti ti-map-pin me-1"></i>
+                                    {[employer.city, employer.state].filter(Boolean).join(', ')}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </td>

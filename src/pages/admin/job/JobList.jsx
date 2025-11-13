@@ -1379,15 +1379,27 @@ const JobsList = () => {
                         </td>
                         <td>Job-{job._id.substring(job._id.length - 4)}</td>
                         <td>
-                          <div className="d-flex align-items-center file-name-icon">
-                            <div className="avatar avatar-md me-2">
-                              <div className="avatar-text bg-primary text-white rounded-circle">
+                          <div className="d-flex align-items-center">
+                            <div className="avatar avatar-md me-3">
+                              <div 
+                                className="d-flex align-items-center justify-content-center rounded-circle"
+                                style={{
+                                  width: '40px',
+                                  height: '40px',
+                                  backgroundColor: '#4e73df',
+                                  color: 'white',
+                                  fontWeight: 'bold',
+                                  fontSize: '16px'
+                                }}
+                              >
                                 {(job.jobTitle || "J").charAt(0).toUpperCase()}
                               </div>
                             </div>
-                            <div>
-                              <h6 className="fw-medium">
-                                <a
+                            <div className="d-flex flex-column">
+                              <h6 className="fw-semibold mb-1">
+                                <a 
+                                  href="#" 
+                                  className="text-dark"
                                   onClick={(e) => {
                                     e.preventDefault();
                                     viewJobDetails(job);
@@ -1396,18 +1408,22 @@ const JobsList = () => {
                                   {job.jobTitle || "N/A"}
                                 </a>
                               </h6>
-                              <div className="d-flex align-items-center">
-                                <span
-                                  className={`badge ${getJobTypeBadge(
-                                    job.jobType
-                                  )} me-1`}
-                                >
+                              <div className="d-flex align-items-center flex-wrap">
+                                <span className={`badge ${getJobTypeBadge(job.jobType)} me-2 mb-1`}>
+                                  <i className="ti ti-briefcase me-1"></i>
                                   {job.jobType || "N/A"}
                                 </span>
                                 {job.category && (
-                                  <small className="text-muted">
-                                    • {job.category}
-                                  </small>
+                                  <span className="badge bg-light text-dark border me-2 mb-1">
+                                    <i className="ti ti-category-2 me-1"></i>
+                                    {job.category}
+                                  </span>
+                                )}
+                                {job.location && (
+                                  <span className="text-muted small d-flex align-items-center me-2 mb-1">
+                                    <i className="ti ti-map-pin me-1"></i>
+                                    {job.location}
+                                  </span>
                                 )}
                               </div>
                             </div>

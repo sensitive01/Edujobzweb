@@ -3,7 +3,34 @@ import logo from "../../../assets/employer-admin/assets/img/logo - dark.png";
 import AdminHeader from "../layout/AdminHeader";
 import AdminFooter from "../layout/AdminFooter";
 
+// Function to get initials from name
+const getInitials = (name) => {
+  if (!name) return 'U';
+  const names = name.split(' ');
+  let initials = names[0].substring(0, 1).toUpperCase();
+  if (names.length > 1) {
+    initials += names[names.length - 1].substring(0, 1).toUpperCase();
+  }
+  return initials;
+};
+
+// Function to generate a color based on the name for consistent avatar colors
+const stringToColor = (string) => {
+  let hash = 0;
+  let i;
+  for (i = 0; i < string.length; i += 1) {
+    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let color = '#';
+  for (i = 0; i < 3; i += 1) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += `00${value.toString(16)}`.slice(-2);
+  }
+  return color;
+};
+
 const AdminSubscribers = () => {
+  const [imageLoaded, setImageLoaded] = useState({});
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSubscriptionsModal, setShowSubscriptionsModal] = useState(false);
@@ -71,10 +98,10 @@ const AdminSubscribers = () => {
           )
             .toString()
             .padStart(2, "0")}/${week.getFullYear()} - ${currentDate
-            .toString()
-            .padStart(2, "0")}/${currentMonth
-            .toString()
-            .padStart(2, "0")}/${currentYear}`;
+              .toString()
+              .padStart(2, "0")}/${currentMonth
+                .toString()
+                .padStart(2, "0")}/${currentYear}`;
         })(),
       },
       {
@@ -88,10 +115,10 @@ const AdminSubscribers = () => {
           )
             .toString()
             .padStart(2, "0")}/${month.getFullYear()} - ${currentDate
-            .toString()
-            .padStart(2, "0")}/${currentMonth
-            .toString()
-            .padStart(2, "0")}/${currentYear}`;
+              .toString()
+              .padStart(2, "0")}/${currentMonth
+                .toString()
+                .padStart(2, "0")}/${currentYear}`;
         })(),
       },
       {
@@ -209,22 +236,22 @@ const AdminSubscribers = () => {
             <thead>
               <tr>
                 ${Object.keys(exportData[0])
-                  .map((key) => `<th>${key}</th>`)
-                  .join("")}
+          .map((key) => `<th>${key}</th>`)
+          .join("")}
               </tr>
             </thead>
             <tbody>
               ${exportData
-                .map(
-                  (row) => `
+          .map(
+            (row) => `
                 <tr>
                   ${Object.values(row)
-                    .map((value) => `<td>${value}</td>`)
-                    .join("")}
+                .map((value) => `<td>${value}</td>`)
+                .join("")}
                 </tr>
               `
-                )
-                .join("")}
+          )
+          .join("")}
             </tbody>
           </table>
         </body>
@@ -370,13 +397,13 @@ const AdminSubscribers = () => {
             ),
             expiringOn: subscriber.subscriptionenddate
               ? new Date(subscriber.subscriptionenddate).toLocaleDateString(
-                  "en-GB",
-                  {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  }
-                )
+                "en-GB",
+                {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                }
+              )
               : "N/A",
             status: subscriber.blockstatus === "unblock" ? "Active" : "Blocked",
             statusClass:
@@ -563,9 +590,8 @@ const AdminSubscribers = () => {
                 {selectedDateRange || "Select Date Range"}
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${
-                  showDateDropdown ? "show" : ""
-                }`}
+                className={`dropdown-menu dropdown-menu-end p-3 ${showDateDropdown ? "show" : ""
+                  }`}
                 style={{ minWidth: "280px" }}
               >
                 {selectedDateRange === "Custom Range" ? (
@@ -1008,19 +1034,40 @@ const AdminSubscribers = () => {
                       </td>
                       <td>
                         <div className="d-flex align-items-center file-name-icon">
-                          <a
-                            href="#"
-                            className="avatar avatar-md border rounded-circle"
-                          >
-                            <img
-                              src={subscriber.logo}
-                              className="img-fluid"
-                              alt="img"
-                            />
-                          </a>
+                          <div className="position-relative">
+                            <div 
+                              className="rounded-circle d-flex align-items-center justify-content-center me-3" 
+                              style={{
+                                width: '40px',
+                                height: '40px',
+                                backgroundColor: stringToColor(subscriber.company || 'User'),
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '14px',
+                                display: subscriber.logo && imageLoaded[subscriber.id] ? 'none' : 'flex'
+                              }}
+                            >
+                              {getInitials(subscriber.company || 'User')}
+                            </div>
+                            {subscriber.logo && (
+                              <img
+                                src={subscriber.logo}
+                                className="rounded-circle"
+                                alt={subscriber.company}
+                                style={{
+                                  width: '40px',
+                                  height: '40px',
+                                  objectFit: 'cover',
+                                  display: imageLoaded[subscriber.id] ? 'block' : 'none'
+                                }}
+                                onLoad={() => setImageLoaded(prev => ({...prev, [subscriber.id]: true}))}
+                                onError={() => setImageLoaded(prev => ({...prev, [subscriber.id]: false}))}
+                              />
+                            )}
+                          </div>
                           <div className="ms-2">
                             <h6 className="fw-medium">
-                              <a href="#">{subscriber.company}</a>
+                              <a href="#" className="text-dark">{subscriber.company}</a>
                             </h6>
                           </div>
                         </div>
@@ -1307,9 +1354,8 @@ const AdminSubscribers = () => {
                               <td>{subscription.jobPostingLimit}</td>
                               <td>
                                 <span
-                                  className={`badge badge-${
-                                    subscription.isActive ? "success" : "danger"
-                                  }`}
+                                  className={`badge badge-${subscription.isActive ? "success" : "danger"
+                                    }`}
                                 >
                                   {subscription.isActive
                                     ? "Active"

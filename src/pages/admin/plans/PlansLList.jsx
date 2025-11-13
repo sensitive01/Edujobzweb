@@ -3,6 +3,7 @@ import AdminHeader from "../layout/AdminHeader";
 import AdminFooter from "../layout/AdminFooter";
 
 const PlansList = () => {
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
   const [plans, setPlans] = useState([]);
   const [filteredPlans, setFilteredPlans] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +25,7 @@ const PlansList = () => {
   const [currentPlan, setCurrentPlan] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
+    planType: "Free",
     price: 0,
     gstPercentage: 18,
     perDayLimit: 0,
@@ -49,7 +51,7 @@ const PlansList = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          "https://api.edprofio.com/admin/getallplans"
+          `${VITE_BASE_URL}/admin/getallplans`
         );
 
         if (!response.ok) {
@@ -93,7 +95,7 @@ const PlansList = () => {
     e.preventDefault();
     try {
       const response = await fetch(
-        "https://api.edprofio.com/admin/createplan",
+        `${VITE_BASE_URL}/admin/createplan`,
         {
           method: "POST",
           headers: {
@@ -423,6 +425,7 @@ const PlansList = () => {
     setCurrentPlan(plan);
     setFormData({
       name: plan.name,
+      planType: plan.planType || 'Free',
       price: plan.price,
       gstPercentage: plan.gstPercentage,
       perDayLimit: plan.perDayLimit,
@@ -449,7 +452,7 @@ const PlansList = () => {
     e.preventDefault();
     try {
       const response = await fetch(
-        `https://api.edprofio.com/admin/updateplan${currentPlan._id}`,
+        `${VITE_BASE_URL}/admin/updateplan${currentPlan._id}`,
         {
           method: "PUT",
           headers: {
@@ -488,7 +491,7 @@ const PlansList = () => {
   const handleDelete = async () => {
     try {
       const response = await fetch(
-        `https://api.edprofio.com/admin/deleteplan${planToDelete._id}`,
+        `${VITE_BASE_URL}/admin/deleteplan${planToDelete._id}`,
         {
           method: "DELETE",
         }
@@ -1087,6 +1090,21 @@ const PlanForm = ({ formData, handleInputChange, handleNumberInputChange }) => {
             onChange={handleInputChange}
             required
           />
+          <label className="form-label mt-3">
+            Plan Type<span className="text-danger"> *</span>
+          </label>
+          <select
+            className="form-select"
+            name="planType"
+            value={formData.planType || 'Free'}
+            onChange={handleInputChange}
+            required
+          >
+            <option value="Free">Free</option>
+            <option value="Basic">Basic</option>
+            <option value="Standard">Standard</option>
+            <option value="Premium">Premium</option>
+          </select>
         </div>
       </div>
 

@@ -77,6 +77,13 @@ const EmployeerPlansGrid = () => {
     setIsPremium(!isPremium);
   };
 
+  // Filter plans based on plan type
+  const filteredPlans = plans.filter(plan => 
+    isPremium 
+      ? plan.planType === 'Premium' 
+      : plan.planType === 'Standard' || plan.planType === 'Basic' || plan.planType === 'Free'
+  );
+
   const getFeatureList = (plan) => {
     return [
       { text: `${plan.jobPostingLimit || 0} Job Posts`, included: plan.jobPostingLimit > 0 },
@@ -421,7 +428,8 @@ const EmployeerPlansGrid = () => {
             </div>
 
             <div className="row justify-content-center">
-              {plans.map((plan, index) => {
+              {filteredPlans
+                .map((plan, index) => {
                 const isCurrentPlan = subscriptionStatus?.currentPlan?._id === plan._id;
 
                 return (
