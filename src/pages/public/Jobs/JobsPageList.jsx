@@ -3,7 +3,7 @@ import Jobsbreadcrumb from "./Jobsbreadcrumb";
 import JobsFilter from "./JobsFilter";
 import { Filter, Search, X, Bookmark, CheckCircle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import defaultEmployeeAvatar from "../../../assets/employer/assets/img/profiles/avatar-12.jpg";
+import defaultEmployeeAvatar from "../../../assets/employer-admin/assets/img/profiles/avatar-20.jpg";
 import jobImage from "../../../../public/images/jobImage.jpg";
 
 const JobsPageList = () => {

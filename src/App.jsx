@@ -135,6 +135,8 @@ import AdminFaq from "./pages/admin/faq/AdminFaq";
 import AdminSupport from "./pages/admin/support/AdminSupport";
 import PrivacyPolicy from "./pages/policy/PrivacyPolicy";
 import ScrollToTop from "./ScrollTop";
+import PendingJobs from "./pages/public/Jobs/PendingJobs";
+import RejectedJobs from "./pages/public/Jobs/RejactedJobs";
 
 function App() {
   return (
@@ -437,6 +439,8 @@ function App() {
                 <Route path="/job-alerts" element={<JobAlert />} />
                 <Route path="/applied-jobs" element={<AppliedJobs />} />
                 <Route path="/shortlisted" element={<Shortlisted />} />
+                <Route path="/rejected-applications" element={<RejectedJobs />} />
+                {/* <Route path="/pending-applications" element={<PendingJobs />} />  */}
                 <Route
                   path="/certificates-trainings"
                   element={<CertificatesTrainings />}
