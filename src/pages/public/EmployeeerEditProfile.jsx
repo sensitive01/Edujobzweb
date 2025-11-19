@@ -124,37 +124,37 @@ const EmployeeerEditProfile = () => {
     initialData && JSON.stringify(employeeData) !== JSON.stringify(initialData);
 
   const inputStyle = {
-    height: "45px", // Increased from 42px
-    padding: "12px 16px", // Increased padding
+    height: "45px",
+    padding: "12px 16px",
     lineHeight: "1.5",
     borderRadius: "8px",
     border: "1px solid #e1e5e9",
-    fontSize: "16px", // Increased from 14px
+    fontSize: "16px",
     transition: "all 0.2s ease",
   };
 
   const textareaStyle = {
-    minHeight: "120px", // Increased from 100px
-    padding: "12px 16px", // Increased padding
+    minHeight: "120px",
+    padding: "12px 16px",
     borderRadius: "8px",
     border: "1px solid #e1e5e9",
-    fontSize: "16px", // Increased from 14px
+    fontSize: "16px",
     resize: "vertical",
-    lineHeight: "1.6", // Added line height for better readability
+    lineHeight: "1.6",
   };
 
   const selectStyle = {
-    height: "45px", // Increased from 42px
-    padding: "12px 16px", // Increased padding
+    height: "45px",
+    padding: "12px 16px",
     borderRadius: "8px",
     border: "1px solid #e1e5e9",
-    fontSize: "16px", // Increased from 14px
+    fontSize: "16px",
     background: "white",
     appearance: "none",
   };
 
   const labelStyle = {
-    fontSize: "16px", // Increased label font size
+    fontSize: "16px",
     fontWeight: "500",
     marginBottom: "8px",
     color: "#333",
@@ -674,7 +674,6 @@ const EmployeeerEditProfile = () => {
             resume: { url: "", name: "" },
           }));
         }
-        // You can add API call here to delete from server
       } catch (err) {
         setError("Failed to delete resume");
       }
@@ -701,7 +700,6 @@ const EmployeeerEditProfile = () => {
             coverLetterFile: { url: "", name: "" },
           }));
         }
-        // You can add API call here to delete from server
       } catch (err) {
         setError("Failed to delete cover letter");
       }
@@ -1494,7 +1492,6 @@ const EmployeeerEditProfile = () => {
                             Profile Video (Max 10MB)
                           </label>
 
-                          {/* Recording Video Section */}
                           {isRecordingVideo && (
                             <div className="mb-3 p-3 border rounded bg-light">
                               <div className="d-flex justify-content-between align-items-center mb-2">
@@ -1693,7 +1690,6 @@ const EmployeeerEditProfile = () => {
                             Introduction Audio (Max 10MB)
                           </label>
 
-                          {/* Recording Audio Section */}
                           {isRecordingAudio && (
                             <div className="mb-3 p-3 border rounded bg-light">
                               <div className="d-flex justify-content-between align-items-center">
@@ -1975,7 +1971,6 @@ const EmployeeerEditProfile = () => {
                           </div>
                         </div>
 
-                        {/* Enhanced Total Experience with Year/Month Selection */}
                         <div className="form-group mb-3">
                           <label style={labelStyle}>Total Experience</label>
                           <div className="row g-2">
@@ -2338,7 +2333,6 @@ const EmployeeerEditProfile = () => {
                       </div>
                     </div>
 
-                    {/* Enhanced Education Section with Year/Month Selection */}
                     <div className="jobplugin__profile-block">
                       <div className="jobplugin__profile-block__header">
                         <h2 className="h4" style={{ fontSize: "20px" }}>
@@ -2495,7 +2489,6 @@ const EmployeeerEditProfile = () => {
                                 />
                               </div>
 
-                              {/* Start Date - Year/Month Selection */}
                               <div className="col-md-6">
                                 <label
                                   className="form-label"
@@ -2560,7 +2553,6 @@ const EmployeeerEditProfile = () => {
                                 </div>
                               </div>
 
-                              {/* End Date - Year/Month Selection */}
                               <div className="col-md-6">
                                 <label
                                   className="form-label"
@@ -2673,7 +2665,6 @@ const EmployeeerEditProfile = () => {
                           </div>
                         </div>
 
-                        {/* Display Added Education */}
                         {employeeData.education?.map((edu, index) => (
                           <div
                             key={index}
@@ -2759,7 +2750,6 @@ const EmployeeerEditProfile = () => {
                       </div>
                     </div>
 
-                    {/* Enhanced Work Experience Section with Year/Month Selection */}
                     <div className="jobplugin__profile-block">
                       <div className="jobplugin__profile-block__header">
                         <h2 className="h4">Work Experience</h2>
@@ -2859,7 +2849,6 @@ const EmployeeerEditProfile = () => {
                                 />
                               </div>
 
-                              {/* Start Date - Year/Month Selection */}
                               <div className="col-md-6">
                                 <label className="form-label">Start Date</label>
                                 <div className="row g-2">
@@ -2909,7 +2898,6 @@ const EmployeeerEditProfile = () => {
                                 </div>
                               </div>
 
-                              {/* End Date - Year/Month Selection */}
                               <div className="col-md-6">
                                 <label className="form-label">End Date</label>
                                 <div className="row g-2">
@@ -3004,7 +2992,6 @@ const EmployeeerEditProfile = () => {
                           </div>
                         </div>
 
-                        {/* Display Added Experience */}
                         {employeeData.workExperience?.map((exp, index) => (
                           <div
                             key={index}
@@ -3064,6 +3051,66 @@ const EmployeeerEditProfile = () => {
           </div>
         </div>
       </main>
+
+      {/* ✅ PROFILE IMAGE CIRCLE FIX - CSS ADDED BELOW */}
+      <style jsx>{`
+        .jobplugin__profile-intro__image {
+          position: relative;
+          width: 155px;
+          height: 155px;
+          margin-bottom: 15px;
+        }
+
+        .jobplugin__profile-intro__avatar {
+          width: 150px;
+          height: 150px;
+          overflow: hidden;
+          background-color: #f0f0f0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .jobplugin__profile-intro__avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+          display: block;
+        }
+
+        .jobplugin__settings-card__edit {
+          position: absolute;
+          bottom: 5px;
+          right: 5px;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          z-index: 10;
+          background-color: white;
+          color: #2c5aa0;
+          transition: all 0.3s ease;
+        }
+
+        .jobplugin__settings-card__edit:hover {
+          background-color: #2c5aa0;
+          color: white;
+        }
+
+        @keyframes blink {
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.3;
+          }
+        }
+      `}</style>
     </>
   );
 };
