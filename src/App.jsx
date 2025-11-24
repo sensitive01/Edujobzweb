@@ -137,7 +137,7 @@ import PrivacyPolicy from "./pages/policy/PrivacyPolicy";
 import ScrollToTop from "./ScrollTop";
 import PendingJobs from "./pages/public/Jobs/PendingJobs";
 import RejectedJobs from "./pages/public/Jobs/RejactedJobs";
-import TermsAndConditions from "./pages/termsandcondition/TermsandCondition";
+
 
 function App() {
   return (
