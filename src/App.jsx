@@ -137,6 +137,7 @@ import PrivacyPolicy from "./pages/policy/PrivacyPolicy";
 import ScrollToTop from "./ScrollTop";
 import PendingJobs from "./pages/public/Jobs/PendingJobs";
 import RejectedJobs from "./pages/public/Jobs/RejactedJobs";
+import TermsAndConditions from "./pages/termsandcondition/TermsandCondition";
 
 function App() {
   return (
@@ -422,6 +423,7 @@ function App() {
                 <Route path="/saved-jobs" element={<SavedJobs />} />
                 <Route path="/dashboard" element={<UserDashboard />} />
                 <Route path="/employee-profile" element={<EmployeProfile />} />
+             
                 <Route
                   path="/employee/edit/:id"
                   element={<EditEmployerProfile />}
@@ -440,7 +442,7 @@ function App() {
                 <Route path="/applied-jobs" element={<AppliedJobs />} />
                 <Route path="/shortlisted" element={<Shortlisted />} />
                 <Route path="/rejected-applications" element={<RejectedJobs />} />
-                <Route path="/pending-applications" element={<PendingJobs />} /> 
+                <Route path="/pending-applications" element={<PendingJobs />} />
                 <Route
                   path="/certificates-trainings"
                   element={<CertificatesTrainings />}

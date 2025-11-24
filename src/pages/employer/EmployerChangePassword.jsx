@@ -100,7 +100,7 @@ const EmployerResetPassword = () => {
     try {
       const response = await changeEmployerPassword({
         userEmail: formData.userEmail, // Use email instead of mobile
-        password: formData.password,
+        newPassword: formData.password,
         confirmPassword: formData.confirmPassword,
       });
 
