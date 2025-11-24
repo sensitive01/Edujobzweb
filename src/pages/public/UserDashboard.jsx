@@ -347,22 +347,7 @@ const UserDashboard = () => {
                             margin: "0 auto",
                           }}
                         >
-                          {/* Status Indicator (Blue Dot) */}
-                          <div
-                            style={{
-                              position: "absolute",
-                              top: "5px",
-                              left: "5px",
-                              width: "20px",
-                              height: "20px",
-                              backgroundColor: "#007bff",
-                              borderRadius: "50%",
-                              border: "3px solid white",
-                              zIndex: 2,
-                            }}
-                          ></div>
-
-                          {/* Profile Avatar */}
+{/* Profile Avatar */}
                           <div
                             className="jobplugin__profile-intro__avatar"
                             style={{
