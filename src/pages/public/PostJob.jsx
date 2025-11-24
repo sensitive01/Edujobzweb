@@ -134,14 +134,15 @@ const PostJob = () => {
 
     try {
       const response = await axios.post(`${VITE_BASE_URL}/sendemailotp`, {
-        email: formData.contactEmail,
+        userEmail: formData.contactEmail,
       });
+      console.log("response",response)
 
       if (response.status === 200) {
         setIsOtpSent(true);
         setOtpError("");
       } else {
-        setOtpError(response.data.error || "Failed to send OTP");
+        setOtpError(response.data.message || "Failed to send OTP");
       }
     } catch (error) {
       setOtpError(error.response?.data?.error || "Failed to send OTP");
@@ -210,7 +211,8 @@ const PostJob = () => {
         const response = await schoolregister(employerData);
         employid = response.data.employid || response.data.id;
       } catch (err) {
-        setError(err.message || "Failed to create employer profile");
+        const errorMessage = err.response?.data?.message || err.message || "Failed to create employer profile";
+        setError(errorMessage);
         setLoading(false);
         return;
       }
@@ -251,7 +253,18 @@ const PostJob = () => {
       setOtpError("");
       navigate("/job-vacancies");
     } catch (err) {
-      setError(err.message);
+      if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setError(err.response.data?.message || 'An error occurred while processing your request');
+      } else if (err.request) {
+        // The request was made but no response was received
+        setError('No response from server. Please check your internet connection and try again.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setError(err.message || 'An unexpected error occurred');
+      }
+      console.error('Error posting job:', err);
     } finally {
       setLoading(false);
     }

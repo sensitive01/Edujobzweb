@@ -166,10 +166,13 @@ export const uploadProfilePicture = async (id, formData, token) => {
 
 export const postJob = async (jobData) => {
   try {
-    const response = await projectServices.post("/employer/postjob", jobData);
+    const response = await projectServices.post("/job", jobData);
     return response.data;
-  } catch (err) {
-    throw err.response?.data?.message || "Failed to post job";
+  } catch (error) {
+    const errorMessage = error.response?.data?.message ||
+                        error.message ||
+                        'Failed to post job. Please try again.';
+    throw new Error(errorMessage);
   }
 };
 

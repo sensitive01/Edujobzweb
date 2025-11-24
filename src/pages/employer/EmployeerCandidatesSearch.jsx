@@ -876,7 +876,9 @@ const EmployeerCandidatesSearch = () => {
                     )}
                     {candidate.userEmail && (
                       <a
-                        href={`mailto:${candidate.userEmail}`}
+                        href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candidate.userEmail)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="btn btn-light btn-icon text-danger btn-sm me-1"
                         title="Email"
                       >
@@ -1070,7 +1072,9 @@ const EmployeerCandidatesSearch = () => {
                     )}
                     {candidate.userEmail && (
                       <a
-                        href={`mailto:${candidate.userEmail}`}
+                        href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candidate.userEmail)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="btn btn-light btn-icon text-danger btn-sm"
                         title="Email"
                       >

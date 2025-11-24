@@ -11,7 +11,7 @@ import { IoLocationOutline } from "react-icons/io5";
 import Sidebar from "../../../../src/components/layout/Sidebar";
 import axios from "axios";
 import { Link } from "react-router-dom";
-// import jobImage from "../../../public/images/jobImage.jpg";
+import jobImage from "../../../../public/images/jobImage.jpg";
 
 const PendingJobs = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

@@ -440,7 +440,7 @@ function App() {
                 <Route path="/applied-jobs" element={<AppliedJobs />} />
                 <Route path="/shortlisted" element={<Shortlisted />} />
                 <Route path="/rejected-applications" element={<RejectedJobs />} />
-                {/* <Route path="/pending-applications" element={<PendingJobs />} />  */}
+                <Route path="/pending-applications" element={<PendingJobs />} /> 
                 <Route
                   path="/certificates-trainings"
                   element={<CertificatesTrainings />}

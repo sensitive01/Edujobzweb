@@ -32,8 +32,10 @@ const EmployerCalendarEvents = () => {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [newEvent, setNewEvent] = useState({
     title: "",
-    start: "",
-    end: "",
+    startDate: "",
+    startTime: "",
+    endDate: "",
+    endTime: "",
     location: "",
     description: "",
     color: "#6C63FF",
@@ -279,10 +281,23 @@ const EmployerCalendarEvents = () => {
   };
 
   const handleDateSelect = (selectInfo) => {
+    // Get the local date string without timezone conversion
+    const selectedDate = new Date(selectInfo.start);
+    
+    // Format for date input (YYYY-MM-DD) in local timezone
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+    
+    // Set only the date, leave time blank for user to fill
+    const dateOnly = `${year}-${month}-${day}`;
+    
     setNewEvent({
       ...newEvent,
-      start: selectInfo.startStr,
-      end: selectInfo.endStr,
+      startDate: dateOnly,
+      startTime: "", // Leave time blank
+      endDate: "", // Keep end date empty for manual entry
+      endTime: "",
     });
     setShowAddEventModal(true);
   };
@@ -326,12 +341,16 @@ const EmployerCalendarEvents = () => {
         throw new Error("Employer ID not found in localStorage");
       }
 
-      if (!newEvent.start || !newEvent.end) {
-        throw new Error("Please select both start and end times");
+      if (!newEvent.startDate || !newEvent.startTime || !newEvent.endDate || !newEvent.endTime) {
+        throw new Error("Please fill in all date and time fields");
       }
 
-      const startDate = new Date(newEvent.start);
-      const endDate = new Date(newEvent.end);
+      // Combine date and time for start and end
+      const start = `${newEvent.startDate}T${newEvent.startTime}`;
+      const end = `${newEvent.endDate}T${newEvent.endTime}`;
+
+      const startDate = new Date(start);
+      const endDate = new Date(end);
       if (startDate >= endDate) {
         throw new Error("End time must be after start time");
       }
@@ -341,8 +360,8 @@ const EmployerCalendarEvents = () => {
         title: newEvent.title,
         description: newEvent.description,
         location: newEvent.location,
-        start: newEvent.start,
-        end: newEvent.end,
+        start: start,
+        end: end,
         color: newEvent.color,
       };
 
@@ -374,8 +393,10 @@ const EmployerCalendarEvents = () => {
         setShowAddEventModal(false);
         setNewEvent({
           title: "",
-          start: "",
-          end: "",
+          startDate: "",
+          startTime: "",
+          endDate: "",
+          endTime: "",
           location: "",
           description: "",
           color: "#6C63FF",
@@ -835,15 +856,24 @@ const EmployerCalendarEvents = () => {
                         <div className="mb-3">
                           <label className="form-label">Start Date*</label>
                           <input
-                            type="datetime-local"
+                            type="date"
                             className="form-control"
-                            value={newEvent.start}
-                            onChange={(e) => {
-                              setNewEvent({
-                                ...newEvent,
-                                start: e.target.value,
-                              });
-                            }}
+                            name="startDate"
+                            value={newEvent.startDate}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Start Time*</label>
+                          <input
+                            type="time"
+                            className="form-control"
+                            name="startTime"
+                            value={newEvent.startTime}
+                            onChange={handleInputChange}
                             required
                           />
                         </div>
@@ -852,15 +882,24 @@ const EmployerCalendarEvents = () => {
                         <div className="mb-3">
                           <label className="form-label">End Date*</label>
                           <input
-                            type="datetime-local"
+                            type="date"
                             className="form-control"
-                            value={newEvent.end}
-                            onChange={(e) => {
-                              setNewEvent({
-                                ...newEvent,
-                                end: e.target.value,
-                              });
-                            }}
+                            name="endDate"
+                            value={newEvent.endDate}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">End Time*</label>
+                          <input
+                            type="time"
+                            className="form-control"
+                            name="endTime"
+                            value={newEvent.endTime}
+                            onChange={handleInputChange}
                             required
                           />
                         </div>
@@ -1035,7 +1074,7 @@ const EmployerCalendarEvents = () => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">Start Date*</label>
+                          <label className="form-label">Start Date & Time*</label>
                           <input
                             type="datetime-local"
                             className="form-control"
@@ -1048,7 +1087,7 @@ const EmployerCalendarEvents = () => {
                       </div>
                       <div className="col-md-6">
                         <div className="mb-3">
-                          <label className="form-label">End Date*</label>
+                          <label className="form-label">End Date & Time*</label>
                           <input
                             type="datetime-local"
                             className="form-control"
