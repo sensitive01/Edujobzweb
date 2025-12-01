@@ -9,11 +9,17 @@ const FAQs = () => {
     primaryBorderThree: false,
     primaryBorderFour: false,
     primaryBorderFive: false,
+    primaryBorderSix: false,
+    primaryBorderSeven: false,
+    primaryBorderEight: false,
     primaryBorder1: true,
     primaryBorder2: false,
     primaryBorder3: false,
     primaryBorder4: false,
     primaryBorder5: false,
+    primaryBorder6: false,
+    primaryBorder7: false,
+    primaryBorder8: false,
   });
 
   const [showModal, setShowModal] = useState(false);
@@ -53,7 +59,7 @@ const FAQs = () => {
         <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3 mt-4">
           <div className="my-auto">
             <h1 className="ms-3 text-secondary">
-              <i className="ti ti-info-circle fs-18"></i> FAQs For Teachers
+              <i className="ti ti-info-circle fs-18"></i> FAQs For Teachers / Job-seekers
             </h1>
           </div>
           <div className="d-flex my-xl-auto right-content align-items-center flex-wrap">
@@ -81,7 +87,7 @@ const FAQs = () => {
                         <div className="accordion-header" id="headingOne">
                           <div className="accordion-button">
                             <div className="d-flex align-items-center flex-fill">
-                              <h5 className="text-primary">How do I register on the portal?</h5>
+                              <h5 className="text-primary">What is EdProfio?</h5>
                               <button
                                 className="btn btn-sm btn-icon ms-auto"
                                 onClick={() => setShowModal(true)}
@@ -89,7 +95,8 @@ const FAQs = () => {
                                 <i className="ti ti-edit"></i>
                               </button>
                               <button
-                                className="d-flex align-items-center collapsed collapse-arrow" style={{
+                                className="d-flex align-items-center collapsed collapse-arrow"
+                                style={{
                                   backgroundColor: 'white',
                                   border: 'none',
                                   padding: 0
@@ -108,7 +115,7 @@ const FAQs = () => {
                           data-bs-parent="#accordionExample"
                         >
                           <div className="accordion-body">
-                            Click on "Register" and fill out the registration form with your details.
+                            EdProfio is a platform that connects educators (teachers, administrative staff, support staff) with schools — helping you find job opportunities, manage your profile, and showcase your experience to potential employers.
                           </div>
                         </div>
                       </div>
@@ -119,7 +126,7 @@ const FAQs = () => {
                         <div className="accordion-header" id="headingTwo">
                           <div className="accordion-button">
                             <div className="d-flex align-items-center flex-fill">
-                              <h5 className="text-primary">What kind of jobs can I find on the portal?</h5>
+                              <h5 className="text-primary">How do I register on EdProfio?</h5>
                               <button
                                 className="btn btn-sm btn-icon ms-auto"
                                 onClick={() => setShowModal(true)}
@@ -127,7 +134,8 @@ const FAQs = () => {
                                 <i className="ti ti-edit"></i>
                               </button>
                               <button
-                                className="d-flex align-items-center collapsed collapse-arrow" style={{
+                                className="d-flex align-items-center collapsed collapse-arrow"
+                                style={{
                                   backgroundColor: 'white',
                                   border: 'none',
                                   padding: 0
@@ -146,7 +154,7 @@ const FAQs = () => {
                           data-bs-parent="#accordionExample"
                         >
                           <div className="accordion-body">
-                            You can find teaching jobs in various schools, including government, private, and international schools.
+                            You sign up, create a profile (with your qualifications, experience, subject specialisation, etc.), and submit it. Once approved, you become visible to schools looking for staff.
                           </div>
                         </div>
                       </div>
@@ -157,7 +165,7 @@ const FAQs = () => {
                         <div className="accordion-header" id="headingThree">
                           <div className="accordion-button">
                             <div className="d-flex align-items-center justify-content-between flex-fill">
-                              <h5 className="text-primary">How do I apply for a job?</h5>
+                              <h5 className="text-primary">What information should my profile include?</h5>
                               <div className="d-flex">
                                 <button
                                   className="btn btn-icon btn-sm"
@@ -166,11 +174,12 @@ const FAQs = () => {
                                   <i className="ti ti-edit"></i>
                                 </button>
                                 <button
-                                  className="d-flex align-items-center collapsed collapse-arrow" style={{
-                                  backgroundColor: 'white',
-                                  border: 'none',
-                                  padding: 0
-                                }}
+                                  className="d-flex align-items-center collapsed collapse-arrow"
+                                  style={{
+                                    backgroundColor: 'white',
+                                    border: 'none',
+                                    padding: 0
+                                  }}
                                   onClick={() => toggleAccordion('primaryBorderThree')}
                                 >
                                   <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorderThree ? 'rotate-180' : ''}`}></i>
@@ -186,7 +195,7 @@ const FAQs = () => {
                           data-bs-parent="#accordionExample"
                         >
                           <div className="accordion-body">
-                            Search for jobs, click on the job you're interested in, and click "Apply Now" to submit your application.
+                            Your educational qualifications, teaching or non-teaching experience, areas of expertise, skills (e.g. subject knowledge, administrative ability), availability, contact details, and optionally a short summary or objective.
                           </div>
                         </div>
                       </div>
@@ -198,7 +207,7 @@ const FAQs = () => {
                           <div className="accordion-header" id="headingFour">
                             <div className="accordion-button">
                               <div className="d-flex align-items-center justify-content-between flex-fill">
-                                <h5 className="text-primary">Can I upload my resume and other documents?</h5>
+                                <h5 className="text-primary">Can I apply to multiple schools through EdProfio?</h5>
                                 <div className="d-flex">
                                   <button
                                     className="btn btn-icon btn-sm"
@@ -207,11 +216,12 @@ const FAQs = () => {
                                     <i className="ti ti-edit"></i>
                                   </button>
                                   <button
-                                    className="d-flex align-items-center collapsed collapse-arrow" style={{
-                                  backgroundColor: 'white',
-                                  border: 'none',
-                                  padding: 0
-                                }}
+                                    className="d-flex align-items-center collapsed collapse-arrow"
+                                    style={{
+                                      backgroundColor: 'white',
+                                      border: 'none',
+                                      padding: 0
+                                    }}
                                     onClick={() => toggleAccordion('primaryBorderFour')}
                                   >
                                     <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorderFour ? 'rotate-180' : ''}`}></i>
@@ -227,7 +237,7 @@ const FAQs = () => {
                             data-bs-parent="#accordionExample"
                           >
                             <div className="accordion-body">
-                              Yes, you can upload your resume, certificates, and other relevant documents.
+                              Yes — once your profile is live, you can browse available jobs and apply to as many schools as you like, based on your eligibility and interest.
                             </div>
                           </div>
                         </div>
@@ -240,7 +250,7 @@ const FAQs = () => {
                           <div className="accordion-header" id="headingFive">
                             <div className="accordion-button collapsed">
                               <div className="d-flex align-items-center justify-content-between flex-fill">
-                                <h5 className="text-primary">Will my personal details be shared with employers?</h5>
+                                <h5 className="text-primary">Is there any fee for teachers to use EdProfio?</h5>
                                 <div className="d-flex">
                                   <button
                                     className="btn btn-icon btn-sm"
@@ -249,11 +259,12 @@ const FAQs = () => {
                                     <i className="ti ti-edit"></i>
                                   </button>
                                   <button
-                                    className="d-flex align-items-center collapsed collapse-arrow" style={{
-                                  backgroundColor: 'white',
-                                  border: 'none',
-                                  padding: 0
-                                }}
+                                    className="d-flex align-items-center collapsed collapse-arrow"
+                                    style={{
+                                      backgroundColor: 'white',
+                                      border: 'none',
+                                      padding: 0
+                                    }}
                                     onClick={() => toggleAccordion('primaryBorderFive')}
                                   >
                                     <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorderFive ? 'rotate-180' : ''}`}></i>
@@ -269,7 +280,136 @@ const FAQs = () => {
                             data-bs-parent="#accordionExample"
                           >
                             <div className="accordion-body">
-                              No, your personal details will be kept confidential and only shared with employers you've applied to.
+                              No, registration and profile creation for teachers is free.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="accordion-item">
+                        <div className="row">
+                          <div className="accordion-header" id="headingSix">
+                            <div className="accordion-button collapsed">
+                              <div className="d-flex align-items-center justify-content-between flex-fill">
+                                <h5 className="text-primary">How do I know if a school contacted me?</h5>
+                                <div className="d-flex">
+                                  <button
+                                    className="btn btn-icon btn-sm"
+                                    onClick={() => setShowModal(true)}
+                                  >
+                                    <i className="ti ti-edit"></i>
+                                  </button>
+                                  <button
+                                    className="d-flex align-items-center collapsed collapse-arrow"
+                                    style={{
+                                      backgroundColor: 'white',
+                                      border: 'none',
+                                      padding: 0
+                                    }}
+                                    onClick={() => toggleAccordion('primaryBorderSix')}
+                                  >
+                                    <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorderSix ? 'rotate-180' : ''}`}></i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            id="primaryBorderSix"
+                            className={`accordion-collapse collapse ${activeAccordion.primaryBorderSix ? 'show' : ''} border-top`}
+                            aria-labelledby="headingSix"
+                            data-bs-parent="#accordionExample"
+                          >
+                            <div className="accordion-body">
+                              EdProfio will notify you (via email / dashboard / contact info you provided) whenever a school views your profile and sends a job offer or interview request.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="accordion-item">
+                        <div className="row">
+                          <div className="accordion-header" id="headingSeven">
+                            <div className="accordion-button collapsed">
+                              <div className="d-flex align-items-center justify-content-between flex-fill">
+                                <h5 className="text-primary">What if I want to update or change my profile later?</h5>
+                                <div className="d-flex">
+                                  <button
+                                    className="btn btn-icon btn-sm"
+                                    onClick={() => setShowModal(true)}
+                                  >
+                                    <i className="ti ti-edit"></i>
+                                  </button>
+                                  <button
+                                    className="d-flex align-items-center collapsed collapse-arrow"
+                                    style={{
+                                      backgroundColor: 'white',
+                                      border: 'none',
+                                      padding: 0
+                                    }}
+                                    onClick={() => toggleAccordion('primaryBorderSeven')}
+                                  >
+                                    <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorderSeven ? 'rotate-180' : ''}`}></i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            id="primaryBorderSeven"
+                            className={`accordion-collapse collapse ${activeAccordion.primaryBorderSeven ? 'show' : ''} border-top`}
+                            aria-labelledby="headingSeven"
+                            data-bs-parent="#accordionExample"
+                          >
+                            <div className="accordion-body">
+                              You can log into your account at any time and update your profile — credentials, experience, preferred job types, contact information, etc. This ensures schools always see the latest info.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="accordion-item">
+                        <div className="row">
+                          <div className="accordion-header" id="headingEight">
+                            <div className="accordion-button collapsed">
+                              <div className="d-flex align-items-center justify-content-between flex-fill">
+                                <h5 className="text-primary">Is EdProfio only for full-time jobs, or also part-time or substitute work?</h5>
+                                <div className="d-flex">
+                                  <button
+                                    className="btn btn-icon btn-sm"
+                                    onClick={() => setShowModal(true)}
+                                  >
+                                    <i className="ti ti-edit"></i>
+                                  </button>
+                                  <button
+                                    className="d-flex align-items-center collapsed collapse-arrow"
+                                    style={{
+                                      backgroundColor: 'white',
+                                      border: 'none',
+                                      padding: 0
+                                    }}
+                                    onClick={() => toggleAccordion('primaryBorderEight')}
+                                  >
+                                    <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorderEight ? 'rotate-180' : ''}`}></i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            id="primaryBorderEight"
+                            className={`accordion-collapse collapse ${activeAccordion.primaryBorderEight ? 'show' : ''} border-top`}
+                            aria-labelledby="headingEight"
+                            data-bs-parent="#accordionExample"
+                          >
+                            <div className="accordion-body">
+                              You should be able to specify in your profile whether you're looking for full-time, part-time, temporary or substitute positions — and apply accordingly.
                             </div>
                           </div>
                         </div>
@@ -277,8 +417,8 @@ const FAQs = () => {
                     </div>
                   </div>
 
-                  <h1 className="ms-3 text-secondary">
-                    <i className="ti ti-info-circle fs-18"></i> FAQs For Employers (Schools)
+                  <h1 className="ms-3 text-secondary mt-4">
+                    <i className="ti ti-info-circle fs-18"></i> FAQs For Schools / Employers
                   </h1>
                   <br />
 
@@ -289,7 +429,7 @@ const FAQs = () => {
                         <div className="accordion-header" id="heading1">
                           <div className="accordion-button">
                             <div className="d-flex align-items-center flex-fill">
-                              <h5 className="text-primary">How do I post a job on the portal?</h5>
+                              <h5 className="text-primary">What is EdProfio for schools?</h5>
                               <button
                                 className="btn btn-sm btn-icon ms-auto"
                                 onClick={() => setShowModal(true)}
@@ -297,7 +437,8 @@ const FAQs = () => {
                                 <i className="ti ti-edit"></i>
                               </button>
                               <button
-                                className="d-flex align-items-center collapsed collapse-arrow" style={{
+                                className="d-flex align-items-center collapsed collapse-arrow"
+                                style={{
                                   backgroundColor: 'white',
                                   border: 'none',
                                   padding: 0
@@ -316,7 +457,7 @@ const FAQs = () => {
                           data-bs-parent="#accordionExample"
                         >
                           <div className="accordion-body">
-                            Register as an employer, click on "Post a Job," and fill out the job description form.
+                            EdProfio helps schools and educational institutions find qualified teaching and non-teaching staff. Schools can browse educator profiles filtered by qualifications, experience, subject specialisation, etc., to shortlist and hire staff efficiently.
                           </div>
                         </div>
                       </div>
@@ -327,7 +468,7 @@ const FAQs = () => {
                         <div className="accordion-header" id="heading2">
                           <div className="accordion-button">
                             <div className="d-flex align-items-center flex-fill">
-                              <h5 className="text-primary">What kind of teachers can I find on the portal?</h5>
+                              <h5 className="text-primary">How do we register as a school on EdProfio?</h5>
                               <button
                                 className="btn btn-sm btn-icon ms-auto"
                                 onClick={() => setShowModal(true)}
@@ -335,7 +476,8 @@ const FAQs = () => {
                                 <i className="ti ti-edit"></i>
                               </button>
                               <button
-                                className="d-flex align-items-center collapsed collapse-arrow" style={{
+                                className="d-flex align-items-center collapsed collapse-arrow"
+                                style={{
                                   backgroundColor: 'white',
                                   border: 'none',
                                   padding: 0
@@ -354,7 +496,7 @@ const FAQs = () => {
                           data-bs-parent="#accordionExample"
                         >
                           <div className="accordion-body">
-                            You can find qualified teachers in various subjects and levels (primary, secondary, etc.).
+                            Schools need to sign up, provide institution details (name, address, type — public/private, levels taught, contact info), and once approved, can access the pool of candidate profiles.
                           </div>
                         </div>
                       </div>
@@ -365,7 +507,7 @@ const FAQs = () => {
                         <div className="accordion-header" id="heading3">
                           <div className="accordion-button">
                             <div className="d-flex align-items-center justify-content-between flex-fill">
-                              <h5 className="text-primary">How do I contact applicants?</h5>
+                              <h5 className="text-primary">Can we filter candidates based on our requirements?</h5>
                               <div className="d-flex">
                                 <button
                                   className="btn btn-icon btn-sm"
@@ -374,11 +516,12 @@ const FAQs = () => {
                                   <i className="ti ti-edit"></i>
                                 </button>
                                 <button
-                                  className="d-flex align-items-center collapsed collapse-arrow" style={{
-                                  backgroundColor: 'white',
-                                  border: 'none',
-                                  padding: 0
-                                }}
+                                  className="d-flex align-items-center collapsed collapse-arrow"
+                                  style={{
+                                    backgroundColor: 'white',
+                                    border: 'none',
+                                    padding: 0
+                                  }}
                                   onClick={() => toggleAccordion('primaryBorder3')}
                                 >
                                   <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorder3 ? 'rotate-180' : ''}`}></i>
@@ -394,7 +537,7 @@ const FAQs = () => {
                           data-bs-parent="#accordionExample"
                         >
                           <div className="accordion-body">
-                            You can view applicant profiles, resumes, and cover letters, and contact them directly through the portal.
+                            Yes — you should be able to search and filter candidate profiles by subject expertise, years of experience, qualifications, availability, and other criteria to find the best match for your school's needs.
                           </div>
                         </div>
                       </div>
@@ -406,7 +549,7 @@ const FAQs = () => {
                           <div className="accordion-header" id="heading4">
                             <div className="accordion-button">
                               <div className="d-flex align-items-center justify-content-between flex-fill">
-                                <h5 className="text-primary">Can I manage my job postings and applicants?</h5>
+                                <h5 className="text-primary">How does communication with a candidate happen?</h5>
                                 <div className="d-flex">
                                   <button
                                     className="btn btn-icon btn-sm"
@@ -415,11 +558,12 @@ const FAQs = () => {
                                     <i className="ti ti-edit"></i>
                                   </button>
                                   <button
-                                    className="d-flex align-items-center collapsed collapse-arrow" style={{
-                                  backgroundColor: 'white',
-                                  border: 'none',
-                                  padding: 0
-                                }}
+                                    className="d-flex align-items-center collapsed collapse-arrow"
+                                    style={{
+                                      backgroundColor: 'white',
+                                      border: 'none',
+                                      padding: 0
+                                    }}
                                     onClick={() => toggleAccordion('primaryBorder4')}
                                   >
                                     <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorder4 ? 'rotate-180' : ''}`}></i>
@@ -435,7 +579,7 @@ const FAQs = () => {
                             data-bs-parent="#accordionExample"
                           >
                             <div className="accordion-body">
-                              Yes, you can manage your job postings, view applicants, and mark candidates as "shortlisted" or "rejected."
+                              Once you shortlist a candidate, the platform allows you to contact them through EdProfio (or via their provided contact details), request interview, or send a job offer.
                             </div>
                           </div>
                         </div>
@@ -448,7 +592,7 @@ const FAQs = () => {
                           <div className="accordion-header" id="heading5">
                             <div className="accordion-button collapsed">
                               <div className="d-flex align-items-center justify-content-between flex-fill">
-                                <h5 className="text-primary">Is there a fee for posting jobs?</h5>
+                                <h5 className="text-primary">Is there a subscription or fee for schools to use EdProfio?</h5>
                                 <div className="d-flex">
                                   <button
                                     className="btn btn-icon btn-sm"
@@ -457,11 +601,12 @@ const FAQs = () => {
                                     <i className="ti ti-edit"></i>
                                   </button>
                                   <button
-                                    className="d-flex align-items-center collapsed collapse-arrow" style={{
-                                  backgroundColor: 'white',
-                                  border: 'none',
-                                  padding: 0
-                                }}
+                                    className="d-flex align-items-center collapsed collapse-arrow"
+                                    style={{
+                                      backgroundColor: 'white',
+                                      border: 'none',
+                                      padding: 0
+                                    }}
                                     onClick={() => toggleAccordion('primaryBorder5')}
                                   >
                                     <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorder5 ? 'rotate-180' : ''}`}></i>
@@ -477,7 +622,136 @@ const FAQs = () => {
                             data-bs-parent="#accordionExample"
                           >
                             <div className="accordion-body">
-                              N / A
+                              Please contact our support team for details about registration fees, subscription plans, or pay-per-hire charges.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="accordion-item">
+                        <div className="row">
+                          <div className="accordion-header" id="heading6">
+                            <div className="accordion-button collapsed">
+                              <div className="d-flex align-items-center justify-content-between flex-fill">
+                                <h5 className="text-primary">Can we post multiple job openings and hire more than one staff member?</h5>
+                                <div className="d-flex">
+                                  <button
+                                    className="btn btn-icon btn-sm"
+                                    onClick={() => setShowModal(true)}
+                                  >
+                                    <i className="ti ti-edit"></i>
+                                  </button>
+                                  <button
+                                    className="d-flex align-items-center collapsed collapse-arrow"
+                                    style={{
+                                      backgroundColor: 'white',
+                                      border: 'none',
+                                      padding: 0
+                                    }}
+                                    onClick={() => toggleAccordion('primaryBorder6')}
+                                  >
+                                    <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorder6 ? 'rotate-180' : ''}`}></i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            id="primaryBorder6"
+                            className={`accordion-collapse collapse ${activeAccordion.primaryBorder6 ? 'show' : ''} border-top`}
+                            aria-labelledby="heading6"
+                            data-bs-parent="#accordionExample"
+                          >
+                            <div className="accordion-body">
+                              Yes — schools can post all open positions (teaching, non-teaching, temporary, full-time, part-time), and manage multiple recruitments simultaneously through the platform.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="accordion-item">
+                        <div className="row">
+                          <div className="accordion-header" id="heading7">
+                            <div className="accordion-button collapsed">
+                              <div className="d-flex align-items-center justify-content-between flex-fill">
+                                <h5 className="text-primary">How secure is candidate data — are profiles verified?</h5>
+                                <div className="d-flex">
+                                  <button
+                                    className="btn btn-icon btn-sm"
+                                    onClick={() => setShowModal(true)}
+                                  >
+                                    <i className="ti ti-edit"></i>
+                                  </button>
+                                  <button
+                                    className="d-flex align-items-center collapsed collapse-arrow"
+                                    style={{
+                                      backgroundColor: 'white',
+                                      border: 'none',
+                                      padding: 0
+                                    }}
+                                    onClick={() => toggleAccordion('primaryBorder7')}
+                                  >
+                                    <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorder7 ? 'rotate-180' : ''}`}></i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            id="primaryBorder7"
+                            className={`accordion-collapse collapse ${activeAccordion.primaryBorder7 ? 'show' : ''} border-top`}
+                            aria-labelledby="heading7"
+                            data-bs-parent="#accordionExample"
+                          >
+                            <div className="accordion-body">
+                              EdProfio verifies credentials (qualifications, experience) before making candidate profiles live. Schools receive verified data, reducing risk of fraudulent applications.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="accordion-item">
+                        <div className="row">
+                          <div className="accordion-header" id="heading8">
+                            <div className="accordion-button collapsed">
+                              <div className="d-flex align-items-center justify-content-between flex-fill">
+                                <h5 className="text-primary">Can we maintain a database of past applicants for future hiring?</h5>
+                                <div className="d-flex">
+                                  <button
+                                    className="btn btn-icon btn-sm"
+                                    onClick={() => setShowModal(true)}
+                                  >
+                                    <i className="ti ti-edit"></i>
+                                  </button>
+                                  <button
+                                    className="d-flex align-items-center collapsed collapse-arrow"
+                                    style={{
+                                      backgroundColor: 'white',
+                                      border: 'none',
+                                      padding: 0
+                                    }}
+                                    onClick={() => toggleAccordion('primaryBorder8')}
+                                  >
+                                    <i className={`ti ti-chevron-down fs-18 ${activeAccordion.primaryBorder8 ? 'rotate-180' : ''}`}></i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            id="primaryBorder8"
+                            className={`accordion-collapse collapse ${activeAccordion.primaryBorder8 ? 'show' : ''} border-top`}
+                            aria-labelledby="heading8"
+                            data-bs-parent="#accordionExample"
+                          >
+                            <div className="accordion-body">
+                              Yes — you can save candidate profiles you've reviewed or contacted, making it easy to revisit them when new openings arise.
                             </div>
                           </div>
                         </div>

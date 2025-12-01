@@ -78,9 +78,9 @@ const EmployeerPlansGrid = () => {
   };
 
   // Filter plans based on plan type
-  const filteredPlans = plans.filter(plan => 
-    isPremium 
-      ? plan.planType === 'Premium' 
+  const filteredPlans = plans.filter(plan =>
+    isPremium
+      ? plan.planType === 'Premium'
       : plan.planType === 'Standard' || plan.planType === 'Basic' || plan.planType === 'Free'
   );
 
@@ -125,19 +125,30 @@ const EmployeerPlansGrid = () => {
     setError(null);
   };
 
-  // Load Razorpay script
+  // Load Razorpay script dynamically
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
       // Check if already loaded
       if (window.Razorpay) {
+        console.log("Razorpay script already loaded");
         resolve(true);
         return;
       }
 
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
+      script.async = true;
+
+      script.onload = () => {
+        console.log("Razorpay script loaded successfully");
+        resolve(true);
+      };
+
+      script.onerror = () => {
+        console.error("Failed to load Razorpay script");
+        resolve(false);
+      };
+
       document.body.appendChild(script);
     });
   };
@@ -148,15 +159,19 @@ const EmployeerPlansGrid = () => {
       const employerData = JSON.parse(localStorage.getItem("employerData"));
       const employerId = employerData._id;
 
+      console.log("Activating plan with payment details:", paymentDetails);
+
       // Call your existing activateplans endpoint
       const response = await axios.post(
         "https://api.edprofio.com/admin/activateplans",
         {
           employerId: employerId,
           planId: selectedPlan._id,
-          paymentDetails: paymentDetails // Optional: include payment info
+          paymentDetails: paymentDetails
         }
       );
+
+      console.log("Plan activation response:", response.data);
 
       if (response.status === 200) {
         setShowConfirmModal(false);
@@ -196,35 +211,56 @@ const EmployeerPlansGrid = () => {
       const totalAmount = selectedPlan.price + (selectedPlan.price * selectedPlan.gstPercentage) / 100;
       const amountInPaise = Math.round(totalAmount * 100);
 
+      console.log("Payment Details:", {
+        planName: selectedPlan.name,
+        basePrice: selectedPlan.price,
+        gst: selectedPlan.gstPercentage,
+        totalAmount: totalAmount,
+        amountInPaise: amountInPaise
+      });
+
       // Load Razorpay script
       const isLoaded = await loadRazorpayScript();
       if (!isLoaded) {
-        setError("Failed to load payment gateway. Please try again.");
+        setError("Failed to load payment gateway. Please refresh the page and try again.");
+        setProcessingPlan(false);
+        return;
+      }
+
+      // Verify Razorpay is available
+      if (!window.Razorpay) {
+        setError("Payment gateway not initialized. Please refresh the page.");
         setProcessingPlan(false);
         return;
       }
 
       // Razorpay options
       const options = {
-        key: "rzp_test_YpMOqpEGIsFZe6", // Replace with your Razorpay Key ID
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Razorpay Key ID from environment variable
         amount: amountInPaise, // Amount in paise
         currency: "INR",
         name: "EdProfio",
         description: `${selectedPlan.name} Plan Subscription`,
         image: "https://edprofio.com/logo.png", // Optional: Your logo URL
         handler: async function (response) {
-          // Payment successful
-          console.log("Payment Success:", response);
+          console.log("=== Payment Success Response ===");
+          console.log("Razorpay Payment ID:", response.razorpay_payment_id);
+          console.log("Full Response:", response);
 
           // Payment details returned by Razorpay
           const paymentDetails = {
             razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id || null,
+            razorpay_signature: response.razorpay_signature || null,
             amount: amountInPaise,
             currency: "INR",
+            planId: selectedPlan._id,
             planName: selectedPlan.name,
             paymentStatus: "success",
             timestamp: new Date().toISOString()
           };
+
+          console.log("Processed Payment Details:", paymentDetails);
 
           // Activate plan after successful payment
           await activatePlanAfterPayment(paymentDetails);
@@ -244,27 +280,44 @@ const EmployeerPlansGrid = () => {
         },
         modal: {
           ondismiss: function () {
+            console.log("Payment modal dismissed by user");
             setProcessingPlan(false);
-            setError("Payment cancelled by user");
-          }
+            setError("Payment cancelled. Please try again when ready.");
+          },
+          // Escape key handling
+          escape: true,
+          // Backdrop click handling
+          backdropclose: false
         }
       };
 
+      console.log("Opening Razorpay with options:", options);
+
+      // Create Razorpay instance
       const razorpay = new window.Razorpay(options);
 
       // Handle payment failure
       razorpay.on('payment.failed', function (response) {
-        console.error("Payment Failed:", response.error);
+        console.error("=== Payment Failed ===");
+        console.error("Error Code:", response.error.code);
+        console.error("Error Description:", response.error.description);
+        console.error("Error Source:", response.error.source);
+        console.error("Error Step:", response.error.step);
+        console.error("Error Reason:", response.error.reason);
+        console.error("Full Error Response:", response.error);
+
         setError(
-          `Payment failed: ${response.error.description || "Please try again"}`
+          `Payment failed: ${response.error.description || response.error.reason || "Please try again"}`
         );
         setProcessingPlan(false);
       });
 
+      // Open Razorpay checkout
       razorpay.open();
+      console.log("Razorpay checkout opened");
 
     } catch (err) {
-      console.error("Payment error:", err);
+      console.error("Payment initialization error:", err);
       setError(err.message || "Failed to initialize payment. Please try again.");
       setProcessingPlan(false);
     }
@@ -272,13 +325,18 @@ const EmployeerPlansGrid = () => {
 
   // Confirm selection - either activate free plan or initiate payment
   const handleConfirmChoosePlan = async () => {
+    console.log("Plan confirmation initiated for:", selectedPlan.name);
+    console.log("Plan price:", selectedPlan.price);
+
     // If it's a paid plan, handle payment
     if (selectedPlan.price > 0) {
+      console.log("Initiating payment for paid plan");
       await handlePayment();
       return;
     }
 
     // For free plans, activate directly
+    console.log("Activating free plan directly");
     setProcessingPlan(true);
     setError(null);
     setShowConfirmModal(false);
@@ -296,6 +354,8 @@ const EmployeerPlansGrid = () => {
         }
       );
 
+      console.log("Free plan activation response:", response.data);
+
       if (response.status === 200) {
         setSuccessMsg("Your free plan has been activated successfully!");
         setShowSuccessModal(true);
@@ -308,6 +368,7 @@ const EmployeerPlansGrid = () => {
         setError(response.data.message || "Failed to activate plan");
       }
     } catch (err) {
+      console.error("Free plan activation error:", err);
       setError(
         err.response?.data?.message || err.message || "Failed to activate plan"
       );
@@ -351,7 +412,7 @@ const EmployeerPlansGrid = () => {
     );
   }
 
-  if (error) {
+  if (error && !showConfirmModal) {
     return (
       <>
         <EmployerHeader />
@@ -430,73 +491,73 @@ const EmployeerPlansGrid = () => {
             <div className="row justify-content-center">
               {filteredPlans
                 .map((plan, index) => {
-                const isCurrentPlan = subscriptionStatus?.currentPlan?._id === plan._id;
+                  const isCurrentPlan = subscriptionStatus?.currentPlan?._id === plan._id;
 
-                return (
-                  <div className="col-lg-3 col-md-6 col-sm-12 d-flex mb-4" key={plan._id}>
-                    <div className={`card flex-fill ${isCurrentPlan ? 'border border-success border-2' :
+                  return (
+                    <div className="col-lg-3 col-md-6 col-sm-12 d-flex mb-4" key={plan._id}>
+                      <div className={`card flex-fill ${isCurrentPlan ? 'border border-success border-2' :
                         isPremium && plan.price >= 6999 ? "border border-primary" : ""
-                      }`}>
-                      <div className="card-body bg-light shadow">
-                        {isCurrentPlan && (
-                          <div className="badge bg-success mb-2 w-100">Current Plan</div>
-                        )}
-                        <div className="card shadow">
-                          <div className="card-body">
-                            <h4>
-                              {index + 1}. {plan.name}
-                              {plan.price === 0 && (
-                                <span className="badge bg-success ms-2">Free</span>
+                        }`}>
+                        <div className="card-body bg-light shadow">
+                          {isCurrentPlan && (
+                            <div className="badge bg-success mb-2 w-100">Current Plan</div>
+                          )}
+                          <div className="card shadow">
+                            <div className="card-body">
+                              <h4>
+                                {index + 1}. {plan.name}
+                                {plan.price === 0 && (
+                                  <span className="badge bg-success ms-2">Free</span>
+                                )}
+                              </h4>
+                              <h1 className="text-primary">
+                                {plan.price === 0 ? "₹0" : `₹${plan.price}`}
+                                <span className="fs-14 fw-normal text-gray">/{plan.validityDays} days</span>
+                              </h1>
+                              {plan.price > 0 && (
+                                <p className="text-muted small mb-0">GST: {plan.gstPercentage}%</p>
                               )}
-                            </h4>
-                            <h1 className="text-primary">
-                              {plan.price === 0 ? "₹0" : `₹${plan.price}`}
-                              <span className="fs-14 fw-normal text-gray">/{plan.validityDays} days</span>
-                            </h1>
-                            {plan.price > 0 && (
-                              <p className="text-muted small mb-0">GST: {plan.gstPercentage}%</p>
-                            )}
-                            <p className="text-muted small">
-                              {calculateTotalPrice(plan.price, plan.gstPercentage)}
-                            </p>
+                              <p className="text-muted small">
+                                {calculateTotalPrice(plan.price, plan.gstPercentage)}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                        <div className="pricing-content rounded bg-white border border-grey shadow mb-3">
-                          <div className="price-hdr">
-                            <h6 className="fs-14 fw-medium text-primary w-100">
-                              Features Includes
-                            </h6>
-                          </div>
-                          <div
-                            className="features-list"
-                            style={{ maxHeight: "300px", overflowY: "auto" }}
-                          >
-                            {getFeatureList(plan).map((feature, idx) => (
-                              <div className="text-dark d-flex align-items-center mb-2" key={idx}>
-                                <i
-                                  className={`ti ${feature.included
+                          <div className="pricing-content rounded bg-white border border-grey shadow mb-3">
+                            <div className="price-hdr">
+                              <h6 className="fs-14 fw-medium text-primary w-100">
+                                Features Includes
+                              </h6>
+                            </div>
+                            <div
+                              className="features-list"
+                              style={{ maxHeight: "300px", overflowY: "auto" }}
+                            >
+                              {getFeatureList(plan).map((feature, idx) => (
+                                <div className="text-dark d-flex align-items-center mb-2" key={idx}>
+                                  <i
+                                    className={`ti ${feature.included
                                       ? "ti-discount-check-filled text-success"
                                       : "ti-circle-x-filled text-danger"
-                                    } me-2`}
-                                ></i>
-                                <span className="small">{feature.text}</span>
-                              </div>
-                            ))}
+                                      } me-2`}
+                                  ></i>
+                                  <span className="small">{feature.text}</span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
+                          <button
+                            className={`btn ${isCurrentPlan ? 'btn-success' : 'btn-secondary'} w-100`}
+                            onClick={() => handleChoosePlan(plan._id)}
+                            disabled={processingPlan || isCurrentPlan}
+                          >
+                            {isCurrentPlan ? "Current Plan" :
+                              plan.price === 0 ? "Get Started for Free" : "Choose Plan"}
+                          </button>
                         </div>
-                        <button
-                          className={`btn ${isCurrentPlan ? 'btn-success' : 'btn-secondary'} w-100`}
-                          onClick={() => handleChoosePlan(plan._id)}
-                          disabled={processingPlan || isCurrentPlan}
-                        >
-                          {isCurrentPlan ? "Current Plan" :
-                            plan.price === 0 ? "Get Started for Free" : "Choose Plan"}
-                        </button>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
           </div>
         </div>

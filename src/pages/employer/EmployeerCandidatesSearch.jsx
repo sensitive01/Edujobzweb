@@ -836,12 +836,12 @@ const EmployeerCandidatesSearch = () => {
                         {candidate.gender || "Not specified"}
                       </div>
                     </div>
-                    <div className="col-6">
+                    {/* <div className="col-6">
                       <small className="text-muted">Phone</small>
                       <div className="fw-semibold">
                         {candidate.userMobile || "Not specified"}
                       </div>
-                    </div>
+                    </div> */}
                     <div className="col-6">
                       <small className="text-muted">Location</small>
                       <div className="fw-semibold">
@@ -865,7 +865,7 @@ const EmployeerCandidatesSearch = () => {
 
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="d-flex align-items-center">
-                    {candidate.userMobile && (
+                    {/* {candidate.userMobile && (
                       <a
                         href={`tel:${candidate.userMobile}`}
                         className="btn btn-light text-success btn-icon btn-sm me-1"
@@ -873,7 +873,7 @@ const EmployeerCandidatesSearch = () => {
                       >
                         <i className="ti ti-phone fs-16"></i>
                       </a>
-                    )}
+                    )} */}
                     {candidate.userEmail && (
                       <a
                         href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candidate.userEmail)}`}
@@ -1020,12 +1020,12 @@ const EmployeerCandidatesSearch = () => {
                         {candidate.gender || "Not specified"}
                       </span>
                     </div>
-                    <div className="col-sm-6 col-lg-3">
+                    {/* <div className="col-sm-6 col-lg-3">
                       <small className="text-muted d-block">Phone</small>
                       <span className="fw-semibold">
                         {candidate.userMobile || "Not specified"}
                       </span>
-                    </div>
+                    </div> */}
                     <div className="col-sm-6 col-lg-3">
                       <small className="text-muted d-block">Location</small>
                       <span className="fw-semibold">
@@ -1061,7 +1061,7 @@ const EmployeerCandidatesSearch = () => {
 
                 <div className="col-md-12 col-lg-1">
                   <div className="d-flex justify-content-end align-items-center flex-wrap gap-1">
-                    {candidate.userMobile && (
+                    {/* {candidate.userMobile && (
                       <a
                         href={`tel:${candidate.userMobile}`}
                         className="btn btn-light text-success btn-icon btn-sm"
@@ -1069,7 +1069,7 @@ const EmployeerCandidatesSearch = () => {
                       >
                         <i className="ti ti-phone fs-16"></i>
                       </a>
-                    )}
+                    )} */}
                     {candidate.userEmail && (
                       <a
                         href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(candidate.userEmail)}`}

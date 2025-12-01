@@ -249,8 +249,8 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                 <div className="mb-3">
                   <p className="mb-1">Candidate Name</p>
                   <h6 className="fw-normal">
-                    {candidateDetails.firstName}{" "}
-                    {candidateDetails.lastName || ""}
+                    {candidateDetails?.userName}
+                 
                   </h6>
                 </div>
               </div>
@@ -1127,8 +1127,8 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                           <div className="mb-3">
                             <p className="mb-1">Candidate Name</p>
                             <h6 className="fw-normal">
-                              {candidateDetails.firstName}{" "}
-                              {candidateDetails.lastName || ""}
+                              {candidateDetails?.userName||"candidate"}
+                             
                             </h6>
                           </div>
                         </div>

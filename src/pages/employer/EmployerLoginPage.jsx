@@ -113,14 +113,14 @@ const EmployerLoginPage = () => {
                   <div className="authentication-card w-100">
                     <div className="authen-overlay-item border w-100">
                       <h1 className="text-white display-1" style={{ textAlign: 'center' }}>
-                        Empowering Schools through seamless Staff management.
+                        Empowering schools with seamless and intelligent staff management solutions
                       </h1>
                       <div className="my-4 mx-auto authen-overlay-img">
                         <img src={authBg} alt="Authentication Background" />
                       </div>
                       <div>
                         <p className="text-white fs-20 fw-semibold text-center">
-                          Efficiently manage your workforce, streamline <br /> operations effortlessly.
+                          Empower your teams operations effortlessly.<br/>Elevate your entire institutions
                         </p>
                       </div>
                     </div>

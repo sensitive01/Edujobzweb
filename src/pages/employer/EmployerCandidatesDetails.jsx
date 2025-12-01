@@ -4,7 +4,7 @@ import AddNoteModal from "../../components/common/AddNoteModal";
 import { FaLink, FaFilePdf } from "react-icons/fa";
 
 const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate }) => {
-  console.log("candidate", candidate);
+  console.log("candidate-->", candidate);
   const [activeTab, setActiveTab] = useState("profile");
   const [showModal, setShowModal] = useState(false);
   const [candidateDetails, setCandidateDetails] = useState(null);
@@ -297,7 +297,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
                 <div className="mb-3">
                   <p className="mb-1">Candidate Name</p>
                   <h6 className="fw-normal">
-                    {candidateDetails.firstName}{candidate.firstName}
+                    {candidateDetails.firstName}{candidate.userName}
                     {candidateDetails.lastName || candidate.lastName}
                   </h6>
                 </div>

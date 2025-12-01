@@ -1514,14 +1514,14 @@ const EmployeerAllAppliedCandidates = () => {
                                 </div>
                               </div>
                               <div className="d-flex align-items-center">
-                                {candidate.phone && (
+                                {/* {candidate.phone && (
                                   <a
                                     href={`tel:${candidate.phone}`}
                                     className="btn btn-light text-success btn-icon btn-sm me-1"
                                   >
                                     <i className="ti ti-phone fs-16"></i>
                                   </a>
-                                )}
+                                )} */}
                                 {candidate.email && (
                                   <a
                                     href={`mailto:${candidate.email}`}
@@ -1597,10 +1597,10 @@ const EmployeerAllAppliedCandidates = () => {
                                 </span>
                               </div>
                               <div className="d-flex align-items-center justify-content-between mb-2">
-                                <span>
+                                {/* <span>
                                   <b>Phone</b> :{" "}
                                   {candidate.phone || "Not specified"}
-                                </span>
+                                </span> */}
                                 <span>
                                   <b>Qualification</b> :{" "}
                                   {candidate.qualification || "Not specified"}

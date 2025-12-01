@@ -182,7 +182,7 @@ const EmployerForgotPassword = () => {
     setOtp(""); // Clear current OTP
     setIsOtpSent(false);
     setIsOtpVerified(false);
-    await sendOtp({ preventDefault: () => {} }); // Call sendOtp without form submission
+    await sendOtp({ preventDefault: () => { } }); // Call sendOtp without form submission
   };
 
   // Get current message to display
@@ -216,15 +216,14 @@ const EmployerForgotPassword = () => {
                         className="text-white display-1"
                         style={{ textAlign: "center" }}
                       >
-                        Empowering Schools through seamless Staff management.
+                        Empowering schools with seamless and intelligent staff management solutions
                       </h1>
                       <div className="my-4 mx-auto authen-overlay-img">
                         <img src={authBg} alt="Authentication Background" />
                       </div>
                       <div>
                         <p className="text-white fs-20 fw-semibold text-center">
-                          Efficiently manage your workforce, streamline <br />{" "}
-                          operations effortlessly.
+                          Empower your teams operations effortlessly.<br />Elevate your entire institutions
                         </p>
                       </div>
                     </div>
@@ -257,11 +256,10 @@ const EmployerForgotPassword = () => {
                           {/* Consolidated message display */}
                           {currentMessage && (
                             <div
-                              className={`alert ${
-                                currentMessage.type === "error"
-                                  ? "alert-danger"
-                                  : "alert-success"
-                              } mb-3`}
+                              className={`alert ${currentMessage.type === "error"
+                                ? "alert-danger"
+                                : "alert-success"
+                                } mb-3`}
                               role="alert"
                             >
                               {currentMessage.message}
@@ -280,9 +278,8 @@ const EmployerForgotPassword = () => {
                                     name="userEmail"
                                     value={formData.userEmail}
                                     onChange={handleChange}
-                                    className={`form-control border-end-0 ${
-                                      errors.userEmail ? "is-invalid" : ""
-                                    }`}
+                                    className={`form-control border-end-0 ${errors.userEmail ? "is-invalid" : ""
+                                      }`}
                                     placeholder="Enter your registered email address"
                                     disabled={isOtpSent}
                                   />
@@ -319,11 +316,10 @@ const EmployerForgotPassword = () => {
                                       <button
                                         type="button"
                                         onClick={verifyOtp}
-                                        className={`btn ${
-                                          isOtpVerified
-                                            ? "btn-success"
-                                            : "btn-primary"
-                                        }`}
+                                        className={`btn ${isOtpVerified
+                                          ? "btn-success"
+                                          : "btn-primary"
+                                          }`}
                                         disabled={
                                           isVerifyingOtp ||
                                           isOtpVerified ||
@@ -333,8 +329,8 @@ const EmployerForgotPassword = () => {
                                         {isVerifyingOtp
                                           ? "Verifying..."
                                           : isOtpVerified
-                                          ? "Verified"
-                                          : "Verify OTP"}
+                                            ? "Verified"
+                                            : "Verify OTP"}
                                       </button>
                                     </div>
 
