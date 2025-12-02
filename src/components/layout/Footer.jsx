@@ -262,6 +262,17 @@ const Footer = () => {
                           </Link>
                         </li>
                       )}
+                       <li>
+                          <Link
+                            to="/login"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleLinkClick("/privacy-policy");
+                            }}
+                          >
+                            Privacy Policy
+                          </Link>
+                        </li>
                     </ul>
                   </div>
                   <div className="col-7">
