@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { postJob } from "../../api/services/projectServices";
 import { useNavigate } from "react-router-dom";
 import { useEmployeeRegistration } from "../../hooks/useEmployeeRegistration";
 import axios from "axios";
-import ReactQuill from "react-quill";
-import "quill/dist/quill.snow.css";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const PostJob = () => {
   const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -347,20 +347,22 @@ const PostJob = () => {
                     </div>
                   </div>
 
-                  {/* Job Description */}
+                  {/* Job Description - WRAPPED */}
                   <label htmlFor="description">
                     &nbsp;&nbsp;Job Description
                   </label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
-                      <ReactQuill
-                        theme="snow"
-                        value={formData.description}
-                        onChange={handleRichChange("description")}
-                        modules={quillModules}
-                        formats={quillFormats}
-                        placeholder="Detailed job description"
-                      />
+                      <div className="quill-wrapper">
+                        <ReactQuill
+                          theme="snow"
+                          value={formData.description}
+                          onChange={handleRichChange("description")}
+                          modules={quillModules}
+                          formats={quillFormats}
+                          placeholder="Detailed job description"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -598,19 +600,21 @@ const PostJob = () => {
                     </div>
                   </div>
 
-                  {/* Benefits */}
+                  {/* Benefits - WRAPPED */}
                   <label htmlFor="benefits">&nbsp;&nbsp;Benefits</label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
-                      <ReactQuill
-                        className="rich-editor-full"
-                        theme="snow"
-                        value={formData.benefits}
-                        onChange={handleRichChange("benefits")}
-                        modules={quillModules}
-                        formats={quillFormats}
-                        placeholder="Describe benefits offered"
-                      />
+                      <div className="quill-wrapper">
+                        <ReactQuill
+                          className="rich-editor-full"
+                          theme="snow"
+                          value={formData.benefits}
+                          onChange={handleRichChange("benefits")}
+                          modules={quillModules}
+                          formats={quillFormats}
+                          placeholder="Describe benefits offered"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -755,21 +759,23 @@ const PostJob = () => {
                     </div>
                   </div>
 
-                  {/* Application Instructions */}
+                  {/* Application Instructions - WRAPPED */}
                   <label htmlFor="applicationInstructions">
                     &nbsp;&nbsp;Application Instructions
                   </label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
-                      <ReactQuill
-                        className="rich-editor-full"
-                        theme="snow"
-                        value={formData.applicationInstructions}
-                        onChange={handleRichChange("applicationInstructions")}
-                        modules={quillModules}
-                        formats={quillFormats}
-                        placeholder="How should candidates apply?"
-                      />
+                      <div className="quill-wrapper">
+                        <ReactQuill
+                          className="rich-editor-full"
+                          theme="snow"
+                          value={formData.applicationInstructions}
+                          onChange={handleRichChange("applicationInstructions")}
+                          modules={quillModules}
+                          formats={quillFormats}
+                          placeholder="How should candidates apply?"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -861,6 +867,44 @@ const PostJob = () => {
         .rich-editor-full { width: 100%; }
         .rich-editor-full .ql-container { width: 100%; }
         .rich-editor-full .ql-editor { min-height: 150px; }
+
+        /* FIX FOR DUPLICATE TOOLBARS */
+        .quill-wrapper .ql-toolbar:not(:first-child) {
+          display: none !important;
+        }
+
+        .quill-wrapper {
+          margin-bottom: 1rem;
+        }
+
+        /* Rich Text Editor Styling */
+        .ql-editor {
+          min-height: 150px;
+          max-height: 300px;
+          overflow-y: auto;
+        }
+
+        .ql-container {
+          font-size: 14px;
+        }
+
+        .ql-editor.ql-blank::before {
+          color: #999;
+          font-style: italic;
+        }
+
+        /* Custom Quill Toolbar Styling */
+        .ql-toolbar.ql-snow {
+          border: 1px solid #dee2e6;
+          border-radius: 0.25rem 0.25rem 0 0;
+          background-color: #f8f9fa;
+        }
+
+        .ql-container.ql-snow {
+          border: 1px solid #dee2e6;
+          border-top: none;
+          border-radius: 0 0 0.25rem 0.25rem;
+        }
       `}</style>
     </div>
   );

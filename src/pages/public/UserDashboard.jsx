@@ -211,7 +211,7 @@ const UserDashboard = () => {
           Welcome to EdProfio, {employerData?.userName}!
         </h4>
         <p className="mb-3">
-          Great to have you on board! Your profile is {calculateProfileCompletion(employerData)}% complete. Here's how you can get started:
+          Nice progress! Your profile is  {calculateProfileCompletion(employerData)}% complete. Finalize your information to improve recruiter reach and discover the best job matches:
         </p>
         <div className="row align-items-stretch">
           <div className="col-md-4 mb-3 d-flex">
@@ -221,9 +221,9 @@ const UserDashboard = () => {
                 <h6>Complete Your Profile</h6>
                 <div className="mb-2">
                   <h4 className="text-primary fw-bold">{calculateProfileCompletion(employerData)}%</h4>
-                  <small className="text-muted">Profile Completion</small>
+                  <small className="text-muted">Completed</small>
                 </div>
-                <p className="small flex-grow-1">Add more details to attract employers</p>
+                <p className="small flex-grow-1">Update your details to improve matching accuracy and hiring potential</p>
                 <div className="mt-auto">
                   <Link to={`/employee/edit/${employerData?._id}`} className="btn btn-primary btn-sm w-100">
                     Update Profile
@@ -239,9 +239,9 @@ const UserDashboard = () => {
                 <h6>Browse Jobs</h6>
                 <div className="mb-2">
                   <h4 className="text-success fw-bold">{stats.matchingJobs}</h4>
-                  <small className="text-muted">Available Jobs</small>
+                  <small className="text-muted">Opportunities Waiting</small>
                 </div>
-                <p className="small flex-grow-1">Explore available opportunities</p>
+                <p className="small flex-grow-1">Discover roles and take the next step in your career.</p>
                 <div className="mt-auto">
                   <Link to="/job-vacancies" className="btn btn-success btn-sm w-100">
                     View Jobs
@@ -257,9 +257,9 @@ const UserDashboard = () => {
                 <h6>Browse Events</h6>
                 <div className="mb-2">
                   <h4 className="text-warning fw-bold">{stats.upcomingEvents || 0}</h4>
-                  <small className="text-muted">Upcoming Events</small>
+                  <small className="text-muted">Events Available</small>
                 </div>
-                <p className="small flex-grow-1">Discover networking and career events</p>
+                <p className="small flex-grow-1">New events will appear here once scheduled</p>
                 <div className="mt-auto">
                   <Link to="/events" className="btn btn-warning btn-sm w-100">
                     View Events

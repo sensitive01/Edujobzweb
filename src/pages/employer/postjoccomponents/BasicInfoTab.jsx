@@ -1,7 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill';
-import 'quill/dist/quill.snow.css'; // Changed from react-quill/dist to quill/dist
+import 'react-quill/dist/quill.snow.css';
 import "./richStyle.css";
+
+// Move modules and formats outside the component to prevent recreation on each render
+const modules = {
+    toolbar: [
+        [{ 'header': [1, 2, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        [{ 'indent': '-1' }, { 'indent': '+1' }],
+        ['link'],
+        ['clean']
+    ],
+};
+
+const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'indent',
+    'link'
+];
 
 const BasicInfoTab = ({
     selectedFile,
@@ -21,25 +41,19 @@ const BasicInfoTab = ({
         }
     };
 
-    // Rich text editor modules configuration
-    const modules = {
-        toolbar: [
-            [{ 'header': [1, 2, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'indent': '-1' }, { 'indent': '+1' }],
-            ['link'],
-            ['clean']
-        ],
-    };
+    const [mounted, setMounted] = useState(false);
+    const quillRef = React.useRef(null);
 
-    const formats = [
-        'header',
-        'bold', 'italic', 'underline', 'strike',
-        'list', 'bullet',
-        'indent',
-        'link'
-    ];
+    useEffect(() => {
+        setMounted(true);
+        // Cleanup function to prevent memory leaks
+        return () => {
+            setMounted(false);
+            if (quillRef.current) {
+                quillRef.current = null;
+            }
+        };
+    }, []);
 
     // Handler for rich text editor changes
     const handleRichTextChange = (content, fieldName) => {
@@ -92,15 +106,20 @@ const BasicInfoTab = ({
                         <label className="form-label">
                             Job Description <span className="text-danger">*</span>
                         </label>
-                        <ReactQuill
-                            theme="snow"
-                            value={formData.description}
-                            onChange={(content) => handleRichTextChange(content, 'description')}
-                            modules={modules}
-                            formats={formats}
-                            placeholder="Enter detailed job description..."
-                            style={{ minHeight: '200px' }}
-                        />
+                        <div className="quill-wrapper">
+                            {mounted && (
+                                <ReactQuill
+                                    ref={quillRef}
+                                    theme="snow"
+                                    value={formData.description}
+                                    onChange={(content) => handleRichTextChange(content, 'description')}
+                                    modules={modules}
+                                    formats={formats}
+                                    placeholder="Enter detailed job description..."
+                                    style={{ minHeight: '200px' }}
+                                />
+                            )}
+                        </div>
                     </div>
                 </div>
 

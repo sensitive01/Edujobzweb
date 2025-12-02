@@ -390,7 +390,7 @@ const JobsPage = () => {
       />
 
       {/* Subfilter Bar - Moved to blue background area */}
-      <section
+      {/* <section
         className="subfilter-section"
         style={{
           backgroundColor: "#063970",
@@ -556,7 +556,7 @@ const JobsPage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <main className="main">
         {showFilters && (
@@ -609,7 +609,7 @@ const JobsPage = () => {
                     </div>
 
                     <div className="d-flex flex-wrap align-items-center gap-2">
-                      <div className="d-flex gap-2">
+                      <div className="d-flex gap-2 filter-clear-group">
                         <button
                           type="button"
                           className="btn btn-primary btn-sm"
@@ -950,6 +950,22 @@ const JobsPage = () => {
           pointer-events: auto;
         }
 
+        /* Reduce gap between controls on desktop/tablet */
+        @media (min-width: 768px) {
+          .page-subheader .filter-clear-group {
+            gap: 0.35rem !important;
+          }
+
+          .page-subheader .view-toggle-buttons {
+            gap: 0.35rem !important;
+          }
+          
+          /* Make Filter Jobs and Sort by very close */
+          .page-subheader > .d-flex > .d-flex.flex-wrap:last-child {
+            gap: 0.25rem !important;
+          }
+        }
+
         .subfilter-section .subfilter-select {
           font-size: 0.875rem;
           padding: 0.5rem 2rem 0.5rem 0.75rem;
@@ -983,19 +999,111 @@ const JobsPage = () => {
           }
         }
 
-        @media (max-width: 991px) {
-          .page-subheader .d-flex {
-            flex-direction: column;
+        /* ===== MOBILE-ONLY RESPONSIVE FIXES ===== */
+        /* Desktop >= 768px remains EXACTLY the same */
+        
+        /* Add gap between breadcrumb search inputs on all screen sizes */
+        .breadcrumb-form select:first-of-type,
+        .breadcrumb-form .form-select:first-of-type,
+        .search-form select:first-of-type,
+        .search-form .form-select:first-of-type {
+          margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 767px) {
+          /* Add gap between keyword and location dropdowns in breadcrumb */
+          .breadcrumb-form .form-group + .form-group,
+          .search-form .form-group + .form-group,
+          .job-search-form > div + div {
+            margin-top: 0.75rem;
+          }
+
+          /* Additional spacing for select elements */
+          .breadcrumb-form select,
+          .breadcrumb-form .form-select,
+          .search-form select,
+          .search-form .form-select {
+            margin-bottom: 0.75rem;
+          }
+
+          /* Remove margin from last select */
+          .breadcrumb-form select:last-of-type,
+          .breadcrumb-form .form-select:last-of-type,
+          .search-form select:last-of-type,
+          .search-form .form-select:last-of-type {
+            margin-bottom: 0;
+          }
+
+          /* Stack header elements vertically on mobile */
+          .page-subheader > .d-flex {
+            flex-direction: column !important;
             align-items: stretch !important;
           }
-          
-          .job-count {
+
+          /* Center and style job count on mobile */
+          .page-subheader .job-count {
             text-align: center;
-            margin-bottom: 1rem;
+            width: 100%;
+            margin-bottom: 0.75rem;
           }
-          
-          .view-toggle-buttons {
+
+          .page-subheader .job-count h2 {
+            white-space: normal !important;
+            font-size: 1rem !important;
+          }
+
+          /* Make controls wrapper stack vertically with smaller gap */
+          .page-subheader > .d-flex > .d-flex.flex-wrap:last-child {
+            width: 100%;
+            flex-direction: column !important;
+            gap: 0.35rem !important;
+          }
+
+          /* Filter buttons row - make Filter Jobs button expand */
+          .page-subheader .d-flex.gap-2:first-of-type {
+            width: 100%;
+            gap: 0.35rem !important;
+          }
+
+          .page-subheader .d-flex.gap-2:first-of-type .btn-primary {
+            flex: 1;
+          }
+
+          .page-subheader .d-flex.gap-2:first-of-type .btn-outline-secondary {
+            min-width: 44px;
+            flex-shrink: 0;
+          }
+
+          /* Sort dropdown full width on mobile */
+          .page-subheader .sort-dropdown {
+            width: 100% !important;
+            min-width: auto !important;
+          }
+
+          .page-subheader .sort-dropdown select {
+            width: 100%;
+          }
+
+          /* View toggle buttons centered with minimal margin top */
+          .page-subheader .view-toggle-buttons {
+            width: 100%;
             justify-content: center;
+            margin-top: 0.15rem;
+            gap: 0.35rem !important;
+          }
+
+          /* Adjust button padding for touch */
+          .page-subheader .btn-sm {
+            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+          }
+
+          .custom-filters {
+            width: 280px;
+          }
+
+          .subfilter-section .form-select-sm {
+            font-size: 0.8rem;
           }
 
           .subfilter-section {
@@ -1003,36 +1111,44 @@ const JobsPage = () => {
           }
         }
 
-        @media (max-width: 768px) {
-          .custom-filters {
-            width: 280px;
-          }
-          
-          .page-subheader .d-flex > div:last-child {
-            justify-content: center;
-          }
-          
-          .sort-dropdown {
-            min-width: 100px !important;
-          }
-
-          .subfilter-section .form-select-sm {
-            font-size: 0.8rem;
-          }
-        }
-
         @media (max-width: 576px) {
-          .page-subheader .d-flex > div:last-child {
-            flex-direction: column;
-            gap: 1rem !important;
+          /* Extra small screens - further refinements */
+          .page-subheader .job-count h2 {
+            font-size: 0.9rem !important;
+            letter-spacing: 0.5px !important;
           }
-          
-          .view-toggle-buttons {
-            order: -1;
+
+          .page-subheader .btn-sm {
+            font-size: 0.8125rem;
+            padding: 0.45rem 0.65rem;
+          }
+
+          /* Make pagination wrap and adjust size */
+          .pagination {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.25rem;
+          }
+
+          .pagination .page-link {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            min-width: 32px;
           }
 
           .subfilter-section .row {
             gap: 0.5rem;
+          }
+        }
+
+        /* Ensure desktop layout stays EXACTLY the same */
+        @media (min-width: 768px) {
+          .page-subheader > .d-flex {
+            flex-direction: row !important;
+          }
+
+          .page-subheader .job-count h2 {
+            white-space: nowrap !important;
           }
         }
       `}</style>

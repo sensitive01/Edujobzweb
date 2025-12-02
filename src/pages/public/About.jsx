@@ -28,10 +28,10 @@ const AboutPage = () => {
         {/* About Section */}
         <section className="section section-about section-theme-1 pt-35 pt-md-50 pt-lg-70 pt-xl-100 pt-xxl-120 pb-35 pb-md-50 pb-lg-70 pb-xl-100 pb-xxl-120">
           <div className="container">
-            <div className="row" style={{padding: "0px 100px"}}>
+            <div className="row about-content-row">
               <div className="col-12 col-lg-7 mb-35 mb-lg-0">
                 <div className="textbox">
-                  <img src={edProfiologo} width="30%" alt="EdProfio Logo" />
+                  <img src={edProfiologo} className="about-logo" alt="EdProfio Logo" />
                   <h2 className="text-secondary mb-0">Welcome to EdProfio</h2>
                   <p className="fw-bold text-dark">A Platform for Educators at Every Level</p>
                   <hr className="mb-20" />
@@ -44,28 +44,28 @@ const AboutPage = () => {
               </div>
               <div className="col-12 col-lg-5">
                 <div className="about-image shadow border border-dark">
-                  <img src="/images/img-about-01.jpg" width="560" height="570" alt="Intro" />
+                  <img src="/images/img-about-01.jpg" className="img-fluid" alt="Intro" />
                 </div>
               </div>
             </div>
             
             <div className="row">
               <div className="col-12 col-lg-12 mt-60">
-                <Tabs defaultActiveKey="why-choose" id="about-tabs" className="nav-tabs-line">
-                  <Tab eventKey="why-choose" title="Why Choose EdProfio?" className="border border-dark shadow p-20" style={{borderRadius: "10px"}}>
+                <Tabs defaultActiveKey="why-choose" id="about-tabs" className="nav-tabs-line about-tabs">
+                  <Tab eventKey="why-choose" title="Why Choose EdProfio?" className="border border-dark shadow p-20 tab-content-box">
                     <p style={{textAlign: "justify"}}>
                       At EdProfio, we understand the unique needs of the educational industry. Our platform serves a variety of educational institutions, 
                       including schools, colleges, universities, training centres, and EdTech organizations, providing a robust and efficient recruitment solutions. 
                       For job seekers, we offer diverse opportunities across teaching, administration, research, and EdTech roles.
                     </p>
                   </Tab>
-                  <Tab eventKey="benefit" title="Who Can Benefit from EdProfio?" className="border border-dark shadow p-20" style={{borderRadius: "10px"}}>
+                  <Tab eventKey="benefit" title="Who Can Benefit from EdProfio?" className="border border-dark shadow p-20 tab-content-box">
                     <p style={{textAlign: "justify"}}>
                       Whether you are an educator, administrator, counsellor, researcher, or EdTech specialist or a company, 
                       EdProfio is your reliable partner in advancing your career and achieving professional success.
                     </p>
                   </Tab>
-                  <Tab eventKey="mission" title="Our Mission" className="border border-dark shadow p-20" style={{borderRadius: "10px"}}>
+                  <Tab eventKey="mission" title="Our Mission" className="border border-dark shadow p-20 tab-content-box">
                     <p style={{textAlign: "justify"}}>
                       Our mission is to empower educational growth by connecting the right talent with the right opportunities. 
                       With our intuitive interface, powerful search filters, and tailored recommendations, EdProfio makes job searching and recruitment easier.
@@ -88,10 +88,10 @@ const AboutPage = () => {
             
             <div className="row">
               {teamMembers.map((member, index) => (
-                <div key={index} className="col-12 col-md-4 mb-15 mb-md-30 mb-xl-80">
+                <div key={index} className="col-12 col-md-6 col-lg-4 mb-15 mb-md-30 mb-xl-80">
                   <div className="leadership-box shadow border border-dark">
                     <div className="image-holder shadow border border-dark">
-                      <img src={`/images/${member.image}`} width="260" height="260" alt={member.name} />
+                      <img src={`/images/${member.image}`} className="img-fluid" alt={member.name} />
                     </div>
                     <div className="textbox">
                       <h3 className="h4 mt-0 mb-0 text-secondary">{member.name}</h3>
@@ -113,9 +113,9 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* Testimonials Section */}
+        {/* Testimonials Section - Slider Removed, Direct Display */}
         <section className="section section-theme-6 learning-block bg-light-sky pt-30 pt-md-50 pt-lg-75 pt-xxl-120 pb-10 pb-md-50 pb-lg-40 pb-xxl-60 bg-white">
-          <div className="container" style={{padding: "0px 100px"}}>
+          <div className="container testimonials-container">
             <div className="row mb-10 mb-lg-60">
               <div className="col-12 col-md-8">
                 <h2 className="text-secondary mb-0">People Love To Share Feedback</h2>
@@ -133,31 +133,40 @@ const AboutPage = () => {
               <hr />
             </div>
             
+            {/* Testimonials Display - Better Layout with Photo on Left */}
             <div className="row mb-30 mb-md-50 mb-lg-80">
-              <div className="col-12 learning-sliders">
-                <div className="thumbs-list">
-                  {testimonials.map((testimonial, index) => (
-                    <div key={index} className="thumbnail">
-                      <img src={`/images/${testimonial.image}`} alt={testimonial.name} />
+              {testimonials.map((testimonial, index) => (
+                <div key={index} className="col-12 mb-4">
+                  <div className="testimonial-card d-flex align-items-start p-4 border shadow" style={{borderRadius: "10px", backgroundColor: "white", gap: "2rem"}}>
+                    {/* Profile Photo */}
+                    <div className="testimonial-photo flex-shrink-0">
+                      <img 
+                        src={`/images/${testimonial.image}`} 
+                        alt={testimonial.name}
+                        className="testimonial-img"
+                      />
                     </div>
-                  ))}
-                </div>
-                
-                <div className="text-info-slider">
-                  {testimonials.map((testimonial, index) => (
-                    <div key={index} className="slick-box">
-                      <blockquote className="text-info-frm">
-                        <h3 className="text-secondary">{testimonial.title}</h3>
-                        <p style={{textAlign: "justify"}}>{testimonial.quote}</p>
-                        <cite className="d-flex align-items-center">
-                          <strong className="title">{testimonial.name}</strong>
-                          <span className="designation">- {testimonial.position}</span>
-                        </cite>
-                      </blockquote>
+                    
+                    {/* Content */}
+                    <div className="testimonial-content flex-grow-1">
+                      <h3 className="text-secondary mb-3" style={{fontSize: "1.75rem", fontWeight: "600"}}>{testimonial.title}</h3>
+                      <p style={{
+                        textAlign: "justify", 
+                        fontSize: "1rem", 
+                        lineHeight: "1.7",
+                        color: "#333",
+                        marginBottom: "1.5rem"
+                      }}>
+                        {testimonial.quote}
+                      </p>
+                      <div className="testimonial-author">
+                        <strong style={{fontSize: "1.1rem", color: "#000"}}>{testimonial.name}</strong>
+                        <span style={{color: "#666", marginLeft: "0.5rem"}}>- {testimonial.position}</span>
+                      </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
             
             <hr />
@@ -234,6 +243,308 @@ const AboutPage = () => {
         </section>
       </main>
 
+      <style>{`
+        /* ===== RESPONSIVE FIXES FOR ABOUT PAGE ===== */
+        
+        /* About Content Row - Remove inline padding and make responsive */
+        .about-content-row {
+          padding: 0 100px;
+        }
+
+        /* Testimonials Container */
+        .testimonials-container {
+          padding: 0 100px;
+        }
+
+        /* Logo sizing */
+        .about-logo {
+          width: 30%;
+          max-width: 200px;
+          height: auto;
+        }
+
+        /* About image responsive */
+        .about-image img {
+          width: 100%;
+          height: auto;
+        }
+
+        /* Tab content box */
+        .tab-content-box {
+          border-radius: 10px;
+        }
+
+        /* Testimonial card styling */
+        .testimonial-card {
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        /* Testimonial photo */
+        .testimonial-img {
+          width: 150px;
+          height: 150px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 4px solid #e0e0e0;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Leadership box images */
+        .leadership-box .image-holder img {
+          width: 100%;
+          height: auto;
+          max-width: 260px;
+        }
+
+        /* Counter boxes responsive */
+        .counter-box {
+          flex: 1;
+          min-width: 200px;
+          margin: 10px;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 991px) {
+          .about-content-row {
+            padding: 0 50px;
+          }
+
+          .testimonials-container {
+            padding: 0 50px;
+          }
+
+          .about-logo {
+            width: 40%;
+            max-width: 150px;
+          }
+        }
+
+        @media (max-width: 767px) {
+          /* Remove large padding on mobile */
+          .about-content-row {
+            padding: 0 15px;
+          }
+
+          .testimonials-container {
+            padding: 0 15px;
+          }
+
+          /* Logo sizing for mobile */
+          .about-logo {
+            width: 50%;
+            max-width: 120px;
+            margin-bottom: 1rem;
+          }
+
+          /* Headings font size */
+          .text-secondary {
+            font-size: 1.5rem !important;
+          }
+
+          h1.text-primary {
+            font-size: 1.75rem !important;
+          }
+
+          /* Testimonial card mobile - stack vertically */
+          .testimonial-card {
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center;
+            gap: 1.5rem !important;
+          }
+
+          .testimonial-img {
+            width: 120px !important;
+            height: 120px !important;
+          }
+
+          .testimonial-content {
+            text-align: center !important;
+          }
+
+          .testimonial-content p {
+            text-align: center !important;
+            font-size: 0.95rem !important;
+          }
+
+          .testimonial-content h3 {
+            font-size: 1.3rem !important;
+          }
+
+          .testimonial-author {
+            justify-content: center;
+            flex-wrap: wrap;
+          }
+
+          /* Subvisual text padding */
+          .subvisual-textbox {
+            padding: 0 1rem;
+          }
+
+          .subvisual-textbox h1 {
+            font-size: 1.5rem !important;
+          }
+
+          .subvisual-textbox p {
+            font-size: 0.9rem;
+          }
+
+          /* Tab titles - make them wrap */
+          .about-tabs .nav-link {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+            white-space: normal;
+            text-align: center;
+          }
+
+          /* Tab content padding */
+          .tab-content-box {
+            padding: 15px !important;
+          }
+
+          /* Leadership boxes */
+          .leadership-box {
+            margin-bottom: 1.5rem;
+          }
+
+          /* Counter boxes stack on mobile */
+          .counters-block {
+            flex-direction: column;
+            align-items: center;
+          }
+
+          .counter-box {
+            width: 100%;
+            max-width: 300px;
+            margin: 10px 0;
+          }
+
+          /* Reviews link */
+          .reviews-link {
+            margin-top: 1rem;
+          }
+
+          /* App buttons */
+          .app-buttons {
+            flex-direction: column;
+            gap: 1rem;
+          }
+
+          .btn-app {
+            width: 100%;
+            max-width: 300px;
+          }
+
+          /* Text alignment on mobile */
+          p {
+            text-align: left !important;
+          }
+
+          /* Section headers */
+          .section-header h2 {
+            font-size: 1.5rem !important;
+          }
+
+          .section-header p {
+            font-size: 0.9rem;
+          }
+
+          /* Logos list wrap on mobile */
+          .logos-list {
+            text-align: center;
+          }
+
+          .logos-list .list-inline-item {
+            margin: 0.5rem;
+          }
+
+          .logos-list img {
+            max-width: 80px;
+            height: auto;
+          }
+        }
+
+        @media (max-width: 576px) {
+          /* Extra small screens */
+          .about-logo {
+            width: 60%;
+            max-width: 100px;
+          }
+
+          .text-secondary {
+            font-size: 1.25rem !important;
+          }
+
+          h1.text-primary {
+            font-size: 1.5rem !important;
+          }
+
+          .about-tabs .nav-link {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.5rem;
+          }
+
+          /* Testimonial adjustments for very small screens */
+          .testimonial-card {
+            padding: 1.5rem 1rem !important;
+          }
+
+          .testimonial-img {
+            width: 100px !important;
+            height: 100px !important;
+            border-width: 3px !important;
+          }
+
+          .testimonial-content h3 {
+            font-size: 1.15rem !important;
+          }
+
+          .testimonial-content p {
+            font-size: 0.9rem !important;
+          }
+
+          .testimonial-author strong {
+            font-size: 1rem !important;
+          }
+
+          .testimonial-author span {
+            font-size: 0.85rem !important;
+          }
+
+          /* Stack team members on very small screens */
+          .section-leadership .col-md-6 {
+            width: 100%;
+          }
+
+          /* Smaller stats text */
+          .counter-stats .numbers {
+            font-size: 1.5rem !important;
+          }
+
+          .counter-stats .subtext {
+            font-size: 0.85rem;
+          }
+        }
+
+        /* Ensure images don't overflow */
+        img {
+          max-width: 100%;
+          height: auto;
+        }
+
+        /* Override any problematic inline styles on mobile */
+        @media (max-width: 767px) {
+          [style*="padding: 0px 100px"] {
+            padding: 0 15px !important;
+          }
+        }
+      `}</style>
+
     </div>
   );
 };
@@ -270,8 +581,7 @@ const testimonials = [
     name: "Courtney Henry",
     position: "Web Designer",
     image: "people-img-01.jpg"
-  },
-  // Add other testimonials here...
+  }
 ];
 
 const logos = [
