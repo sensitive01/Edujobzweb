@@ -312,22 +312,45 @@ const UserDashboard = () => {
       <div className="subvisual-block subvisual-theme-1 bg-secondary d-flex pt-60 pt-md-90 text-white"></div>
 
       <main className="jobplugin__main">
+        {/* Mobile Menu Button - Better Styled */}
+        {isMobile && !sidebarOpen && (
+          <button
+            onClick={toggleSidebar}
+            className="mobile-menu-btn"
+            aria-label="Open Menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        )}
+
+        {/* Overlay for mobile when sidebar is open */}
+        {isMobile && sidebarOpen && (
+          <div
+            onClick={closeSidebar}
+            className="sidebar-overlay"
+          />
+        )}
+
         <div className="jobplugin__main-holder">
           <div className="jobplugin__container">
             <div className="jobplugin__settings">
-              {/* Settings Nav Opener */}
-              <a
-                href="#"
-                className="jobplugin__settings-opener jobplugin__text-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
-                onClick={(e) => {
-                  e.preventDefault();
-                  toggleSidebar();
-                }}
-              >
-                <FaCog className="rj-icon rj-settings" />
-              </a>
+              {/* Settings Nav Opener - Desktop Only */}
+              {!isMobile && (
+                <a
+                  href="#"
+                  className="jobplugin__settings-opener jobplugin__text-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleSidebar();
+                  }}
+                >
+                  <FaCog className="rj-icon rj-settings" />
+                </a>
+              )}
 
-              <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} />
+              <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} isMobile={isMobile} />
 
               <div className="jobplugin__settings-content">
                 <div className="jobplugin__dashboard">
@@ -419,7 +442,7 @@ const UserDashboard = () => {
                       </div>
 
                       {/* Buttons for Resume Builder and Logout */}
-                      <div className="jobplugin__profile-buttons" style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                      <div className="jobplugin__profile-buttons" style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
                         <button onClick={handleResumeBuilder} className="jobplugin__button border-dark shadow bg-success hover:jobplugin__bg-success-dark small">
                           <FaFileAlt /> &nbsp; Resume Builder
                         </button>
@@ -633,6 +656,162 @@ const UserDashboard = () => {
           </div>
         </div>
       </main>
+
+      <style>{`
+        /* Mobile Menu Button - Custom Styled */
+        .mobile-menu-btn {
+          position: fixed;
+          top: 75px;
+          left: 15px;
+          z-index: 1100;
+          width: 50px;
+          height: 50px;
+          background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+          border: none;
+          border-radius: 12px;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          gap: 5px;
+          padding: 12px;
+          box-shadow: 0 4px 15px rgba(30, 58, 138, 0.4);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mobile-menu-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(30, 58, 138, 0.5);
+          background: linear-gradient(135deg, #1e40af 0%, #60a5fa 100%);
+        }
+
+        .mobile-menu-btn:active {
+          transform: translateY(0);
+        }
+
+        .mobile-menu-btn span {
+          width: 26px;
+          height: 3px;
+          background-color: white;
+          border-radius: 3px;
+          transition: all 0.3s ease;
+        }
+
+        .mobile-menu-btn:hover span {
+          width: 30px;
+        }
+
+        .mobile-menu-btn span:nth-child(1) {
+          width: 26px;
+        }
+
+        .mobile-menu-btn span:nth-child(2) {
+          width: 22px;
+        }
+
+        .mobile-menu-btn span:nth-child(3) {
+          width: 18px;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.6);
+          z-index: 998;
+          animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+          .mobile-menu-btn {
+            display: flex;
+          }
+
+          .jobplugin__settings-opener {
+            display: none !important;
+          }
+
+          .jobplugin__profile-intro {
+            flex-direction: column;
+            text-align: center;
+            padding: 20px 15px;
+          }
+
+          .jobplugin__profile-intro__left {
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 15px;
+          }
+
+          .jobplugin__profile-intro__Textbox {
+            margin-top: 15px;
+            margin-left: 0 !important;
+          }
+
+          .jobplugin__profile-buttons {
+            justify-content: center;
+            width: 100%;
+            margin-top: 15px;
+          }
+
+          .jobplugin__profile-buttons button {
+            font-size: 12px;
+            padding: 8px 12px;
+          }
+
+          .jobplugin__dashboard-block .row.g-4 {
+            margin: 0;
+          }
+
+          .jobplugin__dashboard-block .col-lg-3 {
+            padding: 0 10px;
+            margin-bottom: 15px;
+          }
+
+          .card-body {
+            padding: 1rem !important;
+          }
+
+          .card-body h1 {
+            font-size: 2rem !important;
+          }
+
+          /* Welcome message cards */
+          .alert-info .row .col-md-4 {
+            margin-bottom: 15px;
+          }
+
+          .alert-info .card {
+            margin-bottom: 10px;
+          }
+        }
+
+        @media (min-width: 769px) {
+          .mobile-menu-btn {
+            display: none;
+          }
+        }
+
+        /* Ensure smooth transitions */
+        * {
+          -webkit-tap-highlight-color: transparent;
+        }
+      `}</style>
     </>
   );
 };
