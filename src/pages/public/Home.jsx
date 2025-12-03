@@ -14,6 +14,20 @@ import { FaSquarePen, FaSuitcase, FaUsers } from "react-icons/fa6";
 import { IoDocumentText } from "react-icons/io5";
 import { getJobAndEmployerCount } from "../../api/services/projectServices";
 import defaultAvatar from "../../../public/images/avatar-04.jpg"
+import leadership from "../../../src/assets/images/leadership.jpg"
+import Curriculum from "../../../src/assets/images/curriculum.jpg"
+import extracuricular from "../../../src/assets/images/extracuricular.jpg"
+import nonteaching from "../../../src/assets/images/nonteaching.jpg"
+import others from "../../../src/assets/images/others.jpg"
+import research from "../../../src/assets/images/research.jpg"
+import specialedu from "../../../src/assets/images/specialedu.jpg"
+import support from "../../../src/assets/images/support.jpg"
+import teaching from "../../../src/assets/images/teaching.jpg"
+import training from "../../../src/assets/images/training.jpg"
+import digital from "../../../src/assets/images/digital.jpg"
+
+
+
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -245,79 +259,79 @@ const HomePage = () => {
   const defaultCategories = [
     {
       title: "Teaching Jobs",
-      iconBlue: "/images/img_20.png",
-      iconWhite: "/images/img_20_white.png",
+      iconBlue: teaching,
+      iconWhite: teaching,
       lucideIcon: null,
       apiCategoryMatch: "Education", // Maps to "Education" in API
     },
     {
       title: "Leadership and Administration",
-      iconBlue: "/images/leadership.png",
-      iconWhite: "/images/leadership1.png",
+      iconBlue: leadership,
+      iconWhite: leadership,
       lucideIcon: null,
       apiCategoryMatch: "Leadership", // No direct match in API
     },
     {
       title: "Support and Student Welfare",
-      iconBlue: "/images/img_25.png",
-      iconWhite: "/images/img_25_white.png",
+      iconBlue: support,
+      iconWhite:support,
       lucideIcon: null,
       apiCategoryMatch: "Support", // No direct match in API
     },
     {
       title: "Extracurricular Activities",
-      iconBlue: "/images/img_22.png",
-      iconWhite: "/images/img_22_white.png",
+      iconBlue: extracuricular,
+      iconWhite:extracuricular,
       lucideIcon: null,
       apiCategoryMatch: "Extracurricular", // No direct match in API
     },
     {
       title: "Curriculum and Content Development",
-      iconBlue: "/images/img_23.png",
-      iconWhite: "/images/img_23_white.png",
+      iconBlue: Curriculum,
+      iconWhite: Curriculum,
       lucideIcon: null,
       apiCategoryMatch: "Curriculum", // No direct match in API
     },
     {
       title: "EdTech and Digital Learning",
-      iconBlue: "/images/img_24.png",
-      iconWhite: "/images/img_24_white.png",
+      iconBlue: digital,
+      iconWhite: digital,
       lucideIcon: null,
       apiCategoryMatch: "IT", // Maps to "IT" in API
     },
     {
       title: "Special Education and Inclusive Learning",
-      iconBlue: "/images/special.png",
-      iconWhite: "/images/special1.png",
+      iconBlue: specialedu,
+      iconWhite: specialedu,
       lucideIcon: null,
       apiCategoryMatch: "Special Education", // No direct match in API
     },
     {
-      title: "Non-Teaching Staffs",
-      iconBlue: null,
-      iconWhite: null,
-      lucideIcon: FaUsers,
+      title: "Non-Teaching Staff",
+      iconBlue: nonteaching,
+      iconWhite: nonteaching,
+      lucideIcon: null,
       apiCategoryMatch: "Non-Teaching", // No direct match in API
     },
     {
       title: "Training and Development",
-      iconBlue: null,
-      iconWhite: null,
-      lucideIcon: FaSquarePen,
+      iconBlue: training,
+      iconWhite: training,
+      lucideIcon: null,
       apiCategoryMatch: "Training", // No direct match in API
     },
     {
       title: "Research and Policy Development",
-      iconBlue: null,
-      iconWhite: null,
-      lucideIcon: IoDocumentText,
+      iconBlue: research,
+      iconWhite: research,
+      lucideIcon: null,
       apiCategoryMatch: "Research", // No direct match in API
     },
     {
       title: "Other Specialized Roles",
-      iconBlue: null,
-      iconWhite: null,
-      lucideIcon: FaSuitcase,
+      iconBlue: others,
+      iconWhite: others,
+      lucideIcon: null,
       apiCategoryMatch: "Marketing", // Maps to "Marketing" in API
     },
   ];
@@ -506,23 +520,25 @@ const HomePage = () => {
                               className="blueImg"
                               src={category.iconBlue}
                               alt="img"
-                              width={
-                                category.title ===
-                                "Leadership and Administration"
-                                  ? "70%"
-                                  : ""
-                              }
+                              style={{
+                                width: "95%",
+                                height: "95%",
+                                objectFit: "cover",
+                                borderRadius: "50%",
+                                aspectRatio: "1/1"
+                              }}
                             />
                             <img
                               className="whiteImg"
                               src={category.iconWhite}
                               alt="img"
-                              width={
-                                category.title ===
-                                "Leadership and Administration"
-                                  ? "70%"
-                                  : ""
-                              }
+                              style={{
+                                width: "95%",
+                                height: "95%",
+                                objectFit: "cover",
+                                borderRadius: "50%",
+                                aspectRatio: "1/1"
+                              }}
                             />
                           </>
                         ) : null}
