@@ -12,7 +12,7 @@ import { GiBriefcase } from "react-icons/gi";
 import Sidebar from "../../components/layout/Sidebar";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import jobImage from "../../../public/images/jobImage.jpg"
+import jobImage from "../../../public/images/jobImage.jpg";
 
 const AppliedJobs = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -43,6 +43,8 @@ const AppliedJobs = () => {
         const response = await axios.get(
           `https://api.edprofio.com/applicant/${userData._id}`
         );
+
+        console.log("API Response:", response.data);
 
         if (response.data) {
           setAppliedJobs(response.data);
@@ -79,7 +81,6 @@ const AppliedJobs = () => {
   const handlePageChange = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
-      // Scroll to top when page changes
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
@@ -90,12 +91,10 @@ const AppliedJobs = () => {
     const maxVisiblePages = 5;
 
     if (totalPages <= maxVisiblePages) {
-      // Show all pages if total pages are less than max visible
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
       }
     } else {
-      // Show first page, current page and surrounding pages, and last page
       if (currentPage <= 3) {
         for (let i = 1; i <= 4; i++) {
           pageNumbers.push(i);
@@ -147,6 +146,7 @@ const AppliedJobs = () => {
         <div className="jobplugin__main-holder">
           <div className="jobplugin__container">
             <div className="jobplugin__settings">
+              {/* FIXED: wrap attributes in an <a> tag */}
               <a
                 href="#"
                 className="jobplugin__settings-opener jobplugin__text-primary hover:jobplugin__bg-primary hover:jobplugin__text-white"
@@ -157,6 +157,7 @@ const AppliedJobs = () => {
               >
                 <FaCog className="rj-icon rj-settings" />
               </a>
+
               <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
 
               <div className="jobplugin__settings-content">
@@ -180,108 +181,134 @@ const AppliedJobs = () => {
                 ) : appliedJobs.length > 0 ? (
                   <>
                     <div className="row justify-content-center">
-                      {currentJobs.map((job) => (
-                        <div
-                          key={job._id}
-                          className="col-12 col-sm-6 col-lg-4 col-xl-4 mb-15 mb-md-30"
-                        >
-                          <article className="featured-category-box border border-secondary pt-20">
-                            <span className="tag">
-                              {job.jobType || "Full Time"}
-                            </span>
-                            <div className="img-holder">
-                              <img
-                                src={
-                                  job.companyLogo ||
-                                  jobImage
-                                }
-                                width="78"
-                                height="78"
-                                alt={job.companyName}
-                                onError={(e) => {
-                                  e.target.src =
-                                    jobImage
-                                }}
-                              />
-                              {job.employerProfilePic && (
-                                <div
-                                  style={{
-                                    position: "absolute",
-                                    bottom: "0px",
-                                    right: "0px",
-                                    width: "100%",
-                                    height: "100%",
-                                    borderRadius: "50%",
-                                    border: "2px solid white",
-                                    overflow: "hidden",
-                                    backgroundColor: "white",
+                      {currentJobs.map((job) => {
+                        const jobTitle =
+                          job.jobTitle ||
+                          job.title ||
+                          job.jobrole ||
+                          "Job Title";
+                        const companyName =
+                          job.companyName || job.company || "Company Name";
+                        const location =
+                          job.location ||
+                          job.city ||
+                          "Location not specified";
+                        const jobType = job.jobType || job.type || "Full Time";
+                        const salaryFrom =
+                          job.salaryFrom ||
+                          job.salary?.min ||
+                          job.salary?.from ||
+                          "0";
+                        const salaryTo =
+                          job.salaryTo ||
+                          job.salary?.max ||
+                          job.salary?.to ||
+                          "0";
+                        const subject =
+                          job.subject || job.category || job.jobCategory || "";
+                        const postedDate =
+                          job.createdAt ||
+                          job.appliedDate ||
+                          job.postedDate ||
+                          new Date();
+                        const jobId = job.jobId || job._id;
+
+                        return (
+                          <div
+                            key={job._id}
+                            className="col-12 col-sm-6 col-lg-4 col-xl-4 mb-15 mb-md-30"
+                          >
+                            <article className="featured-category-box border border-secondary pt-20">
+                              <span className="tag">{jobType}</span>
+                              <div className="img-holder">
+                                <img
+                                  src={job.companyLogo || jobImage}
+                                  width="78"
+                                  height="78"
+                                  alt={companyName}
+                                  onError={(e) => {
+                                    e.target.src = jobImage;
                                   }}
-                                >
-                                  <img
-                                    src={job.employerProfilePic||jobImage}
-                                    width="40"
-                                    height="40"
-                                    alt="Employer"
-                                    style={{ objectFit: "cover" }}
-                                    onError={(e) => {
-                                      e.target.onerror = null;
-                                      e.target.src =
-                                        "/images/default-profile-pic.jpg";
+                                />
+                                {job.employerProfilePic && (
+                                  <div
+                                    style={{
+                                      position: "absolute",
+                                      bottom: "0px",
+                                      right: "0px",
+                                      width: "100%",
+                                      height: "100%",
+                                      borderRadius: "50%",
+                                      border: "2px solid white",
+                                      overflow: "hidden",
+                                      backgroundColor: "white",
                                     }}
-                                  />
-                                </div>
-                              )}
-                            </div>
-                            <div className="textbox">
-                              <strong className="h6 mb-0">
-                                {job.companyName}
-                              </strong>
-                              <address className="location pt-0">
-                                <IoLocationOutline className="icon icon-map-pin" />
-                                <span className="text">
-                                  {job.location || "Location not specified"}
-                                </span>
-                              </address>
-                              <strong className="h6 text-primary mb-0">
-                                {job.title || "Job Title"}
-                              </strong>
-                              <span className="subtitle">
-                                {job.subject || "Subject"}
-                              </span>
-                              <hr />
-                              <div className="job-info">
-                                <span className="amount">
-                                  <strong>
-                                    {job.salary
-                                      ? `₹${job.salary.min || "0"} - ₹${
-                                          job.salary.max || "0"
-                                        }`
-                                      : "Salary not specified"}
-                                  </strong>
-                                  /month
-                                </span>
-                                <span className="subtext">
-                                  <b className="text-primary">Posted:</b>{" "}
-                                  {new Date(job.createdAt).toLocaleDateString()}
-                                </span>
+                                  >
+                                    <img
+                                      src={job.employerProfilePic || jobImage}
+                                      width="40"
+                                      height="40"
+                                      alt="Employer"
+                                      style={{ objectFit: "cover" }}
+                                      onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = jobImage;
+                                      }}
+                                    />
+                                  </div>
+                                )}
                               </div>
-                              <Link
-                                to={`/job-details/${job._id}`}
-                                className="btn btn-dark-yellow btn-sm"
-                              >
-                                <span className="btn-text">
-                                  <FaCheckCircle className="text-secondary me-1" />
-                                  View Details
-                                  <FaChevronRight className="icon-chevron-right" />
+                              <div className="textbox">
+                                <strong className="h6 mb-0">
+                                  {companyName}
+                                </strong>
+                                <address className="location pt-0">
+                                  <IoLocationOutline className="icon icon-map-pin" />
+                                  <span className="text">{location}</span>
+                                </address>
+                                <strong className="h6 text-primary mb-0">
+                                  {jobTitle}
+                                </strong>
+                                <span className="subtitle">
+                                  {subject || "No category"}
                                 </span>
-                              </Link>
-                            </div>
-                          </article>
-                        </div>
-                      ))}
+                                <hr />
+                                <div className="job-info">
+                                  <span className="amount">
+                                    <strong>
+                                      {salaryFrom && salaryTo
+                                        ? `₹${salaryFrom} - ₹${salaryTo}`
+                                        : "Salary not specified"}
+                                    </strong>
+                                    {salaryFrom && salaryTo && (
+                                      <span className="period">/month</span>
+                                    )}
+                                  </span>
+                                  <span className="subtext">
+                                    <b className="text-primary">Posted:</b>{" "}
+                                    {new Date(postedDate).toLocaleDateString(
+                                      "en-GB"
+                                    )}
+                                  </span>
+                                </div>
+                                <Link
+                                  to={`/job-details/${jobId}`}
+                                  className="btn btn-dark-yellow btn-sm"
+                                >
+                                  <span className="btn-text">
+                                    <FaCheckCircle className="text-secondary me-1" />
+                                    View Details
+                                    <FaChevronRight className="icon-chevron-right" />
+                                  </span>
+                                </Link>
+                              </div>
+                            </article>
+                          </div>
+                        );
+                      })}
                     </div>
 
-                    {/* Only show pagination if there are more than 9 jobs */}
+                    {/* Pagination - only show if more than 9 jobs */}
                     {totalPages > 1 && (
                       <div className="pagination-block pt-20 pt-lg-30 pt-xl-50 pb-0">
                         <div className="container d-flex align-items-center justify-content-center">
@@ -384,31 +411,109 @@ const AppliedJobs = () => {
           </div>
         </div>
       </main>
+
       <style>
         {`
-        .img-holder {
-          position: relative;
-          width: 78px;
-          height: 78px;
-          margin: 0 auto 15px;
-        }
+          .img-holder {
+            position: relative;
+            width: 78px;
+            height: 78px;
+            margin: 0 auto 15px;
+          }
 
-        .employer-profile-pic {
-          transition: all 0.3s ease;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+          .employer-profile-pic {
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+          }
 
-        .employer-profile-pic:hover {
-          transform: scale(1.1);
-        }
+          .employer-profile-pic:hover {
+            transform: scale(1.1);
+          }
 
-        .pagination .page-link {
-          cursor: pointer;
-        }
+          .pagination .page-link {
+            cursor: pointer;
+          }
 
-        .pagination .page-item.disabled .page-link {
-          cursor: not-allowed;
-        }
+          .pagination .page-item.disabled .page-link {
+            cursor: not-allowed;
+          }
+
+          /* Consistent card layout */
+          .featured-category-box .textbox {
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+          }
+
+          .featured-category-box .textbox .h6 {
+            margin-bottom: 8px !important;
+          }
+
+          .featured-category-box .location {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+          }
+
+          .subtitle {
+            display: block;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            min-height: 22px;
+            line-height: 1.4;
+          }
+
+          .featured-category-box hr {
+            margin: 12px 0;
+            border-color: #e0e0e0;
+          }
+
+          .job-info {
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+          }
+
+          .job-info .amount {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+
+          .job-info .amount strong {
+            font-weight: 600;
+            color: #000;
+            font-size: 1rem;
+            line-height: 1.3;
+          }
+
+          .job-info .amount .period {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: normal;
+          }
+
+          .job-info .subtext {
+            display: block;
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: auto;
+          }
+
+          .featured-category-box .btn {
+            margin-top: auto;
+            width: 100%;
+          }
+
+          @media (max-width: 768px) {
+            .job-info {
+              min-height: 65px;
+            }
+          }
         `}
       </style>
     </>
