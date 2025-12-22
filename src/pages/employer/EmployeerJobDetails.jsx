@@ -1,5 +1,9 @@
-import axios from "axios";
 import React, { useState, useEffect } from "react";
+import {
+  updateFavoriteStatus,
+  viewJobDetails,
+  fetchEmployerJobs,
+} from "../../api/services/projectServices";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import appleIcon from "../../assets/employer/assets/img/icons/apple.svg";
 import reactIcon from "../../assets/employer/assets/img/icons/react.svg";
@@ -17,6 +21,10 @@ import socialIcons5 from "../../assets/employer/assets/img/social/social-06.svg"
 import EmployerHeader from "./EmployerHeader";
 import EmployerFooter from "./EmployerFooter";
 import DOMPurify from "dompurify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import EditJobModal from "./postjoccomponents/EditJobModal";
+import DeleteJobModal from "./postjoccomponents/DeleteJobModal";
 
 const JobDetailsPage = () => {
   const { id } = useParams();
@@ -27,6 +35,18 @@ const JobDetailsPage = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [favoriteStatus, setfavoriteStatus] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleJobUpdated = (updatedJob) => {
+    setJob((prev) => ({ ...prev, ...updatedJob }));
+
+  };
+
+  const handleJobDeleted = () => {
+    // Toast handled in DeleteJobModal
+    navigate("/employer/post-jobs");
+  };
 
   const toggleModal = () => setShowModal(!showModal);
 
@@ -45,15 +65,7 @@ const JobDetailsPage = () => {
   const toggleFavorite = async (applicantId) => {
     try {
       const newFavoriteStatus = !favoriteStatus;
-      const response = await axios.put(
-        `https://api.edprofio.com/employer/updatefavorite/${id}/${applicantId}`,
-        { favourite: newFavoriteStatus },
-        {
-          header: {
-            Authorization: `Bearer ${localStorage.getItem("employerToken")}`,
-          },
-        }
-      );
+      const response = await updateFavoriteStatus(id, applicantId, newFavoriteStatus);
       if (response.data.success) {
         setfavoriteStatus(newFavoriteStatus);
         const updatedJob = { ...job };
@@ -85,14 +97,7 @@ const JobDetailsPage = () => {
           throw new Error("Employer not authenticated");
         }
 
-        const response = await axios.get(
-          `https://api.edprofio.com/employer/viewjobs/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("employerToken")}`,
-            },
-          }
-        );
+        const response = await viewJobDetails(id);
 
         if (!response.data) {
           throw new Error("No job data received");
@@ -125,9 +130,7 @@ const JobDetailsPage = () => {
           return;
         }
 
-        const response = await axios.get(
-          `https://api.edprofio.com/employer/fetchjob/${employerData._id}`
-        );
+        const response = await fetchEmployerJobs(employerData._id);
 
         if (response.data && response.data.length > 0) {
           // Filter out the current job and limit to 4 related jobs
@@ -298,6 +301,18 @@ const JobDetailsPage = () => {
                   <div className="col-xl-6 col-md-6">
                     <div className="d-flex align-items-center justify-content-end">
                       <button
+                        className="btn btn-dark flex-fill me-2"
+                        onClick={() => setShowEditModal(true)}
+                      >
+                        <i className="ti ti-edit"></i> Edit Job
+                      </button>
+                      <button
+                        className="btn btn-danger flex-fill me-2"
+                        onClick={() => setShowDeleteModal(true)}
+                      >
+                        <i className="ti ti-trash"></i> Delete Job
+                      </button>
+                      <button
                         className="btn btn-secondary flex-fill me-2"
                         onClick={toggleModal}
                       >
@@ -315,8 +330,8 @@ const JobDetailsPage = () => {
                       {firstApplicantId && (
                         <button
                           className={`btn btn-icon ${favoriteStatus
-                              ? "bg-warning text-white"
-                              : "bg-transparent-dark text-primary"
+                            ? "bg-warning text-white"
+                            : "bg-transparent-dark text-primary"
                             }`}
                           onClick={() => toggleFavorite(firstApplicantId)}
                         >
@@ -737,6 +752,20 @@ const JobDetailsPage = () => {
         </div>
 
         {/* Apply Job Modal */}
+        {showEditModal && (
+          <EditJobModal
+            jobId={id}
+            onClose={() => setShowEditModal(false)}
+            onJobUpdated={handleJobUpdated}
+          />
+        )}
+        <DeleteJobModal
+          show={showDeleteModal}
+          jobId={id}
+          onClose={() => setShowDeleteModal(false)}
+          onJobDeleted={handleJobDeleted}
+        />
+        <ToastContainer />
         {showModal && (
           <div
             className="modal fade show"

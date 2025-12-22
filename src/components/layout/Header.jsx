@@ -178,12 +178,15 @@ const Header = () => {
     const fetchData = async () => {
       try {
         const response = await getHeaderStaticsData();
-        if (response.status===200) {
+        if (response.status === 200) {
           // Convert array to object for easy lookup
           const countsMap = {};
-          response.data.data.forEach((item) => {
-            countsMap[item.category] = item.count;
-          });
+          const dataList = response.data?.data || [];
+          if (Array.isArray(dataList)) {
+            dataList.forEach((item) => {
+              countsMap[item.category] = item.count;
+            });
+          }
           setCategoryCounts(countsMap);
         }
       } catch (error) {

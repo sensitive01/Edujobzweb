@@ -10,6 +10,7 @@ const PostJob = () => {
   const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
   const [formData, setFormData] = useState({
     companyName: "",
+    employerType: "", // Added employerType
     jobTitle: "",
     description: "",
     category: "",
@@ -136,7 +137,7 @@ const PostJob = () => {
       const response = await axios.post(`${VITE_BASE_URL}/sendemailotp`, {
         userEmail: formData.contactEmail,
       });
-      console.log("response",response)
+      console.log("response", response)
 
       if (response.status === 200) {
         setIsOtpSent(true);
@@ -203,7 +204,7 @@ const PostJob = () => {
           userEmail: formData.contactEmail,
           userMobile: formData.contactPhone || "0000000000",
           userPassword: "defaultPassword123",
-          employerType: "company",
+          employerType: formData.employerType || "company",
           sendEmails: false,
           agreeTerms: true,
         };
@@ -327,6 +328,28 @@ const PostJob = () => {
                         onChange={handleChange}
                         required
                       />
+                    </div>
+                  </div>
+
+                  {/* Employer Type */}
+                  <label htmlFor="employerType">&nbsp;&nbsp;Employer Type</label>
+                  <div className="jobplugin__form-row">
+                    <div className="jobplugin__form-field">
+                      <select
+                        name="employerType"
+                        className="form-control"
+                        value={formData.employerType}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="">Select Employer Type</option>
+                        <option value="Schools">Schools</option>
+                        <option value="Coaching Institute">Coaching Institute</option>
+                        <option value="Pre-Schools">Pre-Schools</option>
+                        <option value="EdTech Companies">EdTech Companies</option>
+                        <option value="College / Universities">College / Universities</option>
+                        <option value="Training Centers">Training Centers</option>
+                      </select>
                     </div>
                   </div>
 

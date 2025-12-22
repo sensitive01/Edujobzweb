@@ -53,9 +53,9 @@ const EmployersPage = () => {
               <div className="col-12">
                 {/* Fixed Page subheader with better spacing */}
                 <header className="page-subheader mb-30 mb-md-40 d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between">
-                  <h3 className="h6 mb-3 mb-lg-0 text-secondary">
+                  {/* <h3 className="h6 mb-3 mb-lg-0 text-secondary">
                     1,00,000+ Schools Connected with EdProfio
-                  </h3>
+                  </h3> */}
 
                   {/* Fixed Sort By section with proper spacing */}
                   <div className="subhead-filters">

@@ -113,24 +113,44 @@ const PlansAndSubscription = () => {
 
   const faqs = [
     {
-      question: "Do you design Minimalistic logos only?",
-      answer: "No, Minimalistic is just one type of logo that I am offering. I can design any type of logo for instance Brandmark logo design."
+      question: "What is EdProfio?",
+      answer: "EdProfio is a specialized recruitment platform that connects educational institutions with skilled professionals across teaching, administration, EdTech, and more."
     },
     {
-      question: "Which Software do you use to design a logo?",
-      answer: "No, Minimalistic is just one type of logo that I am offering. I can design any type of logo for instance Brandmark logo design."
+      question: "Who can use EdProfio?",
+      answer: "Both institutions (schools, colleges, EdTech companies) looking to hire and education professionals (teachers, administrators, researchers, etc.) seeking career opportunities."
     },
     {
-      question: "Will you provide you vector files?",
-      answer: "No, Minimalistic is just one type of logo that I am offering. I can design any type of logo for instance Brandmark logo design."
+      question: "How does the hiring process work on EdProfio?",
+      answer: "Institutions post their requirements → professionals apply → EdProfio matches profiles based on skills and goals → interviews and onboarding follow."
     },
     {
-      question: "In what format will you deliver final files?",
-      answer: "No, Minimalistic is just one type of logo that I am offering. I can design any type of logo for instance Brandmark logo design."
+      question: "Is EdProfio only for teaching roles?",
+      answer: "No — EdProfio supports a wide range of roles: teaching, academic management, research, EdTech, training, counseling, and administrative functions."
     },
     {
-      question: "What are the revisions?",
-      answer: "No, Minimalistic is just one type of logo that I am offering. I can design any type of logo for instance Brandmark logo design."
+      question: "How is candidate-institution fit determined?",
+      answer: "We focus on qualifications, experience, aspirations, and institutional culture to ensure the right fit, not just match resumes."
+    },
+    {
+      question: "What are the benefits for institutions?",
+      answer: "Efficient access to verified talent, faster hiring cycles, reduced recruitment complexity, and better alignment with institutional goals."
+    },
+    {
+      question: "What are the benefits for professionals?",
+      answer: "Access to diverse and meaningful roles, transparent hiring process, opportunities for career growth in the education sector."
+    },
+    {
+      question: "How does EdProfio ensure data privacy and security?",
+      answer: "We follow professional standards of data protection, confidential handling of profiles and applications, and maintain strict privacy protocols."
+    },
+    {
+      question: "Do candidates need to pay to apply?",
+      answer: "No — Professionals can apply to roles on EdProfio without paying application fees. Our model supports access and transparency."
+    },
+    {
+      question: "How can I get started?",
+      answer: "For Institutions: Create an account, post your job requirement, and let us help you source qualified professionals. For Professionals: Register your profile, upload your resume, and explore open roles or submit your profile for future opportunities."
     }
   ];
 

@@ -170,8 +170,8 @@ export const postJob = async (jobData) => {
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.message ||
-                        error.message ||
-                        'Failed to post job. Please try again.';
+      error.message ||
+      'Failed to post job. Please try again.';
     throw new Error(errorMessage);
   }
 };
@@ -402,10 +402,10 @@ export const getEmployerDashboardData = async (employerId) => {
 
 
 
-export const registerEventEmployee = async (participantId,mobileNumber,eventId,status) => {
+export const registerEventEmployee = async (participantId, mobileNumber, eventId, status) => {
   try {
     const response = await projectServices.post(
-      `/employer/events/${eventId}/registereventsemployee/${participantId}`,{mobileNumber,status}
+      `/employer/events/${eventId}/registereventsemployee/${participantId}`, { mobileNumber, status }
     );
     return response;
   } catch (error) {
@@ -428,6 +428,61 @@ export const getIsEmployerSubscribed = async (employerId) => {
   try {
     const response = await projectServices.get(
       `/employer/get-is-employer-subscribed/${employerId}`
+    );
+    return response;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};
+
+export const editJob = async (jobId, jobData) => {
+  try {
+    const response = await projectServices.put(
+      `/employer/editjob/${jobId}`,
+      jobData
+    );
+    return response;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};
+
+export const deleteJob = async (jobId) => {
+  try {
+    const response = await projectServices.delete(`/employer/deletejob/${jobId}`);
+    return response;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};
+
+export const updateFavoriteStatus = async (jobId, applicantId, status) => {
+  try {
+    const response = await projectServices.put(
+      `/employer/updatefavorite/${jobId}/${applicantId}`,
+      { favourite: status }
+    );
+    return response;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};
+
+export const viewJobDetails = async (jobId) => {
+  try {
+    const response = await projectServices.get(
+      `/employer/viewjobs/${jobId}`
+    );
+    return response;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};
+
+export const fetchEmployerJobs = async (employerId) => {
+  try {
+    const response = await projectServices.get(
+      `/employer/fetchjob/${employerId}`
     );
     return response;
   } catch (error) {

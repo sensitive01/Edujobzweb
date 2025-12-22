@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
+  Check,
 } from "lucide-react";
 import { FaSquarePen, FaSuitcase, FaUsers } from "react-icons/fa6";
 import { IoDocumentText } from "react-icons/io5";
@@ -262,77 +263,77 @@ const HomePage = () => {
       iconBlue: teaching,
       iconWhite: teaching,
       lucideIcon: null,
-      apiCategoryMatch: "Education", // Maps to "Education" in API
+      apiCategoryMatch: "Education",
     },
     {
       title: "Leadership and Administration",
       iconBlue: leadership,
       iconWhite: leadership,
       lucideIcon: null,
-      apiCategoryMatch: "Leadership", // No direct match in API
+      apiCategoryMatch: "Leadership",
     },
     {
       title: "Support and Student Welfare",
       iconBlue: support,
       iconWhite:support,
       lucideIcon: null,
-      apiCategoryMatch: "Support", // No direct match in API
+      apiCategoryMatch: "Support",
     },
     {
       title: "Extracurricular Activities",
       iconBlue: extracuricular,
       iconWhite:extracuricular,
       lucideIcon: null,
-      apiCategoryMatch: "Extracurricular", // No direct match in API
+      apiCategoryMatch: "Extracurricular",
     },
     {
       title: "Curriculum and Content Development",
       iconBlue: Curriculum,
       iconWhite: Curriculum,
       lucideIcon: null,
-      apiCategoryMatch: "Curriculum", // No direct match in API
+      apiCategoryMatch: "Curriculum",
     },
     {
       title: "EdTech and Digital Learning",
       iconBlue: digital,
       iconWhite: digital,
       lucideIcon: null,
-      apiCategoryMatch: "IT", // Maps to "IT" in API
+      apiCategoryMatch: "IT",
     },
     {
       title: "Special Education and Inclusive Learning",
       iconBlue: specialedu,
       iconWhite: specialedu,
       lucideIcon: null,
-      apiCategoryMatch: "Special Education", // No direct match in API
+      apiCategoryMatch: "Special Education",
     },
     {
       title: "Non-Teaching Staff",
       iconBlue: nonteaching,
       iconWhite: nonteaching,
       lucideIcon: null,
-      apiCategoryMatch: "Non-Teaching", // No direct match in API
+      apiCategoryMatch: "Non-Teaching",
     },
     {
       title: "Training and Development",
       iconBlue: training,
       iconWhite: training,
       lucideIcon: null,
-      apiCategoryMatch: "Training", // No direct match in API
+      apiCategoryMatch: "Training",
     },
     {
       title: "Research and Policy Development",
       iconBlue: research,
       iconWhite: research,
       lucideIcon: null,
-      apiCategoryMatch: "Research", // No direct match in API
+      apiCategoryMatch: "Research",
     },
     {
       title: "Other Specialized Roles",
       iconBlue: others,
       iconWhite: others,
       lucideIcon: null,
-      apiCategoryMatch: "Marketing", // Maps to "Marketing" in API
+      apiCategoryMatch: "Marketing",
     },
   ];
 
@@ -349,7 +350,7 @@ const HomePage = () => {
     return {
       ...cat,
       jobs: count > 0 ? count.toString() : "0",
-      apiCategory: apiCategory || cat.title, // Use the actual API category if found
+      apiCategory: apiCategory || cat.title,
     };
   });
 
@@ -365,16 +366,10 @@ const HomePage = () => {
             <div className="col-12 col-lg-12 col-xl-12 position-relative">
               <div className="visual-textbox">
                 <h2 align="center" className="text-secondary mb-0">
-                  EdProfio: A Platform for Educators at Every Level
+                  EdProfio: A Growing Platform For Today's Educators
                 </h2>
                 <p align="center" className="text-dark">
-                  Discover{" "}
-                  <b className="text-primary">
-                    {jobCount > 0 ? `${jobCount}+` : jobCount}
-                  </b>{" "}
-                  Open Positions Within Our Network of{" "}
-                  <b className="text-primary">{employerCount}</b> Educational
-                  Partners.
+                  Join a community connected to 26 educational partners and explore 12+ career opportunities tailored to diverse skill sets.
                 </p>
 
                 {/* Search Form */}
@@ -460,7 +455,7 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Main Content - Rest of your existing content */}
+      {/* Main Content */}
       <main className="main">
         {/* Browse Categories Section */}
         <section
@@ -473,16 +468,15 @@ const HomePage = () => {
               style={{ maxWidth: "800px" }}
             >
               <p>
-                Invest in Your Future: Join Our Thriving Educational Network
+                Advance Your Career with Leading Educational Institutions
               </p>
               <h2>
                 <span className="text-outlined text-secondary">
-                  Browse by Category
+                  Browse by Jobs Category
                 </span>
               </h2>
               <b>
-                Discover Career Advancement Within Our Network of Educational
-                Professionals
+                Browse by category and explore roles that match your skills and ambitions.
               </b>
             </div>
 
@@ -573,6 +567,7 @@ const HomePage = () => {
             </div>
           </div>
         </section>
+
         {/* Jobs Waiting Section */}
         <section className="section section-theme-9 jobs_waiting bg-light-sky">
           <div className="container">
@@ -584,8 +579,7 @@ const HomePage = () => {
                 <div className="text-white">
                   <h2 className="text-secondary">Your Ideal Jobs Awaits.</h2>
                   <p className="text-dark fw-bold">
-                    Access over 1 Million Educational Opportunities and Find
-                    Your Ideal Role.
+                    Discover over 1 Million job opportunities, find the one that's meant for you.
                   </p>
                 </div>
               </div>
@@ -593,7 +587,7 @@ const HomePage = () => {
                 <Link to="/job-vacancies" className="btn btn-white btn-sm">
                   <i className="icon icon-search"></i> &nbsp; Search Job
                 </Link>
-                <Link to="/job-vacancies" className="btn btn-secondary btn-sm">
+                {/* <Link to="/job-vacancies" className="btn btn-secondary btn-sm">
                   <span className="btn-text">
                     <i
                       className="icon icon-users text-primary"
@@ -601,11 +595,12 @@ const HomePage = () => {
                     ></i>{" "}
                     &nbsp; Apply Job
                   </span>
-                </Link>
+                </Link> */}
               </div>
             </div>
           </div>
         </section>
+
         {/* How It Works Section */}
         <section className="section section-theme-9 works_area">
           <div className="container">
@@ -670,6 +665,7 @@ const HomePage = () => {
             </div>
           </div>
         </section>
+
         {/* Get Hired Section */}
         <section className="section section-theme-1 section-how-works pt-45 pt-md-50 pt-lg-65 pt-xl-85 pt-xxl-110 pb-60 pb-md-80 pb-xl-85 pb-xxl-110 pb-xxxl-150 bg-light">
           <div className="container">
@@ -904,7 +900,7 @@ const HomePage = () => {
                     <ChevronRight size={24} />
                   </button>
 
-                  {/* Slides Container - Show current 3 testimonials */}
+                  {/* Slides Container */}
                   <div className="row">
                     {getCurrentTestimonials().map((testimonial, index) => (
                       <div
@@ -971,6 +967,7 @@ const HomePage = () => {
             </div>
           </div>
         </section>
+
         {/* App Download Section */}
         <section className="apps-block section-theme-9 bg-light-sky">
           <div className="container">
@@ -981,10 +978,27 @@ const HomePage = () => {
                     App Available Now – Finds Them For You Right Job.
                   </h2>
                   <hr />
-                  <p>
-                    Download and install ont-time installable app for your
-                    android or IOS device and find people or jobs smart.
+                  <p style={{ marginBottom: "20px" }}>
+                    <strong>Your Future – Just a Tap Away</strong>
                   </p>
+                  <div style={{ marginBottom: "20px" }}>
+                    <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
+                      <Check size={20} color="#3f71ef" style={{ marginRight: "10px" }} />
+                      <span><strong>Smart Job Matching</strong></span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
+                      <Check size={20} color="#3f71ef" style={{ marginRight: "10px" }} />
+                      <span><strong>Instant Notifications</strong></span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
+                      <Check size={20} color="#3f71ef" style={{ marginRight: "10px" }} />
+                      <span><strong>Easy Apply</strong></span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
+                      <Check size={20} color="#3f71ef" style={{ marginRight: "10px" }} />
+                      <span><strong>Verified Employers & Candidates</strong></span>
+                    </div>
+                  </div>
                   <div className="download-btns">
                     <Link className="btn-app btn-play-store blue-btn" to="#">
                       <div className="store-icon">
@@ -1018,6 +1032,36 @@ const HomePage = () => {
               <div className="col-12 col-md-6 col-lg-7">
                 <div className="image-holder d-flex justify-content-center">
                   <img src="/images/image.png" alt="App Preview" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Let Employers Find You Section */}
+        <section className="section section-theme-9 bg-white" style={{ padding: "60px 0px" }}>
+          <div className="container">
+            <div className="row align-items-center">
+              <div className="col-12 col-md-6">
+                <div className="text-content">
+                  <h2 className="text-secondary mb-4">
+                    <strong>Let Employers Find You</strong>
+                  </h2>
+                  <p className="text-dark mb-4">
+                    Tap into the best employers zone designed to simplify hiring and speed up your on boarding.
+                  </p>
+                  <Link to="/register" className="btn btn-blue btn-lg">
+                    <i className="icon icon-user-plus"></i> Upload Profile
+                  </Link>
+                </div>
+              </div>
+              <div className="col-12 col-md-6">
+                <div className="image-holder text-center">
+                  <img 
+                    src="/images/employers-find-you.png" 
+                    alt="Let Employers Find You" 
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  />
                 </div>
               </div>
             </div>
