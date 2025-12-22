@@ -387,7 +387,7 @@ const EmployeerAdminShortlisedCandidates = () => {
         }
 
         const response = await fetch(
-          `https://api.edprofio.com/employer/fetchallnonpending/${employerAdminData._id}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchallnonpending/${employerAdminData._id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -430,7 +430,7 @@ const EmployeerAdminShortlisedCandidates = () => {
       }
 
       const response = await fetch(
-        `https://api.edprofio.com/employer/updaee/${applicationId}/${employerAdminData._id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updaee/${applicationId}/${employerAdminData._id}`,
         {
           method: "PUT",
           headers: {

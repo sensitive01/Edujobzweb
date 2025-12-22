@@ -264,7 +264,7 @@ const AddPositionsModal = ({ show, onClose, onAddAccess }) => {
 
     try {
       const response = await axios.post(
-        "https://api.edprofio.com/employer/postjob",
+        `${import.meta.env.VITE_BASE_URL}/employer/postjob`,
         formData
       );
 

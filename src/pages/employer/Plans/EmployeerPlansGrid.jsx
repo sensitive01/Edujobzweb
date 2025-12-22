@@ -32,7 +32,7 @@ const EmployeerPlansGrid = () => {
 
         // Fetch plans
         const plansResponse = await fetch(
-          `https://api.edprofio.com/admin/fetchplanbyemp/${employid}`
+          `${import.meta.env.VITE_BASE_URL}/admin/fetchplanbyemp/${employid}`
         );
         if (!plansResponse.ok) throw new Error("Failed to fetch plans");
         const plansData = await plansResponse.json();
@@ -41,7 +41,7 @@ const EmployeerPlansGrid = () => {
 
         // Fetch employer subscription status
         const employerResponse = await axios.get(
-          `https://api.edprofio.com/employer/fetchemployer/${employid}`
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchemployer/${employid}`
         );
 
         if (employerResponse.status === 200 && employerResponse.data) {
@@ -163,7 +163,7 @@ const EmployeerPlansGrid = () => {
 
       // Call your existing activateplans endpoint
       const response = await axios.post(
-        "https://api.edprofio.com/admin/activateplans",
+        `${import.meta.env.VITE_BASE_URL}/admin/activateplans`,
         {
           employerId: employerId,
           planId: selectedPlan._id,
@@ -347,7 +347,7 @@ const EmployeerPlansGrid = () => {
 
       // POST request to backend to activate free plan
       const response = await axios.post(
-        "https://api.edprofio.com/admin/activateplans",
+        `${import.meta.env.VITE_BASE_URL}/admin/activateplans`,
         {
           employerId: employerId,
           planId: selectedPlan._id

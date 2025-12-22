@@ -480,7 +480,7 @@ const EmployeerAdminCandidatesSearch = () => {
         if (!employerAdminData) return;
 
         const response = await fetch(
-          `https://api.edprofio.com/employer/fetchjob/${employerAdminData._id}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchjob/${employerAdminData._id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem(
@@ -513,7 +513,7 @@ const EmployeerAdminCandidatesSearch = () => {
       }
 
       const response = await fetch(
-        `https://api.edprofio.com/fetchallemployee`,
+        `${import.meta.env.VITE_BASE_URL}/fetchallemployee`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -684,7 +684,7 @@ const EmployeerAdminCandidatesSearch = () => {
       }
 
       const response = await fetch(
-        `https://api.edprofio.com/employer/updaee/${applicationId}/${employid}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updaee/${applicationId}/${employid}`,
         {
           method: "PUT",
           headers: {

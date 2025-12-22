@@ -21,7 +21,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import AdminHeader from "../layout/AdminHeader";
 import AdminFooter from "../layout/AdminFooter";
 
-const API_BASE_URL = "https://api.edprofio.com";
+const API_BASE_URL = `${import.meta.env.VITE_BASE_URL}`;
 
 const CalenderReminder = () => {
   const [showAddEventModal, setShowAddEventModal] = useState(false);

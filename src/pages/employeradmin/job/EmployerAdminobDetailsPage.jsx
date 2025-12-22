@@ -46,7 +46,7 @@ const EmployerAdminobDetailsPage = () => {
     try {
       const newFavoriteStatus = !favoriteStatus;
       const response = await axios.put(
-        `https://api.edprofio.com/employer/updatefavorite/${id}/${applicantId}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updatefavorite/${id}/${applicantId}`,
         { favourite: newFavoriteStatus },
         {
           header: {
@@ -90,7 +90,7 @@ const EmployerAdminobDetailsPage = () => {
         }
 
         const response = await axios.get(
-          `https://api.edprofio.com/employer/viewjobs/${id}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/viewjobs/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem(
@@ -134,7 +134,7 @@ const EmployerAdminobDetailsPage = () => {
         }
 
         const response = await axios.get(
-          `https://api.edprofio.com/employer/fetchjob/${EmployerAdminData._id}`
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchjob/${EmployerAdminData._id}`
         );
 
         if (response.data && response.data.length > 0) {

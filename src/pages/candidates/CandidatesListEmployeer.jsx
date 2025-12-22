@@ -41,7 +41,7 @@ const CandidatesListEmployeer = () => {
         console.log("Fetching with filters:", queryParams.toString()); // Debug log
 
         const response = await fetch(
-          `https://api.edprofio.com/employer/viewallappliedcandi/${
+          `${import.meta.env.VITE_BASE_URL}/employer/viewallappliedcandi/${
             userData._id
           }?${queryParams.toString()}`,
           {

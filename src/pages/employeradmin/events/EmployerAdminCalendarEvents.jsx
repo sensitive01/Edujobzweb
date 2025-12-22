@@ -21,7 +21,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import EmployerAdminHeader from "../Layout/EmployerAdminHeader";
 import EmployerAdminFooter from "../Layout/EmployerAdminFooter";
 
-const API_BASE_URL = "https://api.edprofio.com";
+const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const EmployerAdminCalendarEvents = () => {
   const [showAddEventModal, setShowAddEventModal] = useState(false);

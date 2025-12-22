@@ -359,7 +359,7 @@ const EmployerAdminJobListUnit = () => {
       }
 
       const response = await axios.get(
-        `https://api.edprofio.com/employeradmin/getjobsbyorg/${employerAdminData._id}`
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/getjobsbyorg/${employerAdminData._id}`
       );
 
       // Handle case when no jobs are found (empty array)
@@ -434,7 +434,7 @@ const EmployerAdminJobListUnit = () => {
       const newStatus = !currentStatus;
 
       await axios.put(
-        `https://api.edprofio.com/employer/updatejobstatus/${jobId}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updatejobstatus/${jobId}`,
         { isActive: newStatus },
         {
           headers: {
@@ -475,7 +475,7 @@ const EmployerAdminJobListUnit = () => {
       );
 
       const response = await axios.post(
-        "https://api.edprofio.com/employer/postjob",
+        `${import.meta.env.VITE_BASE_URL}/employer/postjob`,
         {
           ...jobData,
           employid: employerData._id,
@@ -2075,7 +2075,7 @@ const EditJobModal = ({ jobId, onClose, onJobUpdated }) => {
       try {
         const token = localStorage.getItem("EmployerAdminToken");
         const response = await axios.get(
-          `https://api.edprofio.com/employer/viewjobs/${jobId}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/viewjobs/${jobId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -2176,7 +2176,7 @@ const EditJobModal = ({ jobId, onClose, onJobUpdated }) => {
       };
 
       const response = await axios.put(
-        `https://api.edprofio.com/employer/editjob/${jobId}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/editjob/${jobId}`,
         payload,
         {
           headers: {

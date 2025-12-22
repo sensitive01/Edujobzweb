@@ -42,7 +42,7 @@
 //       const payload = { otp };
 //       console.log('Sending OTP verification request with payload:', payload);
 
-//       const response = await axios.post('https://api.edprofio.com/verify-otp', payload);
+//       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/verify-otp`, payload);
 //       console.log('OTP verification response:', response.data);
 
 //       if (response.data.success) {
@@ -64,7 +64,7 @@
 //       const payload = { userMobile: mobile };
 //       console.log('Sending OTP resend request with payload:', payload);
 
-//       const response = await axios.post('https://api.edprofio.com/resend-otp', payload);
+//       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/resend-otp`, payload);
 //       console.log('OTP resend response:', response.data);
 
 //       if (response.data.message === "OTP sent successfully") {
@@ -204,7 +204,7 @@ const OTPVerificationPage = () => {
       console.log("Sending OTP verification request with payload:", payload);
 
       const response = await axios.post(
-        "https://api.edprofio.com/verify-otp",
+        `${import.meta.env.VITE_BASE_URL}/verify-otp`,
         payload
       );
       console.log("OTP verification response:", response.data);
@@ -231,7 +231,7 @@ const OTPVerificationPage = () => {
       console.log("Sending OTP resend request with payload:", payload);
 
       const response = await axios.post(
-        "https://api.edprofio.com/resend-otp",
+        `${import.meta.env.VITE_BASE_URL}/resend-otp`,
         payload
       );
       console.log("OTP resend response:", response.data);

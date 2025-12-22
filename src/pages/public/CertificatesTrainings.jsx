@@ -65,7 +65,7 @@ const CertificatesTrainings = () => {
     const fetchTrainings = async () => {
       try {
         const response = await fetch(
-          "https://api.edprofio.com/employer/fetchtraining"
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchtraining`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch trainings");

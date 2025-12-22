@@ -173,7 +173,7 @@ const UnitsPage = () => {
     const fetchSchools = async () => {
       try {
         const response = await axios.get(
-          `https://api.edprofio.com/employeradmin/fetchbyorg/${organizationid}`
+          `${import.meta.env.VITE_BASE_URL}/employeradmin/fetchbyorg/${organizationid}`
         );
         if (response.data.success) {
           const transformedSchools = response.data.data.map(
@@ -378,7 +378,7 @@ const UnitsPage = () => {
   const handleDeleteConfirmed = async () => {
     try {
       await axios.delete(
-        `https://api.edprofio.com/employeradmin/${selectedSchool.id}`
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/${selectedSchool.id}`
       );
       const updatedSchools = schools.filter(
         (school) => school.id !== selectedSchool.id
@@ -394,7 +394,7 @@ const UnitsPage = () => {
   const handleAddSchool = async (newSchoolData) => {
     try {
       const response = await axios.post(
-        "https://api.edprofio.com/employeradmin",
+        `${import.meta.env.VITE_BASE_URL}/employeradmin`,
         {
           ...newSchoolData,
           organizationid,
@@ -434,7 +434,7 @@ const UnitsPage = () => {
   const handleUpdateSchool = async (updatedData) => {
     try {
       const response = await axios.put(
-        `https://api.edprofio.com/employeradmin/${selectedSchool.id}`,
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/${selectedSchool.id}`,
         updatedData
       );
 

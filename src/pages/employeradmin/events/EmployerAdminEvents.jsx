@@ -266,7 +266,7 @@ const EmployerAdminEvents = () => {
 
     try {
       const response = await fetch(
-        `https://api.edprofio.com/employer/removeevents/${eventToDelete}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/removeevents/${eventToDelete}`,
         {
           method: "DELETE",
           headers: {

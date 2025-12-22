@@ -182,7 +182,7 @@ const EmployeerEvents = () => {
 
       // 6. Make the request WITHOUT setting Content-Type header
       const response = await fetch(
-        `https://api.edprofio.com/employer/${employerData._id}/events?fileType=eventimage`,
+        `${import.meta.env.VITE_BASE_URL}/employer/${employerData._id}/events?fileType=eventimage`,
         {
           method: "POST",
           body: formData, // FormData will set the correct headers automatically
@@ -263,7 +263,7 @@ const EmployeerEvents = () => {
 
     try {
       const response = await fetch(
-        `https://api.edprofio.com/employer/removeevents/${eventToDelete}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/removeevents/${eventToDelete}`,
         {
           method: "DELETE",
           headers: {

@@ -47,7 +47,7 @@ const EmployeerProfileView = () => {
         }
 
         const response = await fetch(
-          `https://api.edprofio.com/employer/fetchemployer/${employerData._id}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchemployer/${employerData._id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -150,7 +150,7 @@ const EmployeerProfileView = () => {
 
     try {
       const response = await fetch(
-        `https://api.edprofio.com/employer/uploadprofilepic/${employerData._id}?fileType=profileImage`,
+        `${import.meta.env.VITE_BASE_URL}/employer/uploadprofilepic/${employerData._id}?fileType=profileImage`,
         {
           method: "PUT",
           headers: {
@@ -206,7 +206,7 @@ const EmployeerProfileView = () => {
 
       // Update other profile data
       const updateResponse = await fetch(
-        `https://api.edprofio.com/employer/updateemployer/${employerData._id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updateemployer/${employerData._id}`,
         {
           method: "PUT",
           headers: {
@@ -300,7 +300,7 @@ const EmployeerProfileView = () => {
       const employerData = JSON.parse(localStorage.getItem("employerData"));
 
       const response = await fetch(
-        `https://api.edprofio.com/employer/changeMyPassword/${employerData._id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/changeMyPassword/${employerData._id}`,
 
         {
           method: "PUT",

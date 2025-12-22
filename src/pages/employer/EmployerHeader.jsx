@@ -44,7 +44,7 @@ const EmployerHeader = () => {
         }
 
         const response = await fetch(
-          `https://api.edprofio.com/employer/fetchemployer/${employerData._id}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchemployer/${employerData._id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

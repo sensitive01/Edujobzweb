@@ -27,7 +27,7 @@ const JobDetails = () => {
       try {
         setStatusLoading(true);
         const response = await fetch(
-          `https://api.edprofio.com/job/${id}/application/${applicantId}/status`
+          `${import.meta.env.VITE_BASE_URL}/job/${id}/application/${applicantId}/status`
         );
 
         if (response.ok) {
@@ -49,7 +49,7 @@ const JobDetails = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `https://api.edprofio.com/employer/viewjobs/${id}`
+          `${import.meta.env.VITE_BASE_URL}/employer/viewjobs/${id}`
         );
 
         if (!response.ok) {
@@ -87,7 +87,7 @@ const JobDetails = () => {
 
     try {
       const response = await fetch(
-        "https://api.edprofio.com/employer/toggleSaveJob",
+        `${import.meta.env.VITE_BASE_URL}/employer/toggleSaveJob`,
         {
           method: "POST",
           headers: {

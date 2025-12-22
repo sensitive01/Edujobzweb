@@ -50,7 +50,7 @@ export const loginEmployee = async (loginData) => {
 
 export const loginSchool = async (loginData) => {
   try {
-    const response = await projectServices.post("/employer/loginweb", loginData);
+    const response = await projectServices.post("/employer/login", loginData);
     return response.data;
   } catch (err) {
     throw err;

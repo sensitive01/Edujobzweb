@@ -123,7 +123,7 @@ const EmployeerJobList = () => {
       }
 
       const response = await axios.get(
-        `https://api.edprofio.com/employer/fetchjob/${employerData._id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/fetchjob/${employerData._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -189,7 +189,7 @@ const EmployeerJobList = () => {
       const newStatus = !currentStatus;
 
       await axios.put(
-        `https://api.edprofio.com/employer/updatejobstatus/${jobId}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updatejobstatus/${jobId}`,
         { isActive: newStatus },
         {
           headers: {
@@ -221,7 +221,7 @@ const EmployeerJobList = () => {
       const employerData = JSON.parse(localStorage.getItem("employerData"));
 
       const response = await axios.post(
-        "https://api.edprofio.com/employer/postjob",
+        `${import.meta.env.VITE_BASE_URL}/employer/postjob`,
         {
           ...jobData,
           employid: employerData._id,

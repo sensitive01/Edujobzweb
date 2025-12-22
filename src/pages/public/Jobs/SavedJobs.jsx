@@ -41,7 +41,7 @@ const SavedJobs = () => {
         }
 
         const response = await axios.get(
-          `https://api.edprofio.com/employer/fetchSavedJobs/${userData._id}`
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchSavedJobs/${userData._id}`
         );
 
         if (response.data && response.data.jobs) {
@@ -131,7 +131,7 @@ const SavedJobs = () => {
       const userData = JSON.parse(localStorage.getItem("userData"));
       if (!userData || !userData._id) return;
 
-      await axios.post("https://api.edprofio.com/employer/toggleSaveJob", {
+      await axios.post(`${import.meta.env.VITE_BASE_URL}/employer/toggleSaveJob`, {
         applicantId: userData._id,
         jobId: jobId,
       });

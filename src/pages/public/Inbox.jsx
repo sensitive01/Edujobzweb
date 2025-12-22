@@ -44,7 +44,7 @@ const Inbox = () => {
     const fetchEmployeeProfile = async (employeeId) => {
       try {
         const response = await axios.get(
-          `https://api.edprofio.com/fetchemployee/${employeeId}`
+          `${import.meta.env.VITE_BASE_URL}/fetchemployee/${employeeId}`
         );
         if (response.data && response.data.userProfilePic) {
           setEmployeeProfilePic(response.data.userProfilePic);
@@ -57,7 +57,7 @@ const Inbox = () => {
     const fetchEmployerProfile = async (employerId) => {
       try {
         const response = await axios.get(
-          `https://api.edprofio.com/employer/fetchemployer/${employerId}`
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchemployer/${employerId}`
         );
         if (response.data) {
           return {
@@ -89,7 +89,7 @@ const Inbox = () => {
         await fetchEmployeeProfile(userData._id);
 
         const response = await axios.get(
-          `https://api.edprofio.com/employer/employee/${userData._id}`
+          `${import.meta.env.VITE_BASE_URL}/employer/employee/${userData._id}`
         );
 
         if (response.data && response.data.length > 0) {
@@ -107,7 +107,7 @@ const Inbox = () => {
 
               // Also fetch job details for job title
               const jobDetailsResponse = await axios.get(
-                `https://api.edprofio.com/employer/fetchjob/${conversation.employerId}`
+                `${import.meta.env.VITE_BASE_URL}/employer/fetchjob/${conversation.employerId}`
               );
 
               if (
@@ -154,7 +154,7 @@ const Inbox = () => {
     const fetchMessages = async () => {
       try {
         const messagesResponse = await axios.get(
-          "https://api.edprofio.com/employer/view",
+          `${import.meta.env.VITE_BASE_URL}/employer/view`,
           {
             params: {
               employeeId: selectedConversation.employeeId,
@@ -230,7 +230,7 @@ const Inbox = () => {
       }
 
       const response = await axios.post(
-        "https://api.edprofio.com/employer/sendchats",
+        `${import.meta.env.VITE_BASE_URL}/employer/sendchats`,
         formData,
         {
           headers: {

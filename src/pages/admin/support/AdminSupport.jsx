@@ -6,7 +6,7 @@ import AdminHeader from "../layout/AdminHeader";
 import AdminFooter from "../layout/AdminFooter";
 
 const AdminSupport = () => {
-  const VITE_BASE_URL = "https://api.edprofio.com";
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
   const [employerAdminData, setEmployerAdminData] = useState(null);
   const [employeeData, setEmployeeData] = useState(null);
   const [chats, setChats] = useState([]);

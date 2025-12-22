@@ -42,7 +42,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
       }
 
       const response = await fetch(
-        `https://api.edprofio.com/fetchemployee/${candidate.applicantId}`,
+        `${import.meta.env.VITE_BASE_URL}/fetchemployee/${candidate.applicantId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -120,7 +120,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
 
       // Update both status and notes in the backend
       const response = await fetch(
-        `https://api.edprofio.com/employer/update-status/${candidate._id}/${candidate.applicantId}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/update-status/${candidate._id}/${candidate.applicantId}`,
         {
           method: "PUT",
           headers: {
@@ -173,7 +173,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
       const updatedNotes = notes ? `${statusNote}\n${notes}` : statusNote;
 
       const response = await fetch(
-        `https://api.edprofio.com/employer/update-status/${candidate._id}/${candidate.applicantId}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/update-status/${candidate._id}/${candidate.applicantId}`,
         {
           method: "PUT",
           headers: {

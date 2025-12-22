@@ -41,7 +41,7 @@ const AppliedJobs = () => {
         }
 
         const response = await axios.get(
-          `https://api.edprofio.com/applicant/${userData._id}`
+          `${import.meta.env.VITE_BASE_URL}/applicant/${userData._id}`
         );
 
         console.log("API Response:", response.data);

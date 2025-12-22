@@ -40,7 +40,7 @@ const EditCandidateModal = ({ show, candidate, onClose, onUpdate }) => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://api.edprofio.com/fetchemployee/${candidate._id}`
+        `${import.meta.env.VITE_BASE_URL}/fetchemployee/${candidate._id}`
       );
 
       if (!response.ok) {
@@ -113,7 +113,7 @@ const EditCandidateModal = ({ show, candidate, onClose, onUpdate }) => {
       };
 
       const response = await fetch(
-        `https://api.edprofio.com/updateprofile/${candidate._id}`,
+        `${import.meta.env.VITE_BASE_URL}/updateprofile/${candidate._id}`,
         {
           method: "PUT",
           headers: {

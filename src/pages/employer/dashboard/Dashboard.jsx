@@ -232,7 +232,7 @@ const Dashboard = () => {
       const token = localStorage.getItem("employerToken");
 
       const response = await fetch(
-        `https://api.edprofio.com/employer/changeMyPassword/${employerData._id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/changeMyPassword/${employerData._id}`,
         {
           method: "PUT",
           headers: {
@@ -300,7 +300,7 @@ const Dashboard = () => {
 
         // Fetch employer details from API
         const employerResponse = await fetch(
-          `https://api.edprofio.com/employer/fetchemployer/${storedEmployerData._id}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchemployer/${storedEmployerData._id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

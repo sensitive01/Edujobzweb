@@ -39,7 +39,7 @@
 
 //   const fetchPlans = async () => {
 //     try {
-//       const response = await fetch('https://api.edprofio.com/admin/getallplans');
+//       const response = await fetch(`${import.meta.env.VITE_BASE_URL}/admin/getallplans`);
 //       if (!response.ok) {
 //         throw new Error('Failed to fetch plans');
 //       }
@@ -70,8 +70,8 @@
 //     e.preventDefault();
 //     try {
 //       const url = currentPlan
-//         ? `https://api.edprofio.com/admin/updateplan/${currentPlan._id}`
-//         : 'https://api.edprofio.com/admin/addplan';
+//         ? `${import.meta.env.VITE_BASE_URL}/admin/updateplan/${currentPlan._id}`
+//         : `${import.meta.env.VITE_BASE_URL}/admin/addplan`;
 
 //       const method = currentPlan ? 'PUT' : 'POST';
 
@@ -857,7 +857,7 @@ const EmployeerAdminPlansGrid = () => {
     const fetchPlans = async () => {
       try {
         const response = await fetch(
-          "https://api.edprofio.com/admin/getallplans"
+          `${import.meta.env.VITE_BASE_URL}/admin/getallplans`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch plans");

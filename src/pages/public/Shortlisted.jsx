@@ -31,7 +31,7 @@ const ShortlistedJobs = () => {
         }
 
         const response = await axios.get(
-          `https://api.edprofio.com/fetchshorlitstedjobsemployee/${userData._id}`
+          `${import.meta.env.VITE_BASE_URL}/fetchshorlitstedjobsemployee/${userData._id}`
         );
 
         if (response.data) {

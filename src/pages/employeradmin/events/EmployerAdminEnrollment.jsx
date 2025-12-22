@@ -126,7 +126,7 @@
 //         if (!selectedEvent) return;
 
 //         try {
-//             const response = await fetch(`https://api.edprofio.com/employer/removeevents/${selectedEvent._id}`, {
+//             const response = await fetch(`${import.meta.env.VITE_BASE_URL}/employer/removeevents/${selectedEvent._id}`, {
 //                 method: 'DELETE',
 //                 headers: {
 //                     'Content-Type': 'application/json',
@@ -1001,7 +1001,7 @@ const EmployerAdminEnrollment = () => {
 
     try {
       const response = await fetch(
-        `https://api.edprofio.com/employer/removeevents/${selectedEvent._id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/removeevents/${selectedEvent._id}`,
         {
           method: "DELETE",
           headers: {

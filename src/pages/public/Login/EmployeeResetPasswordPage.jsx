@@ -44,7 +44,7 @@ const ResetPasswordPage = () => {
       console.log("Sending password reset request with payload:", payload);
 
       const response = await axios.post(
-        "https://api.edprofio.com/change-password",
+        `${import.meta.env.VITE_BASE_URL}/change-password`,
         payload
       );
       console.log("Password reset response:", response.data);

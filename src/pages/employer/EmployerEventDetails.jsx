@@ -124,7 +124,7 @@ const EmployerEventDetails = () => {
       };
 
       const response = await fetch(
-        `https://api.edprofio.com/employer/updateevent/${eventId}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updateevent/${eventId}`,
         {
           method: "PUT",
           headers: {

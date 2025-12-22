@@ -291,7 +291,7 @@ const EmployeerAdminGridJobUnit = () => {
       }
 
       const response = await axios.get(
-        `https://api.edprofio.com/employeradmin/getjobsbyorg/${employerAdminData._id}`
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/getjobsbyorg/${employerAdminData._id}`
       );
 
       // Handle case when no jobs are found (empty array)
@@ -1287,7 +1287,7 @@ const JobCard = ({ job, onStatusChange }) => {
       }
 
       const response = await axios.put(
-        `https://api.edprofio.com/employer/updatejobstatus/${job.id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updatejobstatus/${job.id}`,
         { isActive: newStatus },
         {
           headers: {
@@ -1765,7 +1765,7 @@ const AddPostModal = ({
 
       const token = localStorage.getItem("authToken");
       const response = await axios.get(
-        `https://api.edprofio.com/employer/fetchemployer/${employerData._id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/fetchemployer/${employerData._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1884,7 +1884,7 @@ const AddPostModal = ({
       };
 
       const response = await axios.post(
-        "https://api.edprofio.com/employer/postjob",
+        `${import.meta.env.VITE_BASE_URL}/employer/postjob`,
         submitData
       );
 

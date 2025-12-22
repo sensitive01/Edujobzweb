@@ -73,7 +73,7 @@ const SearchChat = ({ isOpen, onClose, candidate }) => {
     try {
       const token = localStorage.getItem("employerToken");
       const response = await axios.get(
-        `https://api.edprofio.com/employer/fetchjob/${employerData._id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/fetchjob/${employerData._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -98,7 +98,7 @@ const SearchChat = ({ isOpen, onClose, candidate }) => {
     try {
       const token = localStorage.getItem("employerToken");
       const response = await axios.get(
-        `https://api.edprofio.com/employer/fetchemployer/${employerData._id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/fetchemployer/${employerData._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -136,7 +136,7 @@ const SearchChat = ({ isOpen, onClose, candidate }) => {
     try {
       const token = localStorage.getItem("employerToken");
       const response = await axios.get(
-        `https://api.edprofio.com/fetchemployee/${employeeId}`,
+        `${import.meta.env.VITE_BASE_URL}/fetchemployee/${employeeId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -155,7 +155,7 @@ const SearchChat = ({ isOpen, onClose, candidate }) => {
 
       const token = localStorage.getItem("employerToken");
       const response = await axios.get(
-        `https://api.edprofio.com/employer/view`,
+        `${import.meta.env.VITE_BASE_URL}/employer/view`,
         {
           params: {
             employeeId: candidate.applicantId,
@@ -278,7 +278,7 @@ const SearchChat = ({ isOpen, onClose, candidate }) => {
       if (fileInputRef.current) fileInputRef.current.value = "";
 
       const response = await axios.post(
-        "https://api.edprofio.com/employer/sendchats",
+        `${import.meta.env.VITE_BASE_URL}/employer/sendchats`,
         formData,
         {
           headers: {
@@ -335,7 +335,7 @@ const SearchChat = ({ isOpen, onClose, candidate }) => {
 
   //     try {
   //         const token = localStorage.getItem('employerToken');
-  //         const url = `https://api.edprofio.com/employer/updatefavorite/${selectedJob._id}/${candidate.applicantId}`;
+  //         const url = `${import.meta.env.VITE_BASE_URL}/employer/updatefavorite/${selectedJob._id}/${candidate.applicantId}`;
 
   //         console.log('API URL:', url); // Log the API URL
 
@@ -454,7 +454,7 @@ const SearchChat = ({ isOpen, onClose, candidate }) => {
         // If not applied, first apply the candidate to the job
         try {
           const applyResponse = await axios.post(
-            `https://api.edprofio.com/${selectedJob._id}/apply`,
+            `${import.meta.env.VITE_BASE_URL}/${selectedJob._id}/apply`,
             {
               firstName: candidate.firstName || candidate.name,
               email: candidate.email,
@@ -487,7 +487,7 @@ const SearchChat = ({ isOpen, onClose, candidate }) => {
       }
 
       // Now update the status
-      const url = `https://api.edprofio.com/employer/updatefavorite/${selectedJob._id}/${candidate.applicantId}`;
+      const url = `${import.meta.env.VITE_BASE_URL}/employer/updatefavorite/${selectedJob._id}/${candidate.applicantId}`;
 
       const requestBody = {
         status: selectedStatus,
@@ -597,7 +597,7 @@ const SearchChat = ({ isOpen, onClose, candidate }) => {
       setMessages((prev) => [...prev, newMsg]);
 
       await axios.post(
-        "https://api.edprofio.com/employer/sendchats",
+        `${import.meta.env.VITE_BASE_URL}/employer/sendchats`,
         formData,
         {
           headers: {
@@ -712,7 +712,7 @@ const SearchChat = ({ isOpen, onClose, candidate }) => {
       formData.append("fileType", "audio/wav");
 
       axios
-        .post("https://api.edprofio.com/employer/sendchats", formData, {
+        .post(`${import.meta.env.VITE_BASE_URL}/employer/sendchats`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",

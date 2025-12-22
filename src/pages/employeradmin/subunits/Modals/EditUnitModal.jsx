@@ -98,7 +98,7 @@ const EditUnitModal = ({ show, onClose, unit, onSave }) => {
 
     try {
       const response = await axios.put(
-        `https://api.edprofio.com/employer/uploadprofilepic/${unit.id}?fileType=profileImage`,
+        `${import.meta.env.VITE_BASE_URL}/employer/uploadprofilepic/${unit.id}?fileType=profileImage`,
         formData,
         {
           headers: {
@@ -159,7 +159,7 @@ const EditUnitModal = ({ show, onClose, unit, onSave }) => {
 
       // Update other profile data
       const response = await axios.put(
-        `https://api.edprofio.com/employer/updateemployer/${unit.id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updateemployer/${unit.id}`,
         {
           ...formData,
           ...(newProfilePicUrl && { userProfilePic: newProfilePicUrl }),

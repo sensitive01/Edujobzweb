@@ -346,7 +346,7 @@ const EmployerAdminCandidates = () => {
         }
 
         const response = await fetch(
-          `https://api.edprofio.com/employer/viewallappliedcandi/${employerAdminData._id}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/viewallappliedcandi/${employerAdminData._id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -389,7 +389,7 @@ const EmployerAdminCandidates = () => {
       }
 
       const response = await fetch(
-        `https://api.edprofio.com/employer/updaee/${applicationId}/${employerAdminData._id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updaee/${applicationId}/${employerAdminData._id}`,
         {
           method: "PUT",
           headers: {

@@ -655,7 +655,7 @@ const EmployeerAdminPlans = () => {
     const fetchPlans = async () => {
       try {
         const response = await fetch(
-          "https://api.edprofio.com/admin/getallplans"
+          `${import.meta.env.VITE_BASE_URL}/admin/getallplans`
         );
         const data = await response.json();
         if (data.success) {

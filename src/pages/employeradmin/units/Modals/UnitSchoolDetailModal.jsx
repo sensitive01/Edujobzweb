@@ -18,7 +18,7 @@ const schoolSchoolDetailModal = ({ show, onClose, school }) => {
       setLoading(true);
       setError(null);
       const response = await axios.get(
-        `https://api.edprofio.com/employer/fetchemployer/${school.id}`
+        `${import.meta.env.VITE_BASE_URL}/employer/fetchemployer/${school.id}`
       );
       if (response.data) {
         setEmployerData(response.data);

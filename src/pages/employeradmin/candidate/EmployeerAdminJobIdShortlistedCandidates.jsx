@@ -346,7 +346,7 @@ const EmployeerAdminJobIdShortlistedCandidates = () => {
         if (!EmployerAdminData) return;
 
         const response = await fetch(
-          `https://api.edprofio.com/employer/fetchjob/${EmployerAdminData._id}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchjob/${EmployerAdminData._id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem(
@@ -404,7 +404,7 @@ const EmployeerAdminJobIdShortlistedCandidates = () => {
         }
 
         const response = await axios.get(
-          `https://api.edprofio.com/employer/viewjobs/${jobId}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/viewjobs/${jobId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -441,7 +441,7 @@ const EmployeerAdminJobIdShortlistedCandidates = () => {
         }
 
         const response = await axios.get(
-          `https://api.edprofio.com/employer/fetchshortlistcand/${jobId}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchshortlistcand/${jobId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -501,7 +501,7 @@ const EmployeerAdminJobIdShortlistedCandidates = () => {
       }
 
       const response = await fetch(
-        `https://api.edprofio.com/employer/updaee/${applicationId}/${employid}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updaee/${applicationId}/${employid}`,
         {
           method: "PUT",
           headers: {

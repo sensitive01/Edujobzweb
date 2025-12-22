@@ -19,7 +19,7 @@
 
 //     try {
 //       setIsLoading(true);
-//       const response = await axios.post('https://api.edprofio.com/forgotpassword', {
+//       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/forgotpassword`, {
 //         userMobile: mobile
 //       });
 
@@ -124,7 +124,7 @@ const ForgotPasswordPage = () => {
     try {
       setIsLoading(true);
       const response = await axios.post(
-        "https://api.edprofio.com/forgotpassword",
+        `${import.meta.env.VITE_BASE_URL}/forgotpassword`,
         {
           userMobile: mobile,
         }

@@ -72,7 +72,7 @@ const SubUnitsModalUse = () => {
     const fetchUnits = async () => {
       try {
         const response = await axios.get(
-          `https://api.edprofio.com/employeradmin/fetchbyorg/${organizationid}`
+          `${import.meta.env.VITE_BASE_URL}/employeradmin/fetchbyorg/${organizationid}`
         );
         if (response.data.success) {
           // Transform API data to match our component structure
@@ -140,7 +140,7 @@ const SubUnitsModalUse = () => {
   const handleDeleteConfirmed = async () => {
     try {
       await axios.delete(
-        `https://api.edprofio.com/employeradmin/${selectedUnit.id}`
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/${selectedUnit.id}`
       );
       setUnits(units.filter((unit) => unit.id !== selectedUnit.id));
       setItemToDelete(false);
@@ -171,7 +171,7 @@ const SubUnitsModalUse = () => {
   const handleUpdateUnit = async (updatedData) => {
     try {
       const response = await axios.put(
-        `https://api.edprofio.com/employeradmin/${selectedUnit.id}`,
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/${selectedUnit.id}`,
         updatedData
       );
 

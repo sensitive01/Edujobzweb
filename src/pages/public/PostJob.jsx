@@ -3,8 +3,8 @@ import { postJob } from "../../api/services/projectServices";
 import { useNavigate } from "react-router-dom";
 import { useEmployeeRegistration } from "../../hooks/useEmployeeRegistration";
 import axios from "axios";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const PostJob = () => {
   const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -137,7 +137,7 @@ const PostJob = () => {
       const response = await axios.post(`${VITE_BASE_URL}/sendemailotp`, {
         userEmail: formData.contactEmail,
       });
-      console.log("response", response)
+      console.log("response", response);
 
       if (response.status === 200) {
         setIsOtpSent(true);
@@ -146,7 +146,11 @@ const PostJob = () => {
         setOtpError(response.data.message || "Failed to send OTP");
       }
     } catch (error) {
-      setOtpError(error.response?.data?.error || "Failed to send OTP");
+      setOtpError(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to send OTP"
+      );
     } finally {
       setIsSendingOtp(false);
     }
@@ -176,7 +180,7 @@ const PostJob = () => {
         setIsOtpVerified(false);
       }
     } catch (error) {
-      setOtpError(error.response?.data?.error || "Verification failed");
+      setOtpError(error.response?.data?.message || error.response?.data?.error || "Verification failed");
       setIsOtpVerified(false);
     } finally {
       setIsVerifyingOtp(false);
@@ -212,7 +216,10 @@ const PostJob = () => {
         const response = await schoolregister(employerData);
         employid = response.data.employid || response.data.id;
       } catch (err) {
-        const errorMessage = err.response?.data?.message || err.message || "Failed to create employer profile";
+        const errorMessage =
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to create employer profile";
         setError(errorMessage);
         setLoading(false);
         return;
@@ -257,15 +264,20 @@ const PostJob = () => {
       if (err.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        setError(err.response.data?.message || 'An error occurred while processing your request');
+        setError(
+          err.response.data?.message ||
+            "An error occurred while processing your request"
+        );
       } else if (err.request) {
         // The request was made but no response was received
-        setError('No response from server. Please check your internet connection and try again.');
+        setError(
+          "No response from server. Please check your internet connection and try again."
+        );
       } else {
         // Something happened in setting up the request that triggered an Error
-        setError(err.message || 'An unexpected error occurred');
+        setError(err.message || "An unexpected error occurred");
       }
-      console.error('Error posting job:', err);
+      console.error("Error posting job:", err);
     } finally {
       setLoading(false);
     }
@@ -332,7 +344,9 @@ const PostJob = () => {
                   </div>
 
                   {/* Employer Type */}
-                  <label htmlFor="employerType">&nbsp;&nbsp;Employer Type</label>
+                  <label htmlFor="employerType">
+                    &nbsp;&nbsp;Employer Type
+                  </label>
                   <div className="jobplugin__form-row">
                     <div className="jobplugin__form-field">
                       <select
@@ -344,11 +358,19 @@ const PostJob = () => {
                       >
                         <option value="">Select Employer Type</option>
                         <option value="Schools">Schools</option>
-                        <option value="Coaching Institute">Coaching Institute</option>
+                        <option value="Coaching Institute">
+                          Coaching Institute
+                        </option>
                         <option value="Pre-Schools">Pre-Schools</option>
-                        <option value="EdTech Companies">EdTech Companies</option>
-                        <option value="College / Universities">College / Universities</option>
-                        <option value="Training Centers">Training Centers</option>
+                        <option value="EdTech Companies">
+                          EdTech Companies
+                        </option>
+                        <option value="College / Universities">
+                          College / Universities
+                        </option>
+                        <option value="Training Centers">
+                          Training Centers
+                        </option>
                       </select>
                     </div>
                   </div>
@@ -702,8 +724,9 @@ const PostJob = () => {
                         <button
                           type="button"
                           onClick={verifyOtp}
-                          className={`btn ${isOtpVerified ? "btn-success" : "btn-primary"
-                            }`}
+                          className={`btn ${
+                            isOtpVerified ? "btn-success" : "btn-primary"
+                          }`}
                           style={{
                             whiteSpace: "nowrap",
                             padding: "10px 15px",
@@ -714,8 +737,8 @@ const PostJob = () => {
                           {isVerifyingOtp
                             ? "Verifying..."
                             : isOtpVerified
-                              ? "✓ Verified"
-                              : "Verify"}
+                            ? "✓ Verified"
+                            : "Verify"}
                         </button>
                       )}
                     </div>
@@ -887,9 +910,15 @@ const PostJob = () => {
         }
 
         /* Make rich editors take full width of form field */
-        .rich-editor-full { width: 100%; }
-        .rich-editor-full .ql-container { width: 100%; }
-        .rich-editor-full .ql-editor { min-height: 150px; }
+        .rich-editor-full {
+          width: 100%;
+        }
+        .rich-editor-full .ql-container {
+          width: 100%;
+        }
+        .rich-editor-full .ql-editor {
+          min-height: 150px;
+        }
 
         /* FIX FOR DUPLICATE TOOLBARS */
         .quill-wrapper .ql-toolbar:not(:first-child) {

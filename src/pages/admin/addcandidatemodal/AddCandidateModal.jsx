@@ -51,7 +51,7 @@ const AddCandidateModal = ({ show, onClose }) => {
 
     try {
       const response = await axios.post(
-        "https://api.edprofio.com/signup",
+        `${import.meta.env.VITE_BASE_URL}/signup`,
         formData
       );
 

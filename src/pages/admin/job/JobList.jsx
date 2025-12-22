@@ -221,7 +221,7 @@ const JobsList = () => {
       };
 
       const response = await fetch(
-        "https://api.edprofio.com/employer/postjob",
+        `${import.meta.env.VITE_BASE_URL}/employer/postjob`,
         {
           method: "POST",
           headers: {
@@ -371,7 +371,7 @@ const JobsList = () => {
       }
 
       const response = await fetch(
-        `https://api.edprofio.com/employer/editjob/${editingJob._id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/editjob/${editingJob._id}`,
         {
           method: "PUT",
           headers: {
@@ -448,7 +448,7 @@ const JobsList = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          "https://api.edprofio.com/employer/fetchjobs"
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchjobs`
         );
 
         if (!response.ok) {
@@ -710,7 +710,7 @@ const JobsList = () => {
       if (jobToDelete) {
         // Note: You'll need to implement the delete job API endpoint
         const response = await fetch(
-          `https://api.edprofio.com/admin/deletejob/${jobToDelete._id}`,
+          `${import.meta.env.VITE_BASE_URL}/admin/deletejob/${jobToDelete._id}`,
           {
             method: "DELETE",
           }
@@ -738,7 +738,7 @@ const JobsList = () => {
 
       // Note: You'll need to implement the update job status API endpoint
       const response = await fetch(
-        `https://api.edprofio.com/employer/updatejobstatus/${jobId}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updatejobstatus/${jobId}`,
         {
           method: "PUT",
           headers: {
@@ -773,7 +773,7 @@ const JobsList = () => {
       const newStatus = currentStatus === "approved" ? "pending" : "approved";
 
       const response = await fetch(
-        `https://api.edprofio.com/admin/updateapprovejobs/${jobId}`,
+        `${import.meta.env.VITE_BASE_URL}/admin/updateapprovejobs/${jobId}`,
         {
           method: "PUT",
           headers: {

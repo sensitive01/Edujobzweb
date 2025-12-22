@@ -33,6 +33,7 @@ const Header = () => {
   const [showJobsMenu, setShowJobsMenu] = useState(false);
   const [activeTab, setActiveTab] = useState("employerTypes");
   const [categoryCounts, setCategoryCounts] = useState({});
+  const [employerCounts, setEmployerCounts] = useState({});
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,20 +43,18 @@ const Header = () => {
   useLoginCleanup();
 
   const employerTypes = [
-    { name: "Schools", icon: <FaSchool />, count: "15420 Jobs" },
+    { name: "Schools", icon: <FaSchool /> },
     {
       name: "Coaching Institute",
       icon: <FaChalkboardTeacher />,
-      count: "8750 Jobs",
     },
-    { name: "Pre-Schools", icon: <FaChild />, count: "5280 Jobs" },
-    { name: "EdTech Companies", icon: <FaLaptop />, count: "3640 Jobs" },
+    { name: "Pre-Schools", icon: <FaChild /> },
+    { name: "EdTech Companies", icon: <FaLaptop /> },
     {
       name: "College / Universities",
       icon: <FaUniversity />,
-      count: "12890 Jobs",
     },
-    { name: "Training Centers", icon: <FaBook />, count: "4320 Jobs" },
+    { name: "Training Centers", icon: <FaBook /> },
   ];
 
   const jobCategories = [
@@ -173,21 +172,36 @@ const Header = () => {
     };
   }, []);
 
-  // Fetch category counts from API
+  // Fetch category and employer counts from API
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await getHeaderStaticsData();
-        if (response.status === 200) {
-          // Convert array to object for easy lookup
-          const countsMap = {};
-          const dataList = response.data?.data || [];
-          if (Array.isArray(dataList)) {
-            dataList.forEach((item) => {
-              countsMap[item.category] = item.count;
+        if (response.data?.success) {
+          const { categories, employerTypes } = response.data.data;
+
+          // Handle categories
+          const catMap = {};
+          if (Array.isArray(categories)) {
+            categories.forEach((item) => {
+              catMap[item.category] = item.count;
+            });
+          } else if (Array.isArray(response.data.data)) {
+            // Fallback
+            response.data.data.forEach((item) => {
+              catMap[item.category] = item.count;
             });
           }
-          setCategoryCounts(countsMap);
+          setCategoryCounts(catMap);
+
+          // Handle employer types
+          const empMap = {};
+          if (Array.isArray(employerTypes)) {
+            employerTypes.forEach((item) => {
+              empMap[item.employerType] = item.count;
+            });
+          }
+          setEmployerCounts(empMap);
         }
       } catch (error) {
         console.error("Error fetching header statistics:", error);
@@ -199,6 +213,12 @@ const Header = () => {
   // Helper function to get count for a category
   const getCategoryCount = (categoryName) => {
     const count = categoryCounts[categoryName] || 0;
+    return `${count} Job${count !== 1 ? "s" : ""}`;
+  };
+
+  // Helper function to get count for an employer type
+  const getEmployerCount = (employerType) => {
+    const count = employerCounts[employerType] || 0;
     return `${count} Job${count !== 1 ? "s" : ""}`;
   };
 
@@ -606,7 +626,7 @@ const Header = () => {
                                   <div
                                     style={{ fontSize: "11px", color: "#999" }}
                                   >
-                                    {employer.count}
+                                    {getEmployerCount(employer.name)}
                                   </div>
                                 </div>
                                 <FaChevronDown

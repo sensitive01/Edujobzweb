@@ -40,7 +40,7 @@ const PendingJobs = () => {
         }
 
         const response = await axios.get(
-          `https://api.edprofio.com/applicant/${userData._id}`
+          `${import.meta.env.VITE_BASE_URL}/applicant/${userData._id}`
         );
 
         if (response.data) {

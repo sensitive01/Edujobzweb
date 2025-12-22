@@ -12,7 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
 const AddUnitModal = ({ show, onClose, onSave }) => {
-  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL || "https://api.edprofio.com";
+  const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("basic-info");
   const [showPositionsModal, setShowPositionsModal] = useState(false);

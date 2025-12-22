@@ -4,7 +4,7 @@
 // import EmployerAdminFooter from '../Layout/EmployerAdminFooter';
 
 // const EmployeerAdminMessage = () => {
-//   const VITE_BASE_URL = 'https://api.edprofio.com';
+//   const VITE_BASE_URL = '${import.meta.env.VITE_BASE_URL}';
 //   const [employerAdminData, setEmployerAdminData] = useState(null);
 //   const [employeeData, setEmployeeData] = useState(null);
 //   const [chats, setChats] = useState([]);
@@ -776,7 +776,7 @@ import defaultEmployeeAvatar from "../../../assets/employer-admin/assets/img/pro
 import defaultEmployerAvatar from "../../../assets/employer-admin/assets/img/profiles/avatar-14.jpg";
 
 const EmployeerAdminMessage = () => {
-  const VITE_BASE_URL = "https://api.edprofio.com";
+  const VITE_BASE_URL = `${import.meta.env.VITE_BASE_URL}`;
   const [employerAdminData, setEmployerAdminData] = useState(null);
   const [employeeData, setEmployeeData] = useState(null);
   const [chats, setChats] = useState([]);

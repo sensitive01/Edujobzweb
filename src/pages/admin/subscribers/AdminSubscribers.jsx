@@ -339,7 +339,7 @@ const AdminSubscribers = () => {
     setSubscriptionsLoading(true);
     try {
       const response = await fetch(
-        `https://api.edprofio.com/admin/fetchplanbyemp/${employerId}`
+        `${import.meta.env.VITE_BASE_URL}/admin/fetchplanbyemp/${employerId}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch subscriptions");
@@ -365,7 +365,7 @@ const AdminSubscribers = () => {
     const fetchSubscribers = async () => {
       try {
         const response = await fetch(
-          "https://api.edprofio.com/admin/getsubscribedemployers"
+          `${import.meta.env.VITE_BASE_URL}/admin/getsubscribedemployers`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch subscribers");

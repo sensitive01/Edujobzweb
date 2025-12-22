@@ -32,7 +32,7 @@ const Jobsbreadcrumb = ({ onFilterChange }) => {
       try {
         setLoading(true);
         const response = await fetch(
-          "https://api.edprofio.com/employer/fetchjobs"
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchjobs`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch filter options");

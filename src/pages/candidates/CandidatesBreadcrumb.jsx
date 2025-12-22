@@ -22,7 +22,7 @@ const CandidatesBreadcrumb = ({ onFilterChange }) => {
         if (!token || !userData) return;
 
         const response = await fetch(
-          `https://api.edprofio.com/employer/viewallappliedcandi/${userData._id}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/viewallappliedcandi/${userData._id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

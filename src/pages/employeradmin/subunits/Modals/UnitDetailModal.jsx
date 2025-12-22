@@ -18,7 +18,7 @@ const UnitDetailModal = ({ show, onClose, unit }) => {
       setLoading(true);
       setError(null);
       const response = await axios.get(
-        `https://api.edprofio.com/employer/fetchemployer/${unit.id}`
+        `${import.meta.env.VITE_BASE_URL}/employer/fetchemployer/${unit.id}`
       );
       if (response.data) {
         setEmployerData(response.data);

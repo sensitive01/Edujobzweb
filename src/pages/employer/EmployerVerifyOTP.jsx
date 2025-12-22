@@ -100,7 +100,7 @@
 
 //     try {
 //       const response = await axios.post(
-//         'https://api.edprofio.com/employer/employerverify-otp',
+//         `${import.meta.env.VITE_BASE_URL}/employer/employerverify-otp`,
 //         { otp: otpToVerify }
 //       );
 
@@ -136,7 +136,7 @@
 //     try {
 //       // Use the resend OTP endpoint instead of forgot password
 //       const response = await axios.post(
-//         'https://api.edprofio.com/employer/employerresend-otp',
+//         `${import.meta.env.VITE_BASE_URL}/employer/employerresend-otp`,
 //         { userMobile: location.state?.mobile }
 //       );
 
@@ -453,7 +453,7 @@ const EmployerVerifyOTP = () => {
 
     try {
       const response = await axios.post(
-        "https://api.edprofio.com/employer/employerverify-otp",
+        `${import.meta.env.VITE_BASE_URL}/employer/employerverify-otp`,
         { otp: otpToVerify }
       );
 
@@ -493,7 +493,7 @@ const EmployerVerifyOTP = () => {
     try {
       console.log("Sending resend OTP request with mobile:", actualMobile);
       const response = await axios.post(
-        "https://api.edprofio.com/employer/employerresend-otp",
+        `${import.meta.env.VITE_BASE_URL}/employer/employerresend-otp`,
         { userMobile: actualMobile } // Use the actual unmasked number
       );
 

@@ -192,7 +192,7 @@ const OrganizationList = () => {
       }
 
       const response = await fetch(
-        "https://api.edprofio.com/employeradmin/employeradminsignup",
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/employeradminsignup`,
         {
           method: "POST",
           headers: {
@@ -233,7 +233,7 @@ const OrganizationList = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "https://api.edprofio.com/admin/fetchallemployeradmin"
+        `${import.meta.env.VITE_BASE_URL}/admin/fetchallemployeradmin`
       );
 
       if (!response.ok) {
@@ -297,7 +297,7 @@ const OrganizationList = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://api.edprofio.com/employeradmin/fetchprofile/${employerId}`
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/fetchprofile/${employerId}`
       );
 
       if (!response.ok) {
@@ -320,7 +320,7 @@ const OrganizationList = () => {
 
     try {
       const response = await fetch(
-        `https://api.edprofio.com/employeradmin/fetchprofile/${employer._id}`
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/fetchprofile/${employer._id}`
       );
 
       if (!response.ok) {
@@ -385,7 +385,7 @@ const OrganizationList = () => {
       const token = localStorage.getItem("adminToken"); // Add if using authentication
 
       const response = await fetch(
-        `https://api.edprofio.com/employeradmin/updateemployeradmin/${selectedEmployer._id}?fileType=profileImage`, // Add fileType in URL
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/updateemployeradmin/${selectedEmployer._id}?fileType=profileImage`, // Add fileType in URL
         {
           method: "PUT",
           headers: {
@@ -578,7 +578,7 @@ const OrganizationList = () => {
     try {
       if (employerToDelete) {
         const response = await fetch(
-          `https://api.edprofio.com/admin/deleteemployer/${employerToDelete._id}`,
+          `${import.meta.env.VITE_BASE_URL}/admin/deleteemployer/${employerToDelete._id}`,
           {
             method: "DELETE",
           }
@@ -608,7 +608,7 @@ const OrganizationList = () => {
       const newStatus = currentStatus === "block" ? "unblock" : "block";
 
       const response = await fetch(
-        `https://api.edprofio.com/admin/updateblockstatusemployeradmin/${employerId}`,
+        `${import.meta.env.VITE_BASE_URL}/admin/updateblockstatusemployeradmin/${employerId}`,
         {
           method: "PUT",
           headers: {
@@ -649,7 +649,7 @@ const OrganizationList = () => {
       const newStatus = currentStatus === "approved" ? "pending" : "approved";
 
       const response = await fetch(
-        `https://api.edprofio.com/admin/approveemployeradmin/${employerId}`,
+        `${import.meta.env.VITE_BASE_URL}/admin/approveemployeradmin/${employerId}`,
         {
           method: "PUT",
           headers: {

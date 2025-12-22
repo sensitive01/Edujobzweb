@@ -358,7 +358,7 @@ const AdminLoginPage = () => {
 
     try {
       const response = await fetch(
-        "https://api.edprofio.com/admin/adminlogin",
+        `${import.meta.env.VITE_BASE_URL}/admin/adminlogin`,
         {
           method: "POST",
           headers: {

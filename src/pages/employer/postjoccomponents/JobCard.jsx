@@ -59,7 +59,7 @@ const JobCard = ({ job, onStatusChange }) => {
       }
 
       const response = await axios.put(
-        `https://api.edprofio.com/employer/updatejobstatus/${job.id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updatejobstatus/${job.id}`,
         { isActive: newStatus },
         {
           headers: {

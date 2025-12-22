@@ -186,7 +186,7 @@ const EmployerAdminCandidateList = () => {
         }
 
         const response = await fetch(
-          `https://api.edprofio.com/employer/viewallappliedcandi/${employerAdminData._id}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/viewallappliedcandi/${employerAdminData._id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -467,7 +467,7 @@ const EmployerAdminCandidateList = () => {
       if (candidateToDelete) {
         const token = localStorage.getItem("EmployerAdminToken");
         const response = await fetch(
-          `https://api.edprofio.com/employer/deletecandidate/${candidateToDelete._id}`,
+          `${import.meta.env.VITE_BASE_URL}/employer/deletecandidate/${candidateToDelete._id}`,
           {
             method: "DELETE",
             headers: {

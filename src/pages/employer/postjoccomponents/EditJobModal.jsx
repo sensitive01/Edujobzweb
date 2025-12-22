@@ -45,7 +45,7 @@ const EditJobModal = ({ jobId, onClose, onJobUpdated }) => {
             try {
                 const token = localStorage.getItem("employerToken");
                 const response = await axios.get(
-                    `https://api.edprofio.com/employer/viewjobs/${jobId}`,
+                    `${import.meta.env.VITE_BASE_URL}/employer/viewjobs/${jobId}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,

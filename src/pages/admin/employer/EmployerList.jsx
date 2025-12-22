@@ -196,7 +196,7 @@ const EmployerList = () => {
         throw new Error("Password is required");
       }
 
-      const response = await fetch("https://api.edprofio.com/employer/signup", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/employer/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -247,7 +247,7 @@ const EmployerList = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          "https://api.edprofio.com/admin/getallemployers"
+          `${import.meta.env.VITE_BASE_URL}/admin/getallemployers`
         );
 
         if (!response.ok) {
@@ -310,7 +310,7 @@ const EmployerList = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://api.edprofio.com/employer/fetchemployer/${employerId}`
+        `${import.meta.env.VITE_BASE_URL}/employer/fetchemployer/${employerId}`
       );
 
       if (!response.ok) {
@@ -364,7 +364,7 @@ const EmployerList = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://api.edprofio.com/employer/updateemployer/${selectedEmployer._id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/updateemployer/${selectedEmployer._id}`,
         {
           method: "PUT",
           headers: {
@@ -605,7 +605,7 @@ const EmployerList = () => {
     try {
       if (employerToDelete) {
         const response = await fetch(
-          `https://api.edprofio.com/admin/deleteemployer/${employerToDelete._id}`,
+          `${import.meta.env.VITE_BASE_URL}/admin/deleteemployer/${employerToDelete._id}`,
           {
             method: "DELETE",
           }
@@ -635,7 +635,7 @@ const EmployerList = () => {
       const newStatus = currentStatus === "block" ? "unblock" : "block";
 
       const response = await fetch(
-        `https://api.edprofio.com/admin/updateblockstatus/${employerId}`,
+        `${import.meta.env.VITE_BASE_URL}/admin/updateblockstatus/${employerId}`,
         {
           method: "PUT",
           headers: {
@@ -676,7 +676,7 @@ const EmployerList = () => {
       const newStatus = currentStatus === "approved" ? "pending" : "approved";
 
       const response = await fetch(
-        `https://api.edprofio.com/admin/approveemployer/${employerId}`,
+        `${import.meta.env.VITE_BASE_URL}/admin/approveemployer/${employerId}`,
         {
           method: "PUT",
           headers: {

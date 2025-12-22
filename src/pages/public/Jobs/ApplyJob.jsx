@@ -49,7 +49,7 @@
 //         if (!userId) return; // Redirect already happened
 
 //         // Fetch job details
-//         const jobResponse = await axios.get(`https://api.edprofio.com/employer/viewjobs/${id}`);
+//         const jobResponse = await axios.get(`${import.meta.env.VITE_BASE_URL}/employer/viewjobs/${id}`);
 //         if (!jobResponse.data) {
 //           throw new Error('Failed to fetch job details');
 //         }
@@ -161,7 +161,7 @@
 
 //     try {
 //       const response = await axios.post(
-//         'https://api.edprofio.com/upload/resume',
+//         `${import.meta.env.VITE_BASE_URL}/upload/resume`,
 //         formData,
 //         {
 //           headers: {
@@ -217,7 +217,7 @@
 //       };
 
 //       const response = await axios.post(
-//         `https://api.edprofio.com/${id}/apply`,
+//         `${import.meta.env.VITE_BASE_URL}/${id}/apply`,
 //         payload,
 //         {
 //           headers: {
@@ -650,7 +650,7 @@ const ApplyJob = () => {
         if (!userId) return;
 
         const jobResponse = await axios.get(
-          `https://api.edprofio.com/employer/viewjobs/${id}`
+          `${import.meta.env.VITE_BASE_URL}/employer/viewjobs/${id}`
         );
         if (!jobResponse.data) {
           throw new Error("Failed to fetch job details");
@@ -798,7 +798,7 @@ const ApplyJob = () => {
       };
 
       const response = await axios.post(
-        `https://api.edprofio.com/${id}/apply`,
+        `${import.meta.env.VITE_BASE_URL}/${id}/apply`,
         payload,
         {
           headers: {

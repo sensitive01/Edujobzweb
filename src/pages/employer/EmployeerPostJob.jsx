@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect } from "react";
-import { Helmet } from 'react-helmet';
-import './EmployeerPostJob.css'; // We'll create this file
+import { Helmet } from "react-helmet";
+import "./EmployeerPostJob.css"; // We'll create this file
 import {
   Briefcase,
   ChevronDown,
@@ -118,10 +118,10 @@ const EmployeerPostJob = () => {
           )
             .toString()
             .padStart(2, "0")}/${week.getFullYear()} - ${currentDate
-              .toString()
-              .padStart(2, "0")}/${currentMonth
-                .toString()
-                .padStart(2, "0")}/${currentYear}`;
+            .toString()
+            .padStart(2, "0")}/${currentMonth
+            .toString()
+            .padStart(2, "0")}/${currentYear}`;
         })(),
       },
       {
@@ -135,10 +135,10 @@ const EmployeerPostJob = () => {
           )
             .toString()
             .padStart(2, "0")}/${month.getFullYear()} - ${currentDate
-              .toString()
-              .padStart(2, "0")}/${currentMonth
-                .toString()
-                .padStart(2, "0")}/${currentYear}`;
+            .toString()
+            .padStart(2, "0")}/${currentMonth
+            .toString()
+            .padStart(2, "0")}/${currentYear}`;
         })(),
       },
       {
@@ -185,17 +185,23 @@ const EmployeerPostJob = () => {
       filteredJobs.forEach((job) => {
         htmlContent += `
         <tr>
-          <td style="border: 1px solid #ddd; padding: 8px;">${job.title || "N/A"
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            job.title || "N/A"
           }</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${job.category || "N/A"
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            job.category || "N/A"
           }</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${job.type || "N/A"
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            job.type || "N/A"
           }</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${job.location || "N/A"
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            job.location || "N/A"
           }</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${job.salary || "N/A"
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            job.salary || "N/A"
           }</td>
-          <td style="border: 1px solid #ddd; padding: 8px;">${job.status || "N/A"
+          <td style="border: 1px solid #ddd; padding: 8px;">${
+            job.status || "N/A"
           }</td>
         </tr>
       `;
@@ -248,7 +254,8 @@ const EmployeerPostJob = () => {
       filteredJobs.forEach((job) => {
         csvContent +=
           `"${job.title || ""}","${job.category || ""}","${job.type || ""}",` +
-          `"${job.location || ""}","${job.salary || ""}","${job.status || ""
+          `"${job.location || ""}","${job.salary || ""}","${
+            job.status || ""
           }",` +
           `"${job.applicants || 0}"\n`;
       });
@@ -275,15 +282,15 @@ const EmployeerPostJob = () => {
     // Load critical CSS first
     const loadCriticalCSS = async () => {
       // Preload critical CSS
-      const link = document.createElement('link');
-      link.href = '/src/assets/employer/assets/css/bootstrap.min.css';
-      link.rel = 'preload';
-      link.as = 'style';
-      link.onload = () => link.rel = 'stylesheet';
+      const link = document.createElement("link");
+      link.href = "/src/assets/employer/assets/css/bootstrap.min.css";
+      link.rel = "preload";
+      link.as = "style";
+      link.onload = () => (link.rel = "stylesheet");
       document.head.appendChild(link);
 
       // Add a small delay to ensure styles are loaded
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       setIsLoading(false);
     };
 
@@ -293,8 +300,10 @@ const EmployeerPostJob = () => {
     // Cleanup
     return () => {
       // Remove any dynamically added styles
-      const links = document.querySelectorAll('link[rel="preload"][as="style"]');
-      links.forEach(link => link.remove());
+      const links = document.querySelectorAll(
+        'link[rel="preload"][as="style"]'
+      );
+      links.forEach((link) => link.remove());
     };
   }, []);
 
@@ -312,7 +321,12 @@ const EmployeerPostJob = () => {
       }
 
       const response = await axios.get(
-        `https://api.edprofio.com/employer/fetchjob/${employerData._id}`
+        `${import.meta.env.VITE_BASE_URL}/employer/fetchjob/${employerData._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       // Handle case when no jobs are found (empty array or no data)
@@ -336,8 +350,9 @@ const EmployeerPostJob = () => {
         location: job.location,
         salaryFrom: job.salaryFrom || 0,
         salaryTo: job.salaryTo || 0,
-        salary: `${job.salaryFrom || "N/A"} - ${job.salaryTo || "N/A"} ${job.salaryType || ""
-          }`,
+        salary: `${job.salaryFrom || "N/A"} - ${job.salaryTo || "N/A"} ${
+          job.salaryType || ""
+        }`,
         experience: job.experienceLevel || "Not specified",
         type: job.jobType || "Not specified",
         category: job.category || "Not specified",
@@ -378,10 +393,10 @@ const EmployeerPostJob = () => {
       return isNaN(date)
         ? "Invalid Date"
         : date.toLocaleDateString("en-US", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        });
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          });
     } catch (e) {
       return "Invalid Date";
     }
@@ -542,7 +557,6 @@ const EmployeerPostJob = () => {
       const response = await getIsEmployerSubscribed(employerData._id);
       console.log(response);
 
-
       if (response.data.subscribed === "false") {
         setShowUpgradeModal(true);
       } else {
@@ -695,14 +709,17 @@ const EmployeerPostJob = () => {
   // Show loading state while styles are being loaded
   if (isLoading) {
     return (
-      <div className="employer-loading" style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        width: '100%',
-        backgroundColor: '#f8f9fa'
-      }}>
+      <div
+        className="employer-loading"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          width: "100%",
+          backgroundColor: "#f8f9fa",
+        }}
+      >
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -714,10 +731,26 @@ const EmployeerPostJob = () => {
     <>
       <Helmet>
         {/* Preload critical CSS */}
-        <link rel="preload" href="/src/assets/employer/assets/css/bootstrap.min.css" as="style" onLoad="this.onload=null;this.rel='stylesheet'" />
-        <link rel="preload" href="/src/assets/employer/assets/css/style.css" as="style" onLoad="this.onload=null;this.rel='stylesheet'" />
-        <link rel="stylesheet" href="/src/assets/employer/assets/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="/src/assets/employer/assets/css/style.css" />
+        <link
+          rel="preload"
+          href="/src/assets/employer/assets/css/bootstrap.min.css"
+          as="style"
+          onLoad="this.onload=null;this.rel='stylesheet'"
+        />
+        <link
+          rel="preload"
+          href="/src/assets/employer/assets/css/style.css"
+          as="style"
+          onLoad="this.onload=null;this.rel='stylesheet'"
+        />
+        <link
+          rel="stylesheet"
+          href="/src/assets/employer/assets/css/bootstrap.min.css"
+        />
+        <link
+          rel="stylesheet"
+          href="/src/assets/employer/assets/css/style.css"
+        />
 
         {/* Add scoping class to body when this component mounts */}
         <script type="text/javascript">
@@ -748,15 +781,16 @@ const EmployeerPostJob = () => {
                 {selectedDateRange}
               </button>
               <ul
-                className={`dropdown-menu dropdown-menu-end p-3 ${activeDropdown === "dateRange" ||
+                className={`dropdown-menu dropdown-menu-end p-3 ${
+                  activeDropdown === "dateRange" ||
                   activeDropdown === "customRange"
-                  ? "show"
-                  : ""
-                  }`}
+                    ? "show"
+                    : ""
+                }`}
                 style={{
                   display:
                     activeDropdown === "dateRange" ||
-                      activeDropdown === "customRange"
+                    activeDropdown === "customRange"
                       ? "block"
                       : "none",
                   minWidth: "280px",
@@ -1063,8 +1097,9 @@ const Dropdown = ({ title, options, selected, multiSelect, onSelect }) => {
           <li key={index}>
             <a
               href="javascript:void(0);"
-              className={`dropdown-item rounded-1 ${multiSelect && selected?.includes(option) ? "active" : ""
-                }`}
+              className={`dropdown-item rounded-1 ${
+                multiSelect && selected?.includes(option) ? "active" : ""
+              }`}
               onClick={() => onSelect(option)}
             >
               {option}
@@ -1144,8 +1179,9 @@ const FilterSidebar = ({
           </h2>
           <div
             id="layoutsetting"
-            className={`accordion-collapse collapse ${openAccordions.layoutsetting ? "show" : ""
-              }`}
+            className={`accordion-collapse collapse ${
+              openAccordions.layoutsetting ? "show" : ""
+            }`}
           >
             <div className="accordion-body">
               <div className="row gx-3">
@@ -1191,8 +1227,9 @@ const FilterSidebar = ({
           </h2>
           <div
             id="layoutsetting1"
-            className={`accordion-collapse collapse ${openAccordions.layoutsetting1 ? "show" : ""
-              }`}
+            className={`accordion-collapse collapse ${
+              openAccordions.layoutsetting1 ? "show" : ""
+            }`}
           >
             <div className="accordion-body">
               <div className="row">
@@ -1238,8 +1275,9 @@ const FilterSidebar = ({
           </h2>
           <div
             id="salaryFilter"
-            className={`accordion-collapse collapse ${openAccordions.salaryFilter ? "show" : ""
-              }`}
+            className={`accordion-collapse collapse ${
+              openAccordions.salaryFilter ? "show" : ""
+            }`}
           >
             <div className="accordion-body pb-0">
               <div className="row gx-3">
@@ -1294,8 +1332,9 @@ const FilterSidebar = ({
           </h2>
           <div
             id="locationFilter"
-            className={`accordion-collapse collapse ${openAccordions.locationFilter ? "show" : ""
-              }`}
+            className={`accordion-collapse collapse ${
+              openAccordions.locationFilter ? "show" : ""
+            }`}
           >
             <div className="accordion-body">
               <div className="d-flex align-items-center">
@@ -1381,7 +1420,6 @@ const FilterSidebar = ({
   );
 };
 
-
 const StatsSection = ({ jobs }) => {
   const totalJobs = jobs.length;
   const totalApplicants = jobs.reduce((sum, job) => sum + job.applicants, 0);
@@ -1390,8 +1428,8 @@ const StatsSection = ({ jobs }) => {
       sum +
       (job.applications
         ? job.applications.filter(
-          (app) => app.employapplicantstatus === "Pending"
-        ).length
+            (app) => app.employapplicantstatus === "Pending"
+          ).length
         : 0)
     );
   }, 0);
@@ -1400,8 +1438,8 @@ const StatsSection = ({ jobs }) => {
       sum +
       (job.applications
         ? job.applications.filter(
-          (app) => app.employapplicantstatus === "Shortlisted"
-        ).length
+            (app) => app.employapplicantstatus === "Shortlisted"
+          ).length
         : 0)
     );
   }, 0);
@@ -1440,8 +1478,8 @@ const StatsSection = ({ jobs }) => {
           sum +
           (job.applications
             ? job.applications.filter(
-              (app) => new Date(app.appliedDate) > oneWeekAgo
-            ).length
+                (app) => new Date(app.appliedDate) > oneWeekAgo
+              ).length
             : 0)
         );
       }, 0),
@@ -1480,8 +1518,9 @@ const StatsSection = ({ jobs }) => {
                 <div className="d-flex mt-2">
                   <p className="fs-12 fw-normal d-flex align-items-center text-truncate">
                     <span
-                      className={`fs-12 d-flex align-items-center me-1 ${stat.trendPositive ? "text-success" : "text-danger"
-                        }`}
+                      className={`fs-12 d-flex align-items-center me-1 ${
+                        stat.trendPositive ? "text-success" : "text-danger"
+                      }`}
                     >
                       <ArrowUpRight className="me-1" />
                       {stat.trend}
@@ -1607,7 +1646,6 @@ const JobsByStatusChart = ({ jobs }) => {
           </div>
         </div>
       </div>
-
     </div>
   );
 };
@@ -1624,6 +1662,7 @@ const AddPostModal = ({
   const [formData, setFormData] = useState({
     employid: "",
     companyName: "",
+    employerType: "",
     jobTitle: "",
     description: "",
     category: "",
@@ -1657,7 +1696,7 @@ const AddPostModal = ({
 
       const token = localStorage.getItem("authToken");
       const response = await axios.get(
-        `https://api.edprofio.com/employer/fetchemployer/${employerData._id}`,
+        `${import.meta.env.VITE_BASE_URL}/employer/fetchemployer/${employerData._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1745,6 +1784,7 @@ const AddPostModal = ({
           }),
         employid: employerData._id,
         companyName: formData.companyName,
+        employerType: formData.employerType,
         jobTitle: formData.jobTitle,
         description: formData.description,
         category: formData.category,
@@ -1771,17 +1811,24 @@ const AddPostModal = ({
       };
 
       const response = await axios.post(
-        "https://api.edprofio.com/employer/postjob",
+        `${import.meta.env.VITE_BASE_URL}/employer/postjob`,
         submitData
       );
 
       if (response.data) {
+        if (response.data.success === false) {
+          alert(response.data.message || "Failed to post job.");
+          return;
+        }
         onSubmit();
         refreshJobs();
       }
     } catch (error) {
       console.error("Error posting job:", error);
-      alert("Failed to post job. Please try again.");
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to post job. Please try again.";
+      alert(errorMessage);
     }
   };
 
@@ -1809,8 +1856,9 @@ const AddPostModal = ({
                 <ul className="nav nav-underline" id="myTab" role="tablist">
                   <li className="nav-item" role="presentation">
                     <button
-                      className={`nav-link ${activeTab === "basic-info" ? "active" : ""
-                        }`}
+                      className={`nav-link ${
+                        activeTab === "basic-info" ? "active" : ""
+                      }`}
                       onClick={() => onTabChange("basic-info")}
                     >
                       Basic Information
@@ -1818,8 +1866,9 @@ const AddPostModal = ({
                   </li>
                   <li className="nav-item" role="presentation">
                     <button
-                      className={`nav-link ${activeTab === "address" ? "active" : ""
-                        }`}
+                      className={`nav-link ${
+                        activeTab === "address" ? "active" : ""
+                      }`}
                       onClick={() => onTabChange("address")}
                     >
                       Location
@@ -1875,8 +1924,6 @@ const AddPostModal = ({
     </div>
   );
 };
-
-
 
 // Fixed AddressTab
 const AddressTab = ({ formData, onInputChange }) => {
@@ -1992,10 +2039,6 @@ const AddressTab = ({ formData, onInputChange }) => {
           </div>
         </div>
       </div>
-
-
-
-
     </div>
   );
 };
@@ -2035,7 +2078,7 @@ const UpgradePlanModal = ({ onClose, onUpgrade }) => {
   return (
     <div
       className="modal fade show"
-      style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}
+      style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
     >
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content">
@@ -2049,8 +2092,14 @@ const UpgradePlanModal = ({ onClose, onUpgrade }) => {
             ></button>
           </div>
           <div className="modal-body">
-            <p>You need to upgrade your plan to post jobs. Please choose a plan that best fits your needs to continue.</p>
-            <p>Our plans offer various features including multiple job postings, featured listings, and more.</p>
+            <p>
+              You need to upgrade your plan to post jobs. Please choose a plan
+              that best fits your needs to continue.
+            </p>
+            <p>
+              Our plans offer various features including multiple job postings,
+              featured listings, and more.
+            </p>
           </div>
           <div className="modal-footer">
             <button
