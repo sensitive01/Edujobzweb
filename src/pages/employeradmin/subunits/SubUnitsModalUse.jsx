@@ -139,8 +139,14 @@ const SubUnitsModalUse = () => {
 
   const handleDeleteConfirmed = async () => {
     try {
+      const token = localStorage.getItem("EmployerAdminToken");
       await axios.delete(
-        `${import.meta.env.VITE_BASE_URL}/employeradmin/${selectedUnit.id}`
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/${selectedUnit.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       setUnits(units.filter((unit) => unit.id !== selectedUnit.id));
       setItemToDelete(false);
@@ -180,13 +186,13 @@ const SubUnitsModalUse = () => {
           units.map((unit) =>
             unit.id === selectedUnit.id
               ? {
-                  ...unit,
-                  name: response.data.data.schoolName,
-                  email: response.data.data.userEmail,
-                  phone: response.data.data.userMobile,
-                  location: `${response.data.data.city}, ${response.data.data.state}`,
-                  originalData: response.data.data,
-                }
+                ...unit,
+                name: response.data.data.schoolName,
+                email: response.data.data.userEmail,
+                phone: response.data.data.userMobile,
+                location: `${response.data.data.city}, ${response.data.data.state}`,
+                originalData: response.data.data,
+              }
               : unit
           )
         );
@@ -230,8 +236,8 @@ const SubUnitsModalUse = () => {
           </thead>
           <tbody>
             ${units
-              .map(
-                (unit) => `
+        .map(
+          (unit) => `
               <tr>
                 <td>${unit.name}</td>
                 <td>${unit.email}</td>
@@ -240,8 +246,8 @@ const SubUnitsModalUse = () => {
                 <td>${unit.rating}</td>
               </tr>
             `
-              )
-              .join("")}
+        )
+        .join("")}
           </tbody>
         </table>
         
@@ -355,9 +361,8 @@ const SubUnitsModalUse = () => {
                   <i className="ti ti-file-export me-1"></i>Export
                 </a>
                 <ul
-                  className={`dropdown-menu dropdown-menu-end p-3 ${
-                    showExportDropdown ? "show" : ""
-                  }`}
+                  className={`dropdown-menu dropdown-menu-end p-3 ${showExportDropdown ? "show" : ""
+                    }`}
                   style={{ display: showExportDropdown ? "block" : "none" }}
                 >
                   <li>
