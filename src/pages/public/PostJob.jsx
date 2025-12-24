@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { postJob } from "../../api/services/projectServices";
 import { useNavigate } from "react-router-dom";
 import { useEmployeeRegistration } from "../../hooks/useEmployeeRegistration";
@@ -151,8 +151,8 @@ const PostJob = () => {
     } catch (error) {
       setOtpError(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Failed to send OTP"
+        error.response?.data?.error ||
+        "Failed to send OTP"
       );
     } finally {
       setIsSendingOtp(false);
@@ -170,13 +170,10 @@ const PostJob = () => {
     setOtpError("");
 
     try {
-      const response = await axios.post(
-        `${VITE_BASE_URL}/employer/verifyemailotp`,
-        {
-          userEmail: formData.contactEmail,
-          otp,
-        }
-      );
+      const response = await axios.post(`${VITE_BASE_URL}/verify-otp`, {
+        email: formData.contactEmail,
+        otp,
+      });
 
       if (response.status === 200) {
         setIsOtpVerified(true);
@@ -281,7 +278,7 @@ const PostJob = () => {
         // that falls out of the range of 2xx
         setError(
           err.response.data?.message ||
-            "An error occurred while processing your request"
+          "An error occurred while processing your request"
         );
       } else if (err.request) {
         // The request was made but no response was received
@@ -739,9 +736,8 @@ const PostJob = () => {
                         <button
                           type="button"
                           onClick={verifyOtp}
-                          className={`btn ${
-                            isOtpVerified ? "btn-success" : "btn-primary"
-                          }`}
+                          className={`btn ${isOtpVerified ? "btn-success" : "btn-primary"
+                            }`}
                           style={{
                             whiteSpace: "nowrap",
                             padding: "10px 15px",
@@ -752,8 +748,8 @@ const PostJob = () => {
                           {isVerifyingOtp
                             ? "Verifying..."
                             : isOtpVerified
-                            ? "✓ Verified"
-                            : "Verify"}
+                              ? "✓ Verified"
+                              : "Verify"}
                         </button>
                       )}
                     </div>
