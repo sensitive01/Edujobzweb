@@ -166,7 +166,7 @@ export const uploadProfilePicture = async (id, formData, token) => {
 
 export const postJob = async (jobData) => {
   try {
-    const response = await projectServices.post("/job", jobData);
+    const response = await projectServices.post("/employer/postjob", jobData);
     return response.data;
   } catch (error) {
     const errorMessage = error.response?.data?.message ||

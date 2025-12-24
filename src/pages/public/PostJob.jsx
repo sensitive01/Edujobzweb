@@ -134,9 +134,12 @@ const PostJob = () => {
     setOtpError("");
 
     try {
-      const response = await axios.post(`${VITE_BASE_URL}/sendemailotp`, {
-        userEmail: formData.contactEmail,
-      });
+      const response = await axios.post(
+        `${VITE_BASE_URL}/employer/sendemailotp`,
+        {
+          userEmail: formData.contactEmail,
+        }
+      );
       console.log("response", response);
 
       if (response.status === 200) {
@@ -167,12 +170,15 @@ const PostJob = () => {
     setOtpError("");
 
     try {
-      const response = await axios.post(`${VITE_BASE_URL}/verify-otp`, {
-        email: formData.contactEmail,
-        otp,
-      });
+      const response = await axios.post(
+        `${VITE_BASE_URL}/employer/verifyemailotp`,
+        {
+          userEmail: formData.contactEmail,
+          otp,
+        }
+      );
 
-      if (response.data.success) {
+      if (response.status === 200) {
         setIsOtpVerified(true);
         setOtpError("");
       } else {
@@ -180,7 +186,11 @@ const PostJob = () => {
         setIsOtpVerified(false);
       }
     } catch (error) {
-      setOtpError(error.response?.data?.message || error.response?.data?.error || "Verification failed");
+      setOtpError(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Verification failed"
+      );
       setIsOtpVerified(false);
     } finally {
       setIsVerifyingOtp(false);
@@ -214,7 +224,12 @@ const PostJob = () => {
         };
 
         const response = await schoolregister(employerData);
-        employid = response.data.employid || response.data.id;
+        employid =
+          response.user?._id ||
+          response.employid ||
+          response.id ||
+          response.data?.employid ||
+          response.data?.id;
       } catch (err) {
         const errorMessage =
           err.response?.data?.message ||
