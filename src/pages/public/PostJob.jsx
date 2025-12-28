@@ -151,8 +151,8 @@ const PostJob = () => {
     } catch (error) {
       setOtpError(
         error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Failed to send OTP"
+          error.response?.data?.error ||
+          "Failed to send OTP"
       );
     } finally {
       setIsSendingOtp(false);
@@ -170,8 +170,8 @@ const PostJob = () => {
     setOtpError("");
 
     try {
-      const response = await axios.post(`${VITE_BASE_URL}/verify-otp`, {
-        email: formData.contactEmail,
+      const response = await axios.post(`${VITE_BASE_URL}/employer/verifyemailotp`, {
+        userEmail: formData.contactEmail,
         otp,
       });
 
@@ -192,6 +192,13 @@ const PostJob = () => {
     } finally {
       setIsVerifyingOtp(false);
     }
+  };
+
+  const handleEditEmail = () => {
+    setIsOtpSent(false);
+    setIsOtpVerified(false);
+    setOtp("");
+    setOtpError("");
   };
 
   const handleSubmit = async (e) => {
@@ -278,7 +285,7 @@ const PostJob = () => {
         // that falls out of the range of 2xx
         setError(
           err.response.data?.message ||
-          "An error occurred while processing your request"
+            "An error occurred while processing your request"
         );
       } else if (err.request) {
         // The request was made but no response was received
@@ -736,8 +743,9 @@ const PostJob = () => {
                         <button
                           type="button"
                           onClick={verifyOtp}
-                          className={`btn ${isOtpVerified ? "btn-success" : "btn-primary"
-                            }`}
+                          className={`btn ${
+                            isOtpVerified ? "btn-success" : "btn-primary"
+                          }`}
                           style={{
                             whiteSpace: "nowrap",
                             padding: "10px 15px",
@@ -748,8 +756,8 @@ const PostJob = () => {
                           {isVerifyingOtp
                             ? "Verifying..."
                             : isOtpVerified
-                              ? "✓ Verified"
-                              : "Verify"}
+                            ? "✓ Verified"
+                            : "Verify"}
                         </button>
                       )}
                     </div>
@@ -758,12 +766,31 @@ const PostJob = () => {
                   {/* Status messages */}
                   <div style={{ marginBottom: "15px" }}>
                     {isOtpSent && !isOtpVerified && (
-                      <small
-                        className="text-muted"
-                        style={{ display: "block", marginBottom: "5px" }}
-                      >
-                        📧 OTP sent to your email
-                      </small>
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <small className="text-muted">
+                          📧 OTP sent to {formData.contactEmail}
+                        </small>
+                        <div>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-link"
+                            onClick={sendOtp}
+                            disabled={isSendingOtp}
+                            style={{ textDecoration: "none" }}
+                          >
+                            {isSendingOtp ? "Resending..." : "Resend OTP"}
+                          </button>
+                          <span className="mx-2 text-muted">|</span>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-link text-danger"
+                            onClick={handleEditEmail}
+                            style={{ textDecoration: "none" }}
+                          >
+                            Change Email
+                          </button>
+                        </div>
+                      </div>
                     )}
                     {isOtpVerified && (
                       <small

@@ -141,7 +141,7 @@ const SubUnitsModalUse = () => {
     try {
       const token = localStorage.getItem("EmployerAdminToken");
       await axios.delete(
-        `${import.meta.env.VITE_BASE_URL}/employeradmin/${selectedUnit.id}`,
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/deleteunit/${selectedUnit.id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
