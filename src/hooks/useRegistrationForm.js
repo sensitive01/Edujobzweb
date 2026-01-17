@@ -8,7 +8,7 @@
 //     userPassword: '',
 //     confirmPassword: ''
 //   });
-  
+
 //   const [errors, setErrors] = useState({});
 
 //   const handleChange = (e) => {
@@ -21,12 +21,12 @@
 
 //   const handleSubmit = (e) => {
 //     e.preventDefault();
-    
+
 //     // Run validation if provided
 //     if (validate) {
 //       const validationErrors = validate(values);
 //       setErrors(validationErrors);
-      
+
 //       if (Object.keys(validationErrors).length === 0) {
 //         callback(values);
 //       }
@@ -52,9 +52,10 @@ export const useRegistrationForm = (callback, validate) => {
     userMobile: '',
     userEmail: '',
     userPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    referralCode: ''
   });
-  
+
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState(null); // Add this line for API errors
 
@@ -64,7 +65,7 @@ export const useRegistrationForm = (callback, validate) => {
       ...values,
       [name]: value
     });
-    
+
     // Clear error when user types
     if (errors[name]) {
       setErrors(prev => ({
@@ -77,7 +78,7 @@ export const useRegistrationForm = (callback, validate) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Clear previous errors
     setErrors({});
     setApiError(null);
@@ -86,7 +87,7 @@ export const useRegistrationForm = (callback, validate) => {
     if (validate) {
       const validationErrors = validate(values);
       setErrors(validationErrors);
-      
+
       if (Object.keys(validationErrors).length > 0) {
         return;
       }
@@ -98,11 +99,11 @@ export const useRegistrationForm = (callback, validate) => {
       // Handle API errors here
       const errorData = err.response?.data;
       const errorMessage = errorData?.message || 'Registration failed';
-      
+
       // Handle duplicate email/mobile errors
       if (errorData?.errors) {
         const newErrors = {};
-        
+
         errorData.errors.forEach(error => {
           if (error.path === 'userEmail') {
             newErrors.userEmail = 'Email is already registered';

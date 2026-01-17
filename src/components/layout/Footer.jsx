@@ -140,7 +140,7 @@ const Footer = () => {
                       <i className="icon icon-phone"></i> &nbsp; Phone:
                     </strong>
                     <span className="sub-text">
-                      <a href="tel:">(+91) 123 456 7890</a>
+                      <a href="tel:">(+91) 7022913737</a>
                     </span>
                   </li>
                   <li>

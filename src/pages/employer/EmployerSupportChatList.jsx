@@ -24,6 +24,178 @@ const EmployerSupportChatList = () => {
   const fileInputRef = useRef(null);
   const audioRecorderRef = useRef(null);
 
+  // Call State
+  const [socket, setSocket] = useState(null);
+  const [me, setMe] = useState("");
+  const [stream, setStream] = useState(null);
+  const [receivingCall, setReceivingCall] = useState(false);
+  const [caller, setCaller] = useState("");
+  const [callerSignal, setCallerSignal] = useState(null);
+  const [callAccepted, setCallAccepted] = useState(false);
+  const [idToCall, setIdToCall] = useState("");
+  const [callEnded, setCallEnded] = useState(false);
+  const [name, setName] = useState("");
+  const [isVideoCall, setIsVideoCall] = useState(false);
+  const [showCallModal, setShowCallModal] = useState(false);
+
+  const myVideo = useRef();
+  const userVideo = useRef();
+  const connectionRef = useRef();
+
+  // Socket initialization
+  useEffect(() => {
+    const newSocket = io(
+      import.meta.env.VITE_BASE_URL.replace("/api", "") ||
+        "http://localhost:4000",
+    );
+    setSocket(newSocket);
+
+    const storedEmployerData = localStorage.getItem("employerData");
+    if (storedEmployerData) {
+      const parsedData = JSON.parse(storedEmployerData);
+      newSocket.emit("join_conversation", parsedData._id); // Join room with ID
+
+      newSocket.on("me", (id) => {
+        setMe(id);
+        console.log("My Socket ID:", id);
+      });
+    }
+
+    return () => newSocket.disconnect();
+  }, []);
+
+  // Socket Event Listeners for Calls
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("callUser", (data) => {
+      console.log("Incoming call:", data);
+      setReceivingCall(true);
+      setCaller(data.from);
+      setName(data.name);
+      setCallerSignal(data.signal);
+      setIsVideoCall(data.isVideo);
+      setShowCallModal(true);
+    });
+
+    socket.on("callAccepted", (signal) => {
+      setCallAccepted(true);
+      connectionRef.current?.signal(signal);
+    });
+
+    socket.on("endCall", () => {
+      setCallEnded(true);
+      leaveCall(false);
+      setShowCallModal(false);
+    });
+
+    return () => {
+      socket.off("callUser");
+      socket.off("callAccepted");
+      socket.off("endCall");
+    };
+  }, [socket]);
+
+  // Call Functions
+  const answerCall = () => {
+    setCallAccepted(true);
+    // Get media stream
+    navigator.mediaDevices
+      .getUserMedia({ video: isVideoCall, audio: true })
+      .then((currentStream) => {
+        setStream(currentStream);
+        if (myVideo.current) {
+          myVideo.current.srcObject = currentStream;
+        }
+
+        const peer = new Peer({
+          initiator: false,
+          trickle: false,
+          stream: currentStream,
+        });
+
+        peer.on("signal", (data) => {
+          socket.emit("answerCall", { signal: data, to: caller });
+        });
+
+        peer.on("stream", (currentStream) => {
+          if (userVideo.current) {
+            userVideo.current.srcObject = currentStream;
+          }
+        });
+
+        peer.signal(callerSignal);
+        connectionRef.current = peer;
+      });
+  };
+
+  const callUser = (id, video = false) => {
+    setIsVideoCall(video);
+    setShowCallModal(true);
+    setCallEnded(false); // Reset call ended state
+
+    navigator.mediaDevices
+      .getUserMedia({ video: video, audio: true })
+      .then((currentStream) => {
+        setStream(currentStream);
+        if (myVideo.current) {
+          myVideo.current.srcObject = currentStream;
+        }
+
+        const peer = new Peer({
+          initiator: true,
+          trickle: false,
+          stream: currentStream,
+        });
+
+        peer.on("signal", (data) => {
+          socket.emit("callUser", {
+            userToCall: id,
+            signalData: data,
+            from: employerData._id,
+            name: employerData?.companyName || "Employer", // Use relevant name
+            isVideo: video,
+          });
+        });
+
+        peer.on("stream", (currentStream) => {
+          if (userVideo.current) {
+            userVideo.current.srcObject = currentStream;
+          }
+        });
+
+        socket.on("callAccepted", (signal) => {
+          setCallAccepted(true);
+          peer.signal(signal);
+        });
+
+        connectionRef.current = peer;
+      });
+  };
+
+  const leaveCall = (emitEvent = true) => {
+    setCallEnded(true);
+    if (emitEvent && selectedChat) {
+      // Determine who to send 'endCall' to
+      const targetId = receivingCall ? caller : selectedChat.employeeId; // Simplification, ideally use socket ID
+      socket.emit("endCall", { to: targetId });
+    }
+
+    connectionRef.current?.destroy();
+    // Stop all tracks
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      setStream(null);
+    }
+
+    setShowCallModal(false);
+    setReceivingCall(false);
+    setCallAccepted(false);
+
+    // Refresh page or minimal UI reset if needed to clear video elements
+    // window.location.reload(); // Optional: brutal reset, better to just clear state
+  };
+
   // Get token from localStorage
   const getToken = () => {
     return localStorage.getItem("token");
@@ -49,7 +221,7 @@ const EmployerSupportChatList = () => {
           headers: {
             Authorization: `Bearer ${getToken()}`,
           },
-        }
+        },
       );
 
       // Enhance chat data with employee info
@@ -62,7 +234,7 @@ const EmployerSupportChatList = () => {
                 headers: {
                   Authorization: `Bearer ${getToken()}`,
                 },
-              }
+              },
             );
             return {
               ...chat,
@@ -79,7 +251,7 @@ const EmployerSupportChatList = () => {
               unreadCount: 0,
             };
           }
-        })
+        }),
       );
 
       setChats(enhancedChats);
@@ -99,7 +271,7 @@ const EmployerSupportChatList = () => {
           headers: {
             Authorization: `Bearer ${getToken()}`,
           },
-        }
+        },
       );
       setEmployeeData(response.data);
     } catch (error) {
@@ -121,7 +293,7 @@ const EmployerSupportChatList = () => {
           headers: {
             Authorization: `Bearer ${getToken()}`,
           },
-        }
+        },
       );
 
       // Update the chats to reflect the read status
@@ -129,8 +301,8 @@ const EmployerSupportChatList = () => {
         prevChats.map((chat) =>
           chat.employeeId === employeeId && chat.jobId === jobId
             ? { ...chat, unreadCount: 0 }
-            : chat
-        )
+            : chat,
+        ),
       );
     } catch (error) {
       console.error("Error marking messages as read:", error);
@@ -185,15 +357,15 @@ const EmployerSupportChatList = () => {
       mediaUrl: file
         ? URL.createObjectURL(file)
         : audioBlob
-        ? URL.createObjectURL(audioBlob)
-        : null,
+          ? URL.createObjectURL(audioBlob)
+          : null,
       mediaType: file
         ? file.type.startsWith("image")
           ? "image"
           : "file"
         : audioBlob
-        ? "audio"
-        : null,
+          ? "audio"
+          : null,
     };
 
     // Add to UI immediately
@@ -215,7 +387,7 @@ const EmployerSupportChatList = () => {
         formData.append("file", file);
         formData.append(
           "fileType",
-          file.type.startsWith("image") ? "image" : "file"
+          file.type.startsWith("image") ? "image" : "file",
         );
       } else if (audioBlob) {
         formData.append("file", audioBlob, "audio.webm");
@@ -483,7 +655,7 @@ const EmployerSupportChatList = () => {
                                 <span className="time">
                                   {new Date(chat.updatedAt).toLocaleTimeString(
                                     [],
-                                    { hour: "2-digit", minute: "2-digit" }
+                                    { hour: "2-digit", minute: "2-digit" },
                                   )}
                                 </span>
                                 <div className="chat-pin">
@@ -602,6 +774,31 @@ const EmployerSupportChatList = () => {
                           </li>
                           <li>
                             <a
+                              href="javascript:void(0)"
+                              className="btn chat-search-btn"
+                              onClick={() =>
+                                callUser(selectedChat.employeeId, false)
+                              }
+                              title="Audio Call"
+                            >
+                              <i className="ti ti-phone"></i>
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              href="javascript:void(0)"
+                              className="btn chat-search-btn"
+                              onClick={() =>
+                                callUser(selectedChat.employeeId, true)
+                              }
+                              title="Video Call"
+                            >
+                              <i className="ti ti-video-camera"></i>
+                            </a>
+                          </li>
+
+                          <li>
+                            <a
                               className="btn no-bg"
                               href="#"
                               data-bs-toggle="dropdown"
@@ -677,7 +874,7 @@ const EmployerSupportChatList = () => {
                           messages.map((message, index) => {
                             // Group messages by date
                             const messageDate = new Date(
-                              message.createdAt
+                              message.createdAt,
                             ).toLocaleDateString([], {
                               weekday: "long",
                               month: "short",
@@ -686,7 +883,7 @@ const EmployerSupportChatList = () => {
                             const prevMessageDate =
                               index > 0
                                 ? new Date(
-                                    messages[index - 1].createdAt
+                                    messages[index - 1].createdAt,
                                   ).toLocaleDateString([], {
                                     weekday: "long",
                                     month: "short",
@@ -936,7 +1133,7 @@ const EmployerSupportChatList = () => {
                                         <i className="ti ti-circle-filled fs-7 mx-2"></i>
                                         <span className="chat-time">
                                           {new Date(
-                                            message.createdAt
+                                            message.createdAt,
                                           ).toLocaleTimeString([], {
                                             hour: "2-digit",
                                             minute: "2-digit",
@@ -1155,6 +1352,89 @@ const EmployerSupportChatList = () => {
         </div>
       </div>
       <EmployerFooter />
+      <CallModal
+        show={showCallModal || (receivingCall && !callAccepted)}
+        onClose={() => leaveCall(true)}
+        onAnswer={answerCall}
+        callerName={name}
+        isVideo={isVideoCall}
+        isReceiving={receivingCall && !callAccepted}
+        onEndCall={() => leaveCall(true)}
+      />
+
+      {/* Video Call Interface Overlay */}
+      {callAccepted && !callEnded && (
+        <div
+          className="video-call-overlay"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "#202124",
+            zIndex: 10000,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div className="flex-grow-1 position-relative d-flex justify-content-center align-items-center">
+            {/* Remote Video */}
+            {callAccepted && !callEnded && (
+              <video
+                playsInline
+                ref={userVideo}
+                autoPlay
+                className="w-100 h-100"
+                style={{ objectFit: "contain" }}
+              />
+            )}
+
+            {/* Local Video (PiP) */}
+            {stream && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "20px",
+                  right: "20px",
+                  width: "200px",
+                  height: "150px",
+                  border: "2px solid #fff",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  zIndex: 10001,
+                }}
+              >
+                <video
+                  playsInline
+                  muted
+                  ref={myVideo}
+                  autoPlay
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="p-4 d-flex justify-content-center bg-dark">
+            <button
+              className="btn btn-danger rounded-circle p-3 mx-2"
+              onClick={() => leaveCall(true)}
+            >
+              <FaPhoneSlash size={24} color="white" />
+            </button>
+            <button
+              className="btn btn-secondary rounded-circle p-3 mx-2"
+              onClick={() => {
+                const audioTrack = stream.getAudioTracks()[0];
+                if (audioTrack) audioTrack.enabled = !audioTrack.enabled;
+              }}
+            >
+              <FaMicrophone size={24} color="white" />
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

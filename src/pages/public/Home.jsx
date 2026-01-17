@@ -14,21 +14,18 @@ import {
 import { FaSquarePen, FaSuitcase, FaUsers } from "react-icons/fa6";
 import { IoDocumentText } from "react-icons/io5";
 import { getJobAndEmployerCount } from "../../api/services/projectServices";
-import defaultAvatar from "../../../public/images/avatar-04.jpg"
-import leadership from "../../../src/assets/images/leadership.jpg"
-import Curriculum from "../../../src/assets/images/curriculum.jpg"
-import extracuricular from "../../../src/assets/images/extracuricular.jpg"
-import nonteaching from "../../../src/assets/images/nonteaching.jpg"
-import others from "../../../src/assets/images/others.jpg"
-import research from "../../../src/assets/images/research.jpg"
-import specialedu from "../../../src/assets/images/specialedu.jpg"
-import support from "../../../src/assets/images/support.jpg"
-import teaching from "../../../src/assets/images/teaching.jpg"
-import training from "../../../src/assets/images/training.jpg"
-import digital from "../../../src/assets/images/digital.jpg"
-
-
-
+import defaultAvatar from "../../../public/images/avatar-04.jpg";
+import leadership from "../../../src/assets/images/leadership.jpg";
+import Curriculum from "../../../src/assets/images/curriculum.jpg";
+import extracuricular from "../../../src/assets/images/extracuricular.jpg";
+import nonteaching from "../../../src/assets/images/nonteaching.jpg";
+import others from "../../../src/assets/images/others.jpg";
+import research from "../../../src/assets/images/research.jpg";
+import specialedu from "../../../src/assets/images/specialedu.jpg";
+import support from "../../../src/assets/images/support.jpg";
+import teaching from "../../../src/assets/images/teaching.jpg";
+import training from "../../../src/assets/images/training.jpg";
+import digital from "../../../src/assets/images/digital.jpg";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -132,7 +129,7 @@ const HomePage = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/employer/fetchjobs`
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchjobs`,
         );
         if (!response.ok) {
           throw new Error("Failed to fetch job data");
@@ -163,8 +160,8 @@ const HomePage = () => {
         const apiLocations = [
           ...new Set(
             data.flatMap((job) =>
-              job.isRemote ? ["Remote"] : [job.location || "India"]
-            )
+              job.isRemote ? ["Remote"] : [job.location || "India"],
+            ),
           ),
         ].filter(Boolean);
 
@@ -176,10 +173,10 @@ const HomePage = () => {
 
         // Extract unique job titles and categories
         const titles = [...new Set(data.map((job) => job.jobTitle))].filter(
-          Boolean
+          Boolean,
         );
         const cats = [...new Set(data.map((job) => job.category))].filter(
-          Boolean
+          Boolean,
         );
 
         // Calculate job counts per category
@@ -275,14 +272,14 @@ const HomePage = () => {
     {
       title: "Support and Student Welfare",
       iconBlue: support,
-      iconWhite:support,
+      iconWhite: support,
       lucideIcon: null,
       apiCategoryMatch: "Support",
     },
     {
       title: "Extracurricular Activities",
       iconBlue: extracuricular,
-      iconWhite:extracuricular,
+      iconWhite: extracuricular,
       lucideIcon: null,
       apiCategoryMatch: "Extracurricular",
     },
@@ -342,7 +339,7 @@ const HomePage = () => {
     // Find matching category from API data
     const apiCategory = Object.keys(categoryCounts).find(
       (c) =>
-        c.toLowerCase() === (cat.apiCategoryMatch || cat.title).toLowerCase()
+        c.toLowerCase() === (cat.apiCategoryMatch || cat.title).toLowerCase(),
     );
 
     const count = apiCategory ? categoryCounts[apiCategory] : 0;
@@ -369,7 +366,9 @@ const HomePage = () => {
                   EdProfio: A Growing Platform For Today's Educators
                 </h2>
                 <p align="center" className="text-dark">
-                  Join a community connected to 26 educational partners and explore 12+ career opportunities tailored to diverse skill sets.
+                  Join a community connected to 26 educational partners and
+                  explore 12+ career opportunities tailored to diverse skill
+                  sets.
                 </p>
 
                 {/* Search Form */}
@@ -467,16 +466,15 @@ const HomePage = () => {
               className="section-header text-center mb-40 mb-md-45"
               style={{ maxWidth: "800px" }}
             >
-              <p>
-                Advance Your Career with Leading Educational Institutions
-              </p>
+              <p>Advance Your Career with Leading Educational Institutions</p>
               <h2>
                 <span className="text-outlined text-secondary">
                   Browse by Jobs Category
                 </span>
               </h2>
               <b>
-                Browse by category and explore roles that match your skills and ambitions.
+                Browse by category and explore roles that match your skills and
+                ambitions.
               </b>
             </div>
 
@@ -519,7 +517,7 @@ const HomePage = () => {
                                 height: "95%",
                                 objectFit: "cover",
                                 borderRadius: "50%",
-                                aspectRatio: "1/1"
+                                aspectRatio: "1/1",
                               }}
                             />
                             <img
@@ -531,7 +529,7 @@ const HomePage = () => {
                                 height: "95%",
                                 objectFit: "cover",
                                 borderRadius: "50%",
-                                aspectRatio: "1/1"
+                                aspectRatio: "1/1",
                               }}
                             />
                           </>
@@ -579,7 +577,8 @@ const HomePage = () => {
                 <div className="text-white">
                   <h2 className="text-secondary">Your Ideal Jobs Awaits.</h2>
                   <p className="text-dark fw-bold">
-                    Discover over 1 Million job opportunities, find the one that's meant for you.
+                    Discover over 1 Million job opportunities, find the one
+                    that's meant for you.
                   </p>
                 </div>
               </div>
@@ -758,7 +757,7 @@ const HomePage = () => {
             </div>
           </div>
         </section>
-    
+
         {/* Testimonials Section with Manual Slider */}
         <section
           className="section section-theme-9 featured_Jobs_Block"
@@ -982,21 +981,69 @@ const HomePage = () => {
                     <strong>Your Future – Just a Tap Away</strong>
                   </p>
                   <div style={{ marginBottom: "20px" }}>
-                    <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
-                      <Check size={20} color="#3f71ef" style={{ marginRight: "10px" }} />
-                      <span><strong>Smart Job Matching</strong></span>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <Check
+                        size={20}
+                        color="#3f71ef"
+                        style={{ marginRight: "10px" }}
+                      />
+                      <span>
+                        <strong>Smart Job Matching</strong>
+                      </span>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
-                      <Check size={20} color="#3f71ef" style={{ marginRight: "10px" }} />
-                      <span><strong>Instant Notifications</strong></span>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <Check
+                        size={20}
+                        color="#3f71ef"
+                        style={{ marginRight: "10px" }}
+                      />
+                      <span>
+                        <strong>Instant Notifications</strong>
+                      </span>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
-                      <Check size={20} color="#3f71ef" style={{ marginRight: "10px" }} />
-                      <span><strong>Easy Apply</strong></span>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <Check
+                        size={20}
+                        color="#3f71ef"
+                        style={{ marginRight: "10px" }}
+                      />
+                      <span>
+                        <strong>Easy Apply</strong>
+                      </span>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
-                      <Check size={20} color="#3f71ef" style={{ marginRight: "10px" }} />
-                      <span><strong>Verified Employers & Candidates</strong></span>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <Check
+                        size={20}
+                        color="#3f71ef"
+                        style={{ marginRight: "10px" }}
+                      />
+                      <span>
+                        <strong>Verified Employers & Candidates</strong>
+                      </span>
                     </div>
                   </div>
                   <div className="download-btns">
@@ -1039,27 +1086,31 @@ const HomePage = () => {
         </section>
 
         {/* Let Employers Find You Section */}
-        <section className="section section-theme-9 bg-white" style={{ padding: "60px 0px" }}>
+        <section
+          className="section section-theme-9 bg-white"
+          style={{ padding: "60px 0px" }}
+        >
           <div className="container">
             <div className="row align-items-center">
               <div className="col-12 col-md-6">
                 <div className="text-content">
                   <h2 className="text-secondary mb-4">
-                    <strong>Let Employers Find You</strong>
+                    <strong>Let employers find you</strong>
                   </h2>
                   <p className="text-dark mb-4">
-                    Tap into the best employers zone designed to simplify hiring and speed up your on boarding.
+                    Tap into the best employers zone designed to simplify your
+                    hiring and speed up the on boarding process.
                   </p>
-                  <Link to="/register" className="btn btn-blue btn-lg">
+                  <Link to="/login" className="btn btn-blue btn-lg">
                     <i className="icon icon-user-plus"></i> Upload Profile
                   </Link>
                 </div>
               </div>
               <div className="col-12 col-md-6">
                 <div className="image-holder text-center">
-                  <img 
-                    src="/images/employers-find-you.png" 
-                    alt="Let Employers Find You" 
+                  <img
+                    src="/images/img-get-jobs.png"
+                    alt="Let Employers Find You"
                     style={{ maxWidth: "100%", height: "auto" }}
                   />
                 </div>

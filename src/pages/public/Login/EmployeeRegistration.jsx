@@ -18,10 +18,12 @@ const EmployeeRegistration = () => {
   const googleEmail = params.email || "";
   const googleName = params.name || "";
   const prefilledEmail = params.email || "";
+  const prefilledReferralCode = params.ref || "";
 
   console.log("Query params:", params);
   console.log("Prefilled email:", prefilledEmail);
   console.log("Google name:", googleName);
+  console.log("Referral code:", prefilledReferralCode);
 
   const navigate = useNavigate();
   const { register, isLoading, error, success, clearMessages } =
@@ -54,7 +56,7 @@ const EmployeeRegistration = () => {
         setTimeout(() => navigate("/login"), 2000);
       }
     },
-    validateRegistrationForm
+    validateRegistrationForm,
   );
 
   // Effect to prefill form data from query parameters
@@ -80,11 +82,24 @@ const EmployeeRegistration = () => {
       };
       handleChange(nameEvent);
     }
+
+    if (prefilledReferralCode && !values.referralCode) {
+      const refEvent = {
+        target: {
+          name: "referralCode",
+          value: prefilledReferralCode,
+          type: "text",
+        },
+      };
+      handleChange(refEvent);
+    }
   }, [
     prefilledEmail,
     googleName,
+    prefilledReferralCode,
     values.userEmail,
     values.userName,
+    values.referralCode,
     handleChange,
   ]);
 
@@ -108,7 +123,7 @@ const EmployeeRegistration = () => {
           validateStatus: function (status) {
             return status === 200 || status === 401;
           },
-        }
+        },
       );
 
       console.log("otp", response);
@@ -119,7 +134,7 @@ const EmployeeRegistration = () => {
         setOtpError("");
       } else if (response.status === 401) {
         setOtpError(
-          response.data.message || response.data.error || "User already exists"
+          response.data.message || response.data.error || "User already exists",
         );
       } else {
         setOtpError(response.data.error || "Failed to send OTP");
@@ -360,8 +375,8 @@ const EmployeeRegistration = () => {
                                   {isVerifyingOtp
                                     ? "Verifying..."
                                     : isOtpVerified
-                                    ? "Verified"
-                                    : "Verify"}
+                                      ? "Verified"
+                                      : "Verify"}
                                 </button>
                               )}
                             </div>
@@ -495,7 +510,16 @@ const EmployeeRegistration = () => {
                       )}
                     </div>
                     <div className="jobplugin__form-field">
-                      {/* Empty field to maintain layout */}
+                      <input
+                        type="text"
+                        name="referralCode"
+                        placeholder="Referral Code (Optional)"
+                        value={values.referralCode || ""}
+                        onChange={handleChange}
+                        className="form-control"
+                        style={{ padding: "5px 30px" }}
+                        // readOnly={!!prefilledReferralCode} // Optional: make it read-only if prefilled
+                      />
                     </div>
                   </div>
 

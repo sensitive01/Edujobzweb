@@ -165,7 +165,7 @@ const AppliedJobs = () => {
                   <h2 className="h5">Applied Jobs</h2>
                   <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                   <p className="jobplugin__settings-head__text">
-                    Your job applications will appear here
+                    Track all the jobs you've applied for in one place
                   </p>
                   {totalJobs > 0 && (
                     <p className="text-muted small">

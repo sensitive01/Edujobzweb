@@ -395,7 +395,7 @@ const AdminSupport = () => {
                 <div style={{ flexShrink: 0 }}>
                   <div className="chat-search-header">
                     <div className="header-title d-flex align-items-center justify-content-between">
-                      <h4 className="mb-3">Candidate Communications</h4>
+                      <h4 className="mb-3">Candidate Communicationss</h4>
                     </div>
 
                     {/* Chat Search */}

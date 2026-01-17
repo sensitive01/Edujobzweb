@@ -28,7 +28,8 @@ const Sidebar = ({ isOpen, onClose }) => {
       <style jsx>{`
         /* Base Styles */
         .sidebar-container {
-          width: 280px;
+          width: 300px;
+          min-width: 300px;
           height: 100vh;
           background: #ffffff;
           box-shadow: 2px 0 15px rgba(0, 0, 0, 0.08);
@@ -534,8 +535,6 @@ const Sidebar = ({ isOpen, onClose }) => {
               <span className="menu-text">Inbox</span>
             </a>
           </li>
-
-          
         </ul>
       </div>
     </div>

@@ -6,6 +6,74 @@ import Sidebar from "../../components/layout/Sidebar";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
+import appleIcon from "../../assets/employer/assets/img/icons/apple.svg";
+
+// Helper component for job logo
+const JobLogo = ({ src, alt, title }) => {
+  const [imgError, setImgError] = useState(false);
+
+  // Array of professional colors
+  const colors = [
+    "#4e73df",
+    "#1cc88a",
+    "#36b9cc",
+    "#f6c23e",
+    "#e74a3b",
+    "#6610f2",
+    "#fd7e14",
+    "#20c997",
+    "#5a5c69",
+    "#007bff",
+  ];
+
+  const getColor = (str) => {
+    if (!str) return colors[0];
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+  const letter = title ? title.charAt(0).toUpperCase() : "J";
+
+  if (!src || imgError) {
+    return (
+      <div
+        style={{
+          width: "78px",
+          height: "78px",
+          backgroundColor: getColor(title),
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "32px",
+          fontWeight: "bold",
+          borderRadius: "8px",
+        }}
+      >
+        {letter}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      width="78"
+      height="78"
+      onError={() => setImgError(true)}
+      style={{
+        borderRadius: "8px",
+        objectFit: "contain",
+        backgroundColor: "white",
+      }}
+    />
+  );
+};
+
 const ShortlistedJobs = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [shortlistedJobs, setShortlistedJobs] = useState([]);
@@ -31,7 +99,7 @@ const ShortlistedJobs = () => {
         }
 
         const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/fetchshorlitstedjobsemployee/${userData._id}`
+          `${import.meta.env.VITE_BASE_URL}/fetchshorlitstedjobsemployee/${userData._id}`,
         );
 
         if (response.data) {
@@ -47,7 +115,7 @@ const ShortlistedJobs = () => {
           setError(
             err.response?.data?.message ||
               err.message ||
-              "Failed to fetch shortlisted jobs"
+              "Failed to fetch shortlisted jobs",
           );
         }
       } finally {
@@ -96,8 +164,7 @@ const ShortlistedJobs = () => {
                   <h2 className="h5">Shortlisted Jobs</h2>
                   <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                   <p className="jobplugin__settings-head__text">
-                    Your applications that have progressed beyond the initial
-                    stage
+                    Jobs where you've passed the first screening
                   </p>
                 </div>
 
@@ -111,7 +178,7 @@ const ShortlistedJobs = () => {
                         const userApplication = job.applications.find(
                           (app) =>
                             app.applicantId ===
-                            JSON.parse(localStorage.getItem("userData"))._id
+                            JSON.parse(localStorage.getItem("userData"))._id,
                         );
 
                         return (
@@ -124,18 +191,10 @@ const ShortlistedJobs = () => {
                                 {job.jobType || "Full Time"}
                               </span>
                               <div className="img-holder">
-                                <img
-                                  src={
-                                    job.companyLogo ||
-                                    "images/default-company-logo.jpg"
-                                  }
-                                  width="78"
-                                  height="78"
+                                <JobLogo
+                                  src={job.companyLogo}
                                   alt={job.companyName}
-                                  onError={(e) => {
-                                    e.target.src =
-                                      "images/default-company-logo.jpg";
-                                  }}
+                                  title={job.jobTitle}
                                 />
                                 {job.employerProfilePic && (
                                   <div
@@ -159,8 +218,7 @@ const ShortlistedJobs = () => {
                                       style={{ objectFit: "cover" }}
                                       onError={(e) => {
                                         e.target.onerror = null;
-                                        e.target.src =
-                                          "/images/default-profile-pic.jpg";
+                                        e.target.src = appleIcon;
                                       }}
                                     />
                                   </div>
@@ -193,23 +251,18 @@ const ShortlistedJobs = () => {
                                     </strong>{" "}
                                     / {job.salaryType || "month"}
                                   </span>
-                                  <span className="subtext">
-                                    <b className="text-primary">Status:</b>{" "}
-                                    {userApplication?.employapplicantstatus ||
-                                      "Unknown"}
-                                  </span>
                                 </div>
-                                <div className="d-flex justify-content-between">
-                                  <a
-                                    href={`/job-details/${job._id}`}
+                                <div className="d-flex justify-content-between align-items-center mt-3">
+                                  <Link
+                                    to={`/job-details/${job._id}`}
                                     className="btn btn-dark-yellow btn-sm"
                                   >
                                     <span className="btn-text">
                                       <span className="text">View Details</span>
                                       <FaChevronRight className="icon-chevron-right" />
                                     </span>
-                                  </a>
-                                  <div className="badge bg-success">
+                                  </Link>
+                                  <div className="badge bg-success rounded-pill px-3 py-2">
                                     {userApplication?.employapplicantstatus ||
                                       "Unknown status"}
                                   </div>

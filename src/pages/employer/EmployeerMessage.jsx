@@ -729,6 +729,88 @@ import EmployerHeader from "./EmployerHeader";
 import EmployerFooter from "./EmployerFooter";
 import defaultEmployeeAvatar from "../../assets/employer/assets/img/profiles/avatar-01.jpg";
 import defaultEmployerAvatar from "../../assets/employer/assets/img/profiles/avatar-14.jpg";
+import io from "socket.io-client";
+import Peer from "simple-peer";
+import ReactDOM from "react-dom";
+import {
+  FaPhone,
+  FaVideo,
+  FaMicrophone,
+  FaMicrophoneSlash,
+  FaPhoneSlash,
+} from "react-icons/fa";
+
+// Call Modal Component
+const CallModal = ({
+  show,
+  onClose,
+  onAnswer,
+  callerName,
+  isVideo,
+  isReceiving,
+  onEndCall,
+}) => {
+  if (!show) return null;
+
+  return ReactDOM.createPortal(
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.7)",
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        className="bg-white rounded p-4 text-center shadow-lg"
+        style={{ minWidth: "300px" }}
+      >
+        <h4 className="mb-4">{isReceiving ? "Incoming Call" : "Calling..."}</h4>
+        <div className="mb-4">
+          {isVideo ? (
+            <FaVideo size={50} className="text-primary" />
+          ) : (
+            <FaPhone size={50} className="text-primary" />
+          )}
+        </div>
+        <h5 className="mb-4">{callerName || "Unknown"}</h5>
+
+        <div className="d-flex justify-content-center gap-3">
+          {isReceiving ? (
+            <>
+              <button
+                className="btn btn-success rounded-circle mx-2 p-3"
+                onClick={onAnswer}
+              >
+                <FaPhone size={20} />
+              </button>
+              <button
+                className="btn btn-danger rounded-circle mx-2 p-3"
+                onClick={onClose}
+              >
+                <FaPhoneSlash size={20} />
+              </button>
+            </>
+          ) : (
+            <button
+              className="btn btn-danger rounded-circle p-3"
+              onClick={onEndCall}
+            >
+              <FaPhoneSlash size={20} />
+            </button>
+          )}
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+};
 
 const ChatPage = () => {
   const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -748,6 +830,212 @@ const ChatPage = () => {
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const audioRecorderRef = useRef(null);
+  const ringtoneRef = useRef(null);
+
+  // Call State
+  const [socket, setSocket] = useState(null);
+  const [me, setMe] = useState("");
+  const [stream, setStream] = useState(null);
+  const [receivingCall, setReceivingCall] = useState(false);
+  const [caller, setCaller] = useState("");
+  const [callerSignal, setCallerSignal] = useState(null);
+  const [callAccepted, setCallAccepted] = useState(false);
+  const [idToCall, setIdToCall] = useState("");
+  const [callEnded, setCallEnded] = useState(false);
+  const [name, setName] = useState("");
+  const [isVideoCall, setIsVideoCall] = useState(false);
+  const [showCallModal, setShowCallModal] = useState(false);
+
+  const myVideo = useRef();
+  const userVideo = useRef();
+  const connectionRef = useRef();
+
+  // Socket initialization
+  useEffect(() => {
+    const newSocket = io(
+      import.meta.env.VITE_BASE_URL.replace("/api", "") ||
+        "http://localhost:4000",
+    );
+    setSocket(newSocket);
+
+    const storedEmployerData = localStorage.getItem("employerData");
+    if (storedEmployerData) {
+      const parsedData = JSON.parse(storedEmployerData);
+      newSocket.emit("join_conversation", parsedData._id); // Join room with ID
+
+      newSocket.on("me", (id) => {
+        setMe(id);
+        console.log("My Socket ID:", id);
+      });
+    }
+
+    return () => newSocket.disconnect();
+  }, []);
+
+  // Socket Event Listeners for Calls
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("callUser", (data) => {
+      console.log("Incoming call:", data);
+      setReceivingCall(true);
+      setCaller(data.from);
+      setName(data.name);
+      setCallerSignal(data.signal);
+      setIsVideoCall(data.isVideo);
+      setShowCallModal(true);
+
+      if (ringtoneRef.current) {
+        ringtoneRef.current
+          .play()
+          .catch((err) => console.error("Audio play error", err));
+      }
+    });
+
+    socket.on("callAccepted", (signal) => {
+      setCallAccepted(true);
+      if (ringtoneRef.current) {
+        ringtoneRef.current.pause();
+        ringtoneRef.current.currentTime = 0;
+      }
+      connectionRef.current?.signal(signal);
+    });
+
+    socket.on("endCall", () => {
+      setCallEnded(true);
+      leaveCall(false);
+      setShowCallModal(false);
+    });
+
+    return () => {
+      socket.off("callUser");
+      socket.off("callAccepted");
+      socket.off("endCall");
+    };
+  }, [socket]);
+
+  // Call Functions
+  const stopRingtone = () => {
+    if (ringtoneRef.current) {
+      ringtoneRef.current.pause();
+      ringtoneRef.current.currentTime = 0;
+    }
+  };
+
+  // Call Functions
+  const answerCall = () => {
+    setCallAccepted(true);
+    stopRingtone();
+    // Get media stream
+    navigator.mediaDevices
+      .getUserMedia({ video: isVideoCall, audio: true })
+      .then((currentStream) => {
+        setStream(currentStream);
+        if (myVideo.current) {
+          myVideo.current.srcObject = currentStream;
+        }
+
+        const peer = new Peer({
+          initiator: false,
+          trickle: false,
+          stream: currentStream,
+        });
+
+        peer.on("signal", (data) => {
+          socket.emit("answerCall", { signal: data, to: caller });
+        });
+
+        peer.on("stream", (currentStream) => {
+          if (userVideo.current) {
+            userVideo.current.srcObject = currentStream;
+          }
+        });
+
+        peer.signal(callerSignal);
+        connectionRef.current = peer;
+      });
+  };
+
+  const callUser = (id, video = false) => {
+    setIsVideoCall(video);
+    setShowCallModal(true);
+    setCallEnded(false); // Reset call ended state
+
+    navigator.mediaDevices
+      .getUserMedia({ video: video, audio: true })
+      .then((currentStream) => {
+        setStream(currentStream);
+        if (myVideo.current) {
+          myVideo.current.srcObject = currentStream;
+        }
+
+        const peer = new Peer({
+          initiator: true,
+          trickle: false,
+          stream: currentStream,
+        });
+
+        peer.on("signal", (data) => {
+          socket.emit("callUser", {
+            userToCall: id,
+            signalData: data,
+            from: employerData._id,
+            name: employerData?.companyName || "Employer", // Use relevant name
+            isVideo: video,
+          });
+        });
+
+        peer.on("stream", (currentStream) => {
+          if (userVideo.current) {
+            userVideo.current.srcObject = currentStream;
+          }
+        });
+
+        socket.on("callAccepted", (signal) => {
+          setCallAccepted(true);
+          if (ringtoneRef.current) {
+            ringtoneRef.current.pause();
+            ringtoneRef.current.currentTime = 0;
+          }
+          peer.signal(signal);
+        });
+
+        connectionRef.current = peer;
+      });
+
+    // Play ringback tone
+    if (ringtoneRef.current) {
+      try {
+        ringtoneRef.current
+          .play()
+          .catch((e) => console.log("Audio play failed", e));
+      } catch (err) {
+        console.log("Audio playback error", err);
+      }
+    }
+  };
+
+  const leaveCall = (emitEvent = true) => {
+    setCallEnded(true);
+    stopRingtone();
+
+    if (emitEvent && selectedChat) {
+      // Determine who to send 'endCall' to
+      const targetId = receivingCall ? caller : selectedChat.employeeId; // Simplification, ideally use socket ID
+      socket.emit("endCall", { to: targetId });
+    }
+
+    connectionRef.current?.destroy();
+    // Stop all tracks
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      setStream(null);
+    }
+
+    setShowCallModal(false);
+    setReceivingCall(false);
+    setCallAccepted(false);
+  };
 
   // Get token from localStorage
   const getToken = () => {
@@ -774,7 +1062,7 @@ const ChatPage = () => {
           headers: {
             Authorization: `Bearer ${getToken()}`,
           },
-        }
+        },
       );
 
       // Enhance chat data with employee info
@@ -787,7 +1075,7 @@ const ChatPage = () => {
                 headers: {
                   Authorization: `Bearer ${getToken()}`,
                 },
-              }
+              },
             );
             return {
               ...chat,
@@ -804,7 +1092,7 @@ const ChatPage = () => {
               unreadCount: 0,
             };
           }
-        })
+        }),
       );
 
       setChats(enhancedChats);
@@ -824,7 +1112,7 @@ const ChatPage = () => {
           headers: {
             Authorization: `Bearer ${getToken()}`,
           },
-        }
+        },
       );
       setEmployeeData(response.data);
     } catch (error) {
@@ -846,7 +1134,7 @@ const ChatPage = () => {
           headers: {
             Authorization: `Bearer ${getToken()}`,
           },
-        }
+        },
       );
 
       // Update the chats to reflect the read status
@@ -854,8 +1142,8 @@ const ChatPage = () => {
         prevChats.map((chat) =>
           chat.employeeId === employeeId && chat.jobId === jobId
             ? { ...chat, unreadCount: 0 }
-            : chat
-        )
+            : chat,
+        ),
       );
     } catch (error) {
       console.error("Error marking messages as read:", error);
@@ -910,15 +1198,15 @@ const ChatPage = () => {
       mediaUrl: file
         ? URL.createObjectURL(file)
         : audioBlob
-        ? URL.createObjectURL(audioBlob)
-        : null,
+          ? URL.createObjectURL(audioBlob)
+          : null,
       mediaType: file
         ? file.type.startsWith("image")
           ? "image"
           : "file"
         : audioBlob
-        ? "audio"
-        : null,
+          ? "audio"
+          : null,
     };
 
     // Add to UI immediately
@@ -940,7 +1228,7 @@ const ChatPage = () => {
         formData.append("file", file);
         formData.append(
           "fileType",
-          file.type.startsWith("image") ? "image" : "file"
+          file.type.startsWith("image") ? "image" : "file",
         );
       } else if (audioBlob) {
         formData.append("file", audioBlob, "audio.webm");
@@ -1208,7 +1496,7 @@ const ChatPage = () => {
                                 <span className="time">
                                   {new Date(chat.updatedAt).toLocaleTimeString(
                                     [],
-                                    { hour: "2-digit", minute: "2-digit" }
+                                    { hour: "2-digit", minute: "2-digit" },
                                   )}
                                 </span>
                                 <div className="chat-pin">
@@ -1327,6 +1615,30 @@ const ChatPage = () => {
                           </li>
                           <li>
                             <a
+                              href="javascript:void(0)"
+                              className="btn chat-search-btn"
+                              onClick={() =>
+                                callUser(selectedChat.employeeId, false)
+                              }
+                              title="Audio Call"
+                            >
+                              <FaPhone size={18} />
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              href="javascript:void(0)"
+                              className="btn chat-search-btn"
+                              onClick={() =>
+                                callUser(selectedChat.employeeId, true)
+                              }
+                              title="Video Call"
+                            >
+                              <FaVideo size={18} />
+                            </a>
+                          </li>
+                          <li>
+                            <a
                               className="btn no-bg"
                               href="#"
                               data-bs-toggle="dropdown"
@@ -1402,7 +1714,7 @@ const ChatPage = () => {
                           messages.map((message, index) => {
                             // Group messages by date
                             const messageDate = new Date(
-                              message.createdAt
+                              message.createdAt,
                             ).toLocaleDateString([], {
                               weekday: "long",
                               month: "short",
@@ -1411,7 +1723,7 @@ const ChatPage = () => {
                             const prevMessageDate =
                               index > 0
                                 ? new Date(
-                                    messages[index - 1].createdAt
+                                    messages[index - 1].createdAt,
                                   ).toLocaleDateString([], {
                                     weekday: "long",
                                     month: "short",
@@ -1661,7 +1973,7 @@ const ChatPage = () => {
                                         <i className="ti ti-circle-filled fs-7 mx-2"></i>
                                         <span className="chat-time">
                                           {new Date(
-                                            message.createdAt
+                                            message.createdAt,
                                           ).toLocaleTimeString([], {
                                             hour: "2-digit",
                                             minute: "2-digit",
@@ -1880,6 +2192,95 @@ const ChatPage = () => {
         </div>
       </div>
       <EmployerFooter />
+      <CallModal
+        show={showCallModal || (receivingCall && !callAccepted)}
+        onClose={() => leaveCall(true)}
+        onAnswer={answerCall}
+        callerName={name}
+        isVideo={isVideoCall}
+        isReceiving={receivingCall && !callAccepted}
+        onEndCall={() => leaveCall(true)}
+      />
+
+      {/* Video Call Interface Overlay */}
+      {callAccepted && !callEnded && (
+        <div
+          className="video-call-overlay"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "#202124",
+            zIndex: 10000,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div className="flex-grow-1 position-relative d-flex justify-content-center align-items-center">
+            {/* Remote Video */}
+            {callAccepted && !callEnded && (
+              <video
+                playsInline
+                ref={userVideo}
+                autoPlay
+                className="w-100 h-100"
+                style={{ objectFit: "contain" }}
+              />
+            )}
+
+            {/* Local Video (PiP) */}
+            {stream && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "20px",
+                  right: "20px",
+                  width: "200px",
+                  height: "150px",
+                  border: "2px solid #fff",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  zIndex: 10001,
+                }}
+              >
+                <video
+                  playsInline
+                  muted
+                  ref={myVideo}
+                  autoPlay
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="p-4 d-flex justify-content-center bg-dark">
+            <button
+              className="btn btn-danger rounded-circle p-3 mx-2"
+              onClick={() => leaveCall(true)}
+            >
+              <FaPhoneSlash size={24} color="white" />
+            </button>
+            <button
+              className="btn btn-secondary rounded-circle p-3 mx-2"
+              onClick={() => {
+                const audioTrack = stream.getAudioTracks()[0];
+                if (audioTrack) audioTrack.enabled = !audioTrack.enabled;
+              }}
+            >
+              <FaMicrophone size={24} color="white" />
+            </button>
+          </div>
+        </div>
+      )}
+      <audio
+        ref={ringtoneRef}
+        src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"
+        loop
+        hidden
+      />
     </>
   );
 };

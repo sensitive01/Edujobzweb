@@ -187,7 +187,7 @@ const SavedJobs = () => {
                   <h2 className="h5">Saved Jobs</h2>
                   <span className="jobplugin__settings-head__bar jobplugin__bg-primary"></span>
                   <p className="jobplugin__settings-head__text">
-                    Your bookmarked jobs appear here
+                    Your personalized list of saved jobs
                   </p>
                   {totalJobs > 0 && (
                     <p className="text-muted small">

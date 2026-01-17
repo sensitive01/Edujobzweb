@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import "./EmployeerPostJob.css"; // We'll create this file
 import {
@@ -24,14 +24,12 @@ import EmployerHeader from "./EmployerHeader";
 import EmployerFooter from "./EmployerFooter";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import defaultImage from "../../../public/images/jobImage.jpg";
 import BasicInfoTab from "./postjoccomponents/BasicInfoTab";
 import JobCard from "./postjoccomponents/JobCard";
 import { getIsEmployerSubscribed } from "../../api/services/projectServices";
 
 // Main Jobs Component
 const EmployeerPostJob = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("basic-info");
   const [showAddPostModal, setShowAddPostModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -62,14 +60,14 @@ const EmployeerPostJob = () => {
 
   // Extract unique values from jobs for filters
   const jobCategories = [...new Set(jobs.map((job) => job.category))].filter(
-    Boolean
+    Boolean,
   );
   const jobTypes = [...new Set(jobs.map((job) => job.type))].filter(Boolean);
   const statusOptions = [...new Set(jobs.map((job) => job.status))].filter(
-    Boolean
+    Boolean,
   );
   const jobRoles = ["All", ...new Set(jobs.map((job) => job.title))].filter(
-    Boolean
+    Boolean,
   );
 
   const sortOptions = [
@@ -266,7 +264,7 @@ const EmployeerPostJob = () => {
       link.setAttribute("href", url);
       link.setAttribute(
         "download",
-        `jobs_${new Date().toISOString().slice(0, 10)}.csv`
+        `jobs_${new Date().toISOString().slice(0, 10)}.csv`,
       );
       link.style.visibility = "hidden";
       document.body.appendChild(link);
@@ -278,33 +276,8 @@ const EmployeerPostJob = () => {
     }
   };
 
-  useLayoutEffect(() => {
-    // Load critical CSS first
-    const loadCriticalCSS = async () => {
-      // Preload critical CSS
-      const link = document.createElement("link");
-      link.href = "/src/assets/employer/assets/css/bootstrap.min.css";
-      link.rel = "preload";
-      link.as = "style";
-      link.onload = () => (link.rel = "stylesheet");
-      document.head.appendChild(link);
-
-      // Add a small delay to ensure styles are loaded
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      setIsLoading(false);
-    };
-
-    loadCriticalCSS();
+  useEffect(() => {
     fetchJobs();
-
-    // Cleanup
-    return () => {
-      // Remove any dynamically added styles
-      const links = document.querySelectorAll(
-        'link[rel="preload"][as="style"]'
-      );
-      links.forEach((link) => link.remove());
-    };
   }, []);
 
   useEffect(() => {
@@ -320,13 +293,15 @@ const EmployeerPostJob = () => {
         throw new Error("Employer not logged in or missing ID");
       }
 
+      const token = localStorage.getItem("token");
+
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/employer/fetchjob/${employerData._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       // Handle case when no jobs are found (empty array or no data)
@@ -345,7 +320,7 @@ const EmployeerPostJob = () => {
         applicants: job.applications?.length || 0,
         shortlisted:
           job.applications?.filter(
-            (app) => app.employapplicantstatus === "Shortlisted"
+            (app) => app.employapplicantstatus === "Shortlisted",
           ).length || 0,
         location: job.location,
         salaryFrom: job.salaryFrom || 0,
@@ -429,35 +404,35 @@ const EmployeerPostJob = () => {
           (job.skills &&
             job.skills.some((skill) => skill.toLowerCase().includes(term))) ||
           job.category.toLowerCase().includes(term) ||
-          job.type.toLowerCase().includes(term)
+          job.type.toLowerCase().includes(term),
       );
     }
 
     // Apply category filter
     if (filters.category.length > 0) {
       result = result.filter(
-        (job) => job.category && filters.category.includes(job.category)
+        (job) => job.category && filters.category.includes(job.category),
       );
     }
 
     // Apply type filter
     if (filters.type.length > 0) {
       result = result.filter(
-        (job) => job.type && filters.type.includes(job.type)
+        (job) => job.type && filters.type.includes(job.type),
       );
     }
 
     // Apply status filter
     if (filters.status.length > 0) {
       result = result.filter(
-        (job) => job.status && filters.status.includes(job.status)
+        (job) => job.status && filters.status.includes(job.status),
       );
     }
 
     // Apply role filter
     if (filters.role !== "All") {
       result = result.filter(
-        (job) => job.title && job.title.includes(filters.role)
+        (job) => job.title && job.title.includes(filters.role),
       );
     }
 
@@ -479,7 +454,7 @@ const EmployeerPostJob = () => {
       result = result.filter(
         (job) =>
           job.location &&
-          job.location.toLowerCase().includes(filters.location.toLowerCase())
+          job.location.toLowerCase().includes(filters.location.toLowerCase()),
       );
     }
 
@@ -490,7 +465,7 @@ const EmployeerPostJob = () => {
           job.educationLevel &&
           job.educationLevel
             .toLowerCase()
-            .includes(filters.qualification.toLowerCase())
+            .includes(filters.qualification.toLowerCase()),
       );
     }
 
@@ -637,13 +612,13 @@ const EmployeerPostJob = () => {
   const handleJobStatusChange = (jobId, newStatus) => {
     setJobs((prevJobs) =>
       prevJobs.map((job) =>
-        job.id === jobId ? { ...job, status: newStatus } : job
-      )
+        job.id === jobId ? { ...job, status: newStatus } : job,
+      ),
     );
     setFilteredJobs((prevJobs) =>
       prevJobs.map((job) =>
-        job.id === jobId ? { ...job, status: newStatus } : job
-      )
+        job.id === jobId ? { ...job, status: newStatus } : job,
+      ),
     );
   };
 
@@ -705,27 +680,6 @@ const EmployeerPostJob = () => {
   const closeAllDropdowns = () => {
     setActiveDropdown(null);
   };
-
-  // Show loading state while styles are being loaded
-  if (isLoading) {
-    return (
-      <div
-        className="employer-loading"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          width: "100%",
-          backgroundColor: "#f8f9fa",
-        }}
-      >
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -817,7 +771,7 @@ const EmployeerPostJob = () => {
                           setDateRange({ ...dateRange, start: e.target.value });
                           if (dateRange.end && e.target.value) {
                             setSelectedDateRange(
-                              `${e.target.value} - ${dateRange.end}`
+                              `${e.target.value} - ${dateRange.end}`,
                             );
                           }
                         }}
@@ -833,7 +787,7 @@ const EmployeerPostJob = () => {
                           setDateRange({ ...dateRange, end: e.target.value });
                           if (dateRange.start && e.target.value) {
                             setSelectedDateRange(
-                              `${dateRange.start} - ${e.target.value}`
+                              `${dateRange.start} - ${e.target.value}`,
                             );
                           }
                         }}
@@ -1428,7 +1382,7 @@ const StatsSection = ({ jobs }) => {
       sum +
       (job.applications
         ? job.applications.filter(
-            (app) => app.employapplicantstatus === "Pending"
+            (app) => app.employapplicantstatus === "Pending",
           ).length
         : 0)
     );
@@ -1438,7 +1392,7 @@ const StatsSection = ({ jobs }) => {
       sum +
       (job.applications
         ? job.applications.filter(
-            (app) => app.employapplicantstatus === "Shortlisted"
+            (app) => app.employapplicantstatus === "Shortlisted",
           ).length
         : 0)
     );
@@ -1478,7 +1432,7 @@ const StatsSection = ({ jobs }) => {
           sum +
           (job.applications
             ? job.applications.filter(
-                (app) => new Date(app.appliedDate) > oneWeekAgo
+                (app) => new Date(app.appliedDate) > oneWeekAgo,
               ).length
             : 0)
         );
@@ -1701,7 +1655,7 @@ const AddPostModal = ({
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       return response.data;
@@ -1812,7 +1766,7 @@ const AddPostModal = ({
 
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/employer/postjob`,
-        submitData
+        submitData,
       );
 
       if (response.data) {
