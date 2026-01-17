@@ -76,10 +76,13 @@ const Inbox = () => {
 
   // Initialize Socket
   useEffect(() => {
-    const socketInstance = io(
-      import.meta.env.VITE_BASE_URL.replace("/api", "") ||
-        "http://localhost:4000",
-    ); // Adjust URL as needed
+    const baseUrl = import.meta.env.VITE_BASE_URL || "http://localhost:4000";
+    const socketUrl = baseUrl.replace(/\/api$/, "");
+    console.log("Connecting socket to:", socketUrl);
+    const socketInstance = io(socketUrl, {
+      transports: ["websocket", "polling"], // explicit transports
+      reconnectionAttempts: 5,
+    });
     setSocket(socketInstance);
 
     const userData = JSON.parse(localStorage.getItem("userData"));
