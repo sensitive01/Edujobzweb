@@ -107,7 +107,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const ForgotPasswordPage = () => {
-  const [mobile, setMobile] = useState("");
+  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -116,8 +116,8 @@ const ForgotPasswordPage = () => {
     e.preventDefault();
     setError("");
 
-    if (!mobile) {
-      setError("Mobile number is required");
+    if (!email) {
+      setError("Email is required");
       return;
     }
 
@@ -126,12 +126,12 @@ const ForgotPasswordPage = () => {
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/forgotpassword`,
         {
-          userMobile: mobile,
+          userEmail: email,
         }
       );
 
       if (response.data.message === "OTP sent successfully") {
-        navigate("/verify-otp", { state: { mobile, otp: response.data.otp } });
+        navigate("/verify-otp", { state: { email, otp: response.data.otp } });
       } else {
         setError(response.data.message || "Failed to send OTP");
       }
@@ -163,7 +163,7 @@ const ForgotPasswordPage = () => {
 
               <h1 className="text-secondary h3 mb-4">Forgot Password</h1>
               <p className="mb-4">
-                Enter your registered mobile number to receive OTP
+                Enter your registered email address to receive OTP
               </p>
 
               {error && <div className="alert alert-danger mb-4">{error}</div>}
@@ -172,11 +172,11 @@ const ForgotPasswordPage = () => {
                 <div className="jobplugin__form-row mb-4">
                   <div className="jobplugin__form-field">
                     <input
-                      type="text"
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       className="form-control"
-                      placeholder="Enter Mobile Number"
+                      placeholder="Enter Email Address"
                       style={{ padding: "10px 15px" }}
                     />
                   </div>

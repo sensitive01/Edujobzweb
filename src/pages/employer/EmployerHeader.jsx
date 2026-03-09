@@ -49,7 +49,7 @@ const EmployerHeader = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (!response.ok) {
@@ -181,7 +181,15 @@ const EmployerHeader = () => {
                   width: "100px",
                 }}
               >
-                <img src={user19} alt="Logo" />
+                <img
+                  src={user19}
+                  alt="Logo"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    objectFit: "contain",
+                  }}
+                />
               </Link>
             </div>
           </div>

@@ -168,7 +168,7 @@ const Jobsbreadcrumb = ({ onFilterChange }) => {
           </div>
         </div>
       </div>
-      <style jsx>{`
+      <style>{`
         .fields-holder {
           border-radius: 4px;
         }

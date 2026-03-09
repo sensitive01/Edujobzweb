@@ -319,7 +319,7 @@ const EmployeerCandidatesSearch = () => {
       link.setAttribute("href", url);
       link.setAttribute(
         "download",
-        `candidates_${new Date().toISOString().slice(0, 10)}.csv`
+        `candidates_${new Date().toISOString().slice(0, 10)}.csv`,
       );
       link.style.visibility = "hidden";
       document.body.appendChild(link);
@@ -452,7 +452,7 @@ const EmployeerCandidatesSearch = () => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("employerToken")}`,
             },
-          }
+          },
         );
 
         if (response.ok) {
@@ -483,7 +483,7 @@ const EmployeerCandidatesSearch = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -502,104 +502,103 @@ const EmployeerCandidatesSearch = () => {
   };
 
   const filterCandidates = () => {
+    if (!candidates) return;
     let results = [...candidates];
 
     if (searchQuery.trim()) {
       const searchTerm = searchQuery.toLowerCase().trim();
       results = results.filter((candidate) => {
-        const searchFields = [
-          candidate.userName,
-          candidate.userEmail,
-          candidate.userMobile,
-          candidate.skills?.join(" "),
-          candidate.currentCity,
-          candidate.education
-            ?.map((edu) => `${edu.degree} ${edu.institution}`)
-            .join(" "),
-        ]
-          .filter(Boolean)
+        const name = (candidate.userName || "").toLowerCase();
+        const email = (candidate.userEmail || "").toLowerCase();
+        const mobile = (candidate.userMobile || "").toLowerCase();
+        const skills = (candidate.skills || []).join(" ").toLowerCase();
+        const city = (candidate.currentCity || "").toLowerCase();
+        const education = (candidate.education || [])
+          .map((edu) => `${edu.degree} ${edu.institution}`)
           .join(" ")
           .toLowerCase();
 
-        return searchFields.includes(searchTerm);
+        return name.includes(searchTerm);
       });
     }
 
-    if (filtersApplied) {
-      if (filters.jobCategories.length > 0) {
-        results = results.filter(
-          (candidate) =>
-            candidate.skills &&
-            candidate.skills.some((skill) =>
-              filters.jobCategories.includes(skill)
-            )
-        );
-      }
+    if (filters.jobCategories.length > 0) {
+      results = results.filter(
+        (candidate) =>
+          candidate.skills &&
+          candidate.skills.some((skill) =>
+            filters.jobCategories.includes(skill),
+          ),
+      );
+    }
 
-      if (filters.gender) {
-        results = results.filter(
-          (candidate) =>
-            candidate.gender &&
-            candidate.gender.toLowerCase() === filters.gender.toLowerCase()
-        );
-      }
+    if (filters.gender) {
+      results = results.filter(
+        (candidate) =>
+          candidate.gender &&
+          candidate.gender.toLowerCase() === filters.gender.toLowerCase(),
+      );
+    }
 
-      if (filters.location) {
-        results = results.filter(
-          (candidate) =>
-            candidate.currentCity &&
-            candidate.currentCity
-              .toLowerCase()
-              .includes(filters.location.toLowerCase())
-        );
-      }
+    if (filters.location) {
+      results = results.filter(
+        (candidate) =>
+          candidate.currentCity &&
+          candidate.currentCity
+            .toLowerCase()
+            .includes(filters.location.toLowerCase()),
+      );
+    }
 
-      if (filters.qualification) {
-        results = results.filter(
-          (candidate) =>
-            candidate.education &&
-            candidate.education.some(
-              (edu) =>
-                edu.degree &&
-                edu.degree
-                  .toLowerCase()
-                  .includes(filters.qualification.toLowerCase())
-            )
-        );
-      }
+    if (filters.qualification) {
+      results = results.filter(
+        (candidate) =>
+          candidate.education &&
+          candidate.education.some(
+            (edu) =>
+              edu.degree &&
+              edu.degree
+                .toLowerCase()
+                .includes(filters.qualification.toLowerCase()),
+          ),
+      );
+    }
 
-      if (filters.experienceFrom || filters.experienceTo) {
-        const from = parseInt(filters.experienceFrom) || 0;
-        const to = parseInt(filters.experienceTo) || 100;
+    if (filters.experienceFrom || filters.experienceTo) {
+      const from = parseInt(filters.experienceFrom) || 0;
+      const to = parseInt(filters.experienceTo) || 100;
 
-        results = results.filter((candidate) => {
-          const exp = parseInt(candidate.totalExperience) || 0;
-          return exp >= from && exp <= to;
-        });
-      }
+      results = results.filter((candidate) => {
+        const exp = parseInt(candidate.totalExperience) || 0;
+        return exp >= from && exp <= to;
+      });
+    }
 
-      if (dateRange.start && dateRange.end) {
-        const startDate = new Date(dateRange.start);
-        const endDate = new Date(dateRange.end);
+    if (dateRange.start && dateRange.end) {
+      const startDate = new Date(dateRange.start);
+      const endDate = new Date(dateRange.end);
 
-        results = results.filter((candidate) => {
-          if (!candidate.createdAt) return false;
-          const createdDate = new Date(candidate.createdAt);
-          return createdDate >= startDate && createdDate <= endDate;
-        });
-      }
+      results = results.filter((candidate) => {
+        if (!candidate.createdAt) return false;
+        const createdDate = new Date(candidate.createdAt);
+        return createdDate >= startDate && createdDate <= endDate;
+      });
+    }
 
-      if (sortBy.includes("Recently Added")) {
-        results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      } else if (sortBy.includes("Ascending")) {
-        results.sort((a, b) =>
-          (a.userName || "").localeCompare(b.userName || "")
-        );
-      } else if (sortBy.includes("Descending")) {
-        results.sort((a, b) =>
-          (b.userName || "").localeCompare(a.userName || "")
-        );
-      }
+    if (
+      sortBy.includes("Recently Added") ||
+      sortBy.includes("Last Month") ||
+      sortBy.includes("Last 7 Days")
+    ) {
+      results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (sortBy.includes("Ascending")) {
+      results.sort((a, b) =>
+        (a.userName || "").localeCompare(b.userName || ""),
+      );
+    } else if (sortBy.includes("Descending")) {
+      results.sort((a, b) =>
+        (b.userName || "").localeCompare(a.userName || ""),
+      );
     }
 
     setFilteredCandidates(results);
@@ -625,7 +624,7 @@ const EmployeerCandidatesSearch = () => {
   const toggleFavoriteStatus = async (
     applicationId,
     employid,
-    currentStatus
+    currentStatus,
   ) => {
     try {
       const token = localStorage.getItem("employerToken");
@@ -645,7 +644,7 @@ const EmployeerCandidatesSearch = () => {
           body: JSON.stringify({
             favourite: !currentStatus,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -663,7 +662,7 @@ const EmployeerCandidatesSearch = () => {
             };
           }
           return candidate;
-        })
+        }),
       );
 
       setFilteredCandidates((prev) =>
@@ -675,7 +674,7 @@ const EmployeerCandidatesSearch = () => {
             };
           }
           return candidate;
-        })
+        }),
       );
     } catch (error) {
       console.error("Error updating favorite status:", error);
@@ -691,8 +690,8 @@ const EmployeerCandidatesSearch = () => {
           (app) =>
             app.applicantId === candidate.applicantId ||
             app.applicantId === candidate._id ||
-            app._id === candidate._id
-        )
+            app._id === candidate._id,
+        ),
     );
 
     return job ? job._id : "default-job-id";
@@ -704,7 +703,7 @@ const EmployeerCandidatesSearch = () => {
 
   useEffect(() => {
     filterCandidates();
-  }, [searchQuery, filtersApplied, sortBy, dateRange, filters]);
+  }, [searchQuery, filtersApplied, sortBy, dateRange, filters, candidates]);
 
   const handleLoadMore = () => {
     if (filteredCandidates.length > 5) {
@@ -729,7 +728,7 @@ const EmployeerCandidatesSearch = () => {
       const indexOfFirstCandidate = indexOfLastCandidate - resultsPerPage;
       return filteredCandidates.slice(
         indexOfFirstCandidate,
-        indexOfLastCandidate
+        indexOfLastCandidate,
       );
     }
   };
@@ -784,7 +783,7 @@ const EmployeerCandidatesSearch = () => {
                       <p className="fs-12 text-muted mb-0">
                         <b>Registered:</b>{" "}
                         {new Date(candidate.createdAt).toLocaleDateString(
-                          "en-GB"
+                          "en-GB",
                         )}
                       </p>
                     </div>
@@ -798,12 +797,12 @@ const EmployeerCandidatesSearch = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         const employerData = JSON.parse(
-                          localStorage.getItem("employerData")
+                          localStorage.getItem("employerData"),
                         );
                         toggleFavoriteStatus(
                           candidate._id,
                           employerData._id,
-                          candidate.favourite
+                          candidate.favourite,
                         );
                       }}
                       style={
@@ -1108,12 +1107,12 @@ const EmployeerCandidatesSearch = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         const employerData = JSON.parse(
-                          localStorage.getItem("employerData")
+                          localStorage.getItem("employerData"),
                         );
                         toggleFavoriteStatus(
                           candidate._id,
                           employerData._id,
-                          candidate.favourite
+                          candidate.favourite,
                         );
                       }}
                       style={
@@ -1264,7 +1263,7 @@ const EmployeerCandidatesSearch = () => {
                           setDateRange({ ...dateRange, start: e.target.value });
                           if (dateRange.end && e.target.value) {
                             setSelectedDateRange(
-                              `${e.target.value} - ${dateRange.end}`
+                              `${e.target.value} - ${dateRange.end}`,
                             );
                           }
                         }}
@@ -1280,7 +1279,7 @@ const EmployeerCandidatesSearch = () => {
                           setDateRange({ ...dateRange, end: e.target.value });
                           if (dateRange.start && e.target.value) {
                             setSelectedDateRange(
-                              `${dateRange.start} - ${e.target.value}`
+                              `${dateRange.start} - ${e.target.value}`,
                             );
                           }
                         }}
@@ -1441,7 +1440,15 @@ const EmployeerCandidatesSearch = () => {
                     <div className="accordion-body">
                       <div className="row gx-3">
                         <div className="form-group">
-                          <div className="checkbox-limit">
+                          <div
+                            className="checkbox-limit"
+                            style={{
+                              maxHeight: "200px",
+                              overflowY: "auto",
+                              overflowX: "hidden",
+                              paddingRight: "5px",
+                            }}
+                          >
                             <ul className="checkbox-list">
                               {getUniqueJobCategories().map((category) => (
                                 <li className="mb-2" key={category}>
@@ -1449,12 +1456,12 @@ const EmployeerCandidatesSearch = () => {
                                     <input
                                       type="checkbox"
                                       checked={filters.jobCategories.includes(
-                                        category
+                                        category,
                                       )}
                                       onChange={() =>
                                         handleCheckboxChange(
                                           "jobCategories",
-                                          category
+                                          category,
                                         )
                                       }
                                     />
@@ -1672,21 +1679,13 @@ const EmployeerCandidatesSearch = () => {
             {/* Action Buttons */}
             <div className="p-3 pt-5">
               <div className="row gx-3">
-                <div className="col-6">
+                <div className="col-12">
                   <button
                     id="resetbutton"
                     className="btn btn-light close-theme w-100"
                     onClick={handleReset}
                   >
-                    <i className="ti ti-restore me-1"></i>Reset
-                  </button>
-                </div>
-                <div className="col-6">
-                  <button
-                    className="btn btn-secondary w-100"
-                    onClick={handleSubmit}
-                  >
-                    <i className="ti ti-circle-check me-1"></i>Submit
+                    <i className="ti ti-restore me-1"></i>Reset All Filters
                   </button>
                 </div>
               </div>
@@ -1799,7 +1798,7 @@ const EmployeerCandidatesSearch = () => {
 
                     {Array.from({
                       length: Math.ceil(
-                        filteredCandidates.length / resultsPerPage
+                        filteredCandidates.length / resultsPerPage,
                       ),
                     }).map((_, index) => (
                       <li
@@ -1857,6 +1856,22 @@ const EmployeerCandidatesSearch = () => {
         />
       )}
 
+      <style jsx>{`
+        .checkbox-limit::-webkit-scrollbar {
+          width: 4px;
+        }
+        .checkbox-limit::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 10px;
+        }
+        .checkbox-limit::-webkit-scrollbar-thumb {
+          background: #ccc;
+          border-radius: 10px;
+        }
+        .checkbox-limit::-webkit-scrollbar-thumb:hover {
+          background: #bbb;
+        }
+      `}</style>
       <EmployerFooter />
     </>
   );

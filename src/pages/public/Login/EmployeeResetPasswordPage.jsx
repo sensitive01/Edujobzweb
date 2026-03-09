@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -14,13 +14,15 @@ const ResetPasswordPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Get mobile number from navigation state
-  const mobile = location.state?.mobile;
+  // Get email from navigation state
+  const email = location.state?.email;
 
-  // Redirect if no mobile number is found
-  if (!mobile) {
-    navigate("/forgot-password");
-  }
+  // Redirect if no email is found
+  useEffect(() => {
+    if (!email) {
+      navigate("/forgot-password");
+    }
+  }, [email, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,7 +38,7 @@ const ResetPasswordPage = () => {
     try {
       setIsLoading(true);
       const payload = {
-        userMobile: mobile,
+        userEmail: email,
         password,
         confirmPassword,
       };

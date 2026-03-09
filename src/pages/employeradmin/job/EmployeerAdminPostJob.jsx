@@ -55,14 +55,14 @@ const EmployeerAdminPostJob = () => {
 
   // Extract unique values from jobs for filters
   const jobCategories = [...new Set(jobs.map((job) => job.category))].filter(
-    Boolean
+    Boolean,
   );
   const jobTypes = [...new Set(jobs.map((job) => job.type))].filter(Boolean);
   const statusOptions = [...new Set(jobs.map((job) => job.status))].filter(
-    Boolean
+    Boolean,
   );
   const jobRoles = ["All", ...new Set(jobs.map((job) => job.title))].filter(
-    Boolean
+    Boolean,
   );
 
   const sortOptions = [
@@ -259,7 +259,7 @@ const EmployeerAdminPostJob = () => {
       link.setAttribute("href", url);
       link.setAttribute(
         "download",
-        `jobs_${new Date().toISOString().slice(0, 10)}.csv`
+        `jobs_${new Date().toISOString().slice(0, 10)}.csv`,
       );
       link.style.visibility = "hidden";
       document.body.appendChild(link);
@@ -283,7 +283,7 @@ const EmployeerAdminPostJob = () => {
     try {
       setLoading(true);
       const employerAdminData = JSON.parse(
-        localStorage.getItem("EmployerAdminData") || "{}"
+        localStorage.getItem("EmployerAdminData") || "{}",
       );
 
       if (!employerAdminData || !employerAdminData._id) {
@@ -291,21 +291,23 @@ const EmployeerAdminPostJob = () => {
       }
 
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/employer/fetchjob/${employerAdminData._id}`
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/getjobsbyorg/${employerAdminData._id}`,
       );
 
-      if (!response.data || response.data.length === 0) {
+      const jobList = response.data.data || response.data || [];
+
+      if (!jobList || jobList.length === 0) {
         throw new Error("No jobs found for this employer");
       }
 
-      const formattedJobs = response.data.map((job) => ({
+      const formattedJobs = jobList.map((job) => ({
         id: job._id,
         title: job.jobTitle,
         employerProfilePic: job.employerProfilePic,
         applicants: job.applications?.length || 0,
         shortlisted:
           job.applications?.filter(
-            (app) => app.employapplicantstatus === "Shortlisted"
+            (app) => app.employapplicantstatus === "Shortlisted",
           ).length || 0,
         location: job.location,
         salaryFrom: job.salaryFrom || 0,
@@ -382,35 +384,35 @@ const EmployeerAdminPostJob = () => {
           (job.skills &&
             job.skills.some((skill) => skill.toLowerCase().includes(term))) ||
           job.category.toLowerCase().includes(term) ||
-          job.type.toLowerCase().includes(term)
+          job.type.toLowerCase().includes(term),
       );
     }
 
     // Apply category filter
     if (filters.category.length > 0) {
       result = result.filter(
-        (job) => job.category && filters.category.includes(job.category)
+        (job) => job.category && filters.category.includes(job.category),
       );
     }
 
     // Apply type filter
     if (filters.type.length > 0) {
       result = result.filter(
-        (job) => job.type && filters.type.includes(job.type)
+        (job) => job.type && filters.type.includes(job.type),
       );
     }
 
     // Apply status filter
     if (filters.status.length > 0) {
       result = result.filter(
-        (job) => job.status && filters.status.includes(job.status)
+        (job) => job.status && filters.status.includes(job.status),
       );
     }
 
     // Apply role filter
     if (filters.role !== "All") {
       result = result.filter(
-        (job) => job.title && job.title.includes(filters.role)
+        (job) => job.title && job.title.includes(filters.role),
       );
     }
 
@@ -432,7 +434,7 @@ const EmployeerAdminPostJob = () => {
       result = result.filter(
         (job) =>
           job.location &&
-          job.location.toLowerCase().includes(filters.location.toLowerCase())
+          job.location.toLowerCase().includes(filters.location.toLowerCase()),
       );
     }
 
@@ -443,7 +445,7 @@ const EmployeerAdminPostJob = () => {
           job.educationLevel &&
           job.educationLevel
             .toLowerCase()
-            .includes(filters.qualification.toLowerCase())
+            .includes(filters.qualification.toLowerCase()),
       );
     }
 
@@ -574,13 +576,13 @@ const EmployeerAdminPostJob = () => {
   const handleJobStatusChange = (jobId, newStatus) => {
     setJobs((prevJobs) =>
       prevJobs.map((job) =>
-        job.id === jobId ? { ...job, status: newStatus } : job
-      )
+        job.id === jobId ? { ...job, status: newStatus } : job,
+      ),
     );
     setFilteredJobs((prevJobs) =>
       prevJobs.map((job) =>
-        job.id === jobId ? { ...job, status: newStatus } : job
-      )
+        job.id === jobId ? { ...job, status: newStatus } : job,
+      ),
     );
   };
 
@@ -700,7 +702,7 @@ const EmployeerAdminPostJob = () => {
                           setDateRange({ ...dateRange, start: e.target.value });
                           if (dateRange.end && e.target.value) {
                             setSelectedDateRange(
-                              `${e.target.value} - ${dateRange.end}`
+                              `${e.target.value} - ${dateRange.end}`,
                             );
                           }
                         }}
@@ -716,7 +718,7 @@ const EmployeerAdminPostJob = () => {
                           setDateRange({ ...dateRange, end: e.target.value });
                           if (dateRange.start && e.target.value) {
                             setSelectedDateRange(
-                              `${dateRange.start} - ${e.target.value}`
+                              `${dateRange.start} - ${e.target.value}`,
                             );
                           }
                         }}
@@ -1280,7 +1282,7 @@ const JobCard = ({ job, onStatusChange }) => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (response.data.message) {
@@ -1484,7 +1486,7 @@ const StatsSection = ({ jobs }) => {
       sum +
       (job.applications
         ? job.applications.filter(
-            (app) => app.employapplicantstatus === "Pending"
+            (app) => app.employapplicantstatus === "Pending",
           ).length
         : 0)
     );
@@ -1494,7 +1496,7 @@ const StatsSection = ({ jobs }) => {
       sum +
       (job.applications
         ? job.applications.filter(
-            (app) => app.employapplicantstatus === "Shortlisted"
+            (app) => app.employapplicantstatus === "Shortlisted",
           ).length
         : 0)
     );
@@ -1534,7 +1536,7 @@ const StatsSection = ({ jobs }) => {
           sum +
           (job.applications
             ? job.applications.filter(
-                (app) => new Date(app.appliedDate) > oneWeekAgo
+                (app) => new Date(app.appliedDate) > oneWeekAgo,
               ).length
             : 0)
         );
@@ -1744,9 +1746,30 @@ const AddPostModal = ({
   const fetchEmployerData = async () => {
     try {
       const employerData = JSON.parse(localStorage.getItem("employerData"));
+      const employerAdminData = JSON.parse(localStorage.getItem("EmployerAdminData"));
+
+      if (employerAdminData && employerAdminData._id) {
+        const token = localStorage.getItem("EmployerAdminToken");
+        const response = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/employeradmin/fetchprofile/${employerAdminData._id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        // Map admin data to common fields
+        const admin = response.data.admin || response.data;
+        return {
+          ...admin,
+          schoolName: admin.employeradminUsername || "Admin Organization",
+          userEmail: admin.employeradminEmail,
+          userMobile: admin.employeradminMobile,
+          city: "", // Admin might not have these in schema
+          address: ""
+        };
+      }
 
       if (!employerData || !employerData._id) {
-        throw new Error("Employer not logged in or missing ID");
+        throw new Error("Employer information not found");
       }
 
       const token = localStorage.getItem("authToken");
@@ -1825,7 +1848,7 @@ const AddPostModal = ({
     try {
       // Get employerId the same way as in AddPositionsModal
       const employerAdminData = JSON.parse(
-        localStorage.getItem("EmployerAdminData") || "{}"
+        localStorage.getItem("EmployerAdminData") || "{}",
       );
       const employid = employerAdminData._id || "";
 
@@ -1871,7 +1894,7 @@ const AddPostModal = ({
 
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/employer/postjob`,
-        submitData
+        submitData,
       );
 
       if (response.data) {

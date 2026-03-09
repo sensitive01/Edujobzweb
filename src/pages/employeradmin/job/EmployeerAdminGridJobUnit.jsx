@@ -24,6 +24,12 @@ import EmployerAdminHeader from "../Layout/EmployerAdminHeader";
 import EmployerAdminFooter from "../Layout/EmployerAdminFooter";
 import appleIcon from "../../../assets/employer-admin/assets/img/icons/apple.svg";
 
+// Helper to strip HTML tags
+const stripHtml = (html) => {
+  if (!html) return "";
+  return html.replace(/<[^>]*>?/gm, "").replace(/&nbsp;/g, " ");
+};
+
 // Main Jobs Component
 const EmployeerAdminGridJobUnit = () => {
   const [activeTab, setActiveTab] = useState("basic-info");
@@ -324,11 +330,11 @@ const EmployeerAdminGridJobUnit = () => {
         experience: job.experienceLevel || "Not specified",
         type: job.jobType || "Not specified",
         category: job.category || "Not specified",
-        accommodation: job.benefits || "Not specified",
+        accommodation: stripHtml(job.benefits) || "Not specified",
         skills: job.skills || [],
         postedDate: formatDate(job.createdAt),
         icon: job.employerProfilePic || "default.svg",
-        description: job.description || "",
+        description: stripHtml(job.description) || "",
         remote: job.isRemote || false,
         applications: job.applications || [],
         status: job.isActive ? "Active" : "Inactive",

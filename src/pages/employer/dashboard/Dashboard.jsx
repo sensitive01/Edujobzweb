@@ -150,7 +150,7 @@ const Dashboard = () => {
     const timeOptions = { hour: "2-digit", minute: "2-digit", hour12: true };
     return `${start.toLocaleTimeString(
       "en-US",
-      timeOptions
+      timeOptions,
     )} - ${end.toLocaleTimeString("en-US", timeOptions)}`;
   };
 
@@ -176,13 +176,13 @@ const Dashboard = () => {
 
   const previousMonth = () => {
     setCurrentMonth(
-      new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1),
     );
   };
 
   const nextMonth = () => {
     setCurrentMonth(
-      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1),
     );
   };
 
@@ -243,7 +243,7 @@ const Dashboard = () => {
             currentPassword: passwordData.currentPassword,
             newPassword: passwordData.newPassword,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -305,7 +305,7 @@ const Dashboard = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (!employerResponse.ok) {
@@ -317,7 +317,7 @@ const Dashboard = () => {
 
         // Fetch dashboard data
         const dashboardResponse = await getEmployerDashboardData(
-          storedEmployerData._id
+          storedEmployerData._id,
         );
         if (dashboardResponse.status === 200) {
           setDashboardData(dashboardResponse.data.counts);
@@ -744,7 +744,7 @@ const Dashboard = () => {
                         </span>
                         <div className="d-flex align-items-center justify-content-between">
                           <h5 className="text-danger stat-number mb-0">
-                            {dashboardData?.rejectedCount | 0}
+                            {dashboardData?.rejectedCount || 0}
                           </h5>
                           <span className="badge badge-danger d-inline-flex align-items-center">
                             <i className="ti ti-user-x me-1"></i>Not Selected
@@ -951,10 +951,11 @@ const Dashboard = () => {
                               {interview.title}
                             </h6>
                             <span
-                              className={`badge ${formatInterviewDate(interview.start) === "Today"
+                              className={`badge ${
+                                formatInterviewDate(interview.start) === "Today"
                                   ? "bg-success"
                                   : "bg-primary"
-                                }`}
+                              }`}
                             >
                               {formatInterviewDate(interview.start)}
                             </span>
@@ -963,7 +964,7 @@ const Dashboard = () => {
                             <Clock size={14} className="me-1" />
                             {formatInterviewTime(
                               interview.start,
-                              interview.end
+                              interview.end,
                             )}
                           </div>
                         </div>
@@ -1008,7 +1009,7 @@ const Dashboard = () => {
                         <div key={day} className="col text-center">
                           <small className="fw-bold text-muted">{day}</small>
                         </div>
-                      )
+                      ),
                     )}
                   </div>
 
@@ -1033,8 +1034,9 @@ const Dashboard = () => {
                       return (
                         <div key={day} className="col">
                           <div
-                            className={`calendar-day ${isToday ? "today" : ""
-                              } ${hasInterview ? "has-interview" : ""}`}
+                            className={`calendar-day ${
+                              isToday ? "today" : ""
+                            } ${hasInterview ? "has-interview" : ""}`}
                           >
                             <div className="d-flex justify-content-between align-items-start mb-1">
                               <small className="fw-semibold">{day}</small>
@@ -1064,7 +1066,7 @@ const Dashboard = () => {
                                     >
                                       {interview.title.length > 15
                                         ? interview.title.substring(0, 15) +
-                                        "..."
+                                          "..."
                                         : interview.title}
                                     </div>
                                   ))}
@@ -1147,8 +1149,9 @@ const Dashboard = () => {
                       onClick={() => togglePasswordVisibility("current")}
                     >
                       <i
-                        className={`ti ${showPasswords.current ? "ti-eye-off" : "ti-eye"
-                          }`}
+                        className={`ti ${
+                          showPasswords.current ? "ti-eye-off" : "ti-eye"
+                        }`}
                       ></i>
                     </button>
                   </div>
@@ -1175,8 +1178,9 @@ const Dashboard = () => {
                       onClick={() => togglePasswordVisibility("new")}
                     >
                       <i
-                        className={`ti ${showPasswords.new ? "ti-eye-off" : "ti-eye"
-                          }`}
+                        className={`ti ${
+                          showPasswords.new ? "ti-eye-off" : "ti-eye"
+                        }`}
                       ></i>
                     </button>
                   </div>
@@ -1205,8 +1209,9 @@ const Dashboard = () => {
                       onClick={() => togglePasswordVisibility("confirm")}
                     >
                       <i
-                        className={`ti ${showPasswords.confirm ? "ti-eye-off" : "ti-eye"
-                          }`}
+                        className={`ti ${
+                          showPasswords.confirm ? "ti-eye-off" : "ti-eye"
+                        }`}
                       ></i>
                     </button>
                   </div>

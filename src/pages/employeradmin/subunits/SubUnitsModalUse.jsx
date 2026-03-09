@@ -49,7 +49,8 @@ import EditUnitModal from "./Modals/EditUnitModal";
 import DeleteConfirmationModal from "./Modals/DeleteConfirmationModal";
 import UnitDetailModal from "./Modals/UnitDetailModal";
 import UpgradePackageModal from "./Modals/UpgradePackageModal";
-import { FileText } from "lucide-react";
+import ConnectUnitModal from "./Modals/ConnectUnitModal";
+import { FileText, Link as LinkIcon } from "lucide-react";
 
 const SubUnitsModalUse = () => {
   const [showAddUnitModal, setShowAddUnitModal] = useState(false);
@@ -57,6 +58,7 @@ const SubUnitsModalUse = () => {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [showUnitDetail, setShowUnitDetail] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showConnectModal, setShowConnectModal] = useState(false);
   const [units, setUnits] = useState([]);
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -64,7 +66,7 @@ const SubUnitsModalUse = () => {
 
   // Get organization ID from localStorage
   const employerAdminData = JSON.parse(
-    localStorage.getItem("EmployerAdminData") || "{}"
+    localStorage.getItem("EmployerAdminData") || "{}",
   );
   const organizationid = employerAdminData._id || "";
 
@@ -72,7 +74,7 @@ const SubUnitsModalUse = () => {
     const fetchUnits = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/employeradmin/fetchbyorg/${organizationid}`
+          `${import.meta.env.VITE_BASE_URL}/employeradmin/fetchbyorg/${organizationid}`,
         );
         if (response.data.success) {
           // Transform API data to match our component structure
@@ -146,7 +148,7 @@ const SubUnitsModalUse = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       setUnits(units.filter((unit) => unit.id !== selectedUnit.id));
       setItemToDelete(false);
@@ -178,7 +180,7 @@ const SubUnitsModalUse = () => {
     try {
       const response = await axios.put(
         `${import.meta.env.VITE_BASE_URL}/employeradmin/${selectedUnit.id}`,
-        updatedData
+        updatedData,
       );
 
       if (response.data.success) {
@@ -186,15 +188,15 @@ const SubUnitsModalUse = () => {
           units.map((unit) =>
             unit.id === selectedUnit.id
               ? {
-                ...unit,
-                name: response.data.data.schoolName,
-                email: response.data.data.userEmail,
-                phone: response.data.data.userMobile,
-                location: `${response.data.data.city}, ${response.data.data.state}`,
-                originalData: response.data.data,
-              }
-              : unit
-          )
+                  ...unit,
+                  name: response.data.data.schoolName,
+                  email: response.data.data.userEmail,
+                  phone: response.data.data.userMobile,
+                  location: `${response.data.data.city}, ${response.data.data.state}`,
+                  originalData: response.data.data,
+                }
+              : unit,
+          ),
         );
         setShowEditUnitModal(false);
       }
@@ -236,8 +238,8 @@ const SubUnitsModalUse = () => {
           </thead>
           <tbody>
             ${units
-        .map(
-          (unit) => `
+              .map(
+                (unit) => `
               <tr>
                 <td>${unit.name}</td>
                 <td>${unit.email}</td>
@@ -245,9 +247,9 @@ const SubUnitsModalUse = () => {
                 <td>${unit.location}</td>
                 <td>${unit.rating}</td>
               </tr>
-            `
-        )
-        .join("")}
+            `,
+              )
+              .join("")}
           </tbody>
         </table>
         
@@ -293,7 +295,7 @@ const SubUnitsModalUse = () => {
     link.setAttribute("href", url);
     link.setAttribute(
       "download",
-      `units_report_${new Date().toISOString().slice(0, 10)}.csv`
+      `units_report_${new Date().toISOString().slice(0, 10)}.csv`,
     );
     document.body.appendChild(link);
     link.click();
@@ -361,8 +363,9 @@ const SubUnitsModalUse = () => {
                   <i className="ti ti-file-export me-1"></i>Export
                 </a>
                 <ul
-                  className={`dropdown-menu dropdown-menu-end p-3 ${showExportDropdown ? "show" : ""
-                    }`}
+                  className={`dropdown-menu dropdown-menu-end p-3 ${
+                    showExportDropdown ? "show" : ""
+                  }`}
                   style={{ display: showExportDropdown ? "block" : "none" }}
                 >
                   <li>
@@ -385,6 +388,14 @@ const SubUnitsModalUse = () => {
                   </li>
                 </ul>
               </div>
+            </div>
+            <div className="me-2">
+              <button
+                onClick={() => setShowConnectModal(true)}
+                className="btn btn-outline-primary d-flex align-items-center"
+              >
+                <i className="ti ti-link me-2"></i>Connect Existing Unit
+              </button>
             </div>
             <div className="me-2">
               <button
@@ -622,6 +633,13 @@ const SubUnitsModalUse = () => {
           show={showAddUnitModal}
           onClose={() => setShowAddUnitModal(false)}
           onSave={handleAddUnit}
+        />
+
+        <ConnectUnitModal
+          show={showConnectModal}
+          onClose={() => setShowConnectModal(false)}
+          onConnect={handleAddUnit}
+          organizationid={organizationid}
         />
 
         {selectedUnit && (

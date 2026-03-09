@@ -163,17 +163,17 @@ const OTPVerificationPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [countdown, setCountdown] = useState(30);
-  const [mobile, setMobile] = useState("");
+  const [email, setEmail] = useState("");
   const [receivedOtp, setReceivedOtp] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (location.state?.mobile) {
-      setMobile(location.state.mobile);
+    if (location.state?.email) {
+      setEmail(location.state.email);
       if (location.state.otp) {
         setReceivedOtp(location.state.otp);
-        setSuccessMessage(`OTP sent successfully: ${location.state.otp}`);
+        setSuccessMessage(`OTP sent successfully to your email`);
         setTimeout(() => setSuccessMessage(""), 10000); // Hide after 10 seconds
       }
     } else {
@@ -200,7 +200,7 @@ const OTPVerificationPage = () => {
 
     try {
       setIsLoading(true);
-      const payload = { otp };
+      const payload = { userEmail: email, otp };
       console.log("Sending OTP verification request with payload:", payload);
 
       const response = await axios.post(
@@ -210,7 +210,7 @@ const OTPVerificationPage = () => {
       console.log("OTP verification response:", response.data);
 
       if (response.data.success) {
-        navigate("/reset-password", { state: { mobile } });
+        navigate("/reset-password", { state: { email } });
       } else {
         setError(response.data.message || "OTP verification failed");
       }
@@ -227,7 +227,7 @@ const OTPVerificationPage = () => {
   const handleResendOTP = async () => {
     try {
       setResendLoading(true);
-      const payload = { userMobile: mobile };
+      const payload = { userEmail: email };
       console.log("Sending OTP resend request with payload:", payload);
 
       const response = await axios.post(
@@ -238,7 +238,7 @@ const OTPVerificationPage = () => {
 
       if (response.data.message === "OTP sent successfully") {
         setReceivedOtp(response.data.otp);
-        setSuccessMessage(`New OTP sent successfully: ${response.data.otp}`);
+        setSuccessMessage(`New OTP sent successfully to your email`);
         setTimeout(() => setSuccessMessage(""), 10000); // Hide after 10 seconds
         setCountdown(30);
         setError("");
@@ -272,7 +272,7 @@ const OTPVerificationPage = () => {
               <span className="jobplugin__userbox-bar"></span>
 
               <h1 className="text-secondary h3 mb-4">Verify OTP</h1>
-              <p className="mb-4">Enter the OTP sent to your mobile number</p>
+              <p className="mb-4">Enter the OTP sent to your email address</p>
 
               {error && <div className="alert alert-danger mb-4">{error}</div>}
 

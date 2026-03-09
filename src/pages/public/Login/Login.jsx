@@ -19,7 +19,11 @@ const LoginPage = () => {
 
   const { values, errors, handleChange, handleSubmit } = useLoginForm(
     async (formValues) => {
-      await login(formValues);
+      try {
+        await login(formValues);
+      } catch (err) {
+        console.error("Login submission error:", err);
+      }
     },
     validateLoginForm,
     { initialValues: { userType: "employee" } }

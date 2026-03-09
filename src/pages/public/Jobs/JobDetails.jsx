@@ -457,7 +457,14 @@ const JobDetails = () => {
               <div className="col-12 col-md-6 col-xl-6">
                 <div className="text-holder">
                   <h3 className="section-heading text-secondary">Benefits</h3>
-                  <p>{job.benefits || "No benefits information provided"}</p>
+                  <div
+                    className="rich-text-display"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(
+                        job.benefits || "No benefits information provided"
+                      ),
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -470,10 +477,15 @@ const JobDetails = () => {
                   <h3 className="section-heading text-secondary">
                     Application Instructions
                   </h3>
-                  <p>
-                    {job.applicationInstructions ||
-                      "No specific instructions provided"}
-                  </p>
+                  <div
+                    className="rich-text-display"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(
+                        job.applicationInstructions ||
+                          "No specific instructions provided"
+                      ),
+                    }}
+                  />
                 </div>
               </div>
 
