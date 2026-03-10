@@ -336,7 +336,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .pagination .page-link {
           font-size: 13px !important;
           border-radius: 4px !important;

@@ -1,4 +1,5 @@
 import React from "react";
+import EmployerAdminAuthWrapper from "./components/auth/EmployerAdminAuthWrapper";
 import {
   BrowserRouter as Router,
   Routes,
@@ -40,6 +41,9 @@ import JobDetails from "./pages/public/Jobs/JobDetails";
 // import EmployerLayout from "./pages/employer/EmployerLayout";
 const EmployerLayout = React.lazy(
   () => import("./pages/employer/EmployerLayout"),
+);
+const EmployerAdminLayout = React.lazy(
+  () => import("./pages/employeradmin/Layout/EmployerAdminLayout"),
 );
 import EmployeerRegister from "./pages/employer/EmployeerRegister";
 import EmployeerCandidatesSearch from "./pages/employer/EmployeerCandidatesSearch";
@@ -231,40 +235,40 @@ function App() {
             />
             <Route path="/employer/FAQs" element={<FAQs />} />
             <Route path="/employer/dashboard" element={<Dashboard />} />
+          </Route>
 
-            {/* Admin routes */}
+          {/* Admin routes */}
 
-            <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route path="/admin/register" element={<AdminRegister />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin/register" element={<AdminRegister />} />
 
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-            <Route
-              path="/admin/candidate-list"
-              element={<AdminCandidateList />}
-            />
-            <Route path="/admin/employer-list" element={<EmployerList />} />
-            <Route
-              path="/admin/organization-list"
-              element={<OrganizationList />}
-            />
-            <Route path="/admin/job-list" element={<JobList />} />
-            <Route path="/admin/plan-list" element={<PlansLList />} />
-            <Route path="/admin/subscribers" element={<AdminSubscribers />} />
-            <Route path="/admin/events" element={<AdminEvents />} />
-            <Route
-              path="/admin/events-details/:eventId"
-              element={<AdminEventDetails />}
-            />
-            <Route
-              path="/admin/calendar-reminders"
-              element={<CalenderReminder />}
-            />
-            <Route path="/admin/faq" element={<AdminFaq />} />
-            <Route path="/admin/support" element={<AdminSupport />} />
+          <Route
+            path="/admin/candidate-list"
+            element={<AdminCandidateList />}
+          />
+          <Route path="/admin/employer-list" element={<EmployerList />} />
+          <Route
+            path="/admin/organization-list"
+            element={<OrganizationList />}
+          />
+          <Route path="/admin/job-list" element={<JobList />} />
+          <Route path="/admin/plan-list" element={<PlansLList />} />
+          <Route path="/admin/subscribers" element={<AdminSubscribers />} />
+          <Route path="/admin/events" element={<AdminEvents />} />
+          <Route
+            path="/admin/events-details/:eventId"
+            element={<AdminEventDetails />}
+          />
+          <Route
+            path="/admin/calendar-reminders"
+            element={<CalenderReminder />}
+          />
+          <Route path="/admin/faq" element={<AdminFaq />} />
+          <Route path="/admin/support" element={<AdminSupport />} />
 
-            {/* Employer-Admin routes */}
-
+          <Route element={<EmployerAdminLayout />}>
             <Route
               path="/employer-admin/login"
               element={<EmployerAdminLoginPage />}
@@ -286,146 +290,149 @@ function App() {
               element={<EmployerAdminVerifyOTP />}
             />
 
-            <Route
-              path="/employer-admin/units-grid"
-              element={<SubUnitsModalUse />}
-            />
-            <Route
-              path="/employer-admin/school-profile"
-              element={<EmployeerAdminProfileView />}
-            />
-            <Route
-              path="/employer-admin/security-settings"
-              element={<SecuritySettings />}
-            />
-            <Route
-              path="/employer-admin/school-details"
-              element={<SchoolDetails />}
-            />
-            <Route
-              path="/employer-admin/plan-and-subscription"
-              element={<PlanSubscription />}
-            />
-            <Route
-              path="/employer-admin/hired-candidates"
-              element={<HiredCandidates />}
-            />
-            <Route path="/employer-admin/units" element={<Units />} />
+            {/* Protected Employer-Admin routes */}
+            <Route element={<EmployerAdminAuthWrapper />}>
+              <Route
+                path="/employer-admin/units-grid"
+                element={<SubUnitsModalUse />}
+              />
+              <Route
+                path="/employer-admin/school-profile"
+                element={<EmployeerAdminProfileView />}
+              />
+              <Route
+                path="/employer-admin/security-settings"
+                element={<SecuritySettings />}
+              />
+              <Route
+                path="/employer-admin/school-details"
+                element={<SchoolDetails />}
+              />
+              <Route
+                path="/employer-admin/plan-and-subscription"
+                element={<PlanSubscription />}
+              />
+              <Route
+                path="/employer-admin/hired-candidates"
+                element={<HiredCandidates />}
+              />
+              <Route path="/employer-admin/units" element={<Units />} />
 
-            <Route
-              path="/employer-admin/new-candidate"
-              element={<EmployerAdminCandidates />}
-            />
-            <Route
-              path="/employer-admin/candidate-list"
-              element={<EmployerAdminCandidateList />}
-            />
-            <Route
-              path="/employer-admin/shortlisted-candidates"
-              element={<EmployeerAdminShortlisedCandidates />}
-            />
-            <Route
-              path="/employer-admin/applied-candidates"
-              element={<EmployeerAdminAllAppliedCandidates />}
-            />
-            <Route
-              path="/employer-admin/applied-candidates/:id"
-              element={<EmployeerAdminAppliedCandidates />}
-            />
-            <Route
-              path="/employer-admin/saved-candidates"
-              element={<EmployeerAdminSavedCandidates />}
-            />
-            <Route
-              path="/employer-admin/shortlisted-candidate-byjob/:id"
-              element={<EmployeerAdminJobIdShortlistedCandidates />}
-            />
-            <Route
-              path="/employer-admin/search"
-              element={<EmployeerAdminCandidatesSearch />}
-            />
+              <Route
+                path="/employer-admin/new-candidate"
+                element={<EmployerAdminCandidates />}
+              />
+              <Route
+                path="/employer-admin/candidate-list"
+                element={<EmployerAdminCandidateList />}
+              />
+              <Route
+                path="/employer-admin/shortlisted-candidates"
+                element={<EmployeerAdminShortlisedCandidates />}
+              />
+              <Route
+                path="/employer-admin/applied-candidates"
+                element={<EmployeerAdminAllAppliedCandidates />}
+              />
+              <Route
+                path="/employer-admin/applied-candidates/:id"
+                element={<EmployeerAdminAppliedCandidates />}
+              />
+              <Route
+                path="/employer-admin/saved-candidates"
+                element={<EmployeerAdminSavedCandidates />}
+              />
+              <Route
+                path="/employer-admin/shortlisted-candidate-byjob/:id"
+                element={<EmployeerAdminJobIdShortlistedCandidates />}
+              />
+              <Route
+                path="/employer-admin/search"
+                element={<EmployeerAdminCandidatesSearch />}
+              />
 
-            <Route
-              path="/employer-admin/post-jobs"
-              element={<EmployeerAdminPostJob />}
-            />
-            <Route
-              path="/employer-admin/view-job/:id"
-              element={<EmployerAdminobDetailsPage />}
-            />
-            <Route
-              path="/employer-admin/jobs"
-              element={<EmployeerAdminJobList />}
-            />
-            <Route
-              path="/employer-admin/unit-jobs"
-              element={<EmployeerAdminGridJobUnit />}
-            />
-            <Route
-              path="/employer-admin/unit-listjobs"
-              element={<EmployerAdminJobListUnit />}
-            />
-            <Route
-              path="/employer-admin/messages"
-              element={<EmployeerAdminMessage />}
-            />
-            <Route
-              path="/employer-admin/plans"
-              element={<EmployeerAdminPlans />}
-            />
-            <Route
-              path="/employer-admin/plans-grid"
-              element={<EmployeerAdminPlansGrid />}
-            />
-            <Route
-              path="/employer-admin/calendar-events"
-              element={<EmployerAdminCalendarEvents />}
-            />
-            <Route
-              path="/employer-admin/enrollment"
-              element={<EmployerAdminEnrollment />}
-            />
-            <Route
-              path="/employer-admin/events"
-              element={<EmployerAdminEvents />}
-            />
-            <Route
-              path="/employer-admin/events-details/:eventId"
-              element={<EmployerAdminEventsDetails />}
-            />
-            <Route path="/employer-admin/timetable" element={<TimeTable />} />
-            <Route
-              path="/employer-admin/FAQs"
-              element={<EmployerAdminFAQs />}
-            />
-            <Route
-              path="/employer-admin/support"
-              element={<EmployerAdminSupportChatList />}
-            />
-            <Route
-              path="/employer-admin/leaves"
-              element={<LeavesManagement />}
-            />
-            <Route path="/employer-admin/users" element={<Users />} />
-            <Route
-              path="/employer-admin/transactions"
-              element={<Transactions />}
-            />
-            <Route path="/employer-admin/blogs" element={<Blog />} />
-            <Route path="/employer-admin/expenses" element={<Expenses />} />
-            <Route
-              path="/employer-admin/subscribers"
-              element={<Subscribers />}
-            />
-            <Route path="/employer-admin/referrals" element={<Referrals />} />
-            <Route
-              path="/employer-admin/notifications"
-              element={<Notification />}
-            />
-            <Route
-              path="/employer-admin/dashboard"
-              element={<EmployerAdminDashboard />}
-            />
+              <Route
+                path="/employer-admin/post-jobs"
+                element={<EmployeerAdminPostJob />}
+              />
+              <Route
+                path="/employer-admin/view-job/:id"
+                element={<EmployerAdminobDetailsPage />}
+              />
+              <Route
+                path="/employer-admin/jobs"
+                element={<EmployeerAdminJobList />}
+              />
+              <Route
+                path="/employer-admin/unit-jobs"
+                element={<EmployeerAdminGridJobUnit />}
+              />
+              <Route
+                path="/employer-admin/unit-listjobs"
+                element={<EmployerAdminJobListUnit />}
+              />
+              <Route
+                path="/employer-admin/messages"
+                element={<EmployeerAdminMessage />}
+              />
+              <Route
+                path="/employer-admin/plans"
+                element={<EmployeerAdminPlans />}
+              />
+              <Route
+                path="/employer-admin/plans-grid"
+                element={<EmployeerAdminPlansGrid />}
+              />
+              <Route
+                path="/employer-admin/calendar-events"
+                element={<EmployerAdminCalendarEvents />}
+              />
+              <Route
+                path="/employer-admin/enrollment"
+                element={<EmployerAdminEnrollment />}
+              />
+              <Route
+                path="/employer-admin/events"
+                element={<EmployerAdminEvents />}
+              />
+              <Route
+                path="/employer-admin/events-details/:eventId"
+                element={<EmployerAdminEventsDetails />}
+              />
+              <Route path="/employer-admin/timetable" element={<TimeTable />} />
+              <Route
+                path="/employer-admin/FAQs"
+                element={<EmployerAdminFAQs />}
+              />
+              <Route
+                path="/employer-admin/support"
+                element={<EmployerAdminSupportChatList />}
+              />
+              <Route
+                path="/employer-admin/leaves"
+                element={<LeavesManagement />}
+              />
+              <Route path="/employer-admin/users" element={<Users />} />
+              <Route
+                path="/employer-admin/transactions"
+                element={<Transactions />}
+              />
+              <Route path="/employer-admin/blogs" element={<Blog />} />
+              <Route path="/employer-admin/expenses" element={<Expenses />} />
+              <Route
+                path="/employer-admin/subscribers"
+                element={<Subscribers />}
+              />
+              <Route path="/employer-admin/referrals" element={<Referrals />} />
+              <Route
+                path="/employer-admin/notifications"
+                element={<Notification />}
+              />
+              <Route
+                path="/employer-admin/dashboard"
+                element={<EmployerAdminDashboard />}
+              />
+            </Route>
           </Route>
 
           {/* All other routes with Layout */}

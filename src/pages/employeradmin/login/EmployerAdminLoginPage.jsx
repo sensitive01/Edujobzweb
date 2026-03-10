@@ -7,9 +7,6 @@ import bg1 from "../../../assets/employer-admin/assets/img/bg/bg-01.webp";
 import bg2 from "../../../assets/employer-admin/assets/img/bg/bg-02.png";
 import bg3 from "../../../assets/employer-admin/assets/img/bg/bg-03.webp";
 import authBg from "../../../assets/employer-admin/assets/img/bg/authentication-bg-01.webp";
-import googleLogo from "../../../assets/employer-admin/assets/img/icons/google-logo.svg";
-import appleLogo from "../../../assets/employer-admin/assets/img/icons/apple-logo.svg";
-import linkedinLogo from "../../../assets/employer-admin/assets/img/icons/linkedin.svg";
 import { loginEmployerAdmin } from "../../../api/services/projectServices";
 
 const EmployerAdminLoginPage = () => {
@@ -66,18 +63,15 @@ const EmployerAdminLoginPage = () => {
       });
 
       localStorage.setItem("EmployerAdminToken", response.token);
-      const adminData = {
-        _id: response.admin._id,
-        email: response.admin.employeradminEmail,
-        username: response.admin.employeradminUsername,
-      };
+      localStorage.setItem("EmployerAdminData", JSON.stringify(response.admin));
 
-      if (rememberMe) {
-        localStorage.setItem("EmployerAdminData", JSON.stringify(adminData));
+      if (!response.admin.isProfileCompleted) {
+        navigate("/employer-admin/school-profile");
+      } else if (!response.admin.isSubscribed) {
+        navigate("/employer-admin/plan-and-subscription");
       } else {
-        localStorage.setItem("EmployerAdminData", JSON.stringify(adminData));
+        navigate("/employer-admin/dashboard");
       }
-      navigate("/employer-admin/school-profile");
     } catch (err) {
       console.error("Login error:", err);
       setError(err.message || "Login failed. Please try again.");

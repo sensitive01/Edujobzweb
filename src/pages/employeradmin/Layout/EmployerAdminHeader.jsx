@@ -31,7 +31,6 @@ const EmployerAdminHeader = () => {
     employeradminEmail: "",
     employeradminProfilePic: "",
   });
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const notificationRef = useRef(null);
@@ -53,7 +52,7 @@ const EmployerAdminHeader = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         if (!response.ok) {
@@ -64,8 +63,6 @@ const EmployerAdminHeader = () => {
         setProfileData(data.admin);
       } catch (err) {
         console.error("Error fetching employer profile:", err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -960,7 +957,7 @@ const EmployerAdminHeader = () => {
           </div>
         )}
 
-        <style jsx>{`
+        <style>{`
           .dropdown:hover {
             background-color: #f8f9fa !important;
             color: #374151 !important;

@@ -489,3 +489,50 @@ export const fetchEmployerJobs = async (employerId) => {
     throw error.response?.data?.message || error.message;
   }
 };
+
+export const updateEmployerAdmin = async (id, data) => {
+  try {
+    const response = await projectServices.put(
+      `/employeradmin/updateemployeradmin/${id}`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};
+
+export const purchaseEmployerPlan = async (data) => {
+  try {
+    const response = await projectServices.post(
+      `/employeradmin/purchase-plan`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};
+
+export const fetchAllPlans = async () => {
+  try {
+    const response = await projectServices.get(
+      `/admin/getallplans`
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};
+
+export const createRazorpayOrder = async (data) => {
+  try {
+    const response = await projectServices.post(
+      `/admin/createorderrazo`,
+      data
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.message || error.message;
+  }
+};

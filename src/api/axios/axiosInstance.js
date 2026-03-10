@@ -7,11 +7,20 @@ export const projectServices = axios.create({
 
 projectServices.interceptors.request.use(
   (config) => {
- 
+
     const adminToken = localStorage.getItem("accessToken");
-    const extractedToken = adminToken
-      ? JSON.parse(adminToken).accessToken
-      : null;
+    const employerAdminToken = localStorage.getItem("EmployerAdminToken");
+
+    let extractedToken = null;
+    if (adminToken) {
+      try {
+        extractedToken = JSON.parse(adminToken).accessToken;
+      } catch {
+        extractedToken = adminToken;
+      }
+    } else if (employerAdminToken) {
+      extractedToken = employerAdminToken;
+    }
 
     if (extractedToken) {
 
@@ -42,7 +51,7 @@ projectServices.interceptors.response.use(
       }
     } else {
       console.log("Error:", error.message);
-   
+
     }
     return Promise.reject(error);
   }
