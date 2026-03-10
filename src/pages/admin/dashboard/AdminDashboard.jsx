@@ -92,12 +92,12 @@ const AdminDashboard = () => {
               >
                 <i className="ti ti-user-check me-1"></i>Add User
               </a>
-              <a
+              {/* <a
                 className="btn btn-secondary btn-md me-2 mb-2"
                 onClick={() => setShowTeacherModal(true)}
               >
                 <i className="ti ti-square-rounded-plus me-1"></i>Add Teacher
-              </a>
+              </a> */}
               <a
                 className="btn btn-default border border-dark btn-md mb-2"
                 onClick={() => setShowLeaveModal(true)}

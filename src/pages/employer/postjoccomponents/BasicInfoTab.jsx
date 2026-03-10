@@ -28,8 +28,6 @@ const formats = [
 ];
 
 const BasicInfoTab = ({
-  selectedFile,
-  onFileChange,
   formData,
   onInputChange,
   onAddSkill,
@@ -428,15 +426,21 @@ const BasicInfoTab = ({
         <div className="col-md-12">
           <div className="mb-3">
             <label className="form-label">Benefits</label>
-            <ReactQuill
-              theme="snow"
-              value={formData.benefits}
-              onChange={(content) => handleRichTextChange(content, "benefits")}
-              modules={modules}
-              formats={formats}
-              placeholder="Describe benefits (e.g., health insurance, flexible hours, etc.)"
-              style={{ minHeight: "150px" }}
-            />
+            <div className="quill-wrapper">
+              {mounted && (
+                <ReactQuill
+                  theme="snow"
+                  value={formData.benefits}
+                  onChange={(content) =>
+                    handleRichTextChange(content, "benefits")
+                  }
+                  modules={modules}
+                  formats={formats}
+                  placeholder="Describe benefits (e.g., health insurance, flexible hours, etc.)"
+                  style={{ minHeight: "150px" }}
+                />
+              )}
+            </div>
           </div>
         </div>
 
@@ -444,17 +448,21 @@ const BasicInfoTab = ({
         <div className="col-md-12">
           <div className="mb-3">
             <label className="form-label">Application Instructions</label>
-            <ReactQuill
-              theme="snow"
-              value={formData.applicationInstructions}
-              onChange={(content) =>
-                handleRichTextChange(content, "applicationInstructions")
-              }
-              modules={modules}
-              formats={formats}
-              placeholder="Special instructions for applicants"
-              style={{ minHeight: "150px" }}
-            />
+            <div className="quill-wrapper">
+              {mounted && (
+                <ReactQuill
+                  theme="snow"
+                  value={formData.applicationInstructions}
+                  onChange={(content) =>
+                    handleRichTextChange(content, "applicationInstructions")
+                  }
+                  modules={modules}
+                  formats={formats}
+                  placeholder="Special instructions for applicants"
+                  style={{ minHeight: "150px" }}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
