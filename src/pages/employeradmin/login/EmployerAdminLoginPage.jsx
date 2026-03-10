@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 // Import images
-import logo from "../../../../public/images/logo2.png";
+const logo = "/images/logo2.png";
 import bg1 from "../../../assets/employer-admin/assets/img/bg/bg-01.webp";
 import bg2 from "../../../assets/employer-admin/assets/img/bg/bg-02.png";
 import bg3 from "../../../assets/employer-admin/assets/img/bg/bg-03.webp";
