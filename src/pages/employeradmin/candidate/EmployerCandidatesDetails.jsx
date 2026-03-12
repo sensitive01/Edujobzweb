@@ -9,7 +9,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState(
-    candidate?.employapplicantstatus || "Pending"
+    candidate?.employapplicantstatus || "Pending",
   );
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateError, setUpdateError] = useState(null);
@@ -35,17 +35,43 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
       setError(null);
 
       const token = localStorage.getItem("EmployerAdminToken");
-      if (!token) {
+      const adminData = JSON.parse(
+        localStorage.getItem("EmployerAdminData") || "{}",
+      );
+
+      if (!token || !adminData._id) {
         throw new Error("Authentication required");
       }
 
+      // 1. Decrease profile view count (and check limit)
+      const decreaseResponse = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/employer/decreaseProfileView/${adminData._id}/${candidate.applicantId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (decreaseResponse.status === 403) {
+        const errorData = await decreaseResponse.json();
+        throw new Error(errorData.message || "Profile view limit reached");
+      }
+
+      if (!decreaseResponse.ok) {
+        // Log error but maybe continue fetching? No, if decrease failed it might be serious.
+        console.error("Failed to decrease profile view count");
+      }
+
+      // 2. Fetch actual details
       const response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/fetchemployee/${candidate.applicantId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -58,13 +84,54 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
       setSelectedStatus(
         data.employapplicantstatus ||
           candidate?.employapplicantstatus ||
-          "Pending"
+          "Pending",
       );
     } catch (err) {
       console.error("Error fetching candidate details:", err);
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadResume = async (resumeUrl) => {
+    try {
+      const token = localStorage.getItem("EmployerAdminToken");
+      const adminData = JSON.parse(
+        localStorage.getItem("EmployerAdminData") || "{}",
+      );
+
+      if (!token || !adminData._id) {
+        alert("Authentication required");
+        return;
+      }
+
+      // Decrease download count (and check limit)
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/employer/decrease/${adminData._id}/${candidate.applicantId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (response.status === 403) {
+        const errorData = await response.json();
+        alert(errorData.message || "Resume download limit reached");
+        return;
+      }
+
+      if (!response.ok) {
+        console.error("Failed to decrease resume download count");
+      }
+
+      // Open resume in new tab
+      window.open(resumeUrl, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      console.error("Error downloading resume:", error);
+      alert("Failed to process download request");
     }
   };
 
@@ -96,13 +163,13 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
             status: selectedStatus,
             notes: newNote,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          errorData.message || "Failed to update status and notes"
+          errorData.message || "Failed to update status and notes",
         );
       }
 
@@ -144,13 +211,13 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
             status: selectedStatus,
             notes: notes || "Status updated with no additional notes",
           }),
-        }
+        },
       );
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          errorData.message || "Failed to update candidate status"
+          errorData.message || "Failed to update candidate status",
         );
       }
 
@@ -248,10 +315,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
               <div className="col-md-3">
                 <div className="mb-3">
                   <p className="mb-1">Candidate Name</p>
-                  <h6 className="fw-normal">
-                    {candidateDetails?.userName}
-                 
-                  </h6>
+                  <h6 className="fw-normal">{candidateDetails?.userName}</h6>
                 </div>
               </div>
               <div className="col-md-3">
@@ -404,7 +468,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                           <small className="text-muted">
                             Duration:{" "}
                             {formatDuration(
-                              candidateDetails.introductionAudio.duration
+                              candidateDetails.introductionAudio.duration,
                             )}
                           </small>
                         </div>
@@ -498,14 +562,14 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
               <div className="col-md-6">
                 <div className="mb-3 text-md-end">
                   {candidateDetails.resume?.url ? (
-                    <a
-                      href={candidateDetails.resume.url}
+                    <button
+                      onClick={() =>
+                        handleDownloadResume(candidateDetails.resume.url)
+                      }
                       className="btn btn-dark d-inline-flex align-items-center"
-                      target="_blank"
-                      rel="noopener noreferrer"
                     >
                       <i className="ti ti-download me-1"></i>Download
-                    </a>
+                    </button>
                   ) : (
                     <button className="btn btn-secondary" disabled>
                       No Resume Available
@@ -532,14 +596,16 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                 </div>
                 <div className="col-md-6">
                   <div className="mb-3 text-md-end">
-                    <a
-                      href={candidateDetails.coverLetterFile.url}
+                    <button
+                      onClick={() =>
+                        handleDownloadResume(
+                          candidateDetails.coverLetterFile.url,
+                        )
+                      }
                       className="btn btn-dark d-inline-flex align-items-center"
-                      target="_blank"
-                      rel="noopener noreferrer"
                     >
                       <i className="ti ti-download me-1"></i>Download
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -706,14 +772,14 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
               <div className="col-md-6">
                 <div className="mb-3 text-md-end">
                   {candidateDetails.resume?.url ? (
-                    <a
-                      href={candidateDetails.resume.url}
+                    <button
+                      onClick={() =>
+                        handleDownloadResume(candidateDetails.resume.url)
+                      }
                       className="btn btn-dark d-inline-flex align-items-center"
-                      target="_blank"
-                      rel="noopener noreferrer"
                     >
                       <i className="ti ti-download me-1"></i>Download
-                    </a>
+                    </button>
                   ) : (
                     <button className="btn btn-secondary" disabled>
                       No Resume Available
@@ -781,7 +847,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                   <p className="mb-1">Current Status</p>
                   <span
                     className={`badge ${getStatusBadgeClass(
-                      selectedStatus
+                      selectedStatus,
                     )} d-inline-flex align-items-center`}
                   >
                     <i className="ti ti-point-filled me-1"></i>
@@ -808,7 +874,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                             year: "numeric",
                             month: "short",
                             day: "numeric",
-                          }
+                          },
                         )
                       : "Not specified"}
                   </h6>
@@ -838,7 +904,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                 <div className="dropdown">
                   <button
                     className={`btn btn-${getStatusBadgeClass(
-                      selectedStatus
+                      selectedStatus,
                     ).replace("bg-", "")} dropdown-toggle`}
                     type="button"
                     id="statusDropdown"
@@ -985,7 +1051,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                     <div className="d-flex justify-content-between align-items-center">
                       <span
                         className={`badge ${getStatusBadgeClass(
-                          history.status
+                          history.status,
                         )}`}
                       >
                         {history.status}
@@ -1127,8 +1193,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                           <div className="mb-3">
                             <p className="mb-1">Candidate Name</p>
                             <h6 className="fw-normal">
-                              {candidateDetails?.userName||"candidate"}
-                             
+                              {candidateDetails?.userName || "candidate"}
                             </h6>
                           </div>
                         </div>
@@ -1146,7 +1211,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                             <h6 className="fw-normal">
                               {candidate?.appliedDate
                                 ? new Date(
-                                    candidate.appliedDate
+                                    candidate.appliedDate,
                                   ).toLocaleDateString()
                                 : "Not specified"}
                             </h6>
@@ -1174,7 +1239,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate }) => {
                             <p className="mb-1">Current Status</p>
                             <span
                               className={`badge ${getStatusBadgeClass(
-                                candidate?.employapplicantstatus || "Pending"
+                                candidate?.employapplicantstatus || "Pending",
                               )}`}
                             >
                               {candidate?.employapplicantstatus || "Pending"}

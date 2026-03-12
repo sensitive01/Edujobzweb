@@ -3,7 +3,12 @@ import user01 from "../../assets/employer/assets/img/users/user-01.jpg";
 import AddNoteModal from "../../components/common/AddNoteModal";
 import { FaLink, FaFilePdf } from "react-icons/fa";
 
-const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate }) => {
+const EmployerCandidatesDetails = ({
+  show,
+  onClose,
+  candidate,
+  onCandidateUpdate,
+}) => {
   console.log("candidate-->", candidate);
   const [activeTab, setActiveTab] = useState("profile");
   const [showModal, setShowModal] = useState(false);
@@ -11,7 +16,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState(
-    candidate?.employapplicantstatus || "Pending"
+    candidate?.employapplicantstatus || "Pending",
   );
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateError, setUpdateError] = useState(null);
@@ -37,17 +42,42 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
       setError(null);
 
       const token = localStorage.getItem("employerToken");
-      if (!token) {
+      const employerData = JSON.parse(
+        localStorage.getItem("employerData") || "{}",
+      );
+
+      if (!token || !employerData._id) {
         throw new Error("Authentication required");
       }
 
+      // 1. Decrease profile view count (and check limit)
+      const decreaseResponse = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/employer/decreaseProfileView/${employerData._id}/${candidate.applicantId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (decreaseResponse.status === 403) {
+        const errorData = await decreaseResponse.json();
+        throw new Error(errorData.message || "Profile view limit reached");
+      }
+
+      if (!decreaseResponse.ok) {
+        console.error("Failed to decrease profile view count");
+      }
+
+      // 2. Fetch actual details
       const response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/fetchemployee/${candidate.applicantId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -60,7 +90,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
       setSelectedStatus(
         data.employapplicantstatus ||
           candidate?.employapplicantstatus ||
-          "Pending"
+          "Pending",
       );
     } catch (err) {
       console.error("Error fetching candidate details:", err);
@@ -70,13 +100,54 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
     }
   };
 
+  const handleDownloadResume = async (resumeUrl) => {
+    try {
+      const token = localStorage.getItem("employerToken");
+      const employerData = JSON.parse(
+        localStorage.getItem("employerData") || "{}",
+      );
+
+      if (!token || !employerData._id) {
+        alert("Authentication required. Please log in.");
+        return;
+      }
+
+      // Decrease download count (and check limit)
+      const decreaseResponse = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/employer/decreaseResumeDownload/${employerData._id}/${candidate.applicantId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (decreaseResponse.status === 403) {
+        const errorData = await decreaseResponse.json();
+        alert(errorData.message || "Resume download limit reached");
+        return;
+      }
+
+      if (!decreaseResponse.ok) {
+        console.error("Failed to decrease resume download count");
+      }
+
+      // If check passed (or failed but we proceed), open the resume
+      window.open(resumeUrl, "_blank");
+    } catch (error) {
+      console.error("Error downloading resume:", error);
+      alert("Failed to download resume. Please try again.");
+    }
+  };
+
   const updateLocalState = (newStatus, newNotes) => {
     // Update local component state
     setSelectedStatus(newStatus);
     setNotes(newNotes);
-    
+
     // Update candidate details
-    setCandidateDetails(prev => ({
+    setCandidateDetails((prev) => ({
       ...prev,
       employapplicantstatus: newStatus,
       notes: newNotes,
@@ -93,8 +164,8 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
           notes: newNotes,
           updatedAt: new Date().toISOString(),
         },
-        ...(candidate?.statusHistory || [])
-      ]
+        ...(candidate?.statusHistory || []),
+      ],
     };
 
     // Notify parent component about the update
@@ -131,25 +202,24 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
             status: selectedStatus,
             notes: newNote,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          errorData.message || "Failed to update status and notes"
+          errorData.message || "Failed to update status and notes",
         );
       }
 
       // Update local state instead of reloading
       updateLocalState(selectedStatus, newNote);
-      
+
       setShowModal(false);
       setUpdateSuccess(true);
-      
+
       // Hide success message after 3 seconds
       setTimeout(() => setUpdateSuccess(false), 3000);
-
     } catch (err) {
       console.error("Error updating notes:", err);
       setUpdateError(err.message);
@@ -184,24 +254,23 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
             status: selectedStatus,
             notes: updatedNotes,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          errorData.message || "Failed to update candidate status"
+          errorData.message || "Failed to update candidate status",
         );
       }
 
       // Update local state instead of reloading
       updateLocalState(selectedStatus, updatedNotes);
-      
+
       setUpdateSuccess(true);
-      
+
       // Hide success message after 3 seconds
       setTimeout(() => setUpdateSuccess(false), 3000);
-
     } catch (err) {
       console.error("Error updating candidate status:", err);
       setUpdateError(err.message);
@@ -251,7 +320,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
     "Hired",
     "Rejected",
   ];
-  
+
   const getStatusBadgeClass = (status) => {
     return "bg-purple";
   };
@@ -297,7 +366,8 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
                 <div className="mb-3">
                   <p className="mb-1">Candidate Name</p>
                   <h6 className="fw-normal">
-                    {candidateDetails.firstName}{candidate.userName}
+                    {candidateDetails.firstName}
+                    {candidate.userName}
                     {candidateDetails.lastName || candidate.lastName}
                   </h6>
                 </div>
@@ -454,7 +524,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
                           <small className="text-muted">
                             Duration:{" "}
                             {formatDuration(
-                              candidateDetails.introductionAudio.duration
+                              candidateDetails.introductionAudio.duration,
                             )}
                           </small>
                         </div>
@@ -526,9 +596,267 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
           </div>
         </div>
 
-        {/* Rest of the profile sections... */}
-        {/* Documents, Grade Levels, Address, Education, Work Experience, Skills sections remain the same */}
-        {/* ... Include all other sections from your original code ... */}
+        <div className="card">
+          <div className="card-header">
+            <h5>Documents</h5>
+          </div>
+          <div className="card-body pb-0">
+            <div className="row align-items-center">
+              <div className="col-md-6">
+                <div className="d-flex align-items-center mb-3">
+                  <span className="avatar avatar-lg bg-light-500 border text-dark me-2">
+                    <i className="ti ti-file-description fs-24"></i>
+                  </span>
+                  <div>
+                    <h6 className="fw-medium">
+                      {candidateDetails.resume?.name || "Resume.pdf"}
+                    </h6>
+                    <span>Download</span>
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="mb-3 text-md-end">
+                  {candidateDetails.resume?.url ? (
+                    <button
+                      onClick={() =>
+                        handleDownloadResume(candidateDetails.resume.url)
+                      }
+                      className="btn btn-dark d-inline-flex align-items-center"
+                    >
+                      <i className="ti ti-download me-1"></i>Download
+                    </button>
+                  ) : (
+                    <button className="btn btn-secondary" disabled>
+                      No Resume Available
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+            {candidateDetails.coverLetterFile?.url && (
+              <div className="row align-items-center mt-3">
+                <div className="col-md-6">
+                  <div className="d-flex align-items-center mb-3">
+                    <span className="avatar avatar-lg bg-light-500 border text-dark me-2">
+                      <i className="ti ti-file-description fs-24"></i>
+                    </span>
+                    <div>
+                      <h6 className="fw-medium">
+                        {candidateDetails.coverLetterFile?.name ||
+                          "CoverLetter.pdf"}
+                      </h6>
+                      <span>Download</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="mb-3 text-md-end">
+                    <button
+                      onClick={() =>
+                        handleDownloadResume(
+                          candidateDetails.coverLetterFile.url,
+                        )
+                      }
+                      className="btn btn-dark d-inline-flex align-items-center"
+                    >
+                      <i className="ti ti-download me-1"></i>Download
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {candidateDetails.gradeLevels?.length > 0 && (
+          <div className="card">
+            <div className="card-header">
+              <h5>Grade Levels</h5>
+            </div>
+            <div className="card-body pb-0">
+              <div className="d-flex flex-wrap gap-2">
+                {candidateDetails.gradeLevels.map((grade, index) => (
+                  <span key={index} className="badge bg-primary-transparent">
+                    {grade}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="card">
+          <div className="card-header">
+            <h5>Address Information</h5>
+          </div>
+          <div className="card-body pb-0">
+            <div className="row align-items-center">
+              <div className="col-md-4">
+                <div className="mb-3">
+                  <p className="mb-1">Address</p>
+                  <h6 className="fw-normal">
+                    {candidateDetails.addressLine1 || "Not specified"}
+                    {candidateDetails.addressLine2 &&
+                      `, ${candidateDetails.addressLine2}`}
+                  </h6>
+                </div>
+              </div>
+              <div className="col-md-4">
+                <div className="mb-3">
+                  <p className="mb-1">City</p>
+                  <h6 className="fw-normal">
+                    {candidateDetails.city ||
+                      candidateDetails.currentCity ||
+                      "Not specified"}
+                  </h6>
+                </div>
+              </div>
+              <div className="col-md-4">
+                <div className="mb-3">
+                  <p className="mb-1">State</p>
+                  <h6 className="fw-normal">
+                    {candidateDetails.state || "Not specified"}
+                  </h6>
+                </div>
+              </div>
+              <div className="col-md-4">
+                <div className="mb-3">
+                  <p className="mb-1">Pincode</p>
+                  <h6 className="fw-normal">
+                    {candidateDetails.pincode || "Not specified"}
+                  </h6>
+                </div>
+              </div>
+              <div className="col-md-4">
+                <div className="mb-3">
+                  <p className="mb-1">Preferred Location</p>
+                  <h6 className="fw-normal">
+                    {candidateDetails.preferredLocation || "Not specified"}
+                  </h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {candidateDetails.education?.length > 0 && (
+          <div className="card">
+            <div className="card-header">
+              <h5>Education</h5>
+            </div>
+            <div className="card-body pb-0">
+              {candidateDetails.education.map((edu, index) => (
+                <div key={index} className="mb-4">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <h6 className="fw-medium mb-0">{edu.degree}</h6>
+                    <span className="badge bg-light text-dark">
+                      {edu.startDate} - {edu.endDate || "Present"}
+                    </span>
+                  </div>
+                  <p className="mb-1">{edu.institution}</p>
+                  <p className="text-muted">{edu.type}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {candidateDetails.workExperience?.length > 0 && (
+          <div className="card">
+            <div className="card-header">
+              <h5>Work Experience</h5>
+            </div>
+            <div className="card-body pb-0">
+              {candidateDetails.workExperience.map((exp, index) => (
+                <div key={index} className="mb-4">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <h6 className="fw-medium mb-0">{exp.position}</h6>
+                    <span className="badge bg-light text-dark">
+                      {exp.startDate} - {exp.endDate || "Present"}
+                    </span>
+                  </div>
+                  <p className="mb-1">
+                    {exp.company} ({exp.employmentType})
+                  </p>
+                  {exp.description && (
+                    <p className="text-muted">{exp.description}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="card">
+          <div className="card-header">
+            <h5>Skills</h5>
+          </div>
+          <div className="card-body pb-0">
+            <div className="d-flex flex-wrap gap-2">
+              {candidateDetails.skills?.length > 0 ? (
+                candidateDetails.skills.map((skill, index) => (
+                  <span key={index} className="badge bg-primary-transparent">
+                    {skill}
+                  </span>
+                ))
+              ) : (
+                <p>No skills specified</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-header">
+            <h5>Resume</h5>
+          </div>
+          <div className="card-body pb-0">
+            <div className="row align-items-center">
+              <div className="col-md-6">
+                <div className="d-flex align-items-center mb-3">
+                  <span className="avatar avatar-lg bg-light-500 border text-dark me-2">
+                    <i className="ti ti-file-description fs-24"></i>
+                  </span>
+                  <div>
+                    <h6 className="fw-medium">
+                      {candidateDetails.resume?.name || "Resume.pdf"}
+                    </h6>
+                    <span>Download</span>
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="mb-3 text-md-end">
+                  {candidateDetails.resume?.url ? (
+                    <button
+                      onClick={() =>
+                        handleDownloadResume(candidateDetails.resume.url)
+                      }
+                      className="btn btn-dark d-inline-flex align-items-center"
+                    >
+                      <i className="ti ti-download me-1"></i>Download
+                    </button>
+                  ) : (
+                    <button className="btn btn-secondary" disabled>
+                      No Resume Available
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {candidateDetails.profilesummary && (
+          <div className="card">
+            <div className="card-header">
+              <h5>Profile Summary</h5>
+            </div>
+            <div className="card-body">
+              <p>{candidateDetails.profilesummary}</p>
+            </div>
+          </div>
+        )}
       </>
     );
   };
@@ -625,7 +953,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
                             year: "numeric",
                             month: "short",
                             day: "numeric",
-                          }
+                          },
                         )
                       : "Not specified"}
                   </h6>
@@ -655,7 +983,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
                 <div className="dropdown">
                   <button
                     className={`btn btn-${getStatusBadgeClass(
-                      selectedStatus
+                      selectedStatus,
                     ).replace("bg-", "")} dropdown-toggle`}
                     type="button"
                     id="statusDropdown"
@@ -689,7 +1017,11 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
               >
                 {isUpdating ? (
                   <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
                     Updating...
                   </>
                 ) : (
@@ -759,7 +1091,11 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
           >
             {isUpdating ? (
               <>
-                <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                <span
+                  className="spinner-border spinner-border-sm me-1"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
                 Processing...
               </>
             ) : (
@@ -815,7 +1151,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
                     <div className="d-flex justify-content-between align-items-center">
                       <span
                         className={`badge ${getStatusBadgeClass(
-                          history.status
+                          history.status,
                         )}`}
                       >
                         {history.status}
@@ -976,7 +1312,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
                             <h6 className="fw-normal">
                               {candidate?.appliedDate
                                 ? new Date(
-                                    candidate.appliedDate
+                                    candidate.appliedDate,
                                   ).toLocaleDateString()
                                 : "Not specified"}
                             </h6>
@@ -1005,7 +1341,7 @@ const EmployerCandidatesDetails = ({ show, onClose, candidate, onCandidateUpdate
                             <div>
                               <span
                                 className={`badge ${getStatusBadgeClass(
-                                  selectedStatus
+                                  selectedStatus,
                                 )}`}
                               >
                                 {selectedStatus}

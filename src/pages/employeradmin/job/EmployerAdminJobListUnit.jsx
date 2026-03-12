@@ -228,21 +228,21 @@ const EmployerAdminJobListUnit = () => {
     // Apply role filter if not default
     if (selectedRole !== "Role") {
       filtered = filtered.filter((job) =>
-        job.title.toLowerCase().includes(selectedRole.toLowerCase())
+        job.title.toLowerCase().includes(selectedRole.toLowerCase()),
       );
     }
 
     // Apply status filter if not default
     if (selectedStatus !== "Select Status") {
       filtered = filtered.filter(
-        (job) => job.status.toLowerCase() === selectedStatus.toLowerCase()
+        (job) => job.status.toLowerCase() === selectedStatus.toLowerCase(),
       );
     }
 
     // Apply sorting
     if (sortBy === "Recently Added") {
       filtered.sort(
-        (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
+        (a, b) => new Date(b.createdDate) - new Date(a.createdDate),
       );
     } else if (sortBy === "Ascending") {
       filtered.sort((a, b) => a.title.localeCompare(b.title));
@@ -252,13 +252,13 @@ const EmployerAdminJobListUnit = () => {
       const lastMonth = new Date();
       lastMonth.setMonth(lastMonth.getMonth() - 1);
       filtered = filtered.filter(
-        (job) => new Date(job.createdDate) >= lastMonth
+        (job) => new Date(job.createdDate) >= lastMonth,
       );
     } else if (sortBy === "Last 7 Days") {
       const lastWeek = new Date();
       lastWeek.setDate(lastWeek.getDate() - 7);
       filtered = filtered.filter(
-        (job) => new Date(job.createdDate) >= lastWeek
+        (job) => new Date(job.createdDate) >= lastWeek,
       );
     }
 
@@ -351,7 +351,7 @@ const EmployerAdminJobListUnit = () => {
     try {
       setLoading(true);
       const employerAdminData = JSON.parse(
-        localStorage.getItem("EmployerAdminData") || "{}"
+        localStorage.getItem("EmployerAdminData") || "{}",
       );
 
       if (!employerAdminData || !employerAdminData._id) {
@@ -359,7 +359,7 @@ const EmployerAdminJobListUnit = () => {
       }
 
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/employeradmin/getjobsbyorg/${employerAdminData._id}`
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/getjobsbyorg/${employerAdminData._id}`,
       );
 
       // Handle case when no jobs are found (empty array)
@@ -381,7 +381,7 @@ const EmployerAdminJobListUnit = () => {
         applicants: job.applications?.length || 0,
         shortlisted:
           job.applications?.filter(
-            (app) => app.employapplicantstatus === "Shortlisted"
+            (app) => app.employapplicantstatus === "Shortlisted",
           ).length || 0,
         location: job.location,
         salaryFrom: job.salaryFrom || 0,
@@ -440,7 +440,7 @@ const EmployerAdminJobListUnit = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       // Update local state
@@ -448,8 +448,8 @@ const EmployerAdminJobListUnit = () => {
         jobs.map((job) =>
           job.id === jobId
             ? { ...job, status: newStatus ? "Active" : "Inactive" }
-            : job
-        )
+            : job,
+        ),
       );
 
       // Update filtered jobs as well
@@ -457,8 +457,8 @@ const EmployerAdminJobListUnit = () => {
         filteredJobs.map((job) =>
           job.id === jobId
             ? { ...job, status: newStatus ? "Active" : "Inactive" }
-            : job
-        )
+            : job,
+        ),
       );
     } catch (err) {
       console.error("Error updating job status:", err);
@@ -471,7 +471,7 @@ const EmployerAdminJobListUnit = () => {
     try {
       const token = localStorage.getItem("EmployerAdminToken");
       const employerData = JSON.parse(
-        localStorage.getItem("EmployerAdminData") || {}
+        localStorage.getItem("EmployerAdminData") || {},
       );
 
       const response = await axios.post(
@@ -484,7 +484,7 @@ const EmployerAdminJobListUnit = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (response.data) {
@@ -512,7 +512,7 @@ const EmployerAdminJobListUnit = () => {
   // Handle individual job selection
   const handleJobSelect = (id) => {
     setSelectedJobs((prev) =>
-      prev.includes(id) ? prev.filter((jobId) => jobId !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((jobId) => jobId !== id) : [...prev, id],
     );
   };
 
@@ -607,7 +607,7 @@ const EmployerAdminJobListUnit = () => {
                           setDateRange({ ...dateRange, start: e.target.value });
                           if (dateRange.end && e.target.value) {
                             setSelectedDateRange(
-                              `${e.target.value} - ${dateRange.end}`
+                              `${e.target.value} - ${dateRange.end}`,
                             );
                           }
                         }}
@@ -623,7 +623,7 @@ const EmployerAdminJobListUnit = () => {
                           setDateRange({ ...dateRange, end: e.target.value });
                           if (dateRange.start && e.target.value) {
                             setSelectedDateRange(
-                              `${dateRange.start} - ${e.target.value}`
+                              `${dateRange.start} - ${e.target.value}`,
                             );
                           }
                         }}
@@ -973,7 +973,7 @@ const EmployerAdminJobListUnit = () => {
                             ? `${Math.round(
                                 (candidateStats.completed /
                                   candidateStats.total) *
-                                  100
+                                  100,
                               )}%`
                             : "0%"}
                         </span>
@@ -1021,7 +1021,7 @@ const EmployerAdminJobListUnit = () => {
                             ? `${Math.round(
                                 (candidateStats.completed /
                                   candidateStats.total) *
-                                  100
+                                  100,
                               )}%`
                             : "0%"}
                         </span>
@@ -1069,7 +1069,7 @@ const EmployerAdminJobListUnit = () => {
                             ? `${Math.round(
                                 (candidateStats.pending /
                                   candidateStats.total) *
-                                  100
+                                  100,
                               )}%`
                             : "0%"}
                         </span>
@@ -1115,7 +1115,7 @@ const EmployerAdminJobListUnit = () => {
                           {candidateStats.total > 0
                             ? `${Math.round(
                                 (candidateStats.new / candidateStats.total) *
-                                  100
+                                  100,
                               )}%`
                             : "0%"}
                         </span>
@@ -1345,7 +1345,7 @@ const EmployerAdminJobListUnit = () => {
                                 onChange={() =>
                                   toggleJobStatus(
                                     job.id,
-                                    job.status === "Active"
+                                    job.status === "Active",
                                   )
                                 }
                               />
@@ -1386,11 +1386,11 @@ const EmployerAdminJobListUnit = () => {
                         ...j,
                         ...updatedJob,
                         postedDate: formatDate(
-                          updatedJob.updatedAt || updatedJob.createdAt
+                          updatedJob.updatedAt || updatedJob.createdAt,
                         ),
                       }
-                    : j
-                )
+                    : j,
+                ),
               );
             }}
           />
@@ -1466,7 +1466,11 @@ const AddJobModal = ({ activeTab, onTabChange, onClose, onSubmit }) => {
     companyUrl: "",
     applicationInstructions: "",
     priority: "",
+    isSubscribed: false,
   });
+
+  const [subunits, setSubunits] = useState([]);
+  const [adminProfile, setAdminProfile] = useState(null);
 
   const [newSkill, setNewSkill] = useState("");
   const [newLocationType, setNewLocationType] = useState("");
@@ -1474,22 +1478,46 @@ const AddJobModal = ({ activeTab, onTabChange, onClose, onSubmit }) => {
   useEffect(() => {
     const fetchAndPrefillData = async () => {
       try {
-        const employerData = JSON.parse(
-          localStorage.getItem("EmployerAdminData") || "{}"
+        const employerAdminData = JSON.parse(
+          localStorage.getItem("EmployerAdminData") || "{}",
         );
+        const token = localStorage.getItem("EmployerAdminToken");
+
+        if (!employerAdminData._id || !token) return;
+
+        // Fetch admin profile
+        const adminRes = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/employeradmin/fetchprofile/${employerAdminData._id}`,
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+
+        const profile = adminRes.data.admin;
+        setAdminProfile(profile);
 
         // Prefill form with employer data
         const newFormData = {
           ...formData,
-          companyName:
-            employerData.schoolName || employerData.companyName || "",
-          contactEmail: employerData.userEmail || "",
-          contactPhone: employerData.userMobile || "",
-          location: employerData.city || employerData.address || "",
-          companyUrl: employerData.website || "",
+          employid: employerAdminData._id || "",
+          companyName: profile.schoolName || profile.companyName || "",
+          contactEmail: profile.userEmail || "",
+          contactPhone: profile.userMobile || "",
+          location: profile.city || profile.address || "",
+          companyUrl: profile.website || "",
+          isSubscribed: !!(
+            profile.subscription === "true" || profile.isSubscribed
+          ),
         };
 
         setFormData(newFormData);
+
+        // Fetch Subunits
+        const response = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/employeradmin/fetchbyorg/${employerAdminData._id}`,
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+        if (response.data.success) {
+          setSubunits(response.data.data);
+        }
       } catch (error) {
         console.error("Error pre-filling form:", error);
       }
@@ -1523,6 +1551,45 @@ const AddJobModal = ({ activeTab, onTabChange, onClose, onSubmit }) => {
     }));
   };
 
+  const handleSubunitChange = (e) => {
+    const subunitId = e.target.value;
+    const employerAdminData = JSON.parse(
+      localStorage.getItem("EmployerAdminData") || "{}",
+    );
+
+    if (subunitId === employerAdminData._id) {
+      if (adminProfile) {
+        setFormData((prev) => ({
+          ...prev,
+          employid: employerAdminData._id || "",
+          companyName:
+            adminProfile.schoolName || adminProfile.companyName || "",
+          contactEmail: adminProfile.userEmail || "",
+          contactPhone: adminProfile.userMobile || "",
+          location: adminProfile.city || adminProfile.address || "",
+          companyUrl: adminProfile.website || "",
+          isSubscribed: !!(
+            adminProfile.subscription === "true" || adminProfile.isSubscribed
+          ),
+        }));
+      }
+    } else {
+      const selected = subunits.find((s) => s._id === subunitId);
+      if (selected) {
+        setFormData((prev) => ({
+          ...prev,
+          employid: selected._id,
+          companyName: selected.schoolName || selected.companyName || "",
+          contactEmail: selected.userEmail || "",
+          contactPhone: selected.userMobile || "",
+          location: selected.city || selected.address || "",
+          companyUrl: selected.website || "",
+          isSubscribed: selected.subscription === "true",
+        }));
+      }
+    }
+  };
+
   const handleAddLocationType = (type) => {
     if (type && !formData.locationTypes.includes(type)) {
       setFormData((prev) => ({
@@ -1541,6 +1608,10 @@ const AddJobModal = ({ activeTab, onTabChange, onClose, onSubmit }) => {
   };
 
   const handleSubmit = () => {
+    if (!formData.employid) {
+      alert("Employer ID not found");
+      return;
+    }
     onSubmit(formData);
   };
 
@@ -1593,6 +1664,55 @@ const AddJobModal = ({ activeTab, onTabChange, onClose, onSubmit }) => {
                 {activeTab === "basic-info" && (
                   <div className="tab-pane fade show active">
                     <div className="row">
+                      {subunits && subunits.length > 0 && (
+                        <div className="col-md-12">
+                          <div className="mb-3">
+                            <label className="form-label">
+                              Post Job As <span className="text-danger">*</span>
+                            </label>
+                            <select
+                              className="form-select border-primary"
+                              value={formData.employid}
+                              onChange={handleSubunitChange}
+                              required
+                            >
+                              <option
+                                value={
+                                  JSON.parse(
+                                    localStorage.getItem("EmployerAdminData") ||
+                                      "{}",
+                                  )._id
+                                }
+                              >
+                                Admin (Self)
+                              </option>
+                              {subunits.map((unit) => (
+                                <option key={unit._id} value={unit._id}>
+                                  {unit.schoolName || unit.companyName} (
+                                  {unit.userEmail})
+                                </option>
+                              ))}
+                            </select>
+                            {formData.employid &&
+                              formData.employid !==
+                                JSON.parse(
+                                  localStorage.getItem("EmployerAdminData") ||
+                                    "{}",
+                                )._id &&
+                              !formData.isSubscribed && (
+                                <div className="alert alert-warning mt-2 py-2 fs-12">
+                                  <i className="ti ti-alert-triangle me-2"></i>
+                                  This subunit does not have an active
+                                  subscription. Job posting may be restricted.
+                                </div>
+                              )}
+                            <small className="text-muted">
+                              Choose if you are posting this job for yourself or
+                              for a subunit.
+                            </small>
+                          </div>
+                        </div>
+                      )}
                       <div className="col-md-6">
                         <div className="mb-3">
                           <label className="form-label">
@@ -2080,7 +2200,7 @@ const EditJobModal = ({ jobId, onClose, onJobUpdated }) => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         const jobData = response.data;
@@ -2183,7 +2303,7 @@ const EditJobModal = ({ jobId, onClose, onJobUpdated }) => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       onJobUpdated(response.data);
@@ -2723,8 +2843,8 @@ const EditJobModal = ({ jobId, onClose, onJobUpdated }) => {
               {activeTab === "basic-info"
                 ? "Save & Next"
                 : isSubmitting
-                ? "Updating..."
-                : "Update Job"}
+                  ? "Updating..."
+                  : "Update Job"}
             </button>
           </div>
         </div>

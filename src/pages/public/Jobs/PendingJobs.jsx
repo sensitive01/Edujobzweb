@@ -40,13 +40,16 @@ const PendingJobs = () => {
         }
 
         const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/applicant/${userData._id}`
+          `${import.meta.env.VITE_BASE_URL}/applicant/${userData._id}`,
         );
 
         if (response.data) {
           // Filter for pending jobs (status: "pending" or "applied")
           const filtered = response.data.filter(
-            (job) => job.status === "pending" || job.status === "applied" || !job.status
+            (job) =>
+              job.status === "pending" ||
+              job.status === "applied" ||
+              !job.status,
           );
           setPendingJobs(filtered);
         } else {
@@ -60,7 +63,7 @@ const PendingJobs = () => {
           setError(
             err.response?.data?.message ||
               err.message ||
-              "Failed to fetch pending jobs"
+              "Failed to fetch pending jobs",
           );
         }
       } finally {
@@ -183,9 +186,17 @@ const PendingJobs = () => {
                       {currentJobs.map((job) => (
                         <div
                           key={job._id}
-                          className="col-12 col-sm-6 col-lg-4 col-xl-4 mb-15 mb-md-30"
+                          className="col-12 col-sm-6 col-lg-4 col-xl-4 mb-15 mb-md-30 d-flex"
                         >
-                          <article className="featured-category-box border border-warning pt-20">
+                          <article
+                            className="featured-category-box border border-warning pt-20"
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              height: "100%",
+                              width: "100%",
+                            }}
+                          >
                             <span className="tag bg-warning text-dark">
                               {job.jobType || "Full Time"}
                             </span>
@@ -221,13 +232,21 @@ const PendingJobs = () => {
                                     style={{ objectFit: "cover" }}
                                     onError={(e) => {
                                       e.target.onerror = null;
-                                      e.target.src = "/images/default-profile-pic.jpg";
+                                      e.target.src =
+                                        "/images/default-profile-pic.jpg";
                                     }}
                                   />
                                 </div>
                               )}
                             </div>
-                            <div className="textbox">
+                            <div
+                              className="textbox"
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                flexGrow: 1,
+                              }}
+                            >
                               <strong className="h6 mb-0">
                                 {job.companyName}
                               </strong>
@@ -260,16 +279,23 @@ const PendingJobs = () => {
                                   {new Date(job.createdAt).toLocaleDateString()}
                                 </span>
                               </div>
-                              <Link
-                                to={`/job-details/${job._id}`}
-                                className="btn btn-warning btn-sm"
+                              <div
+                                style={{
+                                  marginTop: "auto",
+                                  paddingTop: "10px",
+                                }}
                               >
-                                <span className="btn-text">
-                                  <FaClock className="text-dark me-1" />
-                                  View Details
-                                  <FaChevronRight className="icon-chevron-right" />
-                                </span>
-                              </Link>
+                                <Link
+                                  to={`/job-details/${job._id}`}
+                                  className="btn btn-warning btn-sm"
+                                >
+                                  <span className="btn-text">
+                                    <FaClock className="text-dark me-1" />
+                                    View Details
+                                    <FaChevronRight className="icon-chevron-right" />
+                                  </span>
+                                </Link>
+                              </div>
                             </div>
                           </article>
                         </div>
@@ -323,7 +349,7 @@ const PendingJobs = () => {
                                     {pageNum}
                                   </a>
                                 </li>
-                              )
+                              ),
                             )}
 
                             <li
@@ -362,7 +388,10 @@ const PendingJobs = () => {
                         <FaSearch className="me-2" />
                         Browse Jobs
                       </Link>
-                      <Link to="/applied-jobs" className="btn btn-outline-secondary">
+                      <Link
+                        to="/applied-jobs"
+                        className="btn btn-outline-secondary"
+                      >
                         View All Applications
                       </Link>
                     </div>

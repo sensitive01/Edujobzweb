@@ -64,7 +64,7 @@ const JobsPage = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/employer/fetchjobs`
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchjobs`,
         );
         if (!response.ok) {
           throw new Error("Failed to fetch jobs");
@@ -77,7 +77,7 @@ const JobsPage = () => {
         ].filter(Boolean);
         const uniqueLocations = [
           ...new Set(
-            data.flatMap((job) => (job.isRemote ? ["Remote"] : [job.location]))
+            data.flatMap((job) => (job.isRemote ? ["Remote"] : [job.location])),
           ),
         ].filter(Boolean);
         const uniqueExperienceLevels = [
@@ -101,7 +101,7 @@ const JobsPage = () => {
           ...new Set(data.map((job) => job.levelExamType)),
         ].filter(Boolean);
         const uniqueRoles = [...new Set(data.map((job) => job.role))].filter(
-          Boolean
+          Boolean,
         );
         const uniqueSubjects = [
           ...new Set(data.map((job) => job.subject)),
@@ -162,7 +162,7 @@ const JobsPage = () => {
         filteredJobs = filteredJobs.filter(
           (job) =>
             job.category &&
-            job.category.toLowerCase() === filters.category.toLowerCase()
+            job.category.toLowerCase() === filters.category.toLowerCase(),
         );
       }
 
@@ -188,36 +188,36 @@ const JobsPage = () => {
           filteredJobs = filteredJobs.filter((job) => job.isRemote);
         } else {
           filteredJobs = filteredJobs.filter(
-            (job) => job.location === filters.location
+            (job) => job.location === filters.location,
           );
         }
       }
 
       if (filters.jobType) {
         filteredJobs = filteredJobs.filter(
-          (job) => job.jobType === filters.jobType
+          (job) => job.jobType === filters.jobType,
         );
       }
       if (filters.experienceLevel) {
         filteredJobs = filteredJobs.filter(
-          (job) => job.experienceLevel === filters.experienceLevel
+          (job) => job.experienceLevel === filters.experienceLevel,
         );
       }
 
       // Apply subfilters
       if (filters.instituteType) {
         filteredJobs = filteredJobs.filter(
-          (job) => job.instituteType === filters.instituteType
+          (job) => job.instituteType === filters.instituteType,
         );
       }
       if (filters.subcategory) {
         filteredJobs = filteredJobs.filter(
-          (job) => job.subcategory === filters.subcategory
+          (job) => job.subcategory === filters.subcategory,
         );
       }
       if (filters.levelExamType) {
         filteredJobs = filteredJobs.filter(
-          (job) => job.levelExamType === filters.levelExamType
+          (job) => job.levelExamType === filters.levelExamType,
         );
       }
       if (filters.role) {
@@ -225,12 +225,12 @@ const JobsPage = () => {
       }
       if (filters.subject) {
         filteredJobs = filteredJobs.filter(
-          (job) => job.subject === filters.subject
+          (job) => job.subject === filters.subject,
         );
       }
       if (filters.nonAcademicType) {
         filteredJobs = filteredJobs.filter(
-          (job) => job.nonAcademicType === filters.nonAcademicType
+          (job) => job.nonAcademicType === filters.nonAcademicType,
         );
       }
 
@@ -315,7 +315,7 @@ const JobsPage = () => {
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = filteredJobListings.slice(
     indexOfFirstJob,
-    indexOfLastJob
+    indexOfLastJob,
   );
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -706,12 +706,12 @@ const JobsPage = () => {
                     currentJobs.map((job, index) => (
                       <div
                         key={job._id || index}
-                        className="col-12 col-sm-6 col-lg-4 col-xl-3 mb-15 mb-md-30"
+                        className="col-12 col-sm-6 col-lg-4 col-xl-3 mb-15 mb-md-30 d-flex"
                       >
                         <JobCard
                           id={job._id}
                           postedTime={new Date(
-                            job.createdAt
+                            job.createdAt,
                           ).toLocaleDateString()}
                           companyLogo={
                             job.companyLogo ||
@@ -776,7 +776,7 @@ const JobsPage = () => {
                         </li>
                         {[
                           ...Array(
-                            Math.ceil(filteredJobListings.length / jobsPerPage)
+                            Math.ceil(filteredJobListings.length / jobsPerPage),
                           ).keys(),
                         ].map((number) => (
                           <li
@@ -807,7 +807,7 @@ const JobsPage = () => {
                             disabled={
                               currentPage ===
                               Math.ceil(
-                                filteredJobListings.length / jobsPerPage
+                                filteredJobListings.length / jobsPerPage,
                               )
                             }
                           >
@@ -1178,7 +1178,16 @@ const JobCard = ({
   };
 
   return (
-    <article className="featured-category-box pt-20">
+    <article
+      className="featured-category-box pt-20"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        width: "100%",
+        position: "relative",
+      }}
+    >
       <div
         onClick={handleJobClick}
         style={{
@@ -1196,48 +1205,93 @@ const JobCard = ({
       <span className="tag">
         <b className="text-primary">Posted:</b> {postedTime}
       </span>
-      <div className="img-holder">
-        <img
-          src={jobImage}
-          width="78"
-          height="78"
-          alt={companyName}
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = jobImage;
-          }}
-        />
-
-        {employerProfilePic && (
+      <div
+        className="img-holder"
+        style={{ position: "relative", width: "78px", height: "78px" }}
+      >
+        {employerProfilePic ? (
           <div
             className="employer-profile-pic"
             style={{
               position: "absolute",
-              bottom: "0px",
-              right: "0px",
+              top: 0,
+              left: 0,
               width: "100%",
               height: "100%",
               borderRadius: "50%",
               border: "2px solid white",
               overflow: "hidden",
-              backgroundColor: "white",
+              backgroundColor: "#063970",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "white",
+              fontSize: "28px",
+              fontWeight: "bold",
+              zIndex: 2,
             }}
           >
             <img
               src={employerProfilePic}
-              width="40"
-              height="40"
-              alt="Employer"
-              style={{ objectFit: "cover" }}
+              width="78"
+              height="78"
+              alt={companyName}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = "/images/default-profile-pic.jpg";
+                e.target.style.display = "none";
+                e.target.parentElement.innerHTML = companyName
+                  ? companyName.charAt(0).toUpperCase()
+                  : jobTitle
+                    ? jobTitle.charAt(0).toUpperCase()
+                    : "J";
               }}
             />
           </div>
+        ) : (
+          <div
+            className="employer-profile-pic"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              borderRadius: "50%",
+              border: "2px solid white",
+              backgroundColor: "#063970",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "white",
+              fontSize: "28px",
+              fontWeight: "bold",
+              zIndex: 2,
+            }}
+          >
+            {companyName
+              ? companyName.charAt(0).toUpperCase()
+              : jobTitle
+                ? jobTitle.charAt(0).toUpperCase()
+                : "J"}
+          </div>
         )}
+        <img
+          src={jobImage}
+          width="78"
+          height="78"
+          alt={companyName}
+          style={{ position: "absolute", top: 0, left: 0, zIndex: 1 }}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = jobImage;
+          }}
+        />
       </div>
-      <div className="textbox">
+      <div
+        className="textbox"
+        style={{ display: "flex", flexDirection: "column", flexGrow: 1 }}
+      >
         <strong className="h6 mb-0">{companyName}</strong>
         <address className="location pt-0">
           <i className="icon icon-map-pin"></i>
@@ -1262,19 +1316,21 @@ const JobCard = ({
             <b className="text-primary">Job Type:</b> {jobType}
           </span>
         </div>
-        <button
-          onClick={handleJobClick}
-          className="btn btn-dark-yellow btn-sm"
-          style={{ position: "relative", zIndex: 2 }}
-        >
-          <span className="btn-text">
-            <span className="text">
-              <i className="fa fa-check-circle text-secondary"></i> &nbsp; Apply
-              Now
+        <div style={{ marginTop: "auto", paddingTop: "10px" }}>
+          <button
+            onClick={handleJobClick}
+            className="btn btn-dark-yellow btn-sm"
+            style={{ position: "relative", zIndex: 2 }}
+          >
+            <span className="btn-text">
+              <span className="text">
+                <i className="fa fa-check-circle text-secondary"></i> &nbsp;
+                Apply Now
+              </span>
+              <i className="icon-chevron-right"></i>
             </span>
-            <i className="icon-chevron-right"></i>
-          </span>
-        </button>
+          </button>
+        </div>
       </div>
     </article>
   );

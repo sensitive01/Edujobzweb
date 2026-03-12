@@ -36,10 +36,10 @@ const EmployerAdminobDetailsPage = () => {
     return isNaN(date)
       ? "Invalid Date"
       : date.toLocaleDateString("en-US", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
   };
 
   const toggleFavorite = async (applicantId) => {
@@ -51,16 +51,16 @@ const EmployerAdminobDetailsPage = () => {
         {
           header: {
             Authorization: `Bearer ${localStorage.getItem(
-              "EmployerAdminToken"
+              "EmployerAdminToken",
             )}`,
           },
-        }
+        },
       );
       if (response.data.success) {
         setfavoriteStatus(newFavoriteStatus);
         const updatedJob = { ...job };
         const application = updatedJob.applications.find(
-          (app) => app.applicantId === applicantId
+          (app) => app.applicantId === applicantId,
         );
         if (application) {
           application.favourite = newFavoriteStatus;
@@ -70,7 +70,7 @@ const EmployerAdminobDetailsPage = () => {
     } catch (err) {
       console.error("Error updating favorite status:", err);
       setError(
-        err.response?.data?.message || "Failed to update favorite status"
+        err.response?.data?.message || "Failed to update favorite status",
       );
     }
   };
@@ -82,7 +82,7 @@ const EmployerAdminobDetailsPage = () => {
         setError(null);
 
         const EmployerAdminData = JSON.parse(
-          localStorage.getItem("EmployerAdminData")
+          localStorage.getItem("EmployerAdminData"),
         );
 
         if (!EmployerAdminData || !EmployerAdminData._id) {
@@ -94,10 +94,10 @@ const EmployerAdminobDetailsPage = () => {
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem(
-                "EmployerAdminToken"
+                "EmployerAdminToken",
               )}`,
             },
-          }
+          },
         );
 
         if (!response.data) {
@@ -114,8 +114,8 @@ const EmployerAdminobDetailsPage = () => {
       } catch (err) {
         setError(
           err.response?.data?.message ||
-          err.message ||
-          "Failed to fetch job details"
+            err.message ||
+            "Failed to fetch job details",
         );
         console.error("Error fetching job details:", err);
       } finally {
@@ -126,7 +126,7 @@ const EmployerAdminobDetailsPage = () => {
     const fetchRelatedJobs = async () => {
       try {
         const EmployerAdminData = JSON.parse(
-          localStorage.getItem("EmployerAdminData")
+          localStorage.getItem("EmployerAdminData"),
         );
 
         if (!EmployerAdminData || !EmployerAdminData._id) {
@@ -134,7 +134,7 @@ const EmployerAdminobDetailsPage = () => {
         }
 
         const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/employer/fetchjob/${EmployerAdminData._id}`
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchjob/${EmployerAdminData._id}`,
         );
 
         if (response.data && response.data.length > 0) {
@@ -147,8 +147,9 @@ const EmployerAdminobDetailsPage = () => {
               title: job.jobTitle,
               applicants: job.applications?.length || 0,
               location: job.location,
-              salary: `${job.salaryFrom || "N/A"} - ${job.salaryTo || "N/A"} ${job.salaryType || ""
-                }`,
+              salary: `${job.salaryFrom || "N/A"} - ${job.salaryTo || "N/A"} ${
+                job.salaryType || ""
+              }`,
               experience: job.experienceLevel || "Not specified",
               type: job.jobType || "Not specified",
               postedDate: formatDate(job.createdAt),
@@ -249,16 +250,23 @@ const EmployerAdminobDetailsPage = () => {
                   <div className="col-xl-9 col-md-8">
                     <div className="d-flex align-items-center mb-3">
                       <a href="#" className="me-2">
-                        <span className="avatar avatar-lg bg-gray">
-                          <img
-                            src={job.employerProfilePic || appleIcon}
-                            className="w-auto h-auto"
-                            alt="Company"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = appleIcon;
-                            }}
-                          />
+                        <span className="avatar avatar-lg bg-primary d-flex align-items-center justify-content-center fw-bold text-white fs-20">
+                          {job.employerProfilePic ? (
+                            <img
+                              src={job.employerProfilePic}
+                              className="w-auto h-auto"
+                              alt="Company"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.style.display = "none";
+                                e.target.parentElement.innerHTML = job.jobTitle
+                                  ? job.jobTitle.charAt(0).toUpperCase()
+                                  : "J";
+                              }}
+                            />
+                          ) : (
+                            job.jobTitle?.charAt(0).toUpperCase() || "J"
+                          )}
                         </span>
                       </a>
                       <div>
@@ -322,10 +330,11 @@ const EmployerAdminobDetailsPage = () => {
 
                       {firstApplicantId && (
                         <button
-                          className={`btn btn-icon ${favoriteStatus
+                          className={`btn btn-icon ${
+                            favoriteStatus
                               ? "bg-warning text-white"
                               : "bg-transparent-dark text-primary"
-                            }`}
+                          }`}
                           onClick={() => toggleFavorite(firstApplicantId)}
                         >
                           <i className="ti ti-star"></i>
@@ -533,16 +542,24 @@ const EmployerAdminobDetailsPage = () => {
                       <div className="card-body p-3">
                         <div className="d-flex align-items-center">
                           <a href="#" className="me-2">
-                            <span className="avatar avatar-lg bg-gray-100">
-                              <img
-                                src={job.employerProfilePic || appleIcon}
-                                className="w-auto h-auto"
-                                alt="Company"
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src = appleIcon;
-                                }}
-                              />
+                            <span className="avatar avatar-lg bg-primary d-flex align-items-center justify-content-center fw-bold text-white fs-20">
+                              {job.employerProfilePic ? (
+                                <img
+                                  src={job.employerProfilePic}
+                                  className="w-auto h-auto"
+                                  alt="Company"
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.style.display = "none";
+                                    e.target.parentElement.innerHTML =
+                                      job.jobTitle
+                                        ? job.jobTitle.charAt(0).toUpperCase()
+                                        : "J";
+                                  }}
+                                />
+                              ) : (
+                                job.jobTitle?.charAt(0).toUpperCase() || "J"
+                              )}
                             </span>
                           </a>
                           <div>
@@ -653,16 +670,29 @@ const EmployerAdminobDetailsPage = () => {
                             <div className="card-body p-3">
                               <div className="d-flex align-items-center">
                                 <a href="#" className="me-2">
-                                  <span className="avatar avatar-lg bg-gray border border-white">
-                                    <img
-                                      src={relatedJob.icon || appleIcon}
-                                      className="w-auto h-auto"
-                                      alt="Job"
-                                      onError={(e) => {
-                                        e.target.onerror = null;
-                                        e.target.src = appleIcon;
-                                      }}
-                                    />
+                                  <span className="avatar avatar-lg bg-primary border border-white d-flex align-items-center justify-content-center fw-bold text-white fs-20">
+                                    {relatedJob.icon &&
+                                    relatedJob.icon !== "default.svg" ? (
+                                      <img
+                                        src={relatedJob.icon}
+                                        className="w-auto h-auto"
+                                        alt="Job"
+                                        onError={(e) => {
+                                          e.target.onerror = null;
+                                          e.target.style.display = "none";
+                                          e.target.parentElement.innerHTML =
+                                            relatedJob.title
+                                              ? relatedJob.title
+                                                  .charAt(0)
+                                                  .toUpperCase()
+                                              : "J";
+                                        }}
+                                      />
+                                    ) : (
+                                      relatedJob.title
+                                        ?.charAt(0)
+                                        .toUpperCase() || "J"
+                                    )}
                                   </span>
                                 </a>
                                 <div>

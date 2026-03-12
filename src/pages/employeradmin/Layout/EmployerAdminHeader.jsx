@@ -599,6 +599,23 @@ const EmployerAdminHeader = () => {
                         height: "100%",
                         objectFit: "cover",
                       }}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.style.display = "none";
+                        e.target.parentElement.classList.add(
+                          "bg-primary",
+                          "text-white",
+                          "d-flex",
+                          "align-items-center",
+                          "justify-content-center",
+                        );
+                        e.target.parentElement.innerHTML =
+                          profileData.employeradminUsername
+                            ? profileData.employeradminUsername
+                                .charAt(0)
+                                .toUpperCase()
+                            : "A";
+                      }}
                     />
                   ) : (
                     <span className="avatar-initial rounded-circle bg-primary">
@@ -637,6 +654,23 @@ const EmployerAdminHeader = () => {
                                 width: "100%",
                                 height: "100%",
                                 objectFit: "cover",
+                              }}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.style.display = "none";
+                                e.target.parentElement.classList.add(
+                                  "bg-primary",
+                                  "text-white",
+                                  "d-flex",
+                                  "align-items-center",
+                                  "justify-content-center",
+                                );
+                                e.target.parentElement.innerHTML =
+                                  profileData.employeradminUsername
+                                    ? profileData.employeradminUsername
+                                        .charAt(0)
+                                        .toUpperCase()
+                                    : "A";
                               }}
                             />
                           ) : (

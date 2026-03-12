@@ -41,7 +41,7 @@ const AppliedJobs = () => {
         }
 
         const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/applicant/${userData._id}`
+          `${import.meta.env.VITE_BASE_URL}/applicant/${userData._id}`,
         );
 
         console.log("API Response:", response.data);
@@ -59,7 +59,7 @@ const AppliedJobs = () => {
           setError(
             err.response?.data?.message ||
               err.message ||
-              "Failed to fetch applied jobs"
+              "Failed to fetch applied jobs",
           );
         }
       } finally {
@@ -190,9 +190,7 @@ const AppliedJobs = () => {
                         const companyName =
                           job.companyName || job.company || "Company Name";
                         const location =
-                          job.location ||
-                          job.city ||
-                          "Location not specified";
+                          job.location || job.city || "Location not specified";
                         const jobType = job.jobType || job.type || "Full Time";
                         const salaryFrom =
                           job.salaryFrom ||
@@ -216,9 +214,17 @@ const AppliedJobs = () => {
                         return (
                           <div
                             key={job._id}
-                            className="col-12 col-sm-6 col-lg-4 col-xl-4 mb-15 mb-md-30"
+                            className="col-12 col-sm-6 col-lg-4 col-xl-4 mb-15 mb-md-30 d-flex"
                           >
-                            <article className="featured-category-box border border-secondary pt-20">
+                            <article
+                              className="featured-category-box border border-secondary pt-20"
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                height: "100%",
+                                width: "100%",
+                              }}
+                            >
                               <span className="tag">{jobType}</span>
                               <div className="img-holder">
                                 <img
@@ -258,7 +264,14 @@ const AppliedJobs = () => {
                                   </div>
                                 )}
                               </div>
-                              <div className="textbox">
+                              <div
+                                className="textbox"
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  flexGrow: 1,
+                                }}
+                              >
                                 <strong className="h6 mb-0">
                                   {companyName}
                                 </strong>
@@ -287,20 +300,27 @@ const AppliedJobs = () => {
                                   <span className="subtext">
                                     <b className="text-primary">Posted:</b>{" "}
                                     {new Date(postedDate).toLocaleDateString(
-                                      "en-GB"
+                                      "en-GB",
                                     )}
                                   </span>
                                 </div>
-                                <Link
-                                  to={`/job-details/${jobId}`}
-                                  className="btn btn-dark-yellow btn-sm"
+                                <div
+                                  style={{
+                                    marginTop: "auto",
+                                    paddingTop: "10px",
+                                  }}
                                 >
-                                  <span className="btn-text">
-                                    <FaCheckCircle className="text-secondary me-1" />
-                                    View Details
-                                    <FaChevronRight className="icon-chevron-right" />
-                                  </span>
-                                </Link>
+                                  <Link
+                                    to={`/job-details/${jobId}`}
+                                    className="btn btn-dark-yellow btn-sm"
+                                  >
+                                    <span className="btn-text">
+                                      <FaCheckCircle className="text-secondary me-1" />
+                                      View Details
+                                      <FaChevronRight className="icon-chevron-right" />
+                                    </span>
+                                  </Link>
+                                </div>
                               </div>
                             </article>
                           </div>
@@ -358,7 +378,7 @@ const AppliedJobs = () => {
                                     {pageNum}
                                   </a>
                                 </li>
-                              )
+                              ),
                             )}
 
                             {/* Next button */}

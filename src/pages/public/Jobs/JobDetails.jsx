@@ -27,7 +27,7 @@ const JobDetails = () => {
       try {
         setStatusLoading(true);
         const response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/job/${id}/application/${applicantId}/status`
+          `${import.meta.env.VITE_BASE_URL}/job/${id}/application/${applicantId}/status`,
         );
 
         if (response.ok) {
@@ -49,7 +49,7 @@ const JobDetails = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/employer/viewjobs/${id}`
+          `${import.meta.env.VITE_BASE_URL}/employer/viewjobs/${id}`,
         );
 
         if (!response.ok) {
@@ -61,7 +61,7 @@ const JobDetails = () => {
 
         if (data.saved && applicantId) {
           const isJobSaved = data.saved.some(
-            (save) => String(save.applicantId) === String(applicantId)
+            (save) => String(save.applicantId) === String(applicantId),
           );
           setIsSaved(isJobSaved);
         }
@@ -97,7 +97,7 @@ const JobDetails = () => {
             applicantId,
             jobId: id,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -138,7 +138,8 @@ const JobDetails = () => {
     navigate(`/apply/${job._id}`);
   };
 
-  const hasApplied = applicationStatus !== null && applicationStatus !== undefined;
+  const hasApplied =
+    applicationStatus !== null && applicationStatus !== undefined;
 
   if (loading) {
     return (
@@ -282,7 +283,7 @@ const JobDetails = () => {
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(
                         job.description ||
-                          "No overview provided for this position."
+                          "No overview provided for this position.",
                       ),
                     }}
                   />
@@ -296,7 +297,7 @@ const JobDetails = () => {
                     className="rich-text-display"
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(
-                        job.description || "No detailed description provided."
+                        job.description || "No detailed description provided.",
                       ),
                     }}
                   />
@@ -309,40 +310,95 @@ const JobDetails = () => {
                     className="company-info-head"
                     style={{ textAlign: "center" }}
                   >
-                    <div className="company-logo">
-                      <img
-                        src={defaultLogo}
-                        width="198"
-                        height="198"
-                        alt={job.companyName}
-                      />
-                      {job.employerProfilePic && (
+                    <div
+                      className="company-logo"
+                      style={{
+                        position: "relative",
+                        width: "198px",
+                        height: "198px",
+                        margin: "0 auto",
+                      }}
+                    >
+                      {job.employerProfilePic ? (
                         <div
                           style={{
                             position: "absolute",
-                            bottom: "0px",
-                            right: "0px",
+                            top: 0,
+                            left: 0,
                             width: "100%",
                             height: "100%",
                             borderRadius: "50%",
                             border: "3px solid white",
                             overflow: "hidden",
-                            backgroundColor: "white",
+                            backgroundColor: "#063970",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "white",
+                            fontSize: "64px",
+                            fontWeight: "bold",
+                            zIndex: 2,
                           }}
                         >
                           <img
-                            src={job.employerProfilePic || defaultLogo}
-                            width="50"
-                            height="50"
-                            alt="Employer"
-                            style={{ objectFit: "cover" }}
+                            src={job.employerProfilePic}
+                            alt={job.companyName}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
                             onError={(e) => {
                               e.target.onerror = null;
-                              e.target.src = "/images/default-profile-pic.jpg";
+                              e.target.style.display = "none";
+                              e.target.parentElement.innerHTML = job.companyName
+                                ? job.companyName.charAt(0).toUpperCase()
+                                : "J";
                             }}
                           />
                         </div>
+                      ) : (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            borderRadius: "50%",
+                            border: "3px solid white",
+                            backgroundColor: "#063970",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "white",
+                            fontSize: "64px",
+                            fontWeight: "bold",
+                            zIndex: 2,
+                          }}
+                        >
+                          {job.companyName
+                            ? job.companyName.charAt(0).toUpperCase()
+                            : "J"}
+                        </div>
                       )}
+                      <img
+                        src={defaultLogo}
+                        width="198"
+                        height="198"
+                        alt={job.companyName}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          zIndex: 1,
+                          borderRadius: "50%",
+                        }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = defaultLogo;
+                        }}
+                      />
                     </div>
                     <div className="textbox">
                       <h4 className="company-name-heading text-secondary">
@@ -461,7 +517,7 @@ const JobDetails = () => {
                     className="rich-text-display"
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(
-                        job.benefits || "No benefits information provided"
+                        job.benefits || "No benefits information provided",
                       ),
                     }}
                   />
@@ -482,7 +538,7 @@ const JobDetails = () => {
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(
                         job.applicationInstructions ||
-                          "No specific instructions provided"
+                          "No specific instructions provided",
                       ),
                     }}
                   />

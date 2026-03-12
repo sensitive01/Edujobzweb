@@ -22,7 +22,6 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import EmployerAdminHeader from "../Layout/EmployerAdminHeader";
 import EmployerAdminFooter from "../Layout/EmployerAdminFooter";
-import appleIcon from "../../../assets/employer-admin/assets/img/icons/apple.svg";
 
 // Main Jobs Component
 const EmployeerAdminPostJob = () => {
@@ -1350,21 +1349,28 @@ const JobCard = ({ job, onStatusChange }) => {
             <div className="card-body p-3">
               <div className="d-flex align-items-center">
                 <a href="#" className="me-2">
-                  <span className="avatar avatar-lg bg-gray">
-                    <img
-                      src={job.employerProfilePic || appleIcon}
-                      style={{
-                        width: "48px",
-                        height: "48px",
-                        objectFit: "cover",
-                        borderRadius: "4px",
-                      }}
-                      alt="employer"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "employeer/assets/img/icons/default.svg";
-                      }}
-                    />
+                  <span className="avatar avatar-lg bg-primary d-flex align-items-center justify-content-center fw-bold text-white fs-20">
+                    {job.employerProfilePic ? (
+                      <img
+                        src={job.employerProfilePic}
+                        style={{
+                          width: "48px",
+                          height: "48px",
+                          objectFit: "cover",
+                          borderRadius: "4px",
+                        }}
+                        alt="employer"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
+                          e.target.parentElement.innerHTML = job.title
+                            ? job.title.charAt(0).toUpperCase()
+                            : "J";
+                        }}
+                      />
+                    ) : (
+                      job.title?.charAt(0).toUpperCase() || "J"
+                    )}
                   </span>
                 </a>
                 <div>
@@ -1717,6 +1723,8 @@ const AddPostModal = ({
 }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [subunits, setSubunits] = useState([]);
+  const [adminProfile, setAdminProfile] = useState(null);
   const [formData, setFormData] = useState({
     employid: "",
     companyName: "",
@@ -1746,7 +1754,9 @@ const AddPostModal = ({
   const fetchEmployerData = async () => {
     try {
       const employerData = JSON.parse(localStorage.getItem("employerData"));
-      const employerAdminData = JSON.parse(localStorage.getItem("EmployerAdminData"));
+      const employerAdminData = JSON.parse(
+        localStorage.getItem("EmployerAdminData"),
+      );
 
       if (employerAdminData && employerAdminData._id) {
         const token = localStorage.getItem("EmployerAdminToken");
@@ -1754,7 +1764,7 @@ const AddPostModal = ({
           `${import.meta.env.VITE_BASE_URL}/employeradmin/fetchprofile/${employerAdminData._id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
         // Map admin data to common fields
         const admin = response.data.admin || response.data;
@@ -1764,7 +1774,7 @@ const AddPostModal = ({
           userEmail: admin.employeradminEmail,
           userMobile: admin.employeradminMobile,
           city: "", // Admin might not have these in schema
-          address: ""
+          address: "",
         };
       }
 
@@ -1779,7 +1789,7 @@ const AddPostModal = ({
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       return response.data;
@@ -1792,20 +1802,40 @@ const AddPostModal = ({
     const fetchAndPrefillData = async () => {
       try {
         const employerData = await fetchEmployerData();
+        setAdminProfile(employerData);
+
+        const employerAdminData = JSON.parse(
+          localStorage.getItem("EmployerAdminData") || "{}",
+        );
 
         // Prefill form with employer data
         const newFormData = {
           ...formData,
+          employid: employerAdminData._id || "",
           companyName:
             employerData.schoolName || employerData.companyName || "",
           contactEmail: employerData.userEmail || "",
           contactPhone: employerData.userMobile || "",
           location: employerData.city || employerData.address || "",
           companyUrl: employerData.website || "",
+          isSubscribed:
+            employerData.subscription === "true" ||
+            employerData.isSubscribed ||
+            false,
           // Add other fields as needed
         };
 
         setFormData(newFormData);
+
+        // Fetch Subunits if organization admin
+        if (employerAdminData && employerAdminData._id) {
+          const response = await axios.get(
+            `${import.meta.env.VITE_BASE_URL}/employeradmin/fetchbyorg/${employerAdminData._id}`,
+          );
+          if (response.data.success) {
+            setSubunits(response.data.data);
+          }
+        }
       } catch (error) {
         console.error("Error pre-filling form:", error);
       } finally {
@@ -1837,6 +1867,46 @@ const AddPostModal = ({
     }
   };
 
+  const handleSubunitChange = (e) => {
+    const subunitId = e.target.value;
+    const employerAdminData = JSON.parse(
+      localStorage.getItem("EmployerAdminData") || "{}",
+    );
+
+    if (subunitId === "admin" || subunitId === employerAdminData._id) {
+      // Revert to admin data
+      if (adminProfile) {
+        setFormData((prev) => ({
+          ...prev,
+          employid: employerAdminData._id || "",
+          companyName:
+            adminProfile.schoolName || adminProfile.companyName || "",
+          contactEmail: adminProfile.userEmail || "",
+          contactPhone: adminProfile.userMobile || "",
+          location: adminProfile.city || adminProfile.address || "",
+          companyUrl: adminProfile.website || "",
+          isSubscribed: !!(
+            adminProfile.subscription === "true" || adminProfile.isSubscribed
+          ),
+        }));
+      }
+    } else {
+      const selected = subunits.find((s) => s._id === subunitId);
+      if (selected) {
+        setFormData((prev) => ({
+          ...prev,
+          employid: selected._id,
+          companyName: selected.schoolName || selected.companyName || "",
+          contactEmail: selected.userEmail || "",
+          contactPhone: selected.userMobile || "",
+          location: selected.city || selected.address || "",
+          companyUrl: selected.website || "",
+          isSubscribed: selected.subscription === "true", // Add this to track subscription status
+        }));
+      }
+    }
+  };
+
   const handleRemoveSkill = (skillToRemove) => {
     setFormData((prev) => ({
       ...prev,
@@ -1846,13 +1916,7 @@ const AddPostModal = ({
 
   const handleSubmit = async () => {
     try {
-      // Get employerId the same way as in AddPositionsModal
-      const employerAdminData = JSON.parse(
-        localStorage.getItem("EmployerAdminData") || "{}",
-      );
-      const employid = employerAdminData._id || "";
-
-      if (!employid) {
+      if (!formData.employid) {
         throw new Error("Employer ID not found");
       }
 
@@ -1865,7 +1929,7 @@ const AddPostModal = ({
             minute: "2-digit",
             hour12: true,
           }),
-        employid: employid, // Using the same employer ID as in AddPositionsModal
+        employid: formData.employid,
         companyName: formData.companyName,
         jobTitle: formData.jobTitle,
         description: formData.description,
@@ -1903,7 +1967,11 @@ const AddPostModal = ({
       }
     } catch (error) {
       console.error("Error posting job:", error);
-      alert("Failed to post job. Please try again.");
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to post job. Please try again.";
+      alert(errorMessage);
     }
   };
 
@@ -1961,6 +2029,8 @@ const AddPostModal = ({
                     onInputChange={handleInputChange}
                     onAddSkill={handleAddSkill}
                     onRemoveSkill={handleRemoveSkill}
+                    subunits={subunits}
+                    onSubunitChange={handleSubunitChange}
                   />
                 )}
 
@@ -2007,6 +2077,8 @@ const BasicInfoTab = ({
   onInputChange,
   onAddSkill,
   onRemoveSkill,
+  subunits,
+  onSubunitChange,
 }) => {
   const [newSkill, setNewSkill] = useState("");
 
@@ -2018,9 +2090,48 @@ const BasicInfoTab = ({
     }
   };
 
+  const employerAdminData = JSON.parse(
+    localStorage.getItem("EmployerAdminData") || "{}",
+  );
+
   return (
     <div className="tab-pane fade show active" id="basic-info" role="tabpanel">
       <div className="row">
+        {subunits && subunits.length > 0 && (
+          <div className="col-md-12">
+            <div className="mb-3">
+              <label className="form-label">
+                Post Job As <span className="text-danger">*</span>
+              </label>
+              <select
+                className="form-select border-primary"
+                value={formData.employid}
+                onChange={onSubunitChange}
+                required
+              >
+                <option value={employerAdminData._id}>Admin (Self)</option>
+                {subunits.map((unit) => (
+                  <option key={unit._id} value={unit._id}>
+                    {unit.schoolName || unit.companyName} ({unit.userEmail})
+                  </option>
+                ))}
+              </select>
+              {formData.employid &&
+                formData.employid !== employerAdminData._id &&
+                !formData.isSubscribed && (
+                  <div className="alert alert-warning mt-2 py-2 fs-12">
+                    <i className="ti ti-alert-triangle me-2"></i>
+                    This subunit does not have an active subscription. Job
+                    posting may be restricted.
+                  </div>
+                )}
+              <small className="text-muted">
+                Choose if you are posting this job for yourself or for a
+                subunit.
+              </small>
+            </div>
+          </div>
+        )}
         <div className="col-md-6">
           <div className="mb-3">
             <label className="form-label">

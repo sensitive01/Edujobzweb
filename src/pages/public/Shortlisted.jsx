@@ -184,9 +184,17 @@ const ShortlistedJobs = () => {
                         return (
                           <div
                             key={job._id}
-                            className="col-12 col-sm-6 col-lg-4 col-xl-4 mb-15 mb-md-30"
+                            className="col-12 col-sm-6 col-lg-4 col-xl-4 mb-15 mb-md-30 d-flex"
                           >
-                            <article className="featured-category-box border border-secondary pt-20">
+                            <article
+                              className="featured-category-box border border-secondary pt-20"
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                height: "100%",
+                                width: "100%",
+                              }}
+                            >
                               <span className="tag">
                                 {job.jobType || "Full Time"}
                               </span>
@@ -224,7 +232,14 @@ const ShortlistedJobs = () => {
                                   </div>
                                 )}
                               </div>
-                              <div className="textbox">
+                              <div
+                                className="textbox"
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  flexGrow: 1,
+                                }}
+                              >
                                 <strong className="h6 mb-0">
                                   {job.companyName}
                                 </strong>
@@ -252,7 +267,13 @@ const ShortlistedJobs = () => {
                                     / {job.salaryType || "month"}
                                   </span>
                                 </div>
-                                <div className="d-flex justify-content-between align-items-center mt-3">
+                                <div
+                                  className="d-flex justify-content-between align-items-center"
+                                  style={{
+                                    marginTop: "auto",
+                                    paddingTop: "10px",
+                                  }}
+                                >
                                   <Link
                                     to={`/job-details/${job._id}`}
                                     className="btn btn-dark-yellow btn-sm"

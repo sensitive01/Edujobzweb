@@ -22,7 +22,6 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import EmployerAdminHeader from "../Layout/EmployerAdminHeader";
 import EmployerAdminFooter from "../Layout/EmployerAdminFooter";
-import appleIcon from "../../../assets/employer-admin/assets/img/icons/apple.svg";
 
 // Helper to strip HTML tags
 const stripHtml = (html) => {
@@ -61,14 +60,14 @@ const EmployeerAdminGridJobUnit = () => {
 
   // Extract unique values from jobs for filters
   const jobCategories = [...new Set(jobs.map((job) => job.category))].filter(
-    Boolean
+    Boolean,
   );
   const jobTypes = [...new Set(jobs.map((job) => job.type))].filter(Boolean);
   const statusOptions = [...new Set(jobs.map((job) => job.status))].filter(
-    Boolean
+    Boolean,
   );
   const jobRoles = ["All", ...new Set(jobs.map((job) => job.title))].filter(
-    Boolean
+    Boolean,
   );
 
   const sortOptions = [
@@ -265,7 +264,7 @@ const EmployeerAdminGridJobUnit = () => {
       link.setAttribute("href", url);
       link.setAttribute(
         "download",
-        `jobs_${new Date().toISOString().slice(0, 10)}.csv`
+        `jobs_${new Date().toISOString().slice(0, 10)}.csv`,
       );
       link.style.visibility = "hidden";
       document.body.appendChild(link);
@@ -289,7 +288,7 @@ const EmployeerAdminGridJobUnit = () => {
     try {
       setLoading(true);
       const employerAdminData = JSON.parse(
-        localStorage.getItem("EmployerAdminData") || "{}"
+        localStorage.getItem("EmployerAdminData") || "{}",
       );
 
       if (!employerAdminData || !employerAdminData._id) {
@@ -297,7 +296,7 @@ const EmployeerAdminGridJobUnit = () => {
       }
 
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/employeradmin/getjobsbyorg/${employerAdminData._id}`
+        `${import.meta.env.VITE_BASE_URL}/employeradmin/getjobsbyorg/${employerAdminData._id}`,
       );
 
       // Handle case when no jobs are found (empty array)
@@ -319,7 +318,7 @@ const EmployeerAdminGridJobUnit = () => {
         applicants: job.applications?.length || 0,
         shortlisted:
           job.applications?.filter(
-            (app) => app.employapplicantstatus === "Shortlisted"
+            (app) => app.employapplicantstatus === "Shortlisted",
           ).length || 0,
         location: job.location,
         salaryFrom: job.salaryFrom || 0,
@@ -402,35 +401,35 @@ const EmployeerAdminGridJobUnit = () => {
           (job.skills &&
             job.skills.some((skill) => skill.toLowerCase().includes(term))) ||
           job.category.toLowerCase().includes(term) ||
-          job.type.toLowerCase().includes(term)
+          job.type.toLowerCase().includes(term),
       );
     }
 
     // Apply category filter
     if (filters.category.length > 0) {
       result = result.filter(
-        (job) => job.category && filters.category.includes(job.category)
+        (job) => job.category && filters.category.includes(job.category),
       );
     }
 
     // Apply type filter
     if (filters.type.length > 0) {
       result = result.filter(
-        (job) => job.type && filters.type.includes(job.type)
+        (job) => job.type && filters.type.includes(job.type),
       );
     }
 
     // Apply status filter
     if (filters.status.length > 0) {
       result = result.filter(
-        (job) => job.status && filters.status.includes(job.status)
+        (job) => job.status && filters.status.includes(job.status),
       );
     }
 
     // Apply role filter
     if (filters.role !== "All") {
       result = result.filter(
-        (job) => job.title && job.title.includes(filters.role)
+        (job) => job.title && job.title.includes(filters.role),
       );
     }
 
@@ -452,7 +451,7 @@ const EmployeerAdminGridJobUnit = () => {
       result = result.filter(
         (job) =>
           job.location &&
-          job.location.toLowerCase().includes(filters.location.toLowerCase())
+          job.location.toLowerCase().includes(filters.location.toLowerCase()),
       );
     }
 
@@ -463,7 +462,7 @@ const EmployeerAdminGridJobUnit = () => {
           job.educationLevel &&
           job.educationLevel
             .toLowerCase()
-            .includes(filters.qualification.toLowerCase())
+            .includes(filters.qualification.toLowerCase()),
       );
     }
 
@@ -594,13 +593,13 @@ const EmployeerAdminGridJobUnit = () => {
   const handleJobStatusChange = (jobId, newStatus) => {
     setJobs((prevJobs) =>
       prevJobs.map((job) =>
-        job.id === jobId ? { ...job, status: newStatus } : job
-      )
+        job.id === jobId ? { ...job, status: newStatus } : job,
+      ),
     );
     setFilteredJobs((prevJobs) =>
       prevJobs.map((job) =>
-        job.id === jobId ? { ...job, status: newStatus } : job
-      )
+        job.id === jobId ? { ...job, status: newStatus } : job,
+      ),
     );
   };
 
@@ -720,7 +719,7 @@ const EmployeerAdminGridJobUnit = () => {
                           setDateRange({ ...dateRange, start: e.target.value });
                           if (dateRange.end && e.target.value) {
                             setSelectedDateRange(
-                              `${e.target.value} - ${dateRange.end}`
+                              `${e.target.value} - ${dateRange.end}`,
                             );
                           }
                         }}
@@ -736,7 +735,7 @@ const EmployeerAdminGridJobUnit = () => {
                           setDateRange({ ...dateRange, end: e.target.value });
                           if (dateRange.start && e.target.value) {
                             setSelectedDateRange(
-                              `${dateRange.start} - ${e.target.value}`
+                              `${dateRange.start} - ${e.target.value}`,
                             );
                           }
                         }}
@@ -1300,7 +1299,7 @@ const JobCard = ({ job, onStatusChange }) => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (response.data.message) {
@@ -1368,21 +1367,28 @@ const JobCard = ({ job, onStatusChange }) => {
             <div className="card-body p-3">
               <div className="d-flex align-items-center">
                 <a href="#" className="me-2">
-                  <span className="avatar avatar-lg bg-gray">
-                    <img
-                      src={job.employerProfilePic || appleIcon}
-                      style={{
-                        width: "48px",
-                        height: "48px",
-                        objectFit: "cover",
-                        borderRadius: "4px",
-                      }}
-                      alt="employer"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "employeer/assets/img/icons/default.svg";
-                      }}
-                    />
+                  <span className="avatar avatar-lg bg-primary d-flex align-items-center justify-content-center fw-bold text-white fs-20">
+                    {job.employerProfilePic ? (
+                      <img
+                        src={job.employerProfilePic}
+                        style={{
+                          width: "48px",
+                          height: "48px",
+                          objectFit: "cover",
+                          borderRadius: "4px",
+                        }}
+                        alt="employer"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
+                          e.target.parentElement.innerHTML = job.title
+                            ? job.title.charAt(0).toUpperCase()
+                            : "J";
+                        }}
+                      />
+                    ) : (
+                      job.title?.charAt(0).toUpperCase() || "J"
+                    )}
                   </span>
                 </a>
                 <div>
@@ -1504,7 +1510,7 @@ const StatsSection = ({ jobs }) => {
       sum +
       (job.applications
         ? job.applications.filter(
-            (app) => app.employapplicantstatus === "Pending"
+            (app) => app.employapplicantstatus === "Pending",
           ).length
         : 0)
     );
@@ -1514,7 +1520,7 @@ const StatsSection = ({ jobs }) => {
       sum +
       (job.applications
         ? job.applications.filter(
-            (app) => app.employapplicantstatus === "Shortlisted"
+            (app) => app.employapplicantstatus === "Shortlisted",
           ).length
         : 0)
     );
@@ -1554,7 +1560,7 @@ const StatsSection = ({ jobs }) => {
           sum +
           (job.applications
             ? job.applications.filter(
-                (app) => new Date(app.appliedDate) > oneWeekAgo
+                (app) => new Date(app.appliedDate) > oneWeekAgo,
               ).length
             : 0)
         );
@@ -1759,7 +1765,11 @@ const AddPostModal = ({
     companyUrl: "",
     applicationInstructions: "",
     priority: "",
+    isSubscribed: false,
   });
+
+  const [subunits, setSubunits] = useState([]);
+  const [adminProfile, setAdminProfile] = useState(null);
 
   const fetchEmployerData = async () => {
     try {
@@ -1776,7 +1786,7 @@ const AddPostModal = ({
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       return response.data;
@@ -1789,20 +1799,40 @@ const AddPostModal = ({
     const fetchAndPrefillData = async () => {
       try {
         const employerData = await fetchEmployerData();
+        setAdminProfile(employerData);
+
+        const employerAdminData = JSON.parse(
+          localStorage.getItem("EmployerAdminData") || "{}",
+        );
 
         // Prefill form with employer data
         const newFormData = {
           ...formData,
+          employid: employerAdminData._id || "",
           companyName:
             employerData.schoolName || employerData.companyName || "",
           contactEmail: employerData.userEmail || "",
           contactPhone: employerData.userMobile || "",
           location: employerData.city || employerData.address || "",
           companyUrl: employerData.website || "",
+          isSubscribed:
+            employerData.subscription === "true" ||
+            employerData.isSubscribed ||
+            false,
           // Add other fields as needed
         };
 
         setFormData(newFormData);
+
+        // Fetch Subunits if organization admin
+        if (employerAdminData && employerAdminData._id) {
+          const response = await axios.get(
+            `${import.meta.env.VITE_BASE_URL}/employeradmin/fetchbyorg/${employerAdminData._id}`,
+          );
+          if (response.data.success) {
+            setSubunits(response.data.data);
+          }
+        }
       } catch (error) {
         console.error("Error pre-filling form:", error);
       } finally {
@@ -1834,6 +1864,45 @@ const AddPostModal = ({
     }
   };
 
+  const handleSubunitChange = (e) => {
+    const subunitId = e.target.value;
+    const employerAdminData = JSON.parse(
+      localStorage.getItem("EmployerAdminData") || "{}",
+    );
+
+    if (subunitId === "admin" || subunitId === employerAdminData._id) {
+      if (adminProfile) {
+        setFormData((prev) => ({
+          ...prev,
+          employid: employerAdminData._id || "",
+          companyName:
+            adminProfile.schoolName || adminProfile.companyName || "",
+          contactEmail: adminProfile.userEmail || "",
+          contactPhone: adminProfile.userMobile || "",
+          location: adminProfile.city || adminProfile.address || "",
+          companyUrl: adminProfile.website || "",
+          isSubscribed: !!(
+            adminProfile.subscription === "true" || adminProfile.isSubscribed
+          ),
+        }));
+      }
+    } else {
+      const selected = subunits.find((s) => s._id === subunitId);
+      if (selected) {
+        setFormData((prev) => ({
+          ...prev,
+          employid: selected._id,
+          companyName: selected.schoolName || selected.companyName || "",
+          contactEmail: selected.userEmail || "",
+          contactPhone: selected.userMobile || "",
+          location: selected.city || selected.address || "",
+          companyUrl: selected.website || "",
+          isSubscribed: selected.subscription === "true",
+        }));
+      }
+    }
+  };
+
   const handleRemoveSkill = (skillToRemove) => {
     setFormData((prev) => ({
       ...prev,
@@ -1843,11 +1912,7 @@ const AddPostModal = ({
 
   const handleSubmit = async () => {
     try {
-      // Get employerId the same way as in AddPositionsModal
-      const employerAdminData = JSON.parse(
-        localStorage.getItem("EmployerAdminData") || "{}"
-      );
-      const employid = employerAdminData._id || "";
+      const employid = formData.employid;
 
       if (!employid) {
         throw new Error("Employer ID not found");
@@ -1891,7 +1956,7 @@ const AddPostModal = ({
 
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/employer/postjob`,
-        submitData
+        submitData,
       );
 
       if (response.data) {
@@ -1958,6 +2023,8 @@ const AddPostModal = ({
                     onInputChange={handleInputChange}
                     onAddSkill={handleAddSkill}
                     onRemoveSkill={handleRemoveSkill}
+                    subunits={subunits}
+                    onSubunitChange={handleSubunitChange}
                   />
                 )}
 
@@ -2004,6 +2071,8 @@ const BasicInfoTab = ({
   onInputChange,
   onAddSkill,
   onRemoveSkill,
+  subunits,
+  onSubunitChange,
 }) => {
   const [newSkill, setNewSkill] = useState("");
 
@@ -2018,6 +2087,51 @@ const BasicInfoTab = ({
   return (
     <div className="tab-pane fade show active" id="basic-info" role="tabpanel">
       <div className="row">
+        {subunits && subunits.length > 0 && (
+          <div className="col-md-12">
+            <div className="mb-3">
+              <label className="form-label">
+                Post Job As <span className="text-danger">*</span>
+              </label>
+              <select
+                className="form-select border-primary"
+                value={formData.employid}
+                onChange={onSubunitChange}
+                required
+              >
+                <option
+                  value={
+                    JSON.parse(
+                      localStorage.getItem("EmployerAdminData") || "{}",
+                    )._id
+                  }
+                >
+                  Admin (Self)
+                </option>
+                {subunits.map((unit) => (
+                  <option key={unit._id} value={unit._id}>
+                    {unit.schoolName || unit.companyName} ({unit.userEmail})
+                  </option>
+                ))}
+              </select>
+              {formData.employid &&
+                formData.employid !==
+                  JSON.parse(localStorage.getItem("EmployerAdminData") || "{}")
+                    ._id &&
+                !formData.isSubscribed && (
+                  <div className="alert alert-warning mt-2 py-2 fs-12">
+                    <i className="ti ti-alert-triangle me-2"></i>
+                    This subunit does not have an active subscription. Job
+                    posting may be restricted.
+                  </div>
+                )}
+              <small className="text-muted">
+                Choose if you are posting this job for yourself or for a
+                subunit.
+              </small>
+            </div>
+          </div>
+        )}
         <div className="col-md-6">
           <div className="mb-3">
             <label className="form-label">

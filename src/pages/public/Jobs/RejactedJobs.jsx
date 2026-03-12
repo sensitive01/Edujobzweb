@@ -12,7 +12,7 @@ import { IoLocationOutline } from "react-icons/io5";
 import Sidebar from "../../../../src/components/layout/Sidebar";
 import axios from "axios";
 import { Link } from "react-router-dom";
-// import jobImage from "../../../public/images/jobImage.jpg";
+import jobImage from "../../../../public/images/jobImage.jpg";
 
 const RejectedJobs = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -35,11 +35,11 @@ const RejectedJobs = () => {
           return;
         }
         const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/applicant/${userData._id}`
+          `${import.meta.env.VITE_BASE_URL}/applicant/${userData._id}`,
         );
         if (response.data) {
           const filtered = response.data.filter(
-            (job) => job.status === "rejected"
+            (job) => job.status === "rejected",
           );
           setRejectedJobs(filtered);
         } else {
@@ -52,7 +52,7 @@ const RejectedJobs = () => {
           setError(
             err.response?.data?.message ||
               err.message ||
-              "Failed to fetch rejected jobs"
+              "Failed to fetch rejected jobs",
           );
         }
       } finally {
@@ -162,9 +162,17 @@ const RejectedJobs = () => {
                       {currentJobs.map((job) => (
                         <div
                           key={job._id}
-                          className="col-12 col-sm-6 col-lg-4 col-xl-4 mb-15 mb-md-30"
+                          className="col-12 col-sm-6 col-lg-4 col-xl-4 mb-15 mb-md-30 d-flex"
                         >
-                          <article className="featured-category-box border border-danger pt-20">
+                          <article
+                            className="featured-category-box border border-danger pt-20"
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              height: "100%",
+                              width: "100%",
+                            }}
+                          >
                             <span className="tag bg-danger text-white">
                               {job.jobType || "Full Time"}
                             </span>
@@ -207,7 +215,14 @@ const RejectedJobs = () => {
                                 </div>
                               )}
                             </div>
-                            <div className="textbox">
+                            <div
+                              className="textbox"
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                flexGrow: 1,
+                              }}
+                            >
                               <strong className="h6 mb-0">
                                 {job.companyName}
                               </strong>
@@ -237,19 +252,28 @@ const RejectedJobs = () => {
                                 </span>
                                 <span className="subtext">
                                   <b className="text-danger">Rejected:</b>{" "}
-                                  {new Date(job.updatedAt || job.createdAt).toLocaleDateString()}
+                                  {new Date(
+                                    job.updatedAt || job.createdAt,
+                                  ).toLocaleDateString()}
                                 </span>
                               </div>
-                              <Link
-                                to={`/job-details/${job._id}`}
-                                className="btn btn-danger btn-sm"
+                              <div
+                                style={{
+                                  marginTop: "auto",
+                                  paddingTop: "10px",
+                                }}
                               >
-                                <span className="btn-text">
-                                  <FaThumbsDown className="text-white me-1" />
-                                  View Details
-                                  <FaChevronRight className="icon-chevron-right" />
-                                </span>
-                              </Link>
+                                <Link
+                                  to={`/job-details/${job._id}`}
+                                  className="btn btn-danger btn-sm"
+                                >
+                                  <span className="btn-text">
+                                    <FaThumbsDown className="text-white me-1" />
+                                    View Details
+                                    <FaChevronRight className="icon-chevron-right" />
+                                  </span>
+                                </Link>
+                              </div>
                             </div>
                           </article>
                         </div>
@@ -302,7 +326,7 @@ const RejectedJobs = () => {
                                     {pageNum}
                                   </a>
                                 </li>
-                              )
+                              ),
                             )}
                             <li
                               className={`page-item ${
@@ -332,14 +356,18 @@ const RejectedJobs = () => {
                     </div>
                     <h3 className="text-danger mb-3">No Rejected Jobs</h3>
                     <p className="text-muted mb-4 px-md-5 mx-md-5">
-                      You have not been rejected for any jobs recently. Keep applying and stay positive!
+                      You have not been rejected for any jobs recently. Keep
+                      applying and stay positive!
                     </p>
                     <div className="d-flex justify-content-center gap-3">
                       <Link to="/jobs" className="btn btn-danger">
                         <FaSearch className="me-2" />
                         Browse Jobs
                       </Link>
-                      <Link to="/applied-jobs" className="btn btn-outline-secondary">
+                      <Link
+                        to="/applied-jobs"
+                        className="btn btn-outline-secondary"
+                      >
                         View All Applications
                       </Link>
                     </div>

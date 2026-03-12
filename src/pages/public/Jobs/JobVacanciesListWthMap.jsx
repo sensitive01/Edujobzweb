@@ -39,7 +39,7 @@ const JobVacanciesListWthMap = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/employer/fetchjobs`
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchjobs`,
         );
         if (!response.ok) {
           throw new Error("Failed to fetch jobs");
@@ -54,7 +54,7 @@ const JobVacanciesListWthMap = () => {
         ].filter(Boolean);
         const uniqueLocations = [
           ...new Set(
-            data.flatMap((job) => (job.isRemote ? ["Remote"] : [job.location]))
+            data.flatMap((job) => (job.isRemote ? ["Remote"] : [job.location])),
           ),
         ].filter(Boolean);
         const uniqueExperienceLevels = [
@@ -109,7 +109,7 @@ const JobVacanciesListWthMap = () => {
       // Apply other filters
       if (filters.jobType) {
         filteredJobs = filteredJobs.filter(
-          (job) => job.jobType === filters.jobType
+          (job) => job.jobType === filters.jobType,
         );
       }
       if (filters.location) {
@@ -117,18 +117,18 @@ const JobVacanciesListWthMap = () => {
           filteredJobs = filteredJobs.filter((job) => job.isRemote);
         } else {
           filteredJobs = filteredJobs.filter(
-            (job) => job.location === filters.location
+            (job) => job.location === filters.location,
           );
         }
       }
       if (filters.experienceLevel) {
         filteredJobs = filteredJobs.filter(
-          (job) => job.experienceLevel === filters.experienceLevel
+          (job) => job.experienceLevel === filters.experienceLevel,
         );
       }
       if (filters.category) {
         filteredJobs = filteredJobs.filter(
-          (job) => job.category === filters.category
+          (job) => job.category === filters.category,
         );
       }
 
@@ -226,7 +226,7 @@ const JobVacanciesListWthMap = () => {
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = filteredJobListings.slice(
     indexOfFirstJob,
-    indexOfLastJob
+    indexOfLastJob,
   );
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -497,7 +497,7 @@ const JobVacanciesListWthMap = () => {
                         </li>
                         {[
                           ...Array(
-                            Math.ceil(filteredJobListings.length / jobsPerPage)
+                            Math.ceil(filteredJobListings.length / jobsPerPage),
                           ).keys(),
                         ].map((number) => (
                           <li
@@ -528,7 +528,7 @@ const JobVacanciesListWthMap = () => {
                             disabled={
                               currentPage ===
                               Math.ceil(
-                                filteredJobListings.length / jobsPerPage
+                                filteredJobListings.length / jobsPerPage,
                               )
                             }
                           >
@@ -643,7 +643,7 @@ const JobCard = ({ job, navigate }) => {
     // Check if job is already saved by this applicant
     if (job.saved && applicantId) {
       const isJobSaved = job.saved.some(
-        (save) => String(save.applicantId) === String(applicantId)
+        (save) => String(save.applicantId) === String(applicantId),
       );
       setIsSaved(isJobSaved);
     }
@@ -674,7 +674,7 @@ const JobCard = ({ job, navigate }) => {
             applicantId,
             jobId: job._id,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -702,50 +702,93 @@ const JobCard = ({ job, navigate }) => {
     <article className="popular-jobs-box">
       <div className="box-holder border border-grey shadow">
         <div className="job-info shadow">
-          <div className="img-holder" style={{ position: "relative" }}>
-            <img
-              src={job.companyLogo || "/images/default-company-logo.jpg"}
-              width="78"
-              height="78"
-              alt={job.companyName}
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = "/images/default-company-logo.jpg";
-              }}
-              style={{ borderRadius: "8px" }}
-            />
-            {job.employerProfilePic && (
+          <div
+            className="img-holder"
+            style={{ position: "relative", width: "78px", height: "78px" }}
+          >
+            {job.employerProfilePic ? (
               <div
                 style={{
                   position: "absolute",
-                  bottom: "0px",
-                  right: "0px",
+                  top: 0,
+                  left: 0,
                   width: "100%",
                   height: "100%",
                   borderRadius: "50%",
                   border: "2px solid white",
                   overflow: "hidden",
-                  backgroundColor: "white",
-                  zIndex: 1,
+                  backgroundColor: "#063970",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: "28px",
+                  fontWeight: "bold",
+                  zIndex: 2,
                 }}
               >
                 <img
                   src={job.employerProfilePic}
-                  width="40"
-                  height="40"
-                  alt="Employer"
-                  style={{
-                    objectFit: "cover",
-                    width: "100%",
-                    height: "100%",
-                  }}
+                  alt={job.companyName}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = "/images/default-profile-pic.jpg";
+                    e.target.style.display = "none";
+                    e.target.parentElement.innerHTML = job.companyName
+                      ? job.companyName.charAt(0).toUpperCase()
+                      : job.jobTitle
+                        ? job.jobTitle.charAt(0).toUpperCase()
+                        : "J";
                   }}
                 />
               </div>
+            ) : (
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: "50%",
+                  border: "2px solid white",
+                  backgroundColor: "#063970",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: "28px",
+                  fontWeight: "bold",
+                  zIndex: 2,
+                }}
+              >
+                {job.companyName
+                  ? job.companyName.charAt(0).toUpperCase()
+                  : job.jobTitle
+                    ? job.jobTitle.charAt(0).toUpperCase()
+                    : "J"}
+              </div>
             )}
+            <img
+              src={job.companyLogo || "/images/default-company-logo.jpg"}
+              width="78"
+              height="78"
+              alt={job.companyName}
+              style={{
+                borderRadius: "8px",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                position: "absolute",
+                top: 0,
+                left: 0,
+                zIndex: 1,
+              }}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "/images/default-company-logo.jpg";
+              }}
+            />
           </div>
           <div className="textbox">
             <button

@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { 
-  FaCog, 
-  FaChevronRight, 
-  FaBookmark, 
-  FaSearch, 
-  FaArrowLeft, 
-  FaArrowRight 
+import {
+  FaCog,
+  FaChevronRight,
+  FaBookmark,
+  FaSearch,
+  FaArrowLeft,
+  FaArrowRight,
 } from "react-icons/fa";
 import { IoLocationOutline } from "react-icons/io5";
 import { GiArchiveRegister } from "react-icons/gi";
 import Sidebar from "../../../components/layout/Sidebar";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import jobImage from "../../../../public/images/jobImage.jpg"
+import jobImage from "../../../../public/images/jobImage.jpg";
 
 const SavedJobs = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -41,7 +41,7 @@ const SavedJobs = () => {
         }
 
         const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/employer/fetchSavedJobs/${userData._id}`
+          `${import.meta.env.VITE_BASE_URL}/employer/fetchSavedJobs/${userData._id}`,
         );
 
         if (response.data && response.data.jobs) {
@@ -57,7 +57,7 @@ const SavedJobs = () => {
           setError(
             err.response?.data?.message ||
               err.message ||
-              "Failed to fetch saved jobs"
+              "Failed to fetch saved jobs",
           );
         }
       } finally {
@@ -80,7 +80,7 @@ const SavedJobs = () => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
       // Scroll to top when page changes
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -88,7 +88,7 @@ const SavedJobs = () => {
   const getPageNumbers = () => {
     const pageNumbers = [];
     const maxVisiblePages = 5;
-    
+
     if (totalPages <= maxVisiblePages) {
       // Show all pages if total pages are less than max visible
       for (let i = 1; i <= totalPages; i++) {
@@ -101,28 +101,28 @@ const SavedJobs = () => {
           pageNumbers.push(i);
         }
         if (totalPages > 4) {
-          pageNumbers.push('...');
+          pageNumbers.push("...");
           pageNumbers.push(totalPages);
         }
       } else if (currentPage >= totalPages - 2) {
         pageNumbers.push(1);
         if (totalPages > 4) {
-          pageNumbers.push('...');
+          pageNumbers.push("...");
         }
         for (let i = totalPages - 3; i <= totalPages; i++) {
           pageNumbers.push(i);
         }
       } else {
         pageNumbers.push(1);
-        pageNumbers.push('...');
+        pageNumbers.push("...");
         for (let i = currentPage - 1; i <= currentPage + 1; i++) {
           pageNumbers.push(i);
         }
-        pageNumbers.push('...');
+        pageNumbers.push("...");
         pageNumbers.push(totalPages);
       }
     }
-    
+
     return pageNumbers;
   };
 
@@ -131,14 +131,17 @@ const SavedJobs = () => {
       const userData = JSON.parse(localStorage.getItem("userData"));
       if (!userData || !userData._id) return;
 
-      await axios.post(`${import.meta.env.VITE_BASE_URL}/employer/toggleSaveJob`, {
-        applicantId: userData._id,
-        jobId: jobId,
-      });
+      await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/employer/toggleSaveJob`,
+        {
+          applicantId: userData._id,
+          jobId: jobId,
+        },
+      );
 
       const updatedJobs = savedJobs.filter((job) => job._id !== jobId);
       setSavedJobs(updatedJobs);
-      
+
       // Adjust current page if needed after removing a job
       const newTotalPages = Math.ceil(updatedJobs.length / jobsPerPage);
       if (currentPage > newTotalPages && newTotalPages > 0) {
@@ -191,7 +194,9 @@ const SavedJobs = () => {
                   </p>
                   {totalJobs > 0 && (
                     <p className="text-muted small">
-                      Showing {indexOfFirstJob + 1}-{Math.min(indexOfLastJob, totalJobs)} of {totalJobs} saved jobs
+                      Showing {indexOfFirstJob + 1}-
+                      {Math.min(indexOfLastJob, totalJobs)} of {totalJobs} saved
+                      jobs
                     </p>
                   )}
                 </div>
@@ -204,18 +209,23 @@ const SavedJobs = () => {
                       {currentJobs.map((job) => (
                         <div
                           key={job._id}
-                          className="col-12 col-sm-6 col-lg-4 col-xl-4 mb-15 mb-md-30"
+                          className="col-12 col-sm-6 col-lg-4 col-xl-4 mb-15 mb-md-30 d-flex"
                         >
-                          <article className="featured-category-box border border-secondary pt-20">
+                          <article
+                            className="featured-category-box border border-secondary pt-20"
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              height: "100%",
+                              width: "100%",
+                            }}
+                          >
                             <span className="tag">
                               {job.jobType || "Full Time"}
                             </span>
                             <div className="img-holder">
                               <img
-                                src={
-                                  job.companyLogo ||
-                                  jobImage
-                                }
+                                src={job.companyLogo || jobImage}
                                 width="78"
                                 height="78"
                                 alt={job.companyName}
@@ -239,7 +249,7 @@ const SavedJobs = () => {
                                   }}
                                 >
                                   <img
-                                    src={job.employerProfilePic||jobImage}
+                                    src={job.employerProfilePic || jobImage}
                                     width="40"
                                     height="40"
                                     alt="Employer"
@@ -253,7 +263,14 @@ const SavedJobs = () => {
                                 </div>
                               )}
                             </div>
-                            <div className="textbox">
+                            <div
+                              className="textbox"
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                flexGrow: 1,
+                              }}
+                            >
                               <strong className="h6 mb-0">
                                 {job.companyName}
                               </strong>
@@ -285,7 +302,13 @@ const SavedJobs = () => {
                                   {new Date(job.createdAt).toLocaleDateString()}
                                 </span>
                               </div>
-                              <div className="d-flex justify-content-between">
+                              <div
+                                className="d-flex justify-content-between"
+                                style={{
+                                  marginTop: "auto",
+                                  paddingTop: "10px",
+                                }}
+                              >
                                 <a
                                   href={`/job-details/${job._id}`}
                                   className="btn btn-dark-yellow btn-sm"
@@ -318,9 +341,11 @@ const SavedJobs = () => {
                         <div className="container d-flex align-items-center justify-content-center">
                           <ul className="pagination">
                             {/* Previous button */}
-                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                              <a 
-                                className="page-link" 
+                            <li
+                              className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
+                            >
+                              <a
+                                className="page-link"
                                 href="#"
                                 onClick={(e) => {
                                   e.preventDefault();
@@ -332,18 +357,21 @@ const SavedJobs = () => {
                             </li>
 
                             {/* Page numbers */}
-                            {getPageNumbers().map((pageNum, index) => (
-                              pageNum === '...' ? (
-                                <li key={`ellipsis-${index}`} className="page-item disabled">
+                            {getPageNumbers().map((pageNum, index) =>
+                              pageNum === "..." ? (
+                                <li
+                                  key={`ellipsis-${index}`}
+                                  className="page-item disabled"
+                                >
                                   <span className="page-link">...</span>
                                 </li>
                               ) : (
-                                <li 
-                                  key={pageNum} 
-                                  className={`page-item ${currentPage === pageNum ? 'active' : ''}`}
+                                <li
+                                  key={pageNum}
+                                  className={`page-item ${currentPage === pageNum ? "active" : ""}`}
                                 >
-                                  <a 
-                                    className="page-link" 
+                                  <a
+                                    className="page-link"
                                     href="#"
                                     onClick={(e) => {
                                       e.preventDefault();
@@ -353,13 +381,15 @@ const SavedJobs = () => {
                                     {pageNum}
                                   </a>
                                 </li>
-                              )
-                            ))}
+                              ),
+                            )}
 
                             {/* Next button */}
-                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                              <a 
-                                className="page-link" 
+                            <li
+                              className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}
+                            >
+                              <a
+                                className="page-link"
                                 href="#"
                                 onClick={(e) => {
                                   e.preventDefault();
