@@ -45,6 +45,9 @@ const EmployerLayout = React.lazy(
 const EmployerAdminLayout = React.lazy(
   () => import("./pages/employeradmin/Layout/EmployerAdminLayout"),
 );
+const AdminLayout = React.lazy(
+  () => import("./pages/admin/layout/AdminLayout"),
+);
 import EmployeerRegister from "./pages/employer/EmployeerRegister";
 import EmployeerCandidatesSearch from "./pages/employer/EmployeerCandidatesSearch";
 import EmployeerPostJob from "./pages/employer/EmployeerPostJob";
@@ -239,34 +242,36 @@ function App() {
 
           {/* Admin routes */}
 
-          <Route path="/admin/login" element={<AdminLoginPage />} />
-          <Route path="/admin/register" element={<AdminRegister />} />
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route path="/admin/register" element={<AdminRegister />} />
 
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-          <Route
-            path="/admin/candidate-list"
-            element={<AdminCandidateList />}
-          />
-          <Route path="/admin/employer-list" element={<EmployerList />} />
-          <Route
-            path="/admin/organization-list"
-            element={<OrganizationList />}
-          />
-          <Route path="/admin/job-list" element={<JobList />} />
-          <Route path="/admin/plan-list" element={<PlansLList />} />
-          <Route path="/admin/subscribers" element={<AdminSubscribers />} />
-          <Route path="/admin/events" element={<AdminEvents />} />
-          <Route
-            path="/admin/events-details/:eventId"
-            element={<AdminEventDetails />}
-          />
-          <Route
-            path="/admin/calendar-reminders"
-            element={<CalenderReminder />}
-          />
-          <Route path="/admin/faq" element={<AdminFaq />} />
-          <Route path="/admin/support" element={<AdminSupport />} />
+            <Route
+              path="/admin/candidate-list"
+              element={<AdminCandidateList />}
+            />
+            <Route path="/admin/employer-list" element={<EmployerList />} />
+            <Route
+              path="/admin/organization-list"
+              element={<OrganizationList />}
+            />
+            <Route path="/admin/job-list" element={<JobList />} />
+            <Route path="/admin/plan-list" element={<PlansLList />} />
+            <Route path="/admin/subscribers" element={<AdminSubscribers />} />
+            <Route path="/admin/events" element={<AdminEvents />} />
+            <Route
+              path="/admin/events-details/:eventId"
+              element={<AdminEventDetails />}
+            />
+            <Route
+              path="/admin/calendar-reminders"
+              element={<CalenderReminder />}
+            />
+            <Route path="/admin/faq" element={<AdminFaq />} />
+            <Route path="/admin/support" element={<AdminSupport />} />
+          </Route>
 
           <Route element={<EmployerAdminLayout />}>
             <Route
